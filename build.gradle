@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'tgb.cryptoexchange'
-version = '0.0.1-SNAPSHOT'
+version = '0.1'
 description = 'merchant-details'
 
 java {
@@ -22,10 +22,12 @@ configurations {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'tgb.cryptoexchange:common-api:1.1.0'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

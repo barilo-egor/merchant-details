@@ -1,0 +1,104 @@
+evo-pay:
+  url: ""
+  key: ""
+  change-key: ""
+honey-money:
+  url:
+    main: ""
+    token: ""
+  secret: ""
+  client-id: ""
+  signKey: ""
+only-pays:
+  url: ""
+  secret: ""
+  id: ""
+nice-pay:
+  url: ""
+  merchant-id: ""
+  secret: ""
+pay-points:
+  url: ""
+  token: ""
+well-bit:
+  url: ""
+  secret: ""
+  login: ""
+  id: ""
+  token: ""
+croco-pay:
+  url: ""
+  client-id: ""
+  client-secret: ""
+eze-pay:
+  url: ""
+  key: ""
+  id: ""
+bit-zone:
+  url: ""
+  key: ""
+panda-pay:
+  url: ""
+  key: ""
+  secret: ""
+extasy-pay:
+  url: ""
+  token: ""
+pay-lee:
+  url: ""
+  token: ""
+pulsar:
+  url: ""
+  code: ""
+  secret: ""
+  token: ""
+psp-ware:
+  url: ""
+  token: ""
+onyx-pay:
+  url: ""
+  token: ""
+  key: ""
+  secret: ""
+wwps:
+  url: ""
+  token: ""
+  merchant-id: ""
+payscrow:
+  url: ""
+  key: ""
+lucky-pay:
+  url: ""
+  key: ""
+mobius:
+  url: ""
+  token: ""
+  merchant-id: ""
+pay-box:
+  url: ""
+  token: ""
+  sign-key: ""
+paradox-pay:
+  url: ""
+  token: ""
+  merchant-id: ""
+appexbit:
+  url: ""
+  key: ""
+dao-payments:
+  url: ""
+  key: ""
+geo-transfer:
+  url: ""
+  token: ""
+  key: ""
+  secret: ""
+rostrast:
+  token: ""
+  key: ""
+  secret: ""
+  url: ""
+fox-pays:
+  url: ""
+  token: ""
+  merchant-id: ""
