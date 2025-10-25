@@ -15,9 +15,9 @@ class CrocoPayPropertiesTest {
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("croco-pay-key", crocoPayProperties.url()),
-                () -> assertEquals("croco-pay-url", crocoPayProperties.clientId()),
-                () -> assertEquals("croco-pay-url", crocoPayProperties.clientSecret())
+                () -> assertEquals("croco-pay-url", crocoPayProperties.url()),
+                () -> assertEquals("croco-pay-client-id", crocoPayProperties.clientId()),
+                () -> assertEquals("croco-pay-client-secret", crocoPayProperties.clientSecret())
         );
     }
 }

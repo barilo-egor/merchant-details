@@ -16,7 +16,7 @@ class HoneyMoneyPropertiesTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("honey-money-urls-token", honeyMoneyProperties.urls().token()),
-                () -> assertEquals("honey-money-url-main", honeyMoneyProperties.urls().main()),
+                () -> assertEquals("honey-money-urls-main", honeyMoneyProperties.urls().main()),
                 () -> assertEquals("honey-money-sign-key", honeyMoneyProperties.signKey()),
                 () -> assertEquals("honey-money-client-id", honeyMoneyProperties.clientId()),
                 () -> assertEquals("honey-money-secret", honeyMoneyProperties.secret())

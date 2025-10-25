@@ -16,9 +16,9 @@ class PulsarPropertiesTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("pulsar-url", pulsarProperties.url()),
-                () -> assertEquals("pulsar-key", pulsarProperties.token()),
-                () -> assertEquals("pulsar-key", pulsarProperties.code()),
-                () -> assertEquals("pulsar-key", pulsarProperties.secret())
+                () -> assertEquals("pulsar-token", pulsarProperties.token()),
+                () -> assertEquals("pulsar-code", pulsarProperties.code()),
+                () -> assertEquals("pulsar-secret", pulsarProperties.secret())
         );
     }
 }

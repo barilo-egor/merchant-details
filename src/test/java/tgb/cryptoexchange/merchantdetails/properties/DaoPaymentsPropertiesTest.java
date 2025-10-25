@@ -15,8 +15,8 @@ class DaoPaymentsPropertiesTest {
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("dao-payments-key", daoPaymentsProperties.url()),
-                () -> assertEquals("dao-payments-url", daoPaymentsProperties.key())
+                () -> assertEquals("dao-payments-url", daoPaymentsProperties.url()),
+                () -> assertEquals("dao-payments-key", daoPaymentsProperties.key())
         );
     }
 }

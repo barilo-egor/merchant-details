@@ -3,12 +3,12 @@ evo-pay:
   key: "evo-pay-key"
   change-key: "evo-pay-change-key"
 honey-money:
-  url:
-    main: "honey-money-url"
-    token: "honey-money-token"
+  urls:
+    main: "honey-money-urls-main"
+    token: "honey-money-urls-token"
   secret: "honey-money-secret"
   client-id: "honey-money-client-id"
-  signKey: "honey-money-signKey"
+  sign-key: "honey-money-sign-key"
 only-pays:
   url: "only-pays-url"
   secret: "only-pays-secret"

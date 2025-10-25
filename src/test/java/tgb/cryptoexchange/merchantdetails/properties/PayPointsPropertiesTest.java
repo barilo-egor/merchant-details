@@ -16,7 +16,7 @@ class PayPointsPropertiesTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("pay-points-url", payPointsProperties.url()),
-                () -> assertEquals("pay-points-key", payPointsProperties.token())
+                () -> assertEquals("pay-points-token", payPointsProperties.token())
         );
     }
 }
