@@ -16,7 +16,8 @@ public class MerchantPropertiesService {
 
     private final Map<Merchant, Object> properties;
 
-    public MerchantPropertiesService(AppexbitProperties appexbitProperties,
+    public MerchantPropertiesService(AlfaTeamProperties alfaTeamProperties,
+                                     AppexbitProperties appexbitProperties,
                                      BitZoneProperties bitZoneProperties,
                                      CrocoPayProperties crocoPayProperties,
                                      DaoPaymentsProperties daoPaymentsProperties,
@@ -33,6 +34,8 @@ public class MerchantPropertiesService {
                                      OnyxPayProperties onyxPayProperties,
                                      PandaPayProperties pandaPayProperties,
                                      ParadoxPayProperties paradoxPayProperties,
+                                     PayCrownProperties payCrownProperties,
+                                     PayFinityProperties payFinityProperties,
                                      PayBoxProperties payBoxProperties,
                                      PayLeeProperties payLeeProperties,
                                      PayPointsProperties payPointsProperties,
@@ -40,9 +43,11 @@ public class MerchantPropertiesService {
                                      PspWareProperties pspWareProperties,
                                      PulsarProperties pulsarProperties,
                                      RostrastProperties rostrastProperties,
+                                     Way2PayProperties way2PayProperties,
                                      WellBitProperties wellBitProperties,
                                      WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
         properties = new EnumMap<>(Merchant.class);
+        properties.put(ALFA_TEAM, alfaTeamProperties);
         properties.put(APPEXBIT, appexbitProperties);
         properties.put(BIT_ZONE, bitZoneProperties);
         properties.put(CROCO_PAY, crocoPayProperties);
@@ -61,12 +66,15 @@ public class MerchantPropertiesService {
         properties.put(PANDA_PAY, pandaPayProperties);
         properties.put(PARADOX_PAY, paradoxPayProperties);
         properties.put(PAY_BOX, payBoxProperties);
+        properties.put(PAY_CROWN, payCrownProperties);
+        properties.put(PAY_FINITY, payFinityProperties);
         properties.put(PAY_LEE, payLeeProperties);
         properties.put(PAY_POINTS, payPointsProperties);
         properties.put(PAYSCROW, payscrowProperties);
         properties.put(PSP_WARE, pspWareProperties);
         properties.put(PULSAR, pulsarProperties);
         properties.put(ROSTRAST, rostrastProperties);
+        properties.put(WAY_2_PAY, way2PayProperties);
         properties.put(WELL_BIT, wellBitProperties);
         properties.put(WORLD_WIDE, worldWidePaymentSystemsProperties);
     }

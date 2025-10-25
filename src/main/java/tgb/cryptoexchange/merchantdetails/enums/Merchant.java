@@ -1,5 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.enums;
 
+import java.util.List;
+
 /**
  * Перечисление мерчантов
  */
@@ -23,7 +25,7 @@ public enum Merchant {
     WORLD_WIDE,
     WAY_2_PAY,
     PAY_CROWN,
-    PAYSCROW_2,
+    PAYSCROW,
     LUCKY_PAY,
     APPEXBIT,
     MOBIUS,
@@ -37,7 +39,6 @@ public enum Merchant {
     /**
      * Более не используются
      */
-    PAYSCROW,
     ALFA_TEAM_TJS,
     ALFA_TEAM_VTB,
     ALFA_TEAM_ALFA,
@@ -45,5 +46,15 @@ public enum Merchant {
     PAY_FINITY,
     NOROS,
     EASY_PAY,
-    DASH_PAY
+    DASH_PAY;
+
+    public static final List<Merchant> NOT_ACTIVE = List.of(
+            ALFA_TEAM_ALFA,
+            ALFA_TEAM_VTB,
+            ALFA_TEAM_TJS,
+            ALFA_TEAM_SBER,
+            NOROS,
+            EASY_PAY,
+            DASH_PAY
+    );
 }

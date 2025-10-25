@@ -107,3 +107,19 @@ fox-pays:
   url: "fox-pays-url"
   token: "fox-pays-token"
   merchant-id: "fox-pays-merchant-id"
+way2pay:
+  url: "way2pay-url"
+  pub: "way2pay-pub"
+  secret: "way2pay-secret"
+  environment: "way2pay-environment"
+pay-crown:
+  url: "pay-crown-url"
+  key: "pay-crown-key"
+  secret: "pay-crown-secret"
+  merchant-id: "pay-crown-merchant-id"
+pay-finity:
+  url: "pay-finity-url"
+  keys:
+    public-key: "pay-finity-keys-public-key"
+    private-key: "pay-finity-keys-private-key"
+  timeout: 10
