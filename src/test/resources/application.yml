@@ -1,3 +1,8 @@
+alfa-team:
+  url: "alfa-team-url"
+  token: "alfa-team-token"
+  key: "alfa-team-key"
+  secret: "alfa-team-secret"
 evo-pay:
   url: "evo-pay-url"
   key: "evo-pay-key"
