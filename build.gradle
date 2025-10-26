@@ -38,3 +38,11 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.jar {
+	archiveFileName = "merchant-details.jar"
+}
+
+bootJar {
+	archiveFileName = 'merchant-details.jar'
+}
