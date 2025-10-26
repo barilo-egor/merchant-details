@@ -8,6 +8,7 @@ class MerchantDetailsApplicationTests {
 
     @Test
     void contextLoads() {
+        // context create test
     }
 
 }

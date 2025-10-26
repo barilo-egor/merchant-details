@@ -1,0 +1,22 @@
+package tgb.cryptoexchange.merchantdetails.properties;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class BitZonePropertiesTest {
+
+    @Autowired
+    private BitZoneProperties bitZoneProperties;
+
+    @Test
+    void shouldLoadProperties() {
+        assertAll(
+                () -> assertEquals("bit-zone-key", bitZoneProperties.key()),
+                () -> assertEquals("bit-zone-url", bitZoneProperties.url())
+        );
+    }
+}
