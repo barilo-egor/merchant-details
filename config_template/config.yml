@@ -115,3 +115,5 @@ springdoc:
     path: "/swagger"
   api-docs:
     path: "/swagger/api-docs"
+server:
+  port:
