@@ -5,6 +5,7 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static tgb.cryptoexchange.merchantdetails.enums.Merchant.*;
 
@@ -79,7 +80,8 @@ public class MerchantPropertiesService {
         properties.put(WORLD_WIDE, worldWidePaymentSystemsProperties);
     }
 
-    public Object getProperties(Merchant merchant) {
-        return properties.get(merchant);
+    public Optional<Object> getProperties(Merchant merchant) {
+        Object merchantProperties = properties.get(merchant);
+        return Optional.ofNullable(merchantProperties);
     }
 }

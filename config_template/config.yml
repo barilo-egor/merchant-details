@@ -1,3 +1,4 @@
+#Конфиг мерчантов
 alfa-team:
   url: ""
   token: ""
@@ -107,3 +108,10 @@ fox-pays:
   url: ""
   token: ""
   merchant-id: ""
+# Конфиг приложение
+springdoc:
+  swagger-ui:
+    enabled: "true"
+    path: "/swagger"
+  api-docs:
+    path: "/swagger/api-docs"
