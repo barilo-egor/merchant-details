@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.creation.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -17,9 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
-import tgb.cryptoexchange.merchantdetails.details.dto.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.dto.RequisiteResponse;
-import tgb.cryptoexchange.merchantdetails.details.whitelabel.*;
+import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
+import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;

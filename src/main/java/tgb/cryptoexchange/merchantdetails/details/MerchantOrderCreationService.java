@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.dto.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.dto.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.net.URI;

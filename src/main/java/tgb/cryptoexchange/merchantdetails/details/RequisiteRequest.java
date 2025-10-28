@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.dto;
+package tgb.cryptoexchange.merchantdetails.details;
 
 import lombok.Data;
 
