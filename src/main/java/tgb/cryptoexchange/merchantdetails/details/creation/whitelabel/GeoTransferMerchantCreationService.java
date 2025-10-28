@@ -6,13 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.GeoTransferProperties;
+import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
 public class GeoTransferMerchantCreationService extends WhiteLabelOrderCreationService {
 
     protected GeoTransferMerchantCreationService(@Qualifier("geoTransferWebClient") WebClient webClient,
-                                                 GeoTransferProperties whiteLabelProperties, ObjectMapper objectMapper) {
-        super(webClient, whiteLabelProperties, objectMapper);
+                                                 GeoTransferProperties whiteLabelProperties, ObjectMapper objectMapper,
+                                                 SignatureService signatureService) {
+        super(webClient, whiteLabelProperties, objectMapper, signatureService);
     }
 
     @Override

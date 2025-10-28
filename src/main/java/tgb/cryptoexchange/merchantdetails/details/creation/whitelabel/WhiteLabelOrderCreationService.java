@@ -3,7 +3,6 @@ package tgb.cryptoexchange.merchantdetails.details.creation.whitelabel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -15,14 +14,11 @@ import tgb.cryptoexchange.merchantdetails.details.whitelabel.*;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WhiteLabelProperties;
+import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -31,18 +27,18 @@ import java.util.function.Function;
 @Slf4j
 public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreationService<Response> {
 
-    private final String createInvoiceUrl;
-
     private final WhiteLabelProperties whiteLabelProperties;
 
     private final ObjectMapper objectMapper;
 
+    private final SignatureService signatureService;
+
     protected WhiteLabelOrderCreationService(WebClient webClient, WhiteLabelProperties whiteLabelProperties,
-                                             ObjectMapper objectMapper) {
+                                             ObjectMapper objectMapper, SignatureService signatureService) {
         super(webClient);
         this.whiteLabelProperties = whiteLabelProperties;
-        this.createInvoiceUrl = whiteLabelProperties.url() + "/api/merchant/invoices";
         this.objectMapper = objectMapper;
+        this.signatureService = signatureService;
     }
 
     @Override
@@ -61,8 +57,11 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
             } catch (JsonProcessingException e) {
                 throw new BodyMappingException("Ошибка парсинга тела запроса.", e);
             }
+            String createInvoiceUrl = whiteLabelProperties.url() + "/api/merchant/invoices";
             try {
-                headers.add("X-Signature", generateXSignature(createInvoiceUrl, body));
+                headers.add("X-Signature", signatureService.hmacSHA1(
+                        buildSignatureData(createInvoiceUrl, body), whiteLabelProperties.secret()
+                ));
             } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                 log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), createInvoiceUrl, body);
                 throw new SignatureCreationException("Ошибка формирования подписи.", e);
@@ -70,14 +69,8 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
         };
     }
 
-    private String generateXSignature(String url, String body) throws NoSuchAlgorithmException, InvalidKeyException {
-        String data = method().name().toUpperCase() + url + (body != null ? body : "");
-
-        Mac mac = Mac.getInstance("HmacSHA1");
-        mac.init(new SecretKeySpec(whiteLabelProperties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA1"));
-        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-
-        return Base64.getEncoder().encodeToString(rawHmac);
+    private String buildSignatureData(String url, String body) {
+        return method().name().toUpperCase() + url + (body != null ? body : "");
     }
 
     @Override
@@ -110,10 +103,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     private String buildRequisite(Response response) {
         DealDTO dealDTO = response.getDeals().getFirst();
-        if (StringUtils.isNotBlank(dealDTO.getPaymentMethod().getDisplayName())) {
-            return dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
-        }
-        return dealDTO.getRequisites().getRequisites();
+        return dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
     }
 
 }

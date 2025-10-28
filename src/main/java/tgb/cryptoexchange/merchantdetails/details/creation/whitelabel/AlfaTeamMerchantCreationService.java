@@ -6,13 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
+import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
 public class AlfaTeamMerchantCreationService extends WhiteLabelOrderCreationService {
 
     protected AlfaTeamMerchantCreationService(@Qualifier("alfaTeamWebClient") WebClient webClient,
-                                              AlfaTeamProperties alfaTeamProperties, ObjectMapper objectMapper) {
-        super(webClient, alfaTeamProperties, objectMapper);
+                                              AlfaTeamProperties alfaTeamProperties, ObjectMapper objectMapper,
+                                              SignatureService signatureService) {
+        super(webClient, alfaTeamProperties, objectMapper, signatureService);
     }
 
     @Override

@@ -6,13 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.RostrastProperties;
+import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
 public class RostrastMerchantCreationService extends WhiteLabelOrderCreationService {
 
     protected RostrastMerchantCreationService(@Qualifier("rostrastWebClient") WebClient webClient,
-                                              RostrastProperties whiteLabelProperties, ObjectMapper objectMapper) {
-        super(webClient, whiteLabelProperties, objectMapper);
+                                              RostrastProperties whiteLabelProperties, ObjectMapper objectMapper,
+                                              SignatureService signatureService) {
+        super(webClient, whiteLabelProperties, objectMapper, signatureService);
     }
 
     @Override
