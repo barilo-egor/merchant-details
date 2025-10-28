@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
+import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 import tgb.cryptoexchange.merchantdetails.properties.GeoTransferProperties;
 import tgb.cryptoexchange.merchantdetails.properties.RostrastProperties;
 
@@ -23,5 +24,10 @@ public class WebClientsConfig {
     @Bean
     public WebClient rostrastWebClient(RostrastProperties rostrastProperties) {
         return WebClient.builder().baseUrl(rostrastProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient appexbitWebClient(AppexbitProperties appexbitProperties) {
+        return WebClient.builder().baseUrl(appexbitProperties.url()).build();
     }
 }

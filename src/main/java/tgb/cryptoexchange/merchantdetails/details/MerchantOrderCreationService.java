@@ -49,7 +49,7 @@ public abstract class MerchantOrderCreationService<T> {
                     requisiteRequest.getMethod(), requisiteRequest.getAmount(), e.getMessage(), e);
             return Optional.empty();
         }
-        return mapToRequisiteDTO(response);
+        return buildResponse(response);
     }
 
     protected HttpMethod method() {
@@ -64,5 +64,5 @@ public abstract class MerchantOrderCreationService<T> {
 
     protected abstract String body(RequisiteRequest requisiteRequest) throws JsonProcessingException;
 
-    protected abstract Optional<RequisiteResponse> mapToRequisiteDTO(T response);
+    protected abstract Optional<RequisiteResponse> buildResponse(T response);
 }

@@ -87,7 +87,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     }
 
     @Override
-    protected Optional<RequisiteResponse> mapToRequisiteDTO(Response response) {
+    protected Optional<RequisiteResponse> buildResponse(Response response) {
         if (!response.hasRequisites()) {
             return Optional.empty();
         }

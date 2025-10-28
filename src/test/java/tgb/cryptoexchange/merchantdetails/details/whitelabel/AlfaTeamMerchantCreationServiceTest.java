@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
@@ -37,9 +36,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AlfaTeamMerchantCreationServiceTest {
-
-    @Mock
-    private WebClient webClient;
 
     @Mock
     private AlfaTeamProperties alfaTeamProperties;
@@ -134,14 +130,14 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void mapToRequisiteDTOShouldReturnEmptyOptionalIfDealsIsNull() {
         Response response = new Response();
-        assertTrue(alfaTeamMerchantCreationService.mapToRequisiteDTO(response).isEmpty());
+        assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
     }
 
     @Test
     void mapToRequisiteDTOShouldReturnEmptyOptionalIfDealsIsEmpty() {
         Response response = new Response();
         response.setDeals(new ArrayList<>());
-        assertTrue(alfaTeamMerchantCreationService.mapToRequisiteDTO(response).isEmpty());
+        assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
     }
 
     @CsvSource({
@@ -159,7 +155,7 @@ class AlfaTeamMerchantCreationServiceTest {
         dealDTO.setRequisites(requisitesDTO);
         response.setDeals(List.of(dealDTO));
         response.setId(id);
-        Optional<RequisiteResponse> actual = alfaTeamMerchantCreationService.mapToRequisiteDTO(response);
+        Optional<RequisiteResponse> actual = alfaTeamMerchantCreationService.buildResponse(response);
         assertTrue(actual.isPresent());
         RequisiteResponse actualResponse = actual.get();
         assertAll(
