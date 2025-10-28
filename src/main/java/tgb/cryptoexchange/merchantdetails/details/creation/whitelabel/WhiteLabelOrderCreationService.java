@@ -83,15 +83,14 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     @Override
     protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
         PaymentOption paymentOption = PaymentOption.valueOf(requisiteRequest.getMethod());
-        Request request = Request.builder()
-                .amount(requisiteRequest.getAmount().toString())
-                .currency(FiatCurrency.RUB.name())
-                .notificationUrl(requisiteRequest.getCallbackUrl())
-                .notificationToken(whiteLabelProperties.token())
-                .internalId(UUID.randomUUID().toString())
-                .paymentOption(paymentOption)
-                .startDeal(true)
-                .build();
+        Request request = new Request();
+        request.setAmount(requisiteRequest.getAmount().toString());
+        request.setCurrency(FiatCurrency.RUB.name());
+        request.setNotificationUrl(requisiteRequest.getCallbackUrl());
+        request.setNotificationToken(whiteLabelProperties.token());
+        request.setInternalId(UUID.randomUUID().toString());
+        request.setPaymentOption(paymentOption);
+        request.setStartDeal(true);
         return objectMapper.writeValueAsString(request);
     }
 
