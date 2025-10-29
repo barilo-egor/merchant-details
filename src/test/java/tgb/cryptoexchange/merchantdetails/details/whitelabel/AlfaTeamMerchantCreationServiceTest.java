@@ -128,13 +128,13 @@ class AlfaTeamMerchantCreationServiceTest {
     }
 
     @Test
-    void mapToRequisiteDTOShouldReturnEmptyOptionalIfDealsIsNull() {
+    void buildResponseShouldReturnEmptyOptionalIfDealsIsNull() {
         Response response = new Response();
         assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
     }
 
     @Test
-    void mapToRequisiteDTOShouldReturnEmptyOptionalIfDealsIsEmpty() {
+    void buildResponseShouldReturnEmptyOptionalIfDealsIsEmpty() {
         Response response = new Response();
         response.setDeals(new ArrayList<>());
         assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
@@ -146,7 +146,7 @@ class AlfaTeamMerchantCreationServiceTest {
             "070329a9-4f1b-4c83-a8f7-68a385bc23f3,RNCB,8888666644442222"
     })
     @ParameterizedTest
-    void mapToRequisiteDTOShouldReturnMappedRequisiteDTO(String id, PaymentMethod paymentMethod, String requisite) {
+    void buildResponseShouldReturnMappedRequisiteDTO(String id, PaymentMethod paymentMethod, String requisite) {
         Response response = new Response();
         DealDTO dealDTO = new DealDTO();
         dealDTO.setPaymentMethod(paymentMethod);
