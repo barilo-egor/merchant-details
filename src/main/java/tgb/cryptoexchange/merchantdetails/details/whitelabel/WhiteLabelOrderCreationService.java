@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,12 +8,9 @@ import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
-import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
-import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WhiteLabelProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
-import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -30,15 +25,12 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     private final WhiteLabelProperties whiteLabelProperties;
 
-    private final ObjectMapper objectMapper;
-
     private final SignatureService signatureService;
 
     protected WhiteLabelOrderCreationService(WebClient webClient, WhiteLabelProperties whiteLabelProperties,
-                                             ObjectMapper objectMapper, SignatureService signatureService) {
+                                             SignatureService signatureService) {
         super(webClient, Response.class);
         this.whiteLabelProperties = whiteLabelProperties;
-        this.objectMapper = objectMapper;
         this.signatureService = signatureService;
     }
 
@@ -48,16 +40,10 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest) {
+    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
         return headers -> {
             headers.add("Content-Type", "application/json");
             headers.add("X-Identity", whiteLabelProperties.key());
-            String body;
-            try {
-                body = body(requisiteRequest);
-            } catch (JsonProcessingException e) {
-                throw new BodyMappingException("Ошибка парсинга тела запроса.", e);
-            }
             String createInvoiceUrl = whiteLabelProperties.url() + "/api/merchant/invoices";
             try {
                 headers.add("X-Signature", signatureService.hmacSHA1(
@@ -75,19 +61,16 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     }
 
     @Override
-    protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
-        Method method = EnumUtils.valueOf(Method.class, requisiteRequest.getMethod(),
-                () -> new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
-                        + getMerchant().name() + " not found."));
+    protected Object body(RequisiteRequest requisiteRequest) {
         Request request = new Request();
         request.setAmount(requisiteRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
         request.setNotificationUrl(requisiteRequest.getCallbackUrl());
         request.setNotificationToken(whiteLabelProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(method);
+        request.setPaymentOption(parseMethod(requisiteRequest.getMethod(), Method.class));
         request.setStartDeal(true);
-        return objectMapper.writeValueAsString(request);
+        return request;
     }
 
     @Override

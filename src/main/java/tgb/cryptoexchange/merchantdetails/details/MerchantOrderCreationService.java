@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,8 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.util.Optional;
@@ -26,6 +29,8 @@ public abstract class MerchantOrderCreationService<T> {
 
     private final Class<T> responseType;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
         this.webClient = webClient;
         this.responseType = responseType;
@@ -34,10 +39,11 @@ public abstract class MerchantOrderCreationService<T> {
     public Optional<RequisiteResponse> createOrder(RequisiteRequest requisiteRequest) {
         T response;
         try {
+            String body = objectMapper.writeValueAsString(body(requisiteRequest));
             response = webClient.method(method())
                     .uri(uriBuilder())
-                    .headers(headers(requisiteRequest))
-                    .bodyValue(body(requisiteRequest))
+                    .headers(headers(requisiteRequest, body))
+                    .bodyValue(body)
                     .retrieve()
                     .bodyToMono(responseType)
                     .block();
@@ -58,9 +64,15 @@ public abstract class MerchantOrderCreationService<T> {
 
     protected abstract Function<UriBuilder, URI> uriBuilder();
 
-    protected abstract Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest);
+    protected abstract Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body);
 
-    protected abstract String body(RequisiteRequest requisiteRequest) throws JsonProcessingException;
+    protected abstract Object body(RequisiteRequest requisiteRequest) throws JsonProcessingException;
 
     protected abstract Optional<RequisiteResponse> buildResponse(T response);
+
+    protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
+        return EnumUtils.valueOf(methodType, value,
+                () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
+                + getMerchant().name() + " not found."));
+    }
 }

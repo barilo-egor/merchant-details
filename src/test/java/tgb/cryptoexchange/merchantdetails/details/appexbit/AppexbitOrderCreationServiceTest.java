@@ -56,7 +56,7 @@ class AppexbitOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(appexbitProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        appexbitOrderCreationService.headers(null).accept(headers);
+        appexbitOrderCreationService.headers(null, "").accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())

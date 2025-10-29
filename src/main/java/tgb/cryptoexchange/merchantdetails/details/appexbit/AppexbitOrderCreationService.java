@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.appexbit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -11,9 +9,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
-import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.util.Objects;
@@ -26,13 +22,10 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
 
     private final AppexbitProperties appexbitProperties;
 
-    private final ObjectMapper objectMapper;
-
     protected AppexbitOrderCreationService(@Qualifier("appexbitWebClient") WebClient webClient,
-                                           AppexbitProperties appexbitProperties, ObjectMapper objectMapper) {
+                                           AppexbitProperties appexbitProperties) {
         super(webClient, Response.class);
         this.appexbitProperties = appexbitProperties;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -46,7 +39,7 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest) {
+    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("x-api-key", appexbitProperties.key());
             httpHeaders.add("Content-Type", "application/json");
@@ -54,18 +47,15 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
+    protected Object body(RequisiteRequest requisiteRequest) {
         Request request = new Request();
         request.setAmountFiat(requisiteRequest.getAmount().toString());
         request.setGoodReturnLink(requisiteRequest.getCallbackUrl());
         request.setBadReturnLink(requisiteRequest.getCallbackUrl());
-        Method method = EnumUtils.valueOf(Method.class, requisiteRequest.getMethod(),
-                () -> new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
-                        + getMerchant().name() + " not found."));
-        request.setPaymentMethod(method);
+        request.setPaymentMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
         Request.FiatInfo fiatInfo = new Request.FiatInfo();
         request.setFiatInfo(fiatInfo);
-        return objectMapper.writeValueAsString(request);
+        return request;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +18,6 @@ import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -84,7 +82,7 @@ class AlfaTeamMerchantCreationServiceTest {
         when(request.getMethod()).thenReturn(method);
         when(request.getCallbackUrl()).thenReturn(callbackUrl);
         when(request.getAmount()).thenReturn(amount);
-        alfaTeamMerchantCreationService.headers(request).accept(headers);
+        alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
         Request actual = requestArgumentCaptor.getValue();
         assertAll(
                 () -> assertEquals(sign, Objects.requireNonNull(headers.get("X-Signature")).getFirst()),
@@ -101,18 +99,6 @@ class AlfaTeamMerchantCreationServiceTest {
     }
 
     @Test
-    void headersShouldThrowBodyMappingException() throws JsonProcessingException {
-        RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
-        when(request.getMethod()).thenReturn("TO_CARD");
-        when(request.getCallbackUrl()).thenReturn("callbackUrl");
-        when(request.getAmount()).thenReturn(1);
-        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonMappingException(""));
-        HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request);
-        assertThrows(BodyMappingException.class, () -> headersConsumer.accept(headers));
-    }
-
-    @Test
     void headersShouldThrowSignatureCreationException() throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException {
         RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
         when(request.getMethod()).thenReturn("TO_CARD");
@@ -123,7 +109,7 @@ class AlfaTeamMerchantCreationServiceTest {
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request);
+        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request, "");
         assertThrows(SignatureCreationException.class, () -> headersConsumer.accept(headers));
     }
 
