@@ -49,7 +49,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Request body(RequisiteRequest requisiteRequest) {
         Request request = new Request();
         request.setFiatAmount(requisiteRequest.getAmount());
         request.setMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
@@ -60,8 +60,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     @Override
     protected Optional<RequisiteResponse> buildResponse(Response response) {
         if (Objects.isNull(response.getRequisite()) || Objects.isNull(response.getRequisite().getBank())
-                || (Objects.isNull(response.getRequisite().getRequisites())
-                && Objects.isNull(response.getRequisite().getSbpNumber()))) {
+                || (Objects.isNull(response.getRequisite().getRequisites()) && Objects.isNull(response.getRequisite().getSbpNumber()))) {
             return Optional.empty();
         }
         String requisite;
