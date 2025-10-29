@@ -42,4 +42,9 @@ public class WebClientsConfig {
     public WebClient crocoPayWebClient(CrocoPayProperties crocoPayProperties) {
         return WebClient.builder().baseUrl(crocoPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient daoPaymentsWebClient(DaoPaymentsProperties daoPaymentsProperties) {
+        return WebClient.builder().baseUrl(daoPaymentsProperties.url()).build();
+    }
 }
