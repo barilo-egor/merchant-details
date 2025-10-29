@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +26,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -37,9 +34,6 @@ class AlfaTeamMerchantCreationServiceTest {
 
     @Mock
     private AlfaTeamProperties alfaTeamProperties;
-
-    @Mock
-    private ObjectMapper objectMapper;
 
     @Mock
     private SignatureService signatureService;
@@ -59,35 +53,58 @@ class AlfaTeamMerchantCreationServiceTest {
     }
 
     @CsvSource({
-            "https://alfa.com,HiubKWrJW8ytPGRR0E4XficeZ0ChxXHf,4u7XPRW4GzPlL187,zNEkiEItlmOqjmKfKpc7S5aePt3W0gKA,TO_CARD,5012,https://paysendmmm.online/merchant/alfa,sign1",
-            "https://alfa.merch.info,18td2niwHwNa2SOy3jhaQdWQrZeFgvy6,oNnM2Ud8RGA8FjCc,Y10kUUIc5b7Q2YyJyzE9SHx6iYtMYO9o,SBP,2244,https://gateway.paysendmmm.online/merch/alfa,someSign2"
+            "https://alfa.com,HiubKWrJW8ytPGRR0E4XficeZ0ChxXHf,4u7XPRW4GzPlL187,sign1",
+            "https://alfa.merch.info,18td2niwHwNa2SOy3jhaQdWQrZeFgvy6,oNnM2Ud8RGA8FjCc,someSign2"
     })
     @ParameterizedTest
-    void headersShouldSetRequiredHeaders(String url, String secret, String key, String token, String method,
-                                         Integer amount, String callbackUrl, String sign)
-            throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+    void headersShouldSetRequiredHeaders(String url, String secret, String key, String sign)
+            throws NoSuchAlgorithmException, InvalidKeyException {
         when(alfaTeamProperties.url()).thenReturn(url);
         when(alfaTeamProperties.key()).thenReturn(key);
-        when(alfaTeamProperties.token()).thenReturn(token);
         when(alfaTeamProperties.secret()).thenReturn(secret);
         String expectedBody = "{\"field\": \"expectedBody\"}";
-        ArgumentCaptor<Request> requestArgumentCaptor = ArgumentCaptor.forClass(Request.class);
-        when(objectMapper.writeValueAsString(requestArgumentCaptor.capture())).thenReturn(expectedBody);
         ArgumentCaptor<String> dataArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> secretArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(signatureService.hmacSHA1(dataArgumentCaptor.capture(), secretArgumentCaptor.capture())).thenReturn(sign);
 
         HttpHeaders headers = new HttpHeaders();
         RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
-        when(request.getMethod()).thenReturn(method);
-        when(request.getCallbackUrl()).thenReturn(callbackUrl);
-        when(request.getAmount()).thenReturn(amount);
         alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
-        Request actual = requestArgumentCaptor.getValue();
         assertAll(
+                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
                 () -> assertEquals(sign, Objects.requireNonNull(headers.get("X-Signature")).getFirst()),
                 () -> assertEquals("POST" + url + "/api/merchant/invoices" + expectedBody, dataArgumentCaptor.getValue()),
-                () -> assertEquals(secret, secretArgumentCaptor.getValue()),
+                () -> assertEquals(secret, secretArgumentCaptor.getValue())
+        );
+    }
+
+    @Test
+    void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
+        RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
+        when(alfaTeamProperties.url()).thenReturn("");
+        when(alfaTeamProperties.secret()).thenReturn("");
+        when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
+        HttpHeaders headers = new HttpHeaders();
+        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request, "");
+        assertThrows(SignatureCreationException.class, () -> headersConsumer.accept(headers));
+    }
+
+    @CsvSource({
+            "1000,SBP,https://gateway.paysendmmm.online/merchant-details/callback/alfa,13NFHS8pzxsFwZr",
+            "3521,TO_CARD,https://bulba.paysendmmm.online/merchant/alfa,SP9HHlNKw0MIKas"
+    })
+    @ParameterizedTest
+    void bodyShouldBuildRequestObject(Integer amount, String method, String callbackUrl, String token) {
+        RequisiteRequest requisiteRequest = new RequisiteRequest();
+        requisiteRequest.setAmount(amount);
+        requisiteRequest.setMethod(method);
+        requisiteRequest.setCallbackUrl(callbackUrl);
+
+        when(alfaTeamProperties.token()).thenReturn(token);
+
+        Request actual = alfaTeamMerchantCreationService.body(requisiteRequest);
+
+        assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),
                 () -> assertEquals(FiatCurrency.RUB.name(), actual.getCurrency()),
                 () -> assertEquals(callbackUrl, actual.getNotificationUrl()),
@@ -96,21 +113,6 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(Method.valueOf(method), actual.getPaymentOption()),
                 () -> assertTrue(actual.getStartDeal())
         );
-    }
-
-    @Test
-    void headersShouldThrowSignatureCreationException() throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException {
-        RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
-        when(request.getMethod()).thenReturn("TO_CARD");
-        when(request.getCallbackUrl()).thenReturn("callbackUrl");
-        when(request.getAmount()).thenReturn(1);
-        when(objectMapper.writeValueAsString(any())).thenReturn("");
-        when(alfaTeamProperties.url()).thenReturn("");
-        when(alfaTeamProperties.secret()).thenReturn("");
-        when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
-        HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request, "");
-        assertThrows(SignatureCreationException.class, () -> headersConsumer.accept(headers));
     }
 
     @Test

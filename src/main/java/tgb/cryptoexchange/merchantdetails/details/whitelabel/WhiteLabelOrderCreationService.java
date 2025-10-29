@@ -61,7 +61,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Request body(RequisiteRequest requisiteRequest) {
         Request request = new Request();
         request.setAmount(requisiteRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
