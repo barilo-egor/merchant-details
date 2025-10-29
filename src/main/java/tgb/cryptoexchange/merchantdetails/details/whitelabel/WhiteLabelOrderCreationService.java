@@ -15,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WhiteLabelProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -75,13 +76,9 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     @Override
     protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
-        PaymentOption paymentOption;
-        try {
-            paymentOption = PaymentOption.valueOf(requisiteRequest.getMethod());
-        } catch (IllegalArgumentException e) {
-            throw new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
-                    + getMerchant().name() + " not found.");
-        }
+        PaymentOption paymentOption = EnumUtils.valueOf(PaymentOption.class, requisiteRequest.getMethod(),
+                () -> new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
+                        + getMerchant().name() + " not found."));
         Request request = new Request();
         request.setAmount(requisiteRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());

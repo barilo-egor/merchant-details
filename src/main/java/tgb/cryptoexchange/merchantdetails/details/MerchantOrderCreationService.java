@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 
 import java.net.URI;
 import java.util.Optional;
@@ -31,27 +32,20 @@ public abstract class MerchantOrderCreationService<T> {
     }
 
     public Optional<RequisiteResponse> createOrder(RequisiteRequest requisiteRequest) {
-
-        WebClient. RequestHeadersSpec<?> requestHeadersSpec;
-        try {
-            requestHeadersSpec = webClient.method(method())
-                    .uri(uriBuilder())
-                    .headers(headers(requisiteRequest))
-                    .bodyValue(body(requisiteRequest));
-        } catch (JsonProcessingException e) {
-            log.error("Ошибка при попытке парсинга тела: {}", e.getMessage(), e);
-            throw new BodyMappingException(e.getMessage(), e);
-        }
         T response;
         try {
-            response = requestHeadersSpec
+            response = webClient.method(method())
+                    .uri(uriBuilder())
+                    .headers(headers(requisiteRequest))
+                    .bodyValue(body(requisiteRequest))
                     .retrieve()
                     .bodyToMono(responseType)
                     .block();
-        } catch (Exception e) {
-            log.error("Ошибка при выполнении запроса к мерчанту(method={},amount={}): {}",
-                    requisiteRequest.getMethod(), requisiteRequest.getAmount(), e.getMessage(), e);
-            return Optional.empty();
+        } catch (WebClientException | JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (requisiteRequest={}): {}",
+                    currentTime, getMerchant().name(), requisiteRequest.toString(), e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e );
         }
         return buildResponse(response);
     }

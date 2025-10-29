@@ -11,7 +11,9 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
+import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.util.Objects;
@@ -57,7 +59,10 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
         request.setAmountFiat(requisiteRequest.getAmount().toString());
         request.setGoodReturnLink(requisiteRequest.getCallbackUrl());
         request.setBadReturnLink(requisiteRequest.getCallbackUrl());
-        request.setPaymentMethod(Method.valueOf(requisiteRequest.getMethod()));
+        Method method = EnumUtils.valueOf(Method.class, requisiteRequest.getMethod(),
+                () -> new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
+                        + getMerchant().name() + " not found."));
+        request.setPaymentMethod(method);
         Request.FiatInfo fiatInfo = new Request.FiatInfo();
         request.setFiatInfo(fiatInfo);
         return objectMapper.writeValueAsString(request);
