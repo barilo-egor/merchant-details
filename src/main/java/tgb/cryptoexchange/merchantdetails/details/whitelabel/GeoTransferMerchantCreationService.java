@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,9 +11,8 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 public class GeoTransferMerchantCreationService extends WhiteLabelOrderCreationService {
 
     protected GeoTransferMerchantCreationService(@Qualifier("geoTransferWebClient") WebClient webClient,
-                                                 GeoTransferProperties whiteLabelProperties, ObjectMapper objectMapper,
-                                                 SignatureService signatureService) {
-        super(webClient, whiteLabelProperties, objectMapper, signatureService);
+                                                 GeoTransferProperties whiteLabelProperties, SignatureService signatureService) {
+        super(webClient, whiteLabelProperties, signatureService);
     }
 
     @Override
@@ -22,3 +20,4 @@ public class GeoTransferMerchantCreationService extends WhiteLabelOrderCreationS
         return Merchant.GEO_TRANSFER;
     }
 }
+

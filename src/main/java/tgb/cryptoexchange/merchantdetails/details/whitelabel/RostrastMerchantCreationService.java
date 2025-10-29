@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.whitelabel;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,9 +11,8 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 public class RostrastMerchantCreationService extends WhiteLabelOrderCreationService {
 
     protected RostrastMerchantCreationService(@Qualifier("rostrastWebClient") WebClient webClient,
-                                              RostrastProperties whiteLabelProperties, ObjectMapper objectMapper,
-                                              SignatureService signatureService) {
-        super(webClient, whiteLabelProperties, objectMapper, signatureService);
+                                              RostrastProperties whiteLabelProperties, SignatureService signatureService) {
+        super(webClient, whiteLabelProperties, signatureService);
     }
 
     @Override
