@@ -33,7 +33,7 @@ class BitZoneOrderCreationServiceTest {
     private BitZoneOrderCreationService bitZoneOrderCreationService;
 
     @Test
-    void getMerchantShouldReturnAppexbitMerchant() {
+    void getMerchantShouldReturnBitZoneMerchant() {
         assertEquals(Merchant.BIT_ZONE, bitZoneOrderCreationService.getMerchant());
     }
 
