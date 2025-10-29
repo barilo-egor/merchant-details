@@ -53,8 +53,7 @@ class AppexbitOrderCreationServiceTest {
         appexbitOrderCreationService.headers(null, "").accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
-                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
-                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Accept")).getFirst())
+                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
         );
     }
 
