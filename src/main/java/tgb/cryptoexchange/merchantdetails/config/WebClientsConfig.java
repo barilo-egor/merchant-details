@@ -32,4 +32,9 @@ public class WebClientsConfig {
     public WebClient bitZoneWebClient(BitZoneProperties bitZoneProperties) {
         return WebClient.builder().baseUrl(bitZoneProperties.url()).build();
     }
+
+    @Bean
+    public WebClient onyxPayWebClient(OnyxPayProperties onyxPayProperties) {
+        return WebClient.builder().baseUrl(onyxPayProperties.url()).build();
+    }
 }
