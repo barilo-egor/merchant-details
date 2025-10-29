@@ -37,4 +37,9 @@ public class WebClientsConfig {
     public WebClient onyxPayWebClient(OnyxPayProperties onyxPayProperties) {
         return WebClient.builder().baseUrl(onyxPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient crocoPayWebClient(CrocoPayProperties crocoPayProperties) {
+        return WebClient.builder().baseUrl(crocoPayProperties.url()).build();
+    }
 }

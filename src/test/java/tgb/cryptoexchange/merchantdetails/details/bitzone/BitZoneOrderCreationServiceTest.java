@@ -32,7 +32,6 @@ class BitZoneOrderCreationServiceTest {
     @InjectMocks
     private BitZoneOrderCreationService bitZoneOrderCreationService;
 
-
     @Test
     void getMerchantShouldReturnAppexbitMerchant() {
         assertEquals(Merchant.BIT_ZONE, bitZoneOrderCreationService.getMerchant());
@@ -59,14 +58,13 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,https://gateway.paysendmmm.online/merchant/appexbit,CARD",
-            "2100,https://someaddress.online/merchant/appexbit,SBP"
+            "2100,CARD",
+            "2100,SBP"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String method) {
         RequisiteRequest requisiteRequest = new RequisiteRequest();
         requisiteRequest.setAmount(amount);
-        requisiteRequest.setCallbackUrl(callbackUrl);
         requisiteRequest.setMethod(method);
         Request request = bitZoneOrderCreationService.body(requisiteRequest);
         assertAll(

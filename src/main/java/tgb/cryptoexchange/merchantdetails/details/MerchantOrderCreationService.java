@@ -66,7 +66,7 @@ public abstract class MerchantOrderCreationService<T> {
 
     protected abstract Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body);
 
-    protected abstract Object body(RequisiteRequest requisiteRequest) throws JsonProcessingException;
+    protected abstract Object body(RequisiteRequest requisiteRequest);
 
     protected abstract Optional<RequisiteResponse> buildResponse(T response);
 
