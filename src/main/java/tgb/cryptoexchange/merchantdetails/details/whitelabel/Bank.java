@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum PaymentMethod {
+public enum Bank {
     UNKNOWN("unknown", "unknown"),
     TINKOFF("tinkoff", "Тинькофф"),
     SBERBANK("sberbank", "Сбербанк"),
@@ -240,19 +240,19 @@ public enum PaymentMethod {
 
     private final String displayName;
 
-    public static PaymentMethod fromValue(String value) {
-        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
-            if (paymentMethod.value.equals(value)) {
-                return paymentMethod;
+    public static Bank fromValue(String value) {
+        for (Bank bank : Bank.values()) {
+            if (bank.value.equals(value)) {
+                return bank;
             }
         }
         return null;
     }
 
-    public static class Deserializer extends JsonDeserializer<PaymentMethod> {
+    public static class Deserializer extends JsonDeserializer<Bank> {
         @Override
-        public PaymentMethod deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return PaymentMethod.fromValue(jsonParser.getValueAsString());
+        public Bank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return Bank.fromValue(jsonParser.getValueAsString());
         }
     }
 }

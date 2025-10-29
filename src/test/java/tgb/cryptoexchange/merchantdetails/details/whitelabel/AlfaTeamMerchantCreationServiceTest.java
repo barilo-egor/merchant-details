@@ -95,7 +95,7 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(callbackUrl, actual.getNotificationUrl()),
                 () -> assertEquals(token, actual.getNotificationToken()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getInternalId())),
-                () -> assertEquals(PaymentOption.valueOf(method), actual.getPaymentOption()),
+                () -> assertEquals(Method.valueOf(method), actual.getPaymentOption()),
                 () -> assertTrue(actual.getStartDeal())
         );
     }
@@ -146,10 +146,10 @@ class AlfaTeamMerchantCreationServiceTest {
             "070329a9-4f1b-4c83-a8f7-68a385bc23f3,RNCB,8888666644442222"
     })
     @ParameterizedTest
-    void buildResponseShouldReturnMappedRequisiteDTO(String id, PaymentMethod paymentMethod, String requisite) {
+    void buildResponseShouldReturnMappedRequisiteDTO(String id, Bank bank, String requisite) {
         Response response = new Response();
         DealDTO dealDTO = new DealDTO();
-        dealDTO.setPaymentMethod(paymentMethod);
+        dealDTO.setPaymentMethod(bank);
         RequisitesDTO requisitesDTO = new RequisitesDTO();
         requisitesDTO.setRequisites(requisite);
         dealDTO.setRequisites(requisitesDTO);
@@ -162,7 +162,7 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(Merchant.ALFA_TEAM, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
                 () -> assertEquals(InvoiceStatus.NEW.name(), actualResponse.getMerchantOrderStatus()),
-                () -> assertEquals(paymentMethod.getDisplayName() + " " + requisite, actualResponse.getRequisite())
+                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getRequisite())
         );
     }
 }

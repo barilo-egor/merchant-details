@@ -19,8 +19,8 @@ public class Request {
 
     private String userId;
 
-    @JsonSerialize(using = PaymentOption.Serializer.class)
-    private PaymentOption paymentOption;
+    @JsonSerialize(using = Method.Serializer.class)
+    private Method paymentOption;
 
     private Boolean startDeal;
 

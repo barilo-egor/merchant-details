@@ -76,7 +76,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     @Override
     protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
-        PaymentOption paymentOption = EnumUtils.valueOf(PaymentOption.class, requisiteRequest.getMethod(),
+        Method method = EnumUtils.valueOf(Method.class, requisiteRequest.getMethod(),
                 () -> new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
                         + getMerchant().name() + " not found."));
         Request request = new Request();
@@ -85,7 +85,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
         request.setNotificationUrl(requisiteRequest.getCallbackUrl());
         request.setNotificationToken(whiteLabelProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(paymentOption);
+        request.setPaymentOption(method);
         request.setStartDeal(true);
         return objectMapper.writeValueAsString(request);
     }

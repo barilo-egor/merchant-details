@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @Getter
 @AllArgsConstructor
-public enum PaymentOption {
+public enum Method {
     SBP("SBP", "СБП"),
     TO_CARD("TO_CARD", "Перевод на карту"),
     CROSS_BORDER("CROSS_BORDER", "Трансграничный перевод");
@@ -19,10 +19,10 @@ public enum PaymentOption {
 
     private final String description;
 
-    public static class Serializer extends JsonSerializer<PaymentOption> {
+    public static class Serializer extends JsonSerializer<Method> {
         @Override
-        public void serialize(PaymentOption paymentOption, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeString(paymentOption.getValue());
+        public void serialize(Method method, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeString(method.getValue());
         }
     }
 }

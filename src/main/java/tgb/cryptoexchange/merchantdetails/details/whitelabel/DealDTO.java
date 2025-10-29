@@ -8,8 +8,8 @@ public class DealDTO {
 
     private String id;
 
-    @JsonDeserialize(using = PaymentMethod.Deserializer.class)
-    private PaymentMethod paymentMethod;
+    @JsonDeserialize(using = Bank.Deserializer.class)
+    private Bank paymentMethod;
 
     private RequisitesDTO requisites;
 }
