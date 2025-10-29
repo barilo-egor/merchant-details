@@ -11,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WhiteLabelProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -34,7 +35,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     protected WhiteLabelOrderCreationService(WebClient webClient, WhiteLabelProperties whiteLabelProperties,
                                              ObjectMapper objectMapper, SignatureService signatureService) {
-        super(webClient);
+        super(webClient, Response.class);
         this.whiteLabelProperties = whiteLabelProperties;
         this.objectMapper = objectMapper;
         this.signatureService = signatureService;
@@ -74,7 +75,13 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
 
     @Override
     protected String body(RequisiteRequest requisiteRequest) throws JsonProcessingException {
-        PaymentOption paymentOption = PaymentOption.valueOf(requisiteRequest.getMethod());
+        PaymentOption paymentOption;
+        try {
+            paymentOption = PaymentOption.valueOf(requisiteRequest.getMethod());
+        } catch (IllegalArgumentException e) {
+            throw new MerchantMethodNotFoundException("Method \"" + requisiteRequest.getMethod() + "\" for merchant "
+                    + getMerchant().name() + " not found.");
+        }
         Request request = new Request();
         request.setAmount(requisiteRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());

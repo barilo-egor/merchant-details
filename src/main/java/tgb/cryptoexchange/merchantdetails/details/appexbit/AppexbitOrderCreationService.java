@@ -28,7 +28,7 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
 
     protected AppexbitOrderCreationService(@Qualifier("appexbitWebClient") WebClient webClient,
                                            AppexbitProperties appexbitProperties, ObjectMapper objectMapper) {
-        super(webClient);
+        super(webClient, Response.class);
         this.appexbitProperties = appexbitProperties;
         this.objectMapper = objectMapper;
     }

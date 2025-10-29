@@ -2,12 +2,12 @@ package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 
 import java.net.URI;
 import java.util.Optional;
@@ -23,26 +23,30 @@ public abstract class MerchantOrderCreationService<T> {
 
     private final WebClient webClient;
 
-    protected MerchantOrderCreationService(WebClient webClient) {
+    private final Class<T> responseType;
+
+    protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
         this.webClient = webClient;
+        this.responseType = responseType;
     }
 
     public Optional<RequisiteResponse> createOrder(RequisiteRequest requisiteRequest) {
+
         WebClient. RequestHeadersSpec<?> requestHeadersSpec;
         try {
             requestHeadersSpec = webClient.method(method())
                     .uri(uriBuilder())
                     .headers(headers(requisiteRequest))
                     .bodyValue(body(requisiteRequest));
-        } catch (Exception e) {
-            log.error("Ошибка при попытке формирования запроса: {}", e.getMessage(), e);
-            return Optional.empty();
+        } catch (JsonProcessingException e) {
+            log.error("Ошибка при попытке парсинга тела: {}", e.getMessage(), e);
+            throw new BodyMappingException(e.getMessage(), e);
         }
         T response;
         try {
             response = requestHeadersSpec
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<T>() {})
+                    .bodyToMono(responseType)
                     .block();
         } catch (Exception e) {
             log.error("Ошибка при выполнении запроса к мерчанту(method={},amount={}): {}",
