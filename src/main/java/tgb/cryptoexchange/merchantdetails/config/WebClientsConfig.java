@@ -47,4 +47,9 @@ public class WebClientsConfig {
     public WebClient daoPaymentsWebClient(DaoPaymentsProperties daoPaymentsProperties) {
         return WebClient.builder().baseUrl(daoPaymentsProperties.url()).build();
     }
+
+    @Bean
+    public WebClient evoPayWebClient(EvoPayProperties evoPayProperties) {
+        return WebClient.builder().baseUrl(evoPayProperties.url()).build();
+    }
 }
