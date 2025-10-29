@@ -1,13 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.appexbit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,9 +28,6 @@ class AppexbitOrderCreationServiceTest {
 
     @Mock
     private AppexbitProperties appexbitProperties;
-
-    @Mock
-    private ObjectMapper objectMapper;
 
     @InjectMocks
     private AppexbitOrderCreationService appexbitOrderCreationService;
@@ -68,16 +62,12 @@ class AppexbitOrderCreationServiceTest {
             "2100,https://someaddress.online/merchant/appexbit,SBP"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) throws JsonProcessingException {
+    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
         RequisiteRequest requisiteRequest = new RequisiteRequest();
         requisiteRequest.setAmount(amount);
         requisiteRequest.setCallbackUrl(callbackUrl);
         requisiteRequest.setMethod(method);
-        ArgumentCaptor<Request> requestArgumentCaptor = ArgumentCaptor.forClass(Request.class);
-        when(objectMapper.writeValueAsString(requestArgumentCaptor.capture())).thenReturn("");
-
-        appexbitOrderCreationService.body(requisiteRequest);
-        Request request = requestArgumentCaptor.getValue();
+        Request request = (Request) appexbitOrderCreationService.body(requisiteRequest);
         assertAll(
                 () -> assertEquals(amount.toString(), request.getAmountFiat()),
                 () -> assertEquals(callbackUrl, request.getGoodReturnLink()),
