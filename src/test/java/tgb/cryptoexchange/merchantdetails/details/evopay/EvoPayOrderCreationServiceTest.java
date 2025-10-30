@@ -39,7 +39,7 @@ class EvoPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/v1/api/order/payin", evoPayOrderCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/v1/api/order/payin", evoPayOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({

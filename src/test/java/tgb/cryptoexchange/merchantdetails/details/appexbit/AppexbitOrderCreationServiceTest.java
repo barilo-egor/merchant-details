@@ -40,7 +40,7 @@ class AppexbitOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/trade/createOffer", appexbitOrderCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/trade/createOffer", appexbitOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {

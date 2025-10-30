@@ -40,7 +40,7 @@ class DaoPaymentsOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v1/deposit", daoPaymentsOrderCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/api/v1/deposit", daoPaymentsOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({

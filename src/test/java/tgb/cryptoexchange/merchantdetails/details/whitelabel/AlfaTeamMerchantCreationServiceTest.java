@@ -49,7 +49,7 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void uriBuilderShouldSetPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/merchant/invoices", alfaTeamMerchantCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/api/merchant/invoices", alfaTeamMerchantCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({

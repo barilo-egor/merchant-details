@@ -39,7 +39,7 @@ class CrocoPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({

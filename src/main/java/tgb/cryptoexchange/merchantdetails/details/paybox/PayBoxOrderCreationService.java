@@ -7,7 +7,6 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -42,7 +41,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Request body(RequisiteRequest requisiteRequest) {
         Request request = new Request();
         request.setAmount(requisiteRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());
@@ -55,24 +54,25 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
             log.error("Ошибки в ответе на запрос от мерчанта {}: {}", getMerchant().name(), response);
             return Optional.empty();
         }
-        if (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber())) {
-            log.error("В ответе отсутствует и номер карты, и номер телефона: {}", response);
+        if (Objects.isNull(response.getBankName())
+                || (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber()))) {
+            log.error("В ответе отсутствует и номер карты, и номер телефона, либо название банка: {}", response);
             return Optional.empty();
         }
         RequisiteResponse requisiteResponse = getRequisiteResponse(response);
         return Optional.of(requisiteResponse);
     }
 
-    private static RequisiteResponse getRequisiteResponse(Response response) {
+    private RequisiteResponse getRequisiteResponse(Response response) {
         RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(Merchant.PAY_POINTS);
+        requisiteResponse.setMerchant(getMerchant());
         requisiteResponse.setMerchantOrderId(response.getId().toString());
         if (Objects.nonNull(response.getPhoneNumber())) {
             requisiteResponse.setRequisite(response.getBankName() + " " + response.getPhoneNumber());
         } else {
             requisiteResponse.setRequisite(response.getBankName() + " " + response.getCardNumber());
         }
-        requisiteResponse.setMerchantOrderStatus(Status.PROCESS.name());
+        requisiteResponse.setMerchantOrderStatus(response.getStatus().name());
         return requisiteResponse;
     }
 }

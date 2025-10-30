@@ -40,7 +40,7 @@ class BitZoneOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/payment/trading/pay-in", bitZoneOrderCreationService.uriBuilder().apply(uriBuilder).getPath());
+        assertEquals("/payment/trading/pay-in", bitZoneOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
