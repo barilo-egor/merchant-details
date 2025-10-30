@@ -35,7 +35,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder() {
+    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
         return uriBuilder -> uriBuilder.path("/v1/api/order/payin").build();
     }
 

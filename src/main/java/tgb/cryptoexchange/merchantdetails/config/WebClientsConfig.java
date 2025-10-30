@@ -52,4 +52,19 @@ public class WebClientsConfig {
     public WebClient evoPayWebClient(EvoPayProperties evoPayProperties) {
         return WebClient.builder().baseUrl(evoPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient extasyPayWebClient(ExtasyPayProperties extasyPayProperties) {
+        return WebClient.builder().baseUrl(extasyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient yaPayWebClient(YaPayProperties yaPayProperties) {
+        return WebClient.builder().baseUrl(yaPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payPointsWebClient(PayPointsProperties payPointsProperties) {
+        return WebClient.builder().baseUrl(payPointsProperties.url()).build();
+    }
 }

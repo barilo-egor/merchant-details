@@ -35,7 +35,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder() {
+    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
         return uriBuilder -> uriBuilder.path("/api/merchant/invoices").build();
     }
 

@@ -35,7 +35,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder() {
+    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
         return uriBuilder -> uriBuilder.path("/payment/trading/pay-in").build();
     }
 

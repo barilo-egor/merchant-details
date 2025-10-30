@@ -41,7 +41,7 @@ public abstract class MerchantOrderCreationService<T> {
         try {
             String body = objectMapper.writeValueAsString(body(requisiteRequest));
             response = webClient.method(method())
-                    .uri(uriBuilder())
+                    .uri(uriBuilder(requisiteRequest))
                     .headers(headers(requisiteRequest, body))
                     .bodyValue(body)
                     .retrieve()
@@ -62,12 +62,13 @@ public abstract class MerchantOrderCreationService<T> {
 
     public abstract Merchant getMerchant();
 
-    protected abstract Function<UriBuilder, URI> uriBuilder();
+    protected abstract Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest);
 
     protected abstract Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body);
 
     protected abstract Object body(RequisiteRequest requisiteRequest);
 
+    // TODO логировать все ошибки и отсутствия реквизитов в ответе.
     protected abstract Optional<RequisiteResponse> buildResponse(T response);
 
     protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {

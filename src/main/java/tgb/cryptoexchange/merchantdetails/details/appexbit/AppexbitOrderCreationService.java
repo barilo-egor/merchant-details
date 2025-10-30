@@ -34,7 +34,7 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder() {
+    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
         return uriBuilder -> uriBuilder.path("/trade/createOffer").build();
     }
 

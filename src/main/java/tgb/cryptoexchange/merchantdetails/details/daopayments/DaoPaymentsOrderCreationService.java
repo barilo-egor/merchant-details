@@ -36,7 +36,7 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder() {
+    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
         return uriBuilder -> uriBuilder.path("/api/v1/deposit").build();
     }
 

@@ -1,7 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface PayBoxProperties {
 
-@ConfigurationProperties(prefix = "pay-box")
-public record PayBoxProperties(String url, String token, String signKey) {
+    String url();
+
+    String token();
+
+    String signKey();
 }
