@@ -67,4 +67,24 @@ public class WebClientsConfig {
     public WebClient payPointsWebClient(PayPointsProperties payPointsProperties) {
         return WebClient.builder().baseUrl(payPointsProperties.url()).build();
     }
+
+    @Bean
+    public WebClient paradoxPayWebClient(ParadoxPayProperties paradoxPayProperties) {
+        return WebClient.builder().baseUrl(paradoxPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mobiusWebClient(MobiusProperties mobiusProperties) {
+        return WebClient.builder().baseUrl(mobiusProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient foxPaysWebClient(FoxPaysProperties foxPaysProperties) {
+        return WebClient.builder().baseUrl(foxPaysProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient worldWidePaymentsSystemsWebClient(WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
+        return WebClient.builder().baseUrl(worldWidePaymentSystemsProperties.url()).build();
+    }
 }
