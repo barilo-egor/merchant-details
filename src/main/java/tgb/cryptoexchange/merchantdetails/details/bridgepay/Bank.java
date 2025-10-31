@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

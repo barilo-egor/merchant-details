@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

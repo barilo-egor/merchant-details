@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,11 +8,11 @@ import tgb.cryptoexchange.merchantdetails.properties.RostrastProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
-public class RostrastMerchantCreationService extends WhiteLabelOrderCreationService {
+public class RostrastMerchantCreationService extends BridgePayOrderCreationService {
 
     protected RostrastMerchantCreationService(@Qualifier("rostrastWebClient") WebClient webClient,
-                                              RostrastProperties whiteLabelProperties, SignatureService signatureService) {
-        super(webClient, whiteLabelProperties, signatureService);
+                                              RostrastProperties rostrastProperties, SignatureService signatureService) {
+        super(webClient, rostrastProperties, signatureService);
     }
 
     @Override

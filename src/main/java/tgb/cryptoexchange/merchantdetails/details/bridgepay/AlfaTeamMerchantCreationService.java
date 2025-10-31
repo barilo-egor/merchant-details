@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,7 +8,7 @@ import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
-public class AlfaTeamMerchantCreationService extends WhiteLabelOrderCreationService {
+public class AlfaTeamMerchantCreationService extends BridgePayOrderCreationService {
 
     protected AlfaTeamMerchantCreationService(@Qualifier("alfaTeamWebClient") WebClient webClient,
                                               AlfaTeamProperties alfaTeamProperties, SignatureService signatureService) {

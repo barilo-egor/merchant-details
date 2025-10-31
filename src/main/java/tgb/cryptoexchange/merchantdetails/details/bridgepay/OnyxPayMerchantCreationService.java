@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,7 +8,7 @@ import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
-public class OnyxPayMerchantCreationService extends WhiteLabelOrderCreationService {
+public class OnyxPayMerchantCreationService extends BridgePayOrderCreationService {
 
     protected OnyxPayMerchantCreationService(@Qualifier("onyxPayWebClient") WebClient webClient,
                                              OnyxPayProperties onyxPayProperties, SignatureService signatureService) {

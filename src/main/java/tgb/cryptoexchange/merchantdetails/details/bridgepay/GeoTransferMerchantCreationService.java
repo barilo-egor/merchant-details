@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,11 +8,11 @@ import tgb.cryptoexchange.merchantdetails.properties.GeoTransferProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 @Service
-public class GeoTransferMerchantCreationService extends WhiteLabelOrderCreationService {
+public class GeoTransferMerchantCreationService extends BridgePayOrderCreationService {
 
     protected GeoTransferMerchantCreationService(@Qualifier("geoTransferWebClient") WebClient webClient,
-                                                 GeoTransferProperties whiteLabelProperties, SignatureService signatureService) {
-        super(webClient, whiteLabelProperties, signatureService);
+                                                 GeoTransferProperties geoTransferProperties, SignatureService signatureService) {
+        super(webClient, geoTransferProperties, signatureService);
     }
 
     @Override

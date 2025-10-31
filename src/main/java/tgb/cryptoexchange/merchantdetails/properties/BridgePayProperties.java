@@ -1,6 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-public interface WhiteLabelProperties {
+public interface BridgePayProperties {
 
     String url();
 

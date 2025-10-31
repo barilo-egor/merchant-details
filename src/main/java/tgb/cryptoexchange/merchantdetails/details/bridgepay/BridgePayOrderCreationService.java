@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.whitelabel;
+package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -9,7 +9,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
 import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
-import tgb.cryptoexchange.merchantdetails.properties.WhiteLabelProperties;
+import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.net.URI;
@@ -21,16 +21,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreationService<Response> {
+public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response> {
 
-    private final WhiteLabelProperties whiteLabelProperties;
+    private final BridgePayProperties bridgePayProperties;
 
     private final SignatureService signatureService;
 
-    protected WhiteLabelOrderCreationService(WebClient webClient, WhiteLabelProperties whiteLabelProperties,
-                                             SignatureService signatureService) {
+    protected BridgePayOrderCreationService(WebClient webClient, BridgePayProperties bridgePayProperties,
+                                            SignatureService signatureService) {
         super(webClient, Response.class);
-        this.whiteLabelProperties = whiteLabelProperties;
+        this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
     }
 
@@ -43,11 +43,11 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
     protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
         return headers -> {
             headers.add("Content-Type", "application/json");
-            headers.add("X-Identity", whiteLabelProperties.key());
-            String createInvoiceUrl = whiteLabelProperties.url() + "/api/merchant/invoices";
+            headers.add("X-Identity", bridgePayProperties.key());
+            String createInvoiceUrl = bridgePayProperties.url() + "/api/merchant/invoices";
             try {
                 headers.add("X-Signature", signatureService.hmacSHA1(
-                        buildSignatureData(createInvoiceUrl, body), whiteLabelProperties.secret()
+                        buildSignatureData(createInvoiceUrl, body), bridgePayProperties.secret()
                 ));
             } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                 log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), createInvoiceUrl, body);
@@ -66,7 +66,7 @@ public abstract class WhiteLabelOrderCreationService extends MerchantOrderCreati
         request.setAmount(requisiteRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
         request.setNotificationUrl(requisiteRequest.getCallbackUrl());
-        request.setNotificationToken(whiteLabelProperties.token());
+        request.setNotificationToken(bridgePayProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
         request.setPaymentOption(parseMethod(requisiteRequest.getMethod(), Method.class));
         request.setStartDeal(true);
