@@ -82,10 +82,10 @@ mobius:
   url: "mobius-url"
   token: "mobius-token"
   merchant-id: "mobius-merchant-id"
-pay-box:
-  url: "pay-box-url"
-  token: "pay-box-token"
-  sign-key: "pay-box-sign-key"
+ya-pay:
+  url: "ya-pay-url"
+  token: "ya-pay-token"
+  sign-key: "ya-pay-sign-key"
 paradox-pay:
   url: "paradox-pay-url"
   token: "paradox-pay-token"
