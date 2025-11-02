@@ -16,9 +16,9 @@ class YaPayPropertiesTest {
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("pay-box-url", yaPayProperties.url()),
-                () -> assertEquals("pay-box-token", yaPayProperties.token()),
-                () -> assertEquals("pay-box-sign-key", yaPayProperties.signKey())
+                () -> assertEquals("ya-pay-url", yaPayProperties.url()),
+                () -> assertEquals("ya-pay-token", yaPayProperties.token()),
+                () -> assertEquals("ya-pay-sign-key", yaPayProperties.signKey())
         );
     }
 }
