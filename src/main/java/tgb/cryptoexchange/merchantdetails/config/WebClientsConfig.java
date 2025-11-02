@@ -147,4 +147,9 @@ public class WebClientsConfig {
     public WebClient way2payWebClient(Way2PayProperties way2PayProperties) {
         return WebClient.builder().baseUrl(way2PayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient wellBitWebClient(WellBitProperties wellBitProperties) {
+        return WebClient.builder().baseUrl(wellBitProperties.url()).build();
+    }
 }

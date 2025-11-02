@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -25,6 +26,7 @@ public class SignatureService {
 
         return Base64.getEncoder().encodeToString(rawHmac);
     }
+
     public String hmacSHA256(String requestJson, URI url, String signKey) {
         String signatureString = requestJson + url.getPath() +
                 (url.getQuery() != null ? url.getQuery() : "");
@@ -60,6 +62,17 @@ public class SignatureService {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    public String md5WellBit(String data) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] messageDigest = md.digest(data.getBytes());
+        BigInteger no = new BigInteger(1, messageDigest);
+        StringBuilder hashtext = new StringBuilder(no.toString(16));
+        while (hashtext.length() < 32) {
+            hashtext.insert(0, "0");
+        }
+        return hashtext.toString();
     }
 
     public String generateHmacSha512Signature(String data, String secret)
