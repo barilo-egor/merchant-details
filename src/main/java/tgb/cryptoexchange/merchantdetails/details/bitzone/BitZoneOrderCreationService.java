@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
@@ -35,12 +35,12 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/payment/trading/pay-in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("Accept", "application/json");
@@ -49,16 +49,16 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setFiatAmount(requisiteRequest.getAmount());
-        request.setMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
+        request.setFiatAmount(detailsRequest.getAmount());
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (Objects.isNull(response.getRequisite()) || Objects.isNull(response.getRequisite().getBank())
                 || (Objects.isNull(response.getRequisite().getRequisites()) && Objects.isNull(response.getRequisite().getSbpNumber()))) {
             return Optional.empty();
@@ -69,11 +69,11 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
         } else {
             requisite = response.getRequisite().getBank() + " " + response.getRequisite().getRequisites();
         }
-        RequisiteResponse requisiteVO = new RequisiteResponse();
+        DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(response.getStatus().name());
         requisiteVO.setMerchantOrderId(response.getId());
-        requisiteVO.setRequisite(requisite);
+        requisiteVO.setDetails(requisite);
         return Optional.of(requisiteVO);
     }
 }

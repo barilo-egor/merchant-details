@@ -13,8 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 
@@ -42,11 +42,11 @@ class ExtasyPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setMethod(method.name());
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        assertEquals(method.getUri(), extasyPayOrderCreationService.uriBuilder(requisiteRequest).apply(uriBuilder).getPath());
+        assertEquals(method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -68,10 +68,10 @@ class ExtasyPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
 
-        Request actual = extasyPayOrderCreationService.body(requisiteRequest);
+        Request actual = extasyPayOrderCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
@@ -91,14 +91,14 @@ class ExtasyPayOrderCreationServiceTest {
         response.setCardNumber(requisiteString);
         response.setBankName(bank);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = extasyPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = extasyPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse requisiteResponse = maybeRequisiteResponse.get();
+        DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(Merchant.EXTASY_PAY, requisiteResponse.getMerchant()),
-                () -> assertEquals(id.toString(), requisiteResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, requisiteResponse.getRequisite()),
-                () -> assertEquals(status.name(), requisiteResponse.getMerchantOrderStatus())
+                () -> assertEquals(Merchant.EXTASY_PAY, detailsResponse.getMerchant()),
+                () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
+                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(status.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
 
@@ -114,11 +114,11 @@ class ExtasyPayOrderCreationServiceTest {
         response.setPhoneNumber(requisiteString);
         response.setBankName("bank");
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = extasyPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = extasyPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse requisiteResponse = maybeRequisiteResponse.get();
+        DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, requisiteResponse.getRequisite())
+                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
         );
     }
 

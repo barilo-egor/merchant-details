@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 
@@ -35,13 +35,13 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/v1/api/order/payin").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
-        return httpHeaders -> httpHeaders.add("x-api-key", getKey(requisiteRequest.getAmount()));
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+        return httpHeaders -> httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
     }
 
     private String getKey(Integer amount) {
@@ -53,35 +53,35 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setCustomId(UUID.randomUUID().toString());
-        request.setFiatSum(requisiteRequest.getAmount());
-        request.setPaymentMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
+        request.setFiatSum(detailsRequest.getAmount());
+        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (Objects.isNull(response.getRequisites())
                 || Objects.isNull(response.getRequisites().getRecipientBank())
                 || (Objects.isNull(response.getRequisites().getRecipientPhoneNumber())
                 && Objects.isNull(response.getRequisites().getRecipientCardNumber()))) {
             return Optional.empty();
         }
-        RequisiteResponse requisiteResponse = getRequisiteResponse(response);
-        return Optional.of(requisiteResponse);
+        DetailsResponse detailsResponse = getRequisiteResponse(response);
+        return Optional.of(detailsResponse);
     }
 
-    private RequisiteResponse getRequisiteResponse(Response response) {
-        RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(Merchant.EVO_PAY);
-        requisiteResponse.setRequisite(Method.BANK_CARD.equals(response.getMethod())
+    private DetailsResponse getRequisiteResponse(Response response) {
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(Merchant.EVO_PAY);
+        detailsResponse.setDetails(Method.BANK_CARD.equals(response.getMethod())
                 ? response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientCardNumber()
                 : response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientPhoneNumber()
         );
-        requisiteResponse.setMerchantOrderId(response.getId());
-        requisiteResponse.setMerchantOrderStatus(response.getOrderStatus().name());
-        return requisiteResponse;
+        detailsResponse.setMerchantOrderId(response.getId());
+        detailsResponse.setMerchantOrderStatus(response.getOrderStatus().name());
+        return detailsResponse;
     }
 }

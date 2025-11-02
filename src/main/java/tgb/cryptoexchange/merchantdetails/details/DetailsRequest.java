@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class RequisiteRequest {
+public class DetailsRequest {
 
     @NotBlank
     private String method;

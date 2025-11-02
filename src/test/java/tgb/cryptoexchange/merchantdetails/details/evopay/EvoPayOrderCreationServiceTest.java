@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 
@@ -51,9 +51,9 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithLessThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.changeKey()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(requisiteRequest, null).accept(headers);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst())
         );
@@ -68,9 +68,9 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithMoreThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(requisiteRequest, null).accept(headers);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst())
         );
@@ -82,11 +82,11 @@ class EvoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        requisiteRequest.setCallbackUrl(callbackUrl);
-        requisiteRequest.setMethod(method);
-        Request request = evoPayOrderCreationService.body(requisiteRequest);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setCallbackUrl(callbackUrl);
+        detailsRequest.setMethod(method);
+        Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),
@@ -109,14 +109,14 @@ class EvoPayOrderCreationServiceTest {
         response.setRequisites(requisites);
         response.setOrderStatus(status);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = evoPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = evoPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getRequisite())
+                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
 
@@ -135,14 +135,14 @@ class EvoPayOrderCreationServiceTest {
         response.setRequisites(requisites);
         response.setOrderStatus(status);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = evoPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = evoPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getRequisite())
+                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
 

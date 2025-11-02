@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
@@ -65,10 +65,10 @@ class CrocoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        requisiteRequest.setMethod(method);
-        Request request = crocoPayOrderCreationService.body(requisiteRequest);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method);
+        Request request = crocoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod())
@@ -93,14 +93,14 @@ class CrocoPayOrderCreationServiceTest {
         responseData.setPaymentRequisites(paymentRequisites);
         response.setResponseData(responseData);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = crocoPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = crocoPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.CROCO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(requisiteString, actual.getRequisite())
+                () -> assertEquals(requisiteString, actual.getDetails())
         );
     }
 
@@ -122,11 +122,11 @@ class CrocoPayOrderCreationServiceTest {
         responseData.setPaymentRequisites(paymentRequisites);
         response.setResponseData(responseData);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = crocoPayOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = crocoPayOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getRequisite())
+                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
 

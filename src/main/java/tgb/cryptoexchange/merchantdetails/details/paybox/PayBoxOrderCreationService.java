@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -27,13 +27,13 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
-        Method method = parseMethod(requisiteRequest.getMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("Authorization", "Bearer " + payBoxProperties.token());
@@ -41,15 +41,15 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmount(requisiteRequest.getAmount());
+        request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (response.hasErrors()) {
             log.error("Ошибки в ответе на запрос от мерчанта {}: {}", getMerchant().name(), response);
             return Optional.empty();
@@ -59,20 +59,20 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
             log.error("В ответе отсутствует и номер карты, и номер телефона, либо название банка: {}", response);
             return Optional.empty();
         }
-        RequisiteResponse requisiteResponse = getRequisiteResponse(response);
-        return Optional.of(requisiteResponse);
+        DetailsResponse detailsResponse = getRequisiteResponse(response);
+        return Optional.of(detailsResponse);
     }
 
-    private RequisiteResponse getRequisiteResponse(Response response) {
-        RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(getMerchant());
-        requisiteResponse.setMerchantOrderId(response.getId().toString());
+    private DetailsResponse getRequisiteResponse(Response response) {
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setMerchantOrderId(response.getId().toString());
         if (Objects.nonNull(response.getPhoneNumber())) {
-            requisiteResponse.setRequisite(response.getBankName() + " " + response.getPhoneNumber());
+            detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
         } else {
-            requisiteResponse.setRequisite(response.getBankName() + " " + response.getCardNumber());
+            detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
         }
-        requisiteResponse.setMerchantOrderStatus(response.getStatus().name());
-        return requisiteResponse;
+        detailsResponse.setMerchantOrderStatus(response.getStatus().name());
+        return detailsResponse;
     }
 }

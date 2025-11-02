@@ -36,13 +36,13 @@ public abstract class MerchantOrderCreationService<T> {
         this.responseType = responseType;
     }
 
-    public Optional<RequisiteResponse> createOrder(RequisiteRequest requisiteRequest) {
+    public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         T response;
         try {
-            String body = objectMapper.writeValueAsString(body(requisiteRequest));
+            String body = objectMapper.writeValueAsString(body(detailsRequest));
             response = webClient.method(method())
-                    .uri(uriBuilder(requisiteRequest))
-                    .headers(headers(requisiteRequest, body))
+                    .uri(uriBuilder(detailsRequest))
+                    .headers(headers(detailsRequest, body))
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(responseType)
@@ -50,7 +50,7 @@ public abstract class MerchantOrderCreationService<T> {
         } catch (WebClientException | JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (requisiteRequest={}): {}",
-                    currentTime, getMerchant().name(), requisiteRequest.toString(), e.getMessage(), e);
+                    currentTime, getMerchant().name(), detailsRequest.toString(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e );
         }
         return buildResponse(response);
@@ -62,14 +62,14 @@ public abstract class MerchantOrderCreationService<T> {
 
     public abstract Merchant getMerchant();
 
-    protected abstract Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest);
+    protected abstract Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest);
 
-    protected abstract Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body);
+    protected abstract Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body);
 
-    protected abstract Object body(RequisiteRequest requisiteRequest);
+    protected abstract Object body(DetailsRequest detailsRequest);
 
     // TODO логировать все ошибки и отсутствия реквизитов в ответе.
-    protected abstract Optional<RequisiteResponse> buildResponse(T response);
+    protected abstract Optional<DetailsResponse> buildResponse(T response);
 
     protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,

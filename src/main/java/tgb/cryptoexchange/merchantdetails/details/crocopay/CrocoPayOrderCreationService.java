@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
@@ -34,12 +34,12 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/v2/h2h/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Client-Id", crocoPayProperties.clientId());
             httpHeaders.add("Client-Secret", crocoPayProperties.clientSecret());
@@ -47,15 +47,15 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmount(requisiteRequest.getAmount());
-        request.setMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
+        request.setAmount(detailsRequest.getAmount());
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.ResponseData responseData = response.getResponseData();
         if (Objects.isNull(responseData) || Objects.isNull(responseData.getPaymentRequisites())
                 || Objects.isNull(responseData.getPaymentRequisites().getPaymentMethod())
@@ -68,11 +68,11 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         } else {
             requisite = responseData.getPaymentRequisites().getPaymentMethod() + " " + responseData.getPaymentRequisites().getRequisites();
         }
-        RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(getMerchant());
-        requisiteResponse.setRequisite(requisite);
-        requisiteResponse.setMerchantOrderId(responseData.getTransaction().getId());
-        requisiteResponse.setMerchantOrderStatus(responseData.getTransaction().getStatus().name());
-        return Optional.of(requisiteResponse);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setDetails(requisite);
+        detailsResponse.setMerchantOrderId(responseData.getTransaction().getId());
+        detailsResponse.setMerchantOrderStatus(responseData.getTransaction().getStatus().name());
+        return Optional.of(detailsResponse);
     }
 }

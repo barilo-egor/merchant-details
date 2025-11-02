@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 
@@ -63,11 +63,11 @@ class AppexbitOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        requisiteRequest.setCallbackUrl(callbackUrl);
-        requisiteRequest.setMethod(method);
-        Request request = (Request) appexbitOrderCreationService.body(requisiteRequest);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setCallbackUrl(callbackUrl);
+        detailsRequest.setMethod(method);
+        Request request = (Request) appexbitOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount.toString(), request.getAmountFiat()),
                 () -> assertEquals(callbackUrl, request.getGoodReturnLink()),
@@ -92,15 +92,15 @@ class AppexbitOrderCreationServiceTest {
         offer.setMessage(message);
         response.setAddedOffers(List.of(offer));
 
-        Optional<RequisiteResponse> maybeActual = appexbitOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeActual = appexbitOrderCreationService.buildResponse(response);
         assertTrue(maybeActual.isPresent());
-        RequisiteResponse actual = maybeActual.get();
+        DetailsResponse actual = maybeActual.get();
         assertAll(
                 () -> assertNull(actual.getAmount()),
                 () -> assertEquals(Merchant.APPEXBIT, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(message, actual.getRequisite())
+                () -> assertEquals(message, actual.getDetails())
         );
     }
 
