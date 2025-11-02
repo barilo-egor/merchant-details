@@ -4,11 +4,11 @@ import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 @Data
-public class RequisiteResponse {
+public class DetailsResponse {
 
     private Merchant merchant;
 
-    private String requisite;
+    private String details;
 
     private String merchantOrderId;
 

@@ -13,8 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
@@ -68,7 +68,7 @@ class AlfaTeamMerchantCreationServiceTest {
         when(signatureService.hmacSHA1(dataArgumentCaptor.capture(), secretArgumentCaptor.capture())).thenReturn(sign);
 
         HttpHeaders headers = new HttpHeaders();
-        RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
+        DetailsRequest request = Mockito.mock(DetailsRequest.class);
         alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -80,7 +80,7 @@ class AlfaTeamMerchantCreationServiceTest {
 
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
-        RequisiteRequest request = Mockito.mock(RequisiteRequest.class);
+        DetailsRequest request = Mockito.mock(DetailsRequest.class);
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
@@ -95,14 +95,14 @@ class AlfaTeamMerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, String method, String callbackUrl, String token) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        requisiteRequest.setMethod(method);
-        requisiteRequest.setCallbackUrl(callbackUrl);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method);
+        detailsRequest.setCallbackUrl(callbackUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
 
-        Request actual = alfaTeamMerchantCreationService.body(requisiteRequest);
+        Request actual = alfaTeamMerchantCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),
@@ -143,14 +143,14 @@ class AlfaTeamMerchantCreationServiceTest {
         dealDTO.setRequisites(requisitesDTO);
         response.setDeals(List.of(dealDTO));
         response.setId(id);
-        Optional<RequisiteResponse> actual = alfaTeamMerchantCreationService.buildResponse(response);
+        Optional<DetailsResponse> actual = alfaTeamMerchantCreationService.buildResponse(response);
         assertTrue(actual.isPresent());
-        RequisiteResponse actualResponse = actual.get();
+        DetailsResponse actualResponse = actual.get();
         assertAll(
                 () -> assertEquals(Merchant.ALFA_TEAM, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
                 () -> assertEquals(InvoiceStatus.NEW.name(), actualResponse.getMerchantOrderStatus()),
-                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getRequisite())
+                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
         );
     }
 }

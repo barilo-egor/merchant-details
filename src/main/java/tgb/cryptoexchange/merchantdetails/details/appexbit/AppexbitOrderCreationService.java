@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 
@@ -34,12 +34,12 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/trade/createOffer").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("x-api-key", appexbitProperties.key());
             httpHeaders.add("Content-Type", "application/json");
@@ -47,29 +47,29 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Object body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmountFiat(requisiteRequest.getAmount().toString());
-        request.setGoodReturnLink(requisiteRequest.getCallbackUrl());
-        request.setBadReturnLink(requisiteRequest.getCallbackUrl());
-        request.setPaymentMethod(parseMethod(requisiteRequest.getMethod(), Method.class));
+        request.setAmountFiat(detailsRequest.getAmount().toString());
+        request.setGoodReturnLink(detailsRequest.getCallbackUrl());
+        request.setBadReturnLink(detailsRequest.getCallbackUrl());
+        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         Request.FiatInfo fiatInfo = new Request.FiatInfo();
         request.setFiatInfo(fiatInfo);
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if ((Objects.isNull(response.getSuccess()) || !response.getSuccess())
                 || Objects.isNull(response.getAddedOffers()) || response.getAddedOffers().isEmpty()) {
             return Optional.empty();
         }
         Response.Offer offer = response.getAddedOffers().getFirst();
-        RequisiteResponse requisiteVO = new RequisiteResponse();
+        DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(offer.getId());
         requisiteVO.setMerchantOrderStatus(offer.getStatus().name());
-        requisiteVO.setRequisite(offer.getMessage());
+        requisiteVO.setDetails(offer.getMessage());
         return Optional.of(requisiteVO);
     }
 }

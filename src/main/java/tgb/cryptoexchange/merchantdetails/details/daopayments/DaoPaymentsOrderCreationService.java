@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
@@ -36,12 +36,12 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/v1/deposit").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("X-API-KEY", daoPaymentsProperties.key());
@@ -49,28 +49,28 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setMerchantOrderId(UUID.randomUUID().toString());
-        request.setRequisiteType(parseMethod(requisiteRequest.getMethod(), Method.class));
-        request.setAmount(requisiteRequest.getAmount().toString());
-        request.setSuccessUrl(requisiteRequest.getCallbackUrl());
-        request.setFailUrl(requisiteRequest.getCallbackUrl());
+        request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setAmount(detailsRequest.getAmount().toString());
+        request.setSuccessUrl(detailsRequest.getCallbackUrl());
+        request.setFailUrl(detailsRequest.getCallbackUrl());
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.TransferDetails transferDetails = response.getTransferDetails();
         if (Objects.isNull(transferDetails) || Objects.isNull(transferDetails.getBankName()) || Objects.isNull(transferDetails.getCardNumber())) {
             return Optional.empty();
         }
-        RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(getMerchant());
-        requisiteResponse.setMerchantOrderStatus(response.getStatus().toString());
-        requisiteResponse.setMerchantOrderId(response.getTransactionId());
-        requisiteResponse.setRequisite(response.getTransferDetails().getBankName() + " " + response.getTransferDetails().getCardNumber());
-        requisiteResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
-        return Optional.of(requisiteResponse);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setMerchantOrderStatus(response.getStatus().toString());
+        detailsResponse.setMerchantOrderId(response.getTransactionId());
+        detailsResponse.setDetails(response.getTransferDetails().getBankName() + " " + response.getTransferDetails().getCardNumber());
+        detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
+        return Optional.of(detailsResponse);
     }
 }

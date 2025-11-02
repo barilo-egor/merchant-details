@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
@@ -63,10 +63,10 @@ class BitZoneOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method) {
-        RequisiteRequest requisiteRequest = new RequisiteRequest();
-        requisiteRequest.setAmount(amount);
-        requisiteRequest.setMethod(method);
-        Request request = bitZoneOrderCreationService.body(requisiteRequest);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method);
+        Request request = bitZoneOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
@@ -89,14 +89,14 @@ class BitZoneOrderCreationServiceTest {
         requisite.setRequisites(requisiteString);
         response.setRequisite(requisite);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.BIT_ZONE, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getRequisite())
+                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
 
@@ -115,11 +115,11 @@ class BitZoneOrderCreationServiceTest {
         requisite.setSbpNumber(requisiteString);
         response.setRequisite(requisite);
 
-        Optional<RequisiteResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
+        Optional<DetailsResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());
-        RequisiteResponse actual = maybeRequisiteResponse.get();
+        DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getRequisite())
+                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
 

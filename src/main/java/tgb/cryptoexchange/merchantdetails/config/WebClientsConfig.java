@@ -107,4 +107,9 @@ public class WebClientsConfig {
     public WebClient luckyPayWebClient(LuckyPayProperties luckyPayProperties) {
         return WebClient.builder().baseUrl(luckyPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient nicePayWebClient(NicePayProperties nicePayProperties) {
+        return WebClient.builder().baseUrl(nicePayProperties.url()).build();
+    }
 }

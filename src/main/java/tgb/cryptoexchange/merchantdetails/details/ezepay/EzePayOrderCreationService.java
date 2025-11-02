@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EzePayProperties;
 
@@ -34,28 +34,28 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/createOrder/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Object body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setOrder(UUID.randomUUID().toString());
         request.setShopId(Long.parseLong(ezePayProperties.id()));
         request.setKey(ezePayProperties.key());
-        request.setAmount(requisiteRequest.getAmount());
-        request.setBank(parseMethod(requisiteRequest.getMethod(), Method.class).getId());
+        request.setAmount(detailsRequest.getAmount());
+        request.setBank(parseMethod(detailsRequest.getMethod(), Method.class).getId());
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (!response.getStatus().equals("success")
                 || Objects.isNull(response.getData())
                 || (Objects.isNull(response.getData().getBank()) && Objects.isNull(response.getData().getBankSbp()))
@@ -63,12 +63,12 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
                 || Objects.isNull(response.getData().getOrderId())) {
             return Optional.empty();
         }
-        RequisiteResponse requisiteVO = getRequisiteResponse(response);
+        DetailsResponse requisiteVO = getRequisiteResponse(response);
         return Optional.of(requisiteVO);
     }
 
-    private RequisiteResponse getRequisiteResponse(Response response) {
-        RequisiteResponse requisiteVO = new RequisiteResponse();
+    private DetailsResponse getRequisiteResponse(Response response) {
+        DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(response.getData().getOrderId());
         requisiteVO.setMerchantOrderStatus(Status.CHOOSING_METHOD.name());
@@ -78,7 +78,7 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
         } else {
             requisite = response.getData().getBankSbp() + " " + response.getData().getDetails();
         }
-        requisiteVO.setRequisite(requisite);
+        requisiteVO.setDetails(requisite);
         return requisiteVO;
     }
 }

@@ -6,9 +6,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -41,43 +41,43 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
-        Method method = parseMethod(requisiteRequest.getMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + honeyMoneyProperties.authToken());
             httpHeaders.add("Content-Type", "application/json");
-            Method method = parseMethod(requisiteRequest.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
             httpHeaders.add("X-Signature", signatureService.hmacSHA256(body, URI.create(honeyMoneyProperties.url() + method.getUri()), honeyMoneyProperties.signToken()));
         };
     }
 
     @Override
-    protected Object body(RequisiteRequest requisiteRequest) {
+    protected Object body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmount(requisiteRequest.getAmount());
+        request.setAmount(detailsRequest.getAmount());
         request.setExtId(UUID.randomUUID().toString());
-        request.setBank(parseMethod(requisiteRequest.getMethod(), Method.class).getBank());
-        request.setCallbackUrl(requisiteRequest.getCallbackUrl());
+        request.setBank(parseMethod(detailsRequest.getMethod(), Method.class).getBank());
+        request.setCallbackUrl(detailsRequest.getCallbackUrl());
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber())) {
             log.error("Не найден ни номер телефона, ни номер карты в реквизитах мерчанта {} : {}", getMerchant().name(), response);
         }
-        RequisiteResponse requisiteResponse = new RequisiteResponse();
-        requisiteResponse.setMerchant(Merchant.HONEY_MONEY);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(Merchant.HONEY_MONEY);
         String requisite = Objects.nonNull(response.getPhoneNumber()) ? response.getPhoneNumber() : response.getCardNumber();
-        requisiteResponse.setRequisite(response.getBankName() + " " + requisite);
-        requisiteResponse.setMerchant(getMerchant());
-        requisiteResponse.setMerchantOrderId(response.getId().toString());
-        requisiteResponse.setMerchantOrderStatus(Status.PENDING.name());
-        return Optional.of(requisiteResponse);
+        detailsResponse.setDetails(response.getBankName() + " " + requisite);
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setMerchantOrderId(response.getId().toString());
+        detailsResponse.setMerchantOrderStatus(Status.PENDING.name());
+        return Optional.of(detailsResponse);
     }
 }

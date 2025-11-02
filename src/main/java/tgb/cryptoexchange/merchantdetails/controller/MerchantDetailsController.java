@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.controller.ApiController;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.web.ApiResponse;
@@ -54,11 +54,11 @@ public class MerchantDetailsController extends ApiController {
     }
 
     @GetMapping("/{merchant}")
-    public ResponseEntity<ApiResponse<RequisiteResponse>> requisite(@Valid @ModelAttribute RequisiteRequest request,
-                                                                    @PathVariable Merchant merchant) {
+    public ResponseEntity<ApiResponse<DetailsResponse>> requisite(@Valid @ModelAttribute DetailsRequest request,
+                                                                  @PathVariable Merchant merchant) {
         var maybeCreationService = Optional.ofNullable(merchantMerchantOrderCreationServiceMap.get(merchant));
         if (maybeCreationService.isPresent()) {
-            Optional<RequisiteResponse> maybeRequisiteResponse = maybeCreationService.get().createOrder(request);
+            Optional<DetailsResponse> maybeRequisiteResponse = maybeCreationService.get().createOrder(request);
             return maybeRequisiteResponse
                     .map(requisiteResponse -> new ResponseEntity<>(ApiResponse.success(requisiteResponse), HttpStatus.OK))
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));

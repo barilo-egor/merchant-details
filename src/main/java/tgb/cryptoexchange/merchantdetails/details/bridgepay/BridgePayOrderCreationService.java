@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteRequest;
-import tgb.cryptoexchange.merchantdetails.details.RequisiteResponse;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -35,12 +35,12 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(RequisiteRequest requisiteRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/merchant/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(RequisiteRequest requisiteRequest, String body) {
+    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return headers -> {
             headers.add("Content-Type", "application/json");
             headers.add("X-Identity", bridgePayProperties.key());
@@ -61,29 +61,29 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Request body(RequisiteRequest requisiteRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmount(requisiteRequest.getAmount().toString());
+        request.setAmount(detailsRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
-        request.setNotificationUrl(requisiteRequest.getCallbackUrl());
+        request.setNotificationUrl(detailsRequest.getCallbackUrl());
         request.setNotificationToken(bridgePayProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(parseMethod(requisiteRequest.getMethod(), Method.class));
+        request.setPaymentOption(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setStartDeal(true);
         return request;
     }
 
     @Override
-    protected Optional<RequisiteResponse> buildResponse(Response response) {
+    protected Optional<DetailsResponse> buildResponse(Response response) {
         if (!response.hasRequisites()) {
             return Optional.empty();
         }
-        RequisiteResponse requisiteVO = new RequisiteResponse();
+        DetailsResponse requisiteVO = new DetailsResponse();
         String invoiceId = response.getId();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(invoiceId);
         requisiteVO.setMerchantOrderStatus(InvoiceStatus.NEW.name());
-        requisiteVO.setRequisite(buildRequisite(response));
+        requisiteVO.setDetails(buildRequisite(response));
         return Optional.of(requisiteVO);
     }
 
