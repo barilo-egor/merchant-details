@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.ezepay;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 public class EzePayOrderCreationService extends MerchantOrderCreationService<Response> {
     
@@ -44,7 +46,7 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setOrder(UUID.randomUUID().toString());
         request.setShopId(Long.parseLong(ezePayProperties.id()));
@@ -56,11 +58,8 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (!response.getStatus().equals("success")
-                || Objects.isNull(response.getData())
-                || (Objects.isNull(response.getData().getBank()) && Objects.isNull(response.getData().getBankSbp()))
-                || Objects.isNull(response.getData().getDetails())
-                || Objects.isNull(response.getData().getOrderId())) {
+        if (!response.isValid()) {
+            log.error("В ответе мерчанта {} отсутствуют необходимые данные: {}", getMerchant().name(), response);
             return Optional.empty();
         }
         DetailsResponse requisiteVO = getRequisiteResponse(response);
