@@ -112,4 +112,9 @@ public class WebClientsConfig {
     public WebClient nicePayWebClient(NicePayProperties nicePayProperties) {
         return WebClient.builder().baseUrl(nicePayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient onlyPaysWebClient(OnlyPaysProperties onlyPaysProperties) {
+        return WebClient.builder().baseUrl(onlyPaysProperties.url()).build();
+    }
 }
