@@ -142,4 +142,9 @@ public class WebClientsConfig {
     public WebClient pulsarWebClient(PulsarProperties pulsarProperties) {
         return WebClient.builder().baseUrl(pulsarProperties.url()).build();
     }
+
+    @Bean
+    public WebClient way2payWebClient(Way2PayProperties way2PayProperties) {
+        return WebClient.builder().baseUrl(way2PayProperties.url()).build();
+    }
 }
