@@ -29,7 +29,7 @@ public enum Merchant {
     LUCKY_PAY,
     APPEXBIT,
     MOBIUS,
-    PAY_BOX,
+    YA_PAY,
     PARADOX_PAY,
     DAO_PAYMENTS,
     GEO_TRANSFER,

@@ -45,7 +45,7 @@ class MerchantPropertiesServiceTest {
             case ONYX_PAY -> assertInstanceOf(OnyxPayProperties.class, merchantProperties.get());
             case PANDA_PAY -> assertInstanceOf(PandaPayProperties.class, merchantProperties.get());
             case PARADOX_PAY -> assertInstanceOf(ParadoxPayProperties.class, merchantProperties.get());
-            case PAY_BOX -> assertInstanceOf(PayBoxProperties.class, merchantProperties.get());
+            case YA_PAY -> assertInstanceOf(YaPayProperties.class, merchantProperties.get());
             case PAY_LEE -> assertInstanceOf(PayLeeProperties.class, merchantProperties.get());
             case PAY_POINTS -> assertInstanceOf(PayPointsProperties.class, merchantProperties.get());
             case PAYSCROW -> assertInstanceOf(PayscrowProperties.class, merchantProperties.get());
