@@ -61,4 +61,26 @@ public class SignatureService {
         }
         return hexString.toString();
     }
+
+    public String generateHmacSha512Signature(String data, String secret)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac sha512Hmac = Mac.getInstance("HmacSHA512");
+        SecretKeySpec secretKey = new SecretKeySpec(
+                secret.getBytes(StandardCharsets.UTF_8),
+                "HmacSHA512");
+        sha512Hmac.init(secretKey);
+        byte[] hmacBytes = sha512Hmac.doFinal(
+                data.getBytes(StandardCharsets.UTF_8));
+
+        // Возвращаем HEX-строку
+        return bytesToHex(hmacBytes);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
 }
