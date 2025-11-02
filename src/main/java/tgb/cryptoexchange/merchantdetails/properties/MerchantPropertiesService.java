@@ -37,7 +37,7 @@ public class MerchantPropertiesService {
                                      ParadoxPayProperties paradoxPayProperties,
                                      PayCrownProperties payCrownProperties,
                                      PayFinityProperties payFinityProperties,
-                                     PayBoxProperties payBoxProperties,
+                                     YaPayProperties yaPayProperties,
                                      PayLeeProperties payLeeProperties,
                                      PayPointsProperties payPointsProperties,
                                      PayscrowProperties payscrowProperties,
@@ -66,7 +66,7 @@ public class MerchantPropertiesService {
         properties.put(ONYX_PAY, onyxPayProperties);
         properties.put(PANDA_PAY, pandaPayProperties);
         properties.put(PARADOX_PAY, paradoxPayProperties);
-        properties.put(PAY_BOX, payBoxProperties);
+        properties.put(YA_PAY, yaPayProperties);
         properties.put(PAY_CROWN, payCrownProperties);
         properties.put(PAY_FINITY, payFinityProperties);
         properties.put(PAY_LEE, payLeeProperties);

@@ -80,7 +80,7 @@ mobius:
   url: ""
   token: ""
   merchant-id: ""
-pay-box:
+ya-pay:
   url: ""
   token: ""
   sign-key: ""
