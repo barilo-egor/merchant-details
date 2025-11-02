@@ -132,4 +132,9 @@ public class WebClientsConfig {
     public WebClient payLeeWebClient(PayLeeProperties payLeeProperties) {
         return WebClient.builder().baseUrl(payLeeProperties.url()).build();
     }
+
+    @Bean
+    public WebClient pspWareWebClient(PspWareProperties pspWareProperties) {
+        return WebClient.builder().baseUrl(pspWareProperties.url()).build();
+    }
 }
