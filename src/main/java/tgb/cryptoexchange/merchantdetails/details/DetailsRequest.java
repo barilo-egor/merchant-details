@@ -16,4 +16,6 @@ public class DetailsRequest {
     private Integer amount;
 
     private String callbackUrl;
+
+    private Long chatId;
 }

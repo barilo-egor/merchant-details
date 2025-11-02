@@ -137,4 +137,9 @@ public class WebClientsConfig {
     public WebClient pspWareWebClient(PspWareProperties pspWareProperties) {
         return WebClient.builder().baseUrl(pspWareProperties.url()).build();
     }
+
+    @Bean
+    public WebClient pulsarWebClient(PulsarProperties pulsarProperties) {
+        return WebClient.builder().baseUrl(pulsarProperties.url()).build();
+    }
 }

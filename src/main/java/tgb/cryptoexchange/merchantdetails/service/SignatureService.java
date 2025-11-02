@@ -25,11 +25,13 @@ public class SignatureService {
 
         return Base64.getEncoder().encodeToString(rawHmac);
     }
-
     public String hmacSHA256(String requestJson, URI url, String signKey) {
         String signatureString = requestJson + url.getPath() +
                 (url.getQuery() != null ? url.getQuery() : "");
+        return hmacSHA256(signatureString, signKey);
+    }
 
+    public String hmacSHA256(String signatureString, String signKey) {
         HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, signKey.getBytes(StandardCharsets.UTF_8));
         byte[] hmacSha256 = hmacUtils.hmac(signatureString.getBytes(StandardCharsets.UTF_8));
         return Hex.encodeHexString(hmacSha256);
