@@ -13,6 +13,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HexFormat;
 
 @Service
 public class SignatureService {
@@ -32,6 +33,18 @@ public class SignatureService {
         HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, signKey.getBytes(StandardCharsets.UTF_8));
         byte[] hmacSha256 = hmacUtils.hmac(signatureString.getBytes(StandardCharsets.UTF_8));
         return Hex.encodeHexString(hmacSha256);
+    }
+
+    public String pandaPayHmacSHA256(String data, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
+        // Создаем HMAC SHA256 хэш
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secretKey);
+
+        byte[] hmacBytes = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
+        // Конвертируем в HEX строку
+        return HexFormat.of().formatHex(hmacBytes);
     }
 
     public String getMD5Hash(String input) throws NoSuchAlgorithmException {

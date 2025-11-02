@@ -12,15 +12,12 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.PandaPayProperties;
+import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.HexFormat;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,10 +28,13 @@ public class PandaPayOrderCreationService extends MerchantOrderCreationService<R
 
     private final PandaPayProperties pandaPayProperties;
 
+    private final SignatureService signatureService;
+
     protected PandaPayOrderCreationService(@Qualifier("pandaPayWebClient") WebClient webClient,
-                                           PandaPayProperties pandaPayProperties) {
+                                           PandaPayProperties pandaPayProperties, SignatureService signatureService) {
         super(webClient, Response.class);
         this.pandaPayProperties = pandaPayProperties;
+        this.signatureService = signatureService;
     }
 
     @Override
@@ -57,6 +57,7 @@ public class PandaPayOrderCreationService extends MerchantOrderCreationService<R
                 log.error("Ошибка формирования подписи для method={}, body={}", method().name(), body);
                 throw new SignatureCreationException("Ошибка формирования подписи.", e);
             }
+            httpHeaders.add("X-API-Key", pandaPayProperties.key());
             httpHeaders.add("X-Timestamp", signatureResult.timestamp);
             httpHeaders.add("X-Signature", signatureResult.signature);
         };
@@ -72,15 +73,7 @@ public class PandaPayOrderCreationService extends MerchantOrderCreationService<R
         // Комбинируем timestamp и payload
         String stringToSign = timestampStr + payload;
 
-        // Создаем HMAC SHA256 хэш
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(pandaPayProperties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKey);
-
-        byte[] hmacBytes = sha256Hmac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
-
-        // Конвертируем в HEX строку
-        String signature = HexFormat.of().formatHex(hmacBytes);
+        String signature = signatureService.pandaPayHmacSHA256(stringToSign, pandaPayProperties.secret());
 
         return new SignatureResult(signature, timestampStr);
     }
