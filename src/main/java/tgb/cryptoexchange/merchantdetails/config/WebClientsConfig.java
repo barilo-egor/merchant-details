@@ -127,4 +127,9 @@ public class WebClientsConfig {
     public WebClient payCrownWebClient(PayCrownProperties payCrownProperties) {
         return WebClient.builder().baseUrl(payCrownProperties.url()).build();
     }
+
+    @Bean
+    public WebClient payLeeWebClient(PayLeeProperties payLeeProperties) {
+        return WebClient.builder().baseUrl(payLeeProperties.url()).build();
+    }
 }
