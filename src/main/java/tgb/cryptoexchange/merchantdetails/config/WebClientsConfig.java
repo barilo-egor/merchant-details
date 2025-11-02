@@ -87,4 +87,9 @@ public class WebClientsConfig {
     public WebClient worldWidePaymentsSystemsWebClient(WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
         return WebClient.builder().baseUrl(worldWidePaymentSystemsProperties.url()).build();
     }
+
+    @Bean
+    public WebClient ezePayWebClient(EzePayProperties ezePayProperties) {
+        return WebClient.builder().baseUrl(ezePayProperties.url()).build();
+    }
 }
