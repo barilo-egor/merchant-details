@@ -1,9 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -18,5 +22,14 @@ public class SignatureService {
         byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
 
         return Base64.getEncoder().encodeToString(rawHmac);
+    }
+
+    public String hmacSHA256(String requestJson, URI url, String signKey) {
+        String signatureString = requestJson + url.getPath() +
+                (url.getQuery() != null ? url.getQuery() : "");
+
+        HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, signKey.getBytes(StandardCharsets.UTF_8));
+        byte[] hmacSha256 = hmacUtils.hmac(signatureString.getBytes(StandardCharsets.UTF_8));
+        return Hex.encodeHexString(hmacSha256);
     }
 }

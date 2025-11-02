@@ -92,4 +92,9 @@ public class WebClientsConfig {
     public WebClient ezePayWebClient(EzePayProperties ezePayProperties) {
         return WebClient.builder().baseUrl(ezePayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient honeyMoneyWebClient(HoneyMoneyProperties honeyMoneyProperties) {
+        return WebClient.builder().baseUrl(honeyMoneyProperties.url()).build();
+    }
 }
