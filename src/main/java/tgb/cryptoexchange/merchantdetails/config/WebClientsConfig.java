@@ -97,4 +97,14 @@ public class WebClientsConfig {
     public WebClient honeyMoneyWebClient(HoneyMoneyProperties honeyMoneyProperties) {
         return WebClient.builder().baseUrl(honeyMoneyProperties.url()).build();
     }
+
+    @Bean
+    public WebClient payscrowWebClient(PayscrowPropertiesImpl payscrowProperties) {
+        return WebClient.builder().baseUrl(payscrowProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient luckyPayWebClient(LuckyPayProperties luckyPayProperties) {
+        return WebClient.builder().baseUrl(luckyPayProperties.url()).build();
+    }
 }
