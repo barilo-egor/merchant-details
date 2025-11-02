@@ -122,4 +122,9 @@ public class WebClientsConfig {
     public WebClient pandaPayWebClient(PandaPayProperties pandaPayProperties) {
         return WebClient.builder().baseUrl(pandaPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient payCrownWebClient(PayCrownProperties payCrownProperties) {
+        return WebClient.builder().baseUrl(payCrownProperties.url()).build();
+    }
 }

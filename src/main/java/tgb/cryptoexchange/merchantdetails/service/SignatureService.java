@@ -10,6 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
@@ -31,5 +32,18 @@ public class SignatureService {
         HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, signKey.getBytes(StandardCharsets.UTF_8));
         byte[] hmacSha256 = hmacUtils.hmac(signatureString.getBytes(StandardCharsets.UTF_8));
         return Hex.encodeHexString(hmacSha256);
+    }
+
+    public String getMD5Hash(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] hashBytes = md.digest(input.getBytes());
+
+        // Конвертируем байты в HEX
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            String hex = String.format("%02x", b);
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }
