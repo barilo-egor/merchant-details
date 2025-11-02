@@ -3,6 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details.ezepay;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 public class Response {
 
@@ -26,5 +28,13 @@ public class Response {
 
         @JsonProperty("props")
         private String details;
+    }
+
+    public boolean isValid() {
+        return this.getStatus().equals("success")
+                && Objects.nonNull(this.getData())
+                && (Objects.nonNull(this.getData().getBank()) || Objects.nonNull(this.getData().getBankSbp()))
+                && Objects.nonNull(this.getData().getDetails())
+                && Objects.nonNull(this.getData().getOrderId());
     }
 }
