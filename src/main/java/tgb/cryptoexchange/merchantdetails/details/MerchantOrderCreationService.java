@@ -38,22 +38,32 @@ public abstract class MerchantOrderCreationService<T> {
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         T response;
+        String rawResponse;
         try {
             String body = objectMapper.writeValueAsString(body(detailsRequest));
-            response = webClient.method(method())
+            rawResponse = webClient.method(method())
                     .uri(uriBuilder(detailsRequest))
                     .headers(headers(detailsRequest, body))
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(responseType)
+                    .bodyToMono(String.class)
                     .block();
         } catch (WebClientException | JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (requisiteRequest={}): {}",
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}): {}",
                     currentTime, getMerchant().name(), detailsRequest.toString(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e );
         }
-        return buildResponse(response);
+        try {
+            response = objectMapper.readValue(rawResponse, responseType);
+            return buildResponse(response);
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
+                    currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
+            );
+            throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e );
+        }
     }
 
     protected HttpMethod method() {
