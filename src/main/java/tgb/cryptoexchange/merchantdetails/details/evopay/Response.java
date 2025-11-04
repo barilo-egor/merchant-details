@@ -40,7 +40,7 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(requisites);
+        return true;
     }
 
     @Data
