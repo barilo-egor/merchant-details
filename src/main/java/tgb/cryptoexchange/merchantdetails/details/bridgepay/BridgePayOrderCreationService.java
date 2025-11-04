@@ -75,9 +75,6 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (!response.hasRequisites()) {
-            return Optional.empty();
-        }
         DetailsResponse requisiteVO = new DetailsResponse();
         String invoiceId = response.getId();
         requisiteVO.setMerchant(getMerchant());

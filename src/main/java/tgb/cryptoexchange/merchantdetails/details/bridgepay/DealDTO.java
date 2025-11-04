@@ -5,9 +5,6 @@ import lombok.Data;
 
 @Data
 public class DealDTO {
-
-    private String id;
-
     @JsonDeserialize(using = Bank.Deserializer.class)
     private Bank paymentMethod;
 
