@@ -83,7 +83,7 @@ class CrocoPayOrderCreationServiceTest {
     void buildResponseShouldBuildRequisiteResponseWithAnyRubBank(String id, Status status, String requisiteString) {
         Response response = new Response();
         Response.ResponseData responseData = new Response.ResponseData();
-        Transaction transaction = new Transaction();
+        Response.ResponseData.Transaction transaction = new Response.ResponseData.Transaction();
         transaction.setId(id);
         transaction.setStatus(status);
         responseData.setTransaction(transaction);
@@ -112,7 +112,7 @@ class CrocoPayOrderCreationServiceTest {
     void buildResponseShouldBuildRequisiteResponseWithNotAnyRubBank(String requisiteString, String bank) {
         Response response = new Response();
         Response.ResponseData responseData = new Response.ResponseData();
-        Transaction transaction = new Transaction();
+        Response.ResponseData.Transaction transaction = new Response.ResponseData.Transaction();
         transaction.setId("id");
         transaction.setStatus(Status.DISPUTE);
         responseData.setTransaction(transaction);

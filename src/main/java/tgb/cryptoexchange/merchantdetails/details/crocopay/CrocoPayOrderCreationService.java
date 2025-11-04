@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,11 +56,6 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.ResponseData responseData = response.getResponseData();
-        if (Objects.isNull(responseData) || Objects.isNull(responseData.getPaymentRequisites())
-                || Objects.isNull(responseData.getPaymentRequisites().getPaymentMethod())
-                || Objects.isNull(responseData.getPaymentRequisites().getRequisites())) {
-            return Optional.empty();
-        }
         String requisite;
         if ("any_rub_bank".equals(responseData.getPaymentRequisites().getPaymentMethod())) {
             requisite = responseData.getPaymentRequisites().getRequisites();
