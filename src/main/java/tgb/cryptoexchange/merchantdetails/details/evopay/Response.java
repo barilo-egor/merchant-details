@@ -3,10 +3,14 @@ package tgb.cryptoexchange.merchantdetails.details.evopay;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
+
+import java.util.Objects;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Response {
+public class Response implements MerchantDetailsResponse {
 
     private String id;
 
@@ -14,8 +18,30 @@ public class Response {
 
     private Requisites requisites;
 
-    // TODO заглушка. как на самом деле приходит метод пока неизвестно
     private Method method;
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult result = new ValidationResult();
+        if (Objects.isNull(id)) {
+            result.notNull("id");
+        }
+        if (Objects.isNull(orderStatus)) {
+            result.notNull("orderStatus");
+        }
+        if (Objects.isNull(requisites)) {
+            result.notNull("requisites");
+        }
+        if (Objects.isNull(method)) {
+            result.notNull("method");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean hasDetails() {
+        return Objects.nonNull(requisites);
+    }
 
     @Data
     public static class Requisites {
