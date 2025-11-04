@@ -39,7 +39,7 @@ public abstract class MerchantOrderCreationService<T> {
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         T response;
         String rawResponse;
-        String body = null;
+        String body;
         try {
             body = objectMapper.writeValueAsString(body(detailsRequest));
         } catch (JsonProcessingException e) {
