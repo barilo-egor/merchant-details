@@ -39,8 +39,15 @@ public abstract class MerchantOrderCreationService<T> {
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         T response;
         String rawResponse;
+        String body = null;
         try {
-            String body = objectMapper.writeValueAsString(body(detailsRequest));
+            body = objectMapper.writeValueAsString(body(detailsRequest));
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при маппинге тела запроса(detailsRequest = {}): {}", currentTime, detailsRequest, e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
+        }
+        try {
             rawResponse = webClient.method(method())
                     .uri(uriBuilder(detailsRequest))
                     .headers(headers(detailsRequest, body))
@@ -48,11 +55,11 @@ public abstract class MerchantOrderCreationService<T> {
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-        } catch (WebClientException | JsonProcessingException e) {
+        } catch (WebClientException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}): {}",
                     currentTime, getMerchant().name(), detailsRequest.toString(), e.getMessage(), e);
-            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e );
+            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
         try {
             response = objectMapper.readValue(rawResponse, responseType);
@@ -62,7 +69,7 @@ public abstract class MerchantOrderCreationService<T> {
             log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
                     currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
             );
-            throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e );
+            throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
         }
     }
 
