@@ -44,8 +44,7 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(transferDetails) && Objects.nonNull(transferDetails.getCardNumber())
-                && Objects.nonNull(transferDetails.getBankName());
+        return true;
     }
 
     @Data
