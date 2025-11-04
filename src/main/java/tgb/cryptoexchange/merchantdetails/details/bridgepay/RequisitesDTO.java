@@ -6,6 +6,4 @@ import lombok.Data;
 public class RequisitesDTO {
 
     private String requisites;
-
-    private String holder;
 }

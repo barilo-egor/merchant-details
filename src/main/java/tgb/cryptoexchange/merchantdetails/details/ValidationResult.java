@@ -13,8 +13,8 @@ public class ValidationResult {
 
     private final List<Error> errors = new ArrayList<>();
 
-    public void notNull(String field) {
-        errors.add(new Error(field, "must not be null"));
+    public void notNull(String... field) {
+        errors.add(new Error(String.join(" or ", field), "must not be null"));
     }
 
     public void notExpectedSize(String field, int expectedSize, int actualSize) {
@@ -26,7 +26,7 @@ public class ValidationResult {
     }
 
     public String errorsToString() {
-        return errors.stream().map(error -> "field \"" + error.getField() + "\" " + error.getMessage()).collect(Collectors.joining(","));
+        return errors.stream().map(error -> "field \"" + error.getField() + "\" " + error.getMessage()).collect(Collectors.joining(";"));
     }
 
     @Data
