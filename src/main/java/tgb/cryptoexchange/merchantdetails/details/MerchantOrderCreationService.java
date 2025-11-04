@@ -2,10 +2,6 @@ package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,7 +15,6 @@ import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -36,14 +31,9 @@ public abstract class MerchantOrderCreationService<T> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Validator validator;
-
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
         this.webClient = webClient;
         this.responseType = responseType;
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            this.validator = factory.getValidator();
-        }
     }
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
@@ -66,7 +56,6 @@ public abstract class MerchantOrderCreationService<T> {
         }
         try {
             response = objectMapper.readValue(rawResponse, responseType);
-            validateResponse(response, rawResponse);
             return buildResponse(response);
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
@@ -74,23 +63,6 @@ public abstract class MerchantOrderCreationService<T> {
                     currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
             );
             throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e );
-        }
-    }
-
-    private void validateResponse(T response, String rawResponse) {
-        if (response == null) {
-            throw new ServiceUnavailableException("Empty response from merchant " + getMerchant().name());
-        }
-
-        Set<ConstraintViolation<T>> violations = validator.validate(response);
-        if (!violations.isEmpty()) {
-            String errors = violations.stream()
-                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                    .reduce((a, b) -> a + "; " + b)
-                    .orElse("Unknown validation error");
-
-            log.error("Invalid response from {}: {}. rawResponse={}", getMerchant().name(), errors, rawResponse);
-            throw new ServiceUnavailableException("Invalid response from " + getMerchant().name() + ": " + errors);
         }
     }
 
