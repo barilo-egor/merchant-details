@@ -7,16 +7,56 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Data
-public class Response {
+public class Response implements MerchantDetailsResponse {
 
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     private Data data;
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult result = new ValidationResult();
+        if (Objects.isNull(status)) {
+            result.notNull("status");
+        } else {
+            if (Status.ERROR.equals(status)) {
+                result.addError("status", "must not be " + Status.ERROR.name());
+            } else if (Status.DETAILS_FOUND.equals(status)) {
+                validateData(result);
+            }
+        }
+        return result;
+    }
+
+    private void validateData(ValidationResult result) {
+        if (Objects.isNull(data)) {
+            result.notNull("data");
+        } else {
+            if (Objects.isNull(data.getPaymentId())) {
+                result.notNull("data.paymentId");
+            }
+            if (Objects.isNull(data.getDetails())) {
+                result.notNull("data.details");
+            } else {
+                if (Objects.isNull(data.getDetails().getWallet())) {
+                    result.notNull("data.details.wallet");
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean hasDetails() {
+        return Status.DETAILS_FOUND.equals(status);
+    }
 
     @lombok.Data
     public static class Data {
