@@ -50,10 +50,6 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (response.hasErrors()) {
-            log.error("Ошибки в ответе на запрос от мерчанта {}: {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         if (Objects.isNull(response.getBankName())
                 || (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber()))) {
             log.error("В ответе отсутствует и номер карты, и номер телефона, либо название банка: {}", response);

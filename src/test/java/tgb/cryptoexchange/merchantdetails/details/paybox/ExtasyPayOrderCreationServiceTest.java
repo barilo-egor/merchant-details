@@ -123,23 +123,14 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void getRequisiteResponseShouldReturnEmptyOptionalIfResponseHasErrors() {
-        Response response = Mockito.mock(Response.class);
-        when(response.hasErrors()).thenReturn(true);
-        assertTrue(extasyPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
     void getRequisiteResponseShouldReturnEmptyOptionalIfResponseHasNoBankName() {
         Response response = Mockito.mock(Response.class);
-        when(response.hasErrors()).thenReturn(false);
         assertTrue(extasyPayOrderCreationService.buildResponse(response).isEmpty());
     }
 
     @Test
     void getRequisiteResponseShouldReturnEmptyOptionalIfResponseHasNoCardAndPhone() {
         Response response = Mockito.mock(Response.class);
-        when(response.hasErrors()).thenReturn(false);
         when(response.getBankName()).thenReturn("bank");
         assertTrue(extasyPayOrderCreationService.buildResponse(response).isEmpty());
     }
