@@ -101,7 +101,6 @@ class EvoPayOrderCreationServiceTest {
     @ParameterizedTest
     void buildResponseShouldBuildRequisiteResponseWithCard(String id, Status status, String requisiteString, String bank) {
         Response response = new Response();
-        response.setMethod(Method.BANK_CARD);
         response.setId(id);
         Response.Requisites requisites = new Response.Requisites();
         requisites.setRecipientBank(bank);
@@ -127,7 +126,6 @@ class EvoPayOrderCreationServiceTest {
     @ParameterizedTest
     void buildResponseShouldBuildRequisiteResponseWithSbp(String id, Status status, String requisiteString, String bank) {
         Response response = new Response();
-        response.setMethod(Method.SBP);
         response.setId(id);
         Response.Requisites requisites = new Response.Requisites();
         requisites.setRecipientBank(bank);
