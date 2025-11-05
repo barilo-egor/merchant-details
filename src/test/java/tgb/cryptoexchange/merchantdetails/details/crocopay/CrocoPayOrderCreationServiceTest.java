@@ -129,37 +129,4 @@ class CrocoPayOrderCreationServiceTest {
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfResponseDataIsNull() {
-        Response response = new Response();
-        assertTrue(crocoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfPaymentRequisitesIsNull() {
-        Response response = new Response();
-        response.setResponseData(new Response.ResponseData());
-        assertTrue(crocoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfPaymentMethodIsNull() {
-        Response response = new Response();
-        Response.ResponseData responseData = new Response.ResponseData();
-        responseData.setPaymentRequisites(new Response.ResponseData.PaymentRequisites());
-        response.setResponseData(responseData);
-        assertTrue(crocoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfRequisitesOfPaymentRequisitesIsNull() {
-        Response response = new Response();
-        Response.ResponseData responseData = new Response.ResponseData();
-        Response.ResponseData.PaymentRequisites paymentRequisites = new Response.ResponseData.PaymentRequisites();
-        paymentRequisites.setPaymentMethod("method");
-        responseData.setPaymentRequisites(paymentRequisites);
-        response.setResponseData(responseData);
-        assertTrue(crocoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
 }

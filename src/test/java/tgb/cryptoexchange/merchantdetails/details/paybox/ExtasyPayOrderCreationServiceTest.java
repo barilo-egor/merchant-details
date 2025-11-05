@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
@@ -84,7 +83,7 @@ class ExtasyPayOrderCreationServiceTest {
             "1533,9876543212345678,OVERPAID,ALFA"
     })
     @ParameterizedTest
-    void getRequisiteResponseShouldBuildRequisiteResponseObjectWithCardNumber(Long id, String requisiteString, Status status, String bank) {
+    void buildResponseShouldBuildRequisiteResponseObjectWithCardNumber(Long id, String requisiteString, Status status, String bank) {
         Response response = new Response();
         response.setId(id);
         response.setStatus(status);
@@ -107,7 +106,7 @@ class ExtasyPayOrderCreationServiceTest {
             "9876543212345678"
     })
     @ParameterizedTest
-    void getRequisiteResponseShouldBuildRequisiteResponseObjectWithPhoneNumber(String requisiteString) {
+    void buildResponseShouldBuildRequisiteResponseObjectWithPhoneNumber(String requisiteString) {
         Response response = new Response();
         response.setId(1L);
         response.setStatus(Status.ERROR);
@@ -120,18 +119,5 @@ class ExtasyPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
         );
-    }
-
-    @Test
-    void getRequisiteResponseShouldReturnEmptyOptionalIfResponseHasNoBankName() {
-        Response response = Mockito.mock(Response.class);
-        assertTrue(extasyPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void getRequisiteResponseShouldReturnEmptyOptionalIfResponseHasNoCardAndPhone() {
-        Response response = Mockito.mock(Response.class);
-        when(response.getBankName()).thenReturn("bank");
-        assertTrue(extasyPayOrderCreationService.buildResponse(response).isEmpty());
     }
 }

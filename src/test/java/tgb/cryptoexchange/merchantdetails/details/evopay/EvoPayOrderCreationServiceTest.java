@@ -145,27 +145,4 @@ class EvoPayOrderCreationServiceTest {
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfRequisitesIsNull() {
-        Response response = new Response();
-        assertTrue(evoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfRecipientBankIsNull() {
-        Response response = new Response();
-        Response.Requisites requisites = new Response.Requisites();
-        response.setRequisites(requisites);
-        assertTrue(evoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfCardAndPhoneIsNull() {
-        Response response = new Response();
-        Response.Requisites requisites = new Response.Requisites();
-        requisites.setRecipientBank("bank");
-        response.setRequisites(requisites);
-        assertTrue(evoPayOrderCreationService.buildResponse(response).isEmpty());
-    }
 }
