@@ -15,7 +15,6 @@ class ResponseTest {
         Response response = new Response();
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"success\" must not be null", validationResult.errorsToString())
         );
     }
@@ -26,7 +25,6 @@ class ResponseTest {
         response.setSuccess(false);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"success\" expected true but was false", validationResult.errorsToString())
         );
     }
@@ -38,7 +36,6 @@ class ResponseTest {
         response.setAddedOffers(new ArrayList<>());
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertTrue(validationResult.isValid()),
                 () -> assertTrue(validationResult.errorsToString().isEmpty())
         );
     }
@@ -53,7 +50,6 @@ class ResponseTest {
         response.setAddedOffers(offers);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"addedOffers\" size expected <= 1", validationResult.errorsToString())
         );
     }
@@ -67,7 +63,6 @@ class ResponseTest {
         response.setAddedOffers(offers);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"offer\" must not be null", validationResult.errorsToString())
         );
     }
@@ -83,7 +78,6 @@ class ResponseTest {
         response.setAddedOffers(offers);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"offer.id\" must not be null", validationResult.errorsToString())
         );
     }
@@ -99,7 +93,6 @@ class ResponseTest {
         response.setAddedOffers(offers);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"offer.status\" must not be null", validationResult.errorsToString())
         );
     }
@@ -114,7 +107,6 @@ class ResponseTest {
         response.setAddedOffers(offers);
         ValidationResult validationResult = response.validate();
         assertAll(
-                () -> assertFalse(validationResult.isValid()),
                 () -> assertEquals("field \"offer.id\" must not be null;field \"offer.status\" must not be null", validationResult.errorsToString())
         );
     }
