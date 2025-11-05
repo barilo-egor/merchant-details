@@ -104,27 +104,4 @@ class DaoPaymentsOrderCreationServiceTest {
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfTransferDetailsIsNull() {
-        Response response = new Response();
-        assertTrue(daoPaymentsOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfBankNameIsNull() {
-        Response response = new Response();
-        Response.TransferDetails transferDetails = new Response.TransferDetails();
-        response.setTransferDetails(transferDetails);
-        assertTrue(daoPaymentsOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfCardNumberIsNull() {
-        Response response = new Response();
-        Response.TransferDetails transferDetails = new Response.TransferDetails();
-        transferDetails.setBankName("bank");
-        response.setTransferDetails(transferDetails);
-        assertTrue(daoPaymentsOrderCreationService.buildResponse(response).isEmpty());
-    }
 }

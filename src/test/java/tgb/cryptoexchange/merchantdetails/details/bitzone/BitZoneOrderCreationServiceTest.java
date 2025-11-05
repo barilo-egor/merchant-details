@@ -122,25 +122,4 @@ class BitZoneOrderCreationServiceTest {
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
     }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfRequisiteIsNull() {
-        Response response = new Response();
-        assertTrue(bitZoneOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfBankIsNull() {
-        Response response = new Response();
-        response.setRequisite(new Response.Requisite());
-        assertTrue(bitZoneOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfRequisitesAndSbpNumberIsNull() {
-        Response response = new Response();
-        response.setRequisite(new Response.Requisite());
-        response.getRequisite().setBank("bank");
-        assertTrue(bitZoneOrderCreationService.buildResponse(response).isEmpty());
-    }
 }

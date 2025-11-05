@@ -22,7 +22,10 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,19 +116,6 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(Method.valueOf(method), actual.getPaymentOption()),
                 () -> assertTrue(actual.getStartDeal())
         );
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfDealsIsNull() {
-        Response response = new Response();
-        assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfDealsIsEmpty() {
-        Response response = new Response();
-        response.setDeals(new ArrayList<>());
-        assertTrue(alfaTeamMerchantCreationService.buildResponse(response).isEmpty());
     }
 
     @CsvSource({

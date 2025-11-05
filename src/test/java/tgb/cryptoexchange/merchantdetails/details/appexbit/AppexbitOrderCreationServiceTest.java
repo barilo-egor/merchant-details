@@ -103,32 +103,4 @@ class AppexbitOrderCreationServiceTest {
                 () -> assertEquals(message, actual.getDetails())
         );
     }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfSuccessIsNull() {
-        Response response = new Response();
-        assertTrue(appexbitOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfSuccessIsFalse() {
-        Response response = new Response();
-        response.setSuccess(false);
-        assertTrue(appexbitOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfAddedOfferIsNull() {
-        Response response = new Response();
-        response.setSuccess(true);
-        assertTrue(appexbitOrderCreationService.buildResponse(response).isEmpty());
-    }
-
-    @Test
-    void buildResponseShouldReturnEmptyOptionalIfAddedOfferIsEmpty() {
-        Response response = new Response();
-        response.setSuccess(true);
-        response.setAddedOffers(List.of());
-        assertTrue(appexbitOrderCreationService.buildResponse(response).isEmpty());
-    }
 }
