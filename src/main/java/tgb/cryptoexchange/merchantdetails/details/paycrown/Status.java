@@ -1,12 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.paycrown;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
@@ -29,12 +24,5 @@ public enum Status {
             }
         }
         return null;
-    }
-
-    public static class Deserializer extends JsonDeserializer<Status> {
-        @Override
-        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return Status.fromValue(jsonParser.getValueAsString());
-        }
     }
 }
