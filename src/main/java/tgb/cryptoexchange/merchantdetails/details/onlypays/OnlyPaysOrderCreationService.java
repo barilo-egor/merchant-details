@@ -58,10 +58,6 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (!response.isSuccess()) {
-            log.debug("Неуспешный ответ при получении реквизитов мерчанта {}: {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getRequisite());
         detailsResponse.setMerchant(getMerchant());

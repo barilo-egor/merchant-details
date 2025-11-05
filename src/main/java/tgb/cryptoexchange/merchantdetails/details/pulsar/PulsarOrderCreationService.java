@@ -13,7 +13,6 @@ import tgb.cryptoexchange.merchantdetails.properties.PulsarProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -65,11 +64,6 @@ public class PulsarOrderCreationService extends MerchantOrderCreationService<Res
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getResult())
-                || Objects.isNull(response.getResult().getAddress())
-                || Objects.isNull(response.getResult().getBankName())) {
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setDetails(response.getResult().getBankName() + " " + response.getResult().getAddress());
         detailsResponse.setMerchant(getMerchant());

@@ -10,7 +10,6 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -50,10 +49,6 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getMethodName()) || Objects.isNull(response.getHolderAccount())) {
-            log.error("Отсутствует банк либо реквизит мерчанта {} : {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());

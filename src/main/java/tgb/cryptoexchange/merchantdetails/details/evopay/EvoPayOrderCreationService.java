@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -63,17 +62,6 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getRequisites())
-                || Objects.isNull(response.getRequisites().getRecipientBank())
-                || (Objects.isNull(response.getRequisites().getRecipientPhoneNumber())
-                && Objects.isNull(response.getRequisites().getRecipientCardNumber()))) {
-            return Optional.empty();
-        }
-        DetailsResponse detailsResponse = getRequisiteResponse(response);
-        return Optional.of(detailsResponse);
-    }
-
-    private DetailsResponse getRequisiteResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(Merchant.EVO_PAY);
         detailsResponse.setDetails(Method.BANK_CARD.equals(response.getMethod())
@@ -82,6 +70,6 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         );
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getOrderStatus().name());
-        return detailsResponse;
+        return Optional.of(detailsResponse);
     }
 }

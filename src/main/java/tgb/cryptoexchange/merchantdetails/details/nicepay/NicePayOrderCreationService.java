@@ -66,14 +66,7 @@ public class NicePayOrderCreationService extends MerchantOrderCreationService<Re
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (!Response.Status.DETAILS_FOUND.equals(response.getStatus())) {
-            return Optional.empty();
-        }
         String details = findDetails(response);
-        if (Objects.isNull(details)) {
-            log.error("Не определен тип реквизитов для мерчанта {} : {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setDetails(details);
         detailsResponse.setMerchant(Merchant.NICE_PAY);

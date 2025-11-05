@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -52,9 +51,6 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getRequisites()) || Objects.isNull(response.getBankName())) {
-            return Optional.empty();
-        }
         DetailsResponse vo = new DetailsResponse();
         vo.setDetails(response.getBankName() + " " + response.getRequisites());
         vo.setMerchant(getMerchant());
