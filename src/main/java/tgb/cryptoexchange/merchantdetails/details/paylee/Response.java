@@ -2,9 +2,13 @@ package tgb.cryptoexchange.merchantdetails.details.paylee;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
+import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
+
+import java.util.Objects;
 
 @Data
-public class Response {
+public class Response implements MerchantDetailsResponse {
 
     private Integer id;
 
@@ -16,4 +20,27 @@ public class Response {
     private Status status;
 
     private Double price;
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult result = new ValidationResult();
+        if (Objects.nonNull(id)) {
+            result.notNull("id");
+        }
+        if (Objects.nonNull(requisites)) {
+            result.notNull("requisites");
+        }
+        if (Objects.nonNull(bankName)) {
+            result.notNull("bankName");
+        }
+        if (Objects.nonNull(status)) {
+            result.notNull("status");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean hasDetails() {
+        return true;
+    }
 }
