@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @param <T> тип ответа от мерчанта
  */
 @Slf4j
-public abstract class MerchantOrderCreationService<T> {
+public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse> {
 
     private final WebClient webClient;
 
@@ -63,7 +63,6 @@ public abstract class MerchantOrderCreationService<T> {
         }
         try {
             response = objectMapper.readValue(rawResponse, responseType);
-            return buildResponse(response);
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
@@ -71,6 +70,16 @@ public abstract class MerchantOrderCreationService<T> {
             );
             throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
         }
+        ValidationResult validationResult = response.validate();
+        if (!validationResult.isValid()) {
+            long currentTime = System.currentTimeMillis();
+            log.error("Ответ мерчанта {} невалиден: ", validationResult.errorsToString());
+            throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
+        }
+        if (!response.hasDetails()) {
+            return Optional.empty();
+        }
+        return buildResponse(response);
     }
 
     protected HttpMethod method() {

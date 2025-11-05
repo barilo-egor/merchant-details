@@ -18,8 +18,6 @@ public class Response implements MerchantDetailsResponse {
 
     private Requisites requisites;
 
-    private Method method;
-
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
@@ -31,9 +29,6 @@ public class Response implements MerchantDetailsResponse {
         }
         if (Objects.isNull(requisites)) {
             result.notNull("requisites");
-        }
-        if (Objects.isNull(method)) {
-            result.notNull("method");
         }
         return result;
     }
