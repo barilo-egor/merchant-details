@@ -20,26 +20,37 @@ public class Response implements MerchantDetailsResponse {
         ValidationResult validationResult = new ValidationResult();
         if (Objects.isNull(success)) {
             validationResult.notNull("success");
-        }
-        if (Objects.nonNull(addedOffers) && addedOffers.size() !=1) {
-            validationResult.notExpectedSize("addedOffers", 1, addedOffers.size());
-        } else if (Objects.nonNull(addedOffers)) {
-            Offer offer = addedOffers.getFirst();
-            if (Objects.isNull(offer)) {
-                validationResult.notNull("offer");
-            } else if (Objects.isNull(offer.getId())) {
-                validationResult.notNull("offer.id");
-            } else if (Objects.isNull(offer.getStatus())) {
-                validationResult.notNull("offer.status");
+        } else if (Boolean.FALSE.equals(success)) {
+            validationResult.addError("success", "expected true but was false");
+        } else {
+            if (hasDetails()) {
+                if (addedOffers.size() > 1) {
+                    validationResult.addError("addedOffers", "size expected <= 1");
+                } else {
+                    validateOffer(validationResult);
+                }
             }
         }
         return validationResult;
     }
 
+    private void validateOffer(ValidationResult validationResult) {
+        Offer offer = addedOffers.getFirst();
+        if (Objects.isNull(offer)) {
+            validationResult.notNull("offer");
+        } else {
+            if (Objects.isNull(offer.getId())) {
+                validationResult.notNull("offer.id");
+            }
+            if (Objects.isNull(offer.getStatus())) {
+                validationResult.notNull("offer.status");
+            }
+        }
+    }
+
     @Override
     public boolean hasDetails() {
-        String message = addedOffers.getFirst().getMessage();
-        return Objects.nonNull(message) && !message.isEmpty();
+        return Objects.nonNull(addedOffers) && !addedOffers.isEmpty();
     }
 
     @Data

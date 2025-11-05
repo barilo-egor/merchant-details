@@ -17,10 +17,6 @@ public class ValidationResult {
         errors.add(new Error(String.join(" or ", field), "must not be null"));
     }
 
-    public void notExpectedSize(String field, int expectedSize, int actualSize) {
-        errors.add(new Error(field, "size must be " + expectedSize + " but was " + actualSize));
-    }
-
     public void expectedEmpty(String field) {
         errors.add(new Error(field, "must be empty"));
     }
@@ -34,6 +30,9 @@ public class ValidationResult {
     }
 
     public String errorsToString() {
+        if (errors.isEmpty()) {
+            return "";
+        }
         return errors.stream().map(error -> "field \"" + error.getField() + "\" " + error.getMessage()).collect(Collectors.joining(";"));
     }
 
