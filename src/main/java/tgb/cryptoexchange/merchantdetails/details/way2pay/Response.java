@@ -18,7 +18,7 @@ public class Response implements MerchantDetailsResponse {
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
         if (Objects.isNull(success)) {
-            result.addError("success", "expected true but was null");
+            result.notNull("success");
         } else if (Boolean.FALSE.equals(success)) {
             result.addError("success", "expected false but was false");
         } else {
