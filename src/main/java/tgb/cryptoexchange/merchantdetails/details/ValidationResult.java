@@ -21,6 +21,10 @@ public class ValidationResult {
         errors.add(new Error(field, "size must be " + expectedSize + " but was " + actualSize));
     }
 
+    public void expectedEmpty(String field) {
+        errors.add(new Error(field, "must be empty"));
+    }
+
     public void addError(String field, String message) {
         errors.add(new Error(field, message));
     }
