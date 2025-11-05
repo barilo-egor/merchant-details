@@ -39,6 +39,8 @@ public class Response implements MerchantDetailsResponse {
             if (Objects.isNull(requisite.getRequisites()) && Objects.isNull(requisite.getSbpNumber())) {
                 result.notNull("requisite.requisites", "requisite.sbpNumber");
             }
+        } else {
+            result.notNull("requisite");
         }
         return result;
     }
