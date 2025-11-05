@@ -10,7 +10,6 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -53,11 +52,6 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getData()) || Objects.isNull(response.getData().getPaymentGatewayName())
-                || Objects.isNull(response.getData().getPaymentDetail())) {
-            log.debug("Отсутствуют реквизиты в ответе мерчанта {}: {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setDetails(response.getData().getPaymentGatewayName() + " " + response.getData().getPaymentDetail().getDetail());
         detailsResponse.setMerchant(getMerchant());

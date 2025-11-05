@@ -59,12 +59,4 @@ public class Response implements MerchantDetailsResponse {
         @JsonProperty("props")
         private String details;
     }
-
-    public boolean isValid() {
-        return this.getStatus().equals("success")
-                && Objects.nonNull(this.getData())
-                && (Objects.nonNull(this.getData().getBank()) || Objects.nonNull(this.getData().getBankSbp()))
-                && Objects.nonNull(this.getData().getDetails())
-                && Objects.nonNull(this.getData().getOrderId());
-    }
 }

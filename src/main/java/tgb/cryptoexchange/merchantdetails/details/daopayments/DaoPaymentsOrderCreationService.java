@@ -13,7 +13,6 @@ import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -62,14 +61,11 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.TransferDetails transferDetails = response.getTransferDetails();
-        if (Objects.isNull(transferDetails) || Objects.isNull(transferDetails.getBankName()) || Objects.isNull(transferDetails.getCardNumber())) {
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderStatus(response.getStatus().toString());
         detailsResponse.setMerchantOrderId(response.getTransactionId());
-        detailsResponse.setDetails(response.getTransferDetails().getBankName() + " " + response.getTransferDetails().getCardNumber());
+        detailsResponse.setDetails(transferDetails.getBankName() + " " + transferDetails.getCardNumber());
         detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
         return Optional.of(detailsResponse);
     }

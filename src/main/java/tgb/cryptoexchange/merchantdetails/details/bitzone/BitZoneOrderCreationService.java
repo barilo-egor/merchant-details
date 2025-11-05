@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -59,10 +58,6 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getRequisite()) || Objects.isNull(response.getRequisite().getBank())
-                || (Objects.isNull(response.getRequisite().getRequisites()) && Objects.isNull(response.getRequisite().getSbpNumber()))) {
-            return Optional.empty();
-        }
         String requisite;
         if (Method.SBP.equals(response.getMethod())) {
             requisite = response.getRequisite().getBank() + " " + response.getRequisite().getSbpNumber();

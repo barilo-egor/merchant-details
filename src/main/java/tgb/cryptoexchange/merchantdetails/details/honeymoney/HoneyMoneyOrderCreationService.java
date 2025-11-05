@@ -68,9 +68,6 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber())) {
-            log.error("Не найден ни номер телефона, ни номер карты в реквизитах мерчанта {} : {}", getMerchant().name(), response);
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(Merchant.HONEY_MONEY);
         String requisite = Objects.nonNull(response.getPhoneNumber()) ? response.getPhoneNumber() : response.getCardNumber();

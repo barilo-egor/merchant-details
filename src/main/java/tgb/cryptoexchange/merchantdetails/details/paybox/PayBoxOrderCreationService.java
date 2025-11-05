@@ -50,16 +50,6 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getBankName())
-                || (Objects.isNull(response.getPhoneNumber()) && Objects.isNull(response.getCardNumber()))) {
-            log.error("В ответе отсутствует и номер карты, и номер телефона, либо название банка: {}", response);
-            return Optional.empty();
-        }
-        DetailsResponse detailsResponse = getRequisiteResponse(response);
-        return Optional.of(detailsResponse);
-    }
-
-    private DetailsResponse getRequisiteResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
@@ -69,6 +59,6 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
             detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
         }
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        return detailsResponse;
+        return Optional.of(detailsResponse);
     }
 }

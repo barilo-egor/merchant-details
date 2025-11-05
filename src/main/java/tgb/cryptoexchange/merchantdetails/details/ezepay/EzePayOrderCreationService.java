@@ -58,15 +58,6 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (!response.isValid()) {
-            log.error("В ответе мерчанта {} отсутствуют необходимые данные: {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
-        DetailsResponse requisiteVO = getRequisiteResponse(response);
-        return Optional.of(requisiteVO);
-    }
-
-    private DetailsResponse getRequisiteResponse(Response response) {
         DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(response.getData().getOrderId());
@@ -78,6 +69,6 @@ public class EzePayOrderCreationService extends MerchantOrderCreationService<Res
             requisite = response.getData().getBankSbp() + " " + response.getData().getDetails();
         }
         requisiteVO.setDetails(requisite);
-        return requisiteVO;
+        return Optional.of(requisiteVO);
     }
 }

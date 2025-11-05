@@ -19,7 +19,6 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -91,10 +90,6 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Objects.isNull(response.getData()) || Objects.isNull(response.getData().getRequisites())) {
-            log.error("Отсутствуют реквизиты в ответе у мерчанта {}: {}", getMerchant().name(), response);
-            return Optional.empty();
-        }
         DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(Status.NEW.name());

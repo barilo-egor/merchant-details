@@ -90,9 +90,6 @@ public class PandaPayOrderCreationService extends MerchantOrderCreationService<R
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if (Status.TRADER_NOT_FOUND.equals(response.getStatus())) {
-            return Optional.empty();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setDetails(response.getRequisiteData().getBank() + " " + response.getRequisiteData().getRequisites());

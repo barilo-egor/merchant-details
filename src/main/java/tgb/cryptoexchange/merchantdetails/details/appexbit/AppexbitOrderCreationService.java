@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -60,10 +59,6 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        if ((Objects.isNull(response.getSuccess()) || !response.getSuccess())
-                || Objects.isNull(response.getAddedOffers()) || response.getAddedOffers().isEmpty()) {
-            return Optional.empty();
-        }
         Response.Offer offer = response.getAddedOffers().getFirst();
         DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
