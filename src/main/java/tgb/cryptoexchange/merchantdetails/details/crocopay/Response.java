@@ -20,26 +20,35 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(responseData)) {
             result.notNull("responseData");
         } else {
-            if (Objects.nonNull(responseData.getTransaction())) {
-                if (Objects.isNull(responseData.getTransaction().getId())) {
-                    result.notNull("responseData.transaction.id");
-                }
-                if (Objects.isNull(responseData.getTransaction().getStatus())) {
-                    result.notNull("responseData.transaction.status");
-                }
+            if (Objects.nonNull(responseData.getPaymentRequisites())) {
+                validatePaymentRequisites(result);
             }
-            if (Objects.nonNull(responseData.getPaymentRequisites())
-                    && Objects.isNull(responseData.getPaymentRequisites().getPaymentMethod())) {
-                result.notNull("responseData.paymentRequisites.paymentMethod");
-            }
-
         }
         return result;
     }
 
+    private void validatePaymentRequisites(ValidationResult result) {
+        if (Objects.isNull(responseData.getPaymentRequisites().getRequisites())) {
+            result.notNull("responseData.paymentRequisites.requisites");
+        }
+        if (Objects.isNull(responseData.getPaymentRequisites().getPaymentMethod())) {
+            result.notNull("responseData.paymentRequisites.paymentMethod");
+        }
+        if (Objects.isNull(responseData.getTransaction())) {
+            result.notNull("responseData.transaction");
+        } else {
+            if (Objects.isNull(responseData.getTransaction().getId())) {
+                result.notNull("responseData.transaction.id");
+            }
+            if (Objects.isNull(responseData.getTransaction().getStatus())) {
+                result.notNull("responseData.transaction.status");
+            }
+        }
+    }
+
     @Override
     public boolean hasDetails() {
-        return true;
+        return Objects.nonNull(responseData.getPaymentRequisites());
     }
 
     @Data
