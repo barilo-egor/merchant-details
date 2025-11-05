@@ -19,26 +19,31 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (Objects.isNull(id)) {
-            result.notNull("id");
-        }
-        if (Objects.nonNull(deals) && !deals.isEmpty()) {
-            DealDTO deal = deals.getFirst();
-            if (Objects.isNull(deal)) {
+        if (hasDetails()) {
+            if (Objects.isNull(id)) {
+                result.notNull("id");
+            }
+            if (Objects.isNull(deals.getFirst())) {
                 result.notNull("deal");
-            }
-            if (Objects.isNull(deal.getPaymentMethod())) {
-                result.notNull("deal.paymentMethod");
-            }
-            if (Objects.isNull(deal.getRequisites())) {
-                result.notNull("deal.requisites");
             } else {
-                if (Objects.isNull(deal.getRequisites().getRequisites())) {
-                    result.notNull("deal.requisites.requisites");
-                }
+                validateDeal(result);
             }
         }
         return result;
+    }
+
+    private void validateDeal(ValidationResult result) {
+        DealDTO deal = deals.getFirst();
+        if (Objects.isNull(deal.getPaymentMethod())) {
+            result.notNull("deal.paymentMethod");
+        }
+        if (Objects.isNull(deal.getRequisites())) {
+            result.notNull("deal.requisites");
+        } else {
+            if (Objects.isNull(deal.getRequisites().getRequisites())) {
+                result.notNull("deal.requisites.requisites");
+            }
+        }
     }
 
     @Override
