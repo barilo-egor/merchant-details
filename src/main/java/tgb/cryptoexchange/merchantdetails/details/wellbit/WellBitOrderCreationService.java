@@ -85,7 +85,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setDetails(response.getPayment().getCredentialAdditionalBank() + " " + response.getPayment().getCredential());
-        detailsResponse.setMerchantOrderStatus(Status.NEW.name());
+        detailsResponse.setMerchantOrderStatus(response.getPayment().getStatus().name());
         detailsResponse.setMerchantOrderId(response.getPayment().getId().toString());
         return Optional.of(detailsResponse);
     }
