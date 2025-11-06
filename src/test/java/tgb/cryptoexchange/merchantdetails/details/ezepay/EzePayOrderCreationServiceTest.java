@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -94,6 +95,27 @@ class EzePayOrderCreationServiceTest {
                 () -> assertEquals(orderId, actual.getMerchantOrderId()),
                 () -> assertEquals(Status.CHOOSING_METHOD.name(), actual.getMerchantOrderStatus()),
                 () -> assertEquals(bank + " " + details, actual.getDetails())
+        );
+    }
+
+    @ValueSource(strings = {
+            "ALFA", "Сбербанк"
+    })
+    @ParameterizedTest
+    void buildResponseShouldBuildResponseObjectWithBankSbp(String bankSbp) {
+        Response response = new Response();
+        response.setStatus("success");
+        Response.Data data = new Response.Data();
+        data.setOrderId("orderId");
+        data.setBankSbp(bankSbp);
+        data.setDetails("details");
+        response.setData(data);
+
+        Optional<DetailsResponse> maybeDetailsResponse = ezePayOrderCreationService.buildResponse(response);
+        assertTrue(maybeDetailsResponse.isPresent());
+        DetailsResponse actual = maybeDetailsResponse.get();
+        assertAll(
+                () -> assertEquals(bankSbp + " details", actual.getDetails())
         );
     }
 }
