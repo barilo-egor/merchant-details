@@ -8,6 +8,7 @@ import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Data
 public class Response implements MerchantDetailsResponse {
@@ -25,18 +26,15 @@ public class Response implements MerchantDetailsResponse {
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
         if (Objects.nonNull(code)) {
-            result.expectedEmpty("code");
+            result.expectedEmpty("code", code);
         }
         if (Objects.nonNull(message)) {
-            result.expectedEmpty("message");
+            result.expectedEmpty("message", message);
         }
-        if (Objects.nonNull(errors)) {
-            StringBuilder resultErrorsString = new StringBuilder();
-            for (Error error : errors) {
-                for (String field : error.getField()) {
-                    resultErrorsString.append(field).append(", ");
-                }
-            }
+        if (Objects.nonNull(errors) && !errors.isEmpty()) {
+            String resultErrorsString = errors.stream()
+                    .map(error -> String.join(", ", error.getField()))
+                    .collect(Collectors.joining(", "));
             result.addError("errors", "expected empty but was: " + resultErrorsString);
         }
         if (hasDetails()) {
@@ -62,7 +60,8 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.isNull(code) && Objects.isNull(message) && (Objects.isNull(errors) || errors.isEmpty());
+        return Objects.isNull(code) && Objects.isNull(message)
+                && (Objects.isNull(errors) || errors.isEmpty());
     }
 
     @Data
