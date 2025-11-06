@@ -65,26 +65,20 @@ public class PandaPayOrderCreationService extends MerchantOrderCreationService<R
 
     private SignatureResult generateSignature(String payload)
             throws NoSuchAlgorithmException, InvalidKeyException {
-
-        // Получаем текущий timestamp в секундах (UTC)
         long timestamp = Instant.now().getEpochSecond();
         String timestampStr = Long.toString(timestamp);
-
-        // Комбинируем timestamp и payload
         String stringToSign = timestampStr + payload;
-
         String signature = signatureService.pandaPayHmacSHA256(stringToSign, pandaPayProperties.secret());
-
         return new SignatureResult(signature, timestampStr);
     }
 
     public record SignatureResult(String signature, String timestamp) {}
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setPandaPayMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         return request;
     }
 

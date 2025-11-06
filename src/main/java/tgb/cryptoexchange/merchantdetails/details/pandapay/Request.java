@@ -17,5 +17,5 @@ public class Request {
 
     @JsonProperty("requisite_type")
     @JsonSerialize(using = Method.Serializer.class)
-    private Method pandaPayMethod;
+    private Method method;
 }
