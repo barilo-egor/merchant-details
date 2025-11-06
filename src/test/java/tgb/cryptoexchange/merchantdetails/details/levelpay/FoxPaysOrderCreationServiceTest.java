@@ -40,7 +40,6 @@ class FoxPaysOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        foxPaysOrderCreationService.uriBuilder(null);
         assertEquals("/api/h2h/order", foxPaysOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 

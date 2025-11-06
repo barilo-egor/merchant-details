@@ -48,7 +48,7 @@ public class NicePayOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setMerchantId(nicePayProperties.merchantId());
         request.setSecret(nicePayProperties.secret());
@@ -66,23 +66,24 @@ public class NicePayOrderCreationService extends MerchantOrderCreationService<Re
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
-        String details = findDetails(response);
+        Response.Data data = response.getData();
+        String details = findDetails(data);
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setDetails(details);
-        detailsResponse.setMerchant(Merchant.NICE_PAY);
-        detailsResponse.setMerchantOrderStatus(response. getData().getStatus().name());
-        detailsResponse.setMerchantOrderId(response.getData().getPaymentId());
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setMerchantOrderStatus(data.getStatus().name());
+        detailsResponse.setMerchantOrderId(data.getPaymentId());
         return Optional.of(detailsResponse);
     }
 
-    private static String findDetails(Response response) {
-        String details = null;
-        if (Objects.nonNull(response.getData().getSubMethod()) && Objects.nonNull(response.getData().getSubMethod().getNames())) {
-            details = response.getData().getSubMethod().getNames().getRu() + " " + response.getData().getDetails().getWallet();
-        } else if (Objects.nonNull(response.getData().getDetails()) && Objects.nonNull(response.getData().getDetails().getComment())) {
-            details = response.getData().getDetails().getComment() + " " + response.getData().getDetails().getWallet();
-        } else if (Objects.nonNull(response.getData().getDetails())) {
-            details = response.getData().getDetails().getWallet();
+    private String findDetails(Response.Data data) {
+        String details;
+        if (Objects.nonNull(data.getSubMethod())) {
+            details = data.getSubMethod().getNames().getRu() + " " + data.getDetails().getWallet();
+        } else if (Objects.nonNull(data.getDetails().getComment())) {
+            details = data.getDetails().getComment() + " " + data.getDetails().getWallet();
+        } else {
+            details = data.getDetails().getWallet();
         }
         return details;
     }
