@@ -17,8 +17,8 @@ public class ValidationResult {
         errors.add(new Error(String.join(" or ", field), "must not be null"));
     }
 
-    public void expectedEmpty(String field) {
-        errors.add(new Error(field, "must be empty"));
+    public void expectedEmpty(String field, String actual) {
+        errors.add(new Error(field, "must be empty but was \"" + actual + "\""));
     }
 
     public void addError(String field, String message) {
