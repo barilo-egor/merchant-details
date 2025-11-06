@@ -38,6 +38,8 @@ public class Response implements MerchantDetailsResponse {
             if (Objects.isNull(transferDetails.getCardNumber())) {
                 result.notNull("transferDetails.cardNumber");
             }
+        } else {
+            result.notNull("transferDetails");
         }
         return result;
     }
