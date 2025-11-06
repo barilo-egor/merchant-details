@@ -22,12 +22,11 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (!Status.TRADER_NOT_FOUND.equals(status)) {
+        if (Objects.isNull(status)) {
+            result.notNull("status");
+        } else if (!Status.TRADER_NOT_FOUND.equals(status)) {
             if (Objects.isNull(uuid)) {
                 result.notNull("uuid");
-            }
-            if (Objects.isNull(status)) {
-                result.notNull("status");
             }
             if (Objects.isNull(requisiteData)) {
                 result.notNull("requisiteData");
