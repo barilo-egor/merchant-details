@@ -16,8 +16,8 @@ import java.util.Objects;
 @Data
 public class Response implements MerchantDetailsResponse {
 
-    @JsonDeserialize(using = Status.Deserializer.class)
-    private Status status;
+    @JsonDeserialize(using = ResponseStatus.Deserializer.class)
+    private ResponseStatus status;
 
     private Data data;
 
@@ -27,9 +27,9 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(status)) {
             result.notNull("status");
         } else {
-            if (Status.ERROR.equals(status)) {
-                result.addError("status", "must not be " + Status.ERROR.name());
-            } else if (Status.DETAILS_FOUND.equals(status)) {
+            if (ResponseStatus.ERROR.equals(status)) {
+                result.addError("status", "must not be " + ResponseStatus.ERROR.name());
+            } else if (ResponseStatus.DETAILS_FOUND.equals(status)) {
                 validateData(result);
             }
         }
@@ -55,7 +55,7 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Status.DETAILS_FOUND.equals(status);
+        return ResponseStatus.DETAILS_FOUND.equals(status);
     }
 
     @lombok.Data
@@ -73,38 +73,9 @@ public class Response implements MerchantDetailsResponse {
         @lombok.Data
         public static class Details {
 
-            @JsonDeserialize(using = Type.Deserializer.class)
-            private Type type;
-
             private String wallet;
 
             private String comment;
-
-            @AllArgsConstructor
-            @Getter
-            public enum Type {
-                PHONE("phone"),
-                CARD("card");
-
-                private final String value;
-
-                public static Type fromValue(String value) {
-                    for (Type type : Type.values()) {
-                        if (type.getValue().equals(value)) {
-                            return type;
-                        }
-                    }
-                    return null;
-                }
-
-                public static class Deserializer extends JsonDeserializer<Type> {
-
-                    @Override
-                    public Type deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                        return Type.fromValue(p.getValueAsString());
-                    }
-                }
-            }
         }
 
         @lombok.Data
@@ -122,27 +93,27 @@ public class Response implements MerchantDetailsResponse {
 
     @AllArgsConstructor
     @Getter
-    public enum Status {
+    public enum ResponseStatus {
         DETAILS_NOT_FOUND("details_not_found"),
         DETAILS_FOUND("details_found"),
         ERROR("error");
 
         private final String value;
 
-        public static Status fromValue(String value) {
-            for (Status status : Status.values()) {
-                if (status.getValue().equals(value)) {
-                    return status;
+        public static ResponseStatus fromValue(String value) {
+            for (ResponseStatus responseStatus : ResponseStatus.values()) {
+                if (responseStatus.getValue().equals(value)) {
+                    return responseStatus;
                 }
             }
             return null;
         }
 
-        public static class Deserializer extends JsonDeserializer<Status> {
+        public static class Deserializer extends JsonDeserializer<ResponseStatus> {
 
             @Override
-            public Status deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                return Status.fromValue(p.getValueAsString());
+            public ResponseStatus deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                return ResponseStatus.fromValue(p.getValueAsString());
             }
         }
     }
