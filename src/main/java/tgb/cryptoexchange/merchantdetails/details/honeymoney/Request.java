@@ -7,19 +7,13 @@ public class Request {
 
     private String extId;
 
-    private final String currency = "RUB";
-
     private Integer amount;
 
     private String callbackUrl;
 
     private String bank;
 
-    private ClientDetails clientDetails;
-
-    @Data
-    public static class ClientDetails {
-
-        private String clientId;
+    public String getCurrency() {
+        return "RUB";
     }
 }

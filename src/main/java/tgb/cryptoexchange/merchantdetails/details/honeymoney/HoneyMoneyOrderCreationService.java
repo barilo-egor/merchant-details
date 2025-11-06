@@ -57,7 +57,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setExtId(UUID.randomUUID().toString());
@@ -69,7 +69,6 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setMerchant(Merchant.HONEY_MONEY);
         String requisite = Objects.nonNull(response.getPhoneNumber()) ? response.getPhoneNumber() : response.getCardNumber();
         detailsResponse.setDetails(response.getBankName() + " " + requisite);
         detailsResponse.setMerchant(getMerchant());
