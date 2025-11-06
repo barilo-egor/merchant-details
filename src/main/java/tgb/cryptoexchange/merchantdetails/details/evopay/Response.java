@@ -29,6 +29,13 @@ public class Response implements MerchantDetailsResponse {
         }
         if (Objects.isNull(requisites)) {
             result.notNull("requisites");
+        } else {
+            if (Objects.isNull(requisites.getRecipientPhoneNumber()) && Objects.isNull(requisites.getRecipientCardNumber())) {
+                result.notNull("recipientPhoneNumber", "recipientCardNumber");
+            }
+            if (Objects.isNull(requisites.getRecipientBank())) {
+                result.notNull("recipientBank");
+            }
         }
         return result;
     }
