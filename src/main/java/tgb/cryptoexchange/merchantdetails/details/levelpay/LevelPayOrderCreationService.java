@@ -33,19 +33,20 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
+            httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("Accept", "application/json");
             httpHeaders.add("Access-Token", levelPayProperties.token());
         };
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setMerchantId(levelPayProperties.merchantId());
         request.setAmount(detailsRequest.getAmount());
         request.setPaymentDetailType(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setExternalId(UUID.randomUUID().toString());
-        request.setCallbackUrl(request.getCallbackUrl());
+        request.setCallbackUrl(detailsRequest.getCallbackUrl());
         request.setFloatingAmount(true);
         return request;
     }
