@@ -20,23 +20,32 @@ public class Response implements MerchantDetailsResponse {
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
         if (!"success".equals(status)) {
-            result.addError("status", "expected success, got " + status + " with message \"" + message + "\"");
+            if (Objects.isNull(status)) {
+                result.notNull("status");
+            } else {
+                result.addError("status", "expected success, got " + status
+                        + " with message \"" + message + "\"");
+            }
         } else {
             if (Objects.isNull(data)) {
                 result.notNull("data");
             } else {
-                if (Objects.isNull(data.getOrderId())) {
-                    result.notNull("data.orderId");
-                }
-                if (Objects.isNull(data.getBank()) && Objects.isNull(data.getBankSbp())) {
-                    result.notNull("data.bank", "data.bankSbp");
-                }
-                if (Objects.isNull(data.getDetails())) {
-                    result.notNull("data.details");
-                }
+                validateData(result);
             }
         }
         return result;
+    }
+
+    private void validateData(ValidationResult result) {
+        if (Objects.isNull(data.getOrderId())) {
+            result.notNull("data.orderId");
+        }
+        if (Objects.isNull(data.getBank()) && Objects.isNull(data.getBankSbp())) {
+            result.notNull("data.bank", "data.bankSbp");
+        }
+        if (Objects.isNull(data.getDetails())) {
+            result.notNull("data.details");
+        }
     }
 
     @Override
