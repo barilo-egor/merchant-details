@@ -21,7 +21,7 @@ public class Response implements MerchantDetailsResponse {
         if (!success) {
             result.addError("success", "expected true, but was false: " + error);
         } else {
-            if (Objects.nonNull(data)) {
+            if (hasDetails()) {
                 if (Objects.isNull(data.getId())) {
                     result.notNull("data.id");
                 }

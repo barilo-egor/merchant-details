@@ -46,7 +46,7 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setApiId(onlyPaysProperties.id());
         request.setAmount(detailsRequest.getAmount());
