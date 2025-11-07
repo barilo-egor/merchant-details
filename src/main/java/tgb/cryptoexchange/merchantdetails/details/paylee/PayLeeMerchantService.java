@@ -42,7 +42,7 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setPrice(detailsRequest.getAmount());
         request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
