@@ -52,7 +52,7 @@ public class PulsarOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantId(pulsarProperties.code());
