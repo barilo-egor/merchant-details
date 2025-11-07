@@ -71,7 +71,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request createOrderRequest = new Request();
         createOrderRequest.setCredentialRequire("yes");
         createOrderRequest.setAmount(detailsRequest.getAmount());

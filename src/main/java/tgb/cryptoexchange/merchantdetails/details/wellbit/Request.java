@@ -6,8 +6,6 @@ import lombok.Data;
 @Data
 public class Request {
 
-    private final String currency = "RUB";
-
     private Integer amount;
 
     @JsonProperty("credential_type")
@@ -22,15 +20,28 @@ public class Request {
     @JsonProperty("custom_number")
     private String customNumber;
 
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return "RUB";
+    }
+
     @JsonProperty("client_ip")
-    private final String clientIp = "-";
+    public String getClientIp() {
+        return "-";
+    }
 
     @JsonProperty("client_email")
-    private final String clientEmail = "-";
+    public String getClientEmail() {
+        return "-";
+    }
 
     @JsonProperty("card_from_number")
-    private final String cardFromNumber = "-";
+    public String getCardFromNumber() {
+        return "-";
+    }
 
     @JsonProperty("card_from_fio")
-    private final String cardFromFio = "-";
+    public String getCardFromFio() {
+        return "-";
+    }
 }
