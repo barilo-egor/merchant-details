@@ -25,16 +25,16 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (Objects.nonNull(id)) {
+        if (Objects.isNull(id)) {
             result.notNull("id");
         }
-        if (Objects.nonNull(status)) {
+        if (Objects.isNull(status)) {
             result.notNull("status");
         }
-        if (Objects.nonNull(methodName)) {
+        if (Objects.isNull(methodName)) {
             result.notNull("methodName");
         }
-        if (Objects.nonNull(holderAccount)) {
+        if (Objects.isNull(holderAccount)) {
             result.notNull("holderAccount");
         }
         return result;
