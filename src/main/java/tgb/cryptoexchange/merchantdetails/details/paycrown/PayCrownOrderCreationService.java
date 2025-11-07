@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.paycrown;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,15 +58,17 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
         return httpHeaders -> {
             Long unixTime;
             try {
-                unixTime = objectMapper.readValue(body, Request.class).getCreatedAt();
+                JsonNode node = objectMapper.readTree(body);
+                unixTime = node.get("created_at").asLong();
             } catch (JsonProcessingException e) {
                 log.error("Ошибка парсинга тела запроса мерчанта {} : {}", getMerchant().name(), body);
                 throw new BodyMappingException("Ошибка парсинга тела запроса.");
             }
             Method method = parseMethod(detailsRequest.getMethod(), Method.class);
             try {
-                String signature = signatureService.getMD5Hash(detailsRequest.getAmount() + unixTime + "rub"
-                        + payCrownProperties.merchantId() + method.getValue() + payCrownProperties.secret());
+                String stringToSign = detailsRequest.getAmount() + unixTime + "rub"
+                        + payCrownProperties.merchantId() + method.getValue() + payCrownProperties.secret();
+                String signature = signatureService.getMD5Hash(stringToSign);
                 httpHeaders.add("X-Api-Key", payCrownProperties.key());
                 httpHeaders.add("X-Paycrown-Sign", signature);
             } catch (NoSuchAlgorithmException e) {
