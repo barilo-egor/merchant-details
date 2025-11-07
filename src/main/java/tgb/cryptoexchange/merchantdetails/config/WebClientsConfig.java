@@ -64,16 +64,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient payPointsWebClient(PayPointsProperties payPointsProperties) {
-        return WebClient.builder().baseUrl(payPointsProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient paradoxPayWebClient(ParadoxPayProperties paradoxPayProperties) {
-        return WebClient.builder().baseUrl(paradoxPayProperties.url()).build();
-    }
-
-    @Bean
     public WebClient mobiusWebClient(MobiusProperties mobiusProperties) {
         return WebClient.builder().baseUrl(mobiusProperties.url()).build();
     }
@@ -86,11 +76,6 @@ public class WebClientsConfig {
     @Bean
     public WebClient worldWidePaymentsSystemsWebClient(WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
         return WebClient.builder().baseUrl(worldWidePaymentSystemsProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient ezePayWebClient(EzePayProperties ezePayProperties) {
-        return WebClient.builder().baseUrl(ezePayProperties.url()).build();
     }
 
     @Bean
@@ -119,11 +104,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient pandaPayWebClient(PandaPayProperties pandaPayProperties) {
-        return WebClient.builder().baseUrl(pandaPayProperties.url()).build();
-    }
-
-    @Bean
     public WebClient payCrownWebClient(PayCrownProperties payCrownProperties) {
         return WebClient.builder().baseUrl(payCrownProperties.url()).build();
     }
@@ -136,16 +116,6 @@ public class WebClientsConfig {
     @Bean
     public WebClient pspWareWebClient(PspWareProperties pspWareProperties) {
         return WebClient.builder().baseUrl(pspWareProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient pulsarWebClient(PulsarProperties pulsarProperties) {
-        return WebClient.builder().baseUrl(pulsarProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient way2payWebClient(Way2PayProperties way2PayProperties) {
-        return WebClient.builder().baseUrl(way2PayProperties.url()).build();
     }
 
     @Bean
