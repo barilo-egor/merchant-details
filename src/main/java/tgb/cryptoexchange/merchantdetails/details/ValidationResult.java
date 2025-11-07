@@ -33,7 +33,9 @@ public class ValidationResult {
         if (errors.isEmpty()) {
             return "";
         }
-        return errors.stream().map(error -> "field \"" + error.getField() + "\" " + error.getMessage()).collect(Collectors.joining(";"));
+        return errors.stream()
+                .map(error -> "field \"" + error.getField() + "\" " + error.getMessage())
+                .collect(Collectors.joining(";"));
     }
 
     @Data
