@@ -142,9 +142,9 @@ class HoneyMoneyOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsPredicateShouldReturnTrueIfNoRequisitesResponse() throws JsonProcessingException {
+    void isNoDetailsPredicateShouldReturnTrueIfNoRequisitesResponseException() throws JsonProcessingException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
-        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
         WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
@@ -157,9 +157,9 @@ class HoneyMoneyOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsPredicateShouldReturnFalseIfJsonProcessingWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingWasThrown() throws JsonProcessingException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
-        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
         WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
@@ -168,7 +168,7 @@ class HoneyMoneyOrderCreationServiceTest {
 
     @Test
     void isNotDetailsPredicateShouldReturnFalseIfExceptionNotBadRequest() {
-        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
         assertFalse(predicate.test(Mockito.mock(WebClientResponseException.BadGateway.class)));
         assertFalse(predicate.test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
         assertFalse(predicate.test(Mockito.mock(RuntimeException.class)));

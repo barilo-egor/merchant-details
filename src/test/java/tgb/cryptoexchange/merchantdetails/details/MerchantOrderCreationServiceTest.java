@@ -179,4 +179,14 @@ class MerchantOrderCreationServiceTest {
         );
         assertEquals("Method \"invalid\" for merchant ALFA_TEAM not found.", ex.getMessage());
     }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalse() {
+        assertFalse(service.isNoDetailsExceptionPredicate().test(new RuntimeException()));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalse() {
+        assertFalse(service.hasResponseNoDetailsErrorPredicate().test("error"));
+    }
 }
