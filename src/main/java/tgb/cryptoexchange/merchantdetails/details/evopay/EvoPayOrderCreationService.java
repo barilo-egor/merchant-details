@@ -41,7 +41,10 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
+        return httpHeaders -> {
+            httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
+            httpHeaders.add("Content-Type", "application/json");
+        };
     }
 
     private String getKey(Integer amount) {
