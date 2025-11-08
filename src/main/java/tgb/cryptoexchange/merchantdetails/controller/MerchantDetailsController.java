@@ -9,14 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.web.ApiResponse;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,15 +22,12 @@ public class MerchantDetailsController extends ApiController {
 
     private final MerchantPropertiesService merchantPropertiesService;
 
-    private final Map<Merchant, MerchantOrderCreationService<?>> merchantMerchantOrderCreationServiceMap;
+    private final MerchantServiceRegistry merchantServiceRegistry;
 
     public MerchantDetailsController(MerchantPropertiesService merchantPropertiesService,
-                                     List<MerchantOrderCreationService<?>> merchantOrderCreationServices) {
+                                     MerchantServiceRegistry merchantServiceRegistry) {
         this.merchantPropertiesService = merchantPropertiesService;
-        this.merchantMerchantOrderCreationServiceMap = new EnumMap<>(Merchant.class);
-        for (MerchantOrderCreationService<?> merchantOrderCreationService : merchantOrderCreationServices) {
-            merchantMerchantOrderCreationServiceMap.put(merchantOrderCreationService.getMerchant(), merchantOrderCreationService);
-        }
+        this.merchantServiceRegistry = merchantServiceRegistry;
     }
 
     @Operation(summary = "Получение списка пропертей мерчанта.")
@@ -53,15 +47,27 @@ public class MerchantDetailsController extends ApiController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(summary = "Попытка получения реквизитов у запрошенного мерчанта.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "Реквизиты мерчанта найдены."
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "204", description = "Реквизиты у мерчанта получены не были."
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400", description = "Мерчант неактивен."
+            )
+    })
     @GetMapping("/{merchant}")
-    public ResponseEntity<ApiResponse<DetailsResponse>> requisite(@Valid @ModelAttribute DetailsRequest request,
+    public ResponseEntity<ApiResponse<DetailsResponse>> details(@Valid @ModelAttribute DetailsRequest request,
                                                                   @PathVariable Merchant merchant) {
-        var maybeCreationService = Optional.ofNullable(merchantMerchantOrderCreationServiceMap.get(merchant));
+        var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isPresent()) {
             Optional<DetailsResponse> maybeRequisiteResponse = maybeCreationService.get().createOrder(request);
             return maybeRequisiteResponse
                     .map(requisiteResponse -> new ResponseEntity<>(ApiResponse.success(requisiteResponse), HttpStatus.OK))
-                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
         }
         return new ResponseEntity<>(
                 ApiResponse.error("Creation for this merchant is not implemented."),

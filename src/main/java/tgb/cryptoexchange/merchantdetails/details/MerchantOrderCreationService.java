@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
@@ -24,7 +23,7 @@ import java.util.function.Function;
  * @param <T> тип ответа от мерчанта
  */
 @Slf4j
-public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse> {
+public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse> implements MerchantService {
 
     private final WebClient webClient;
 
@@ -108,8 +107,6 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     protected HttpMethod method() {
         return HttpMethod.POST;
     }
-
-    public abstract Merchant getMerchant();
 
     protected abstract Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest);
 
