@@ -1,5 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -7,10 +10,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -19,8 +24,10 @@ import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -121,5 +128,50 @@ class BitZoneOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfMessagePleaseContactSupport() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(true);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(jsonNode.get("message")).thenReturn(messageNode);
+        when(messageNode.asText()).thenReturn("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+        assertTrue(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfMessageNotPleaseContactSupport() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(true);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(jsonNode.get("message")).thenReturn(messageNode);
+        when(messageNode.asText()).thenReturn("SOME_ERROR");
+        assertFalse(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfNoMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(false);
+        assertFalse(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        Predicate<String> hasResponseNoDetailsErrorPredicate = bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate();
+        assertThrows(ServiceUnavailableException.class, () -> hasResponseNoDetailsErrorPredicate.test(""));
     }
 }
