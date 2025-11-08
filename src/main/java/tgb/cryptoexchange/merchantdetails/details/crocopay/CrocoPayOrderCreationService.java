@@ -42,6 +42,7 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         return httpHeaders -> {
             httpHeaders.add("Client-Id", crocoPayProperties.clientId());
             httpHeaders.add("Client-Secret", crocoPayProperties.clientSecret());
+            httpHeaders.add("Content-Type", "application/json");
         };
     }
 
