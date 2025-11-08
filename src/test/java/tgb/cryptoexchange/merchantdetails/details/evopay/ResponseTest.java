@@ -3,8 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.evopay;
 import org.junit.jupiter.api.Test;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ResponseTest {
 
@@ -33,12 +32,12 @@ class ResponseTest {
     }
 
     @Test
-    void validateShouldReturnErrorIfRequisitesIsNull() {
+    void validateShouldReturnNoErrorsIfRequisitesIsNull() {
         Response response = new Response();
         response.setId("id");
         response.setOrderStatus(Status.APPEAL);
         ValidationResult actual = response.validate();
-        assertEquals("field \"requisites\" must not be null", actual.errorsToString());
+        assertTrue(actual.errorsToString().isEmpty());
     }
 
     @Test
@@ -57,6 +56,18 @@ class ResponseTest {
     }
 
     @Test
+    void validateShouldReturnNoErrorsIfRecipientPhoneNumberNotNull() {
+        Response response = new Response();
+        response.setId("id");
+        response.setOrderStatus(Status.APPEAL);
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setRecipientPhoneNumber("card number");
+        requisites.setRecipientBank("bank");
+        response.setRequisites(requisites);
+        assertTrue(response.validate().errorsToString().isEmpty());
+    }
+
+    @Test
     void validateShouldReturnErrorIfBankIsNull() {
         Response response = new Response();
         response.setId("id");
@@ -72,8 +83,27 @@ class ResponseTest {
     }
 
     @Test
-    void hasDetailsShouldReturnTrue() {
+    void validateShouldReturnNoErrorsIfAllFieldsPresent() {
         Response response = new Response();
+        response.setId("id");
+        response.setOrderStatus(Status.CREATED);
+        Response.Requisites requisites = new Response.Requisites();
+        response.setRequisites(requisites);
+        requisites.setRecipientCardNumber("card number");
+        requisites.setRecipientBank("bank");
+        assertTrue(response.validate().errorsToString().isEmpty());
+    }
+
+    @Test
+    void hasDetailsShouldReturnTrueIfRequisitesNotNull() {
+        Response response = new Response();
+        response.setRequisites(new Response.Requisites());
         assertTrue(response.hasDetails());
+    }
+
+    @Test
+    void hasDetailsShouldReturnFalseIfRequisitesNull() {
+        Response response = new Response();
+        assertFalse(response.hasDetails());
     }
 }

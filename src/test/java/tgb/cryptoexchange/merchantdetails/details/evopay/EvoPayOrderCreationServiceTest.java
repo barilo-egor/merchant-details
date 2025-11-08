@@ -55,7 +55,8 @@ class EvoPayOrderCreationServiceTest {
         detailsRequest.setAmount(amount);
         evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
-                () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst())
+                () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
+                () -> assertEquals("application/json", headers.getFirst("Content-Type"))
         );
     }
 

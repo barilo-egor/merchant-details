@@ -27,9 +27,7 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(orderStatus)) {
             result.notNull("orderStatus");
         }
-        if (Objects.isNull(requisites)) {
-            result.notNull("requisites");
-        } else {
+        if (hasDetails()) {
             if (Objects.isNull(requisites.getRecipientPhoneNumber()) && Objects.isNull(requisites.getRecipientCardNumber())) {
                 result.notNull("recipientPhoneNumber", "recipientCardNumber");
             }
@@ -42,7 +40,7 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return true;
+        return Objects.nonNull(requisites);
     }
 
     @Data
