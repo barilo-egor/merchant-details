@@ -1,11 +1,14 @@
 package tgb.cryptoexchange.merchantdetails.details.wellbit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -20,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -52,6 +56,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("token", wellBitProperties.token());
+            httpHeaders.add("Content-Type", "application/json");
             try {
                 httpHeaders.add("secret", getHashSecret());
             } catch (NoSuchAlgorithmException e) {
@@ -88,5 +93,23 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchantOrderStatus(response.getPayment().getStatus().name());
         detailsResponse.setMerchantOrderId(response.getPayment().getId().toString());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<String> hasResponseNoDetailsErrorPredicate() {
+        return rawResponse -> {
+            JsonNode response;
+            try {
+                response = objectMapper.readTree(rawResponse);
+            } catch (JsonProcessingException e) {
+                long currentTime = System.currentTimeMillis();
+                log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
+                        currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
+                );
+                throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
+            }
+            return response.isArray() && !response.isEmpty() && response.get(0).has("code")
+                    && response.get(0).get("code").asText().equals("E0010");
+        };
     }
 }

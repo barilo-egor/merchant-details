@@ -55,7 +55,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeRawResponse.isEmpty()) {
             return Optional.empty();
         }
-        T response = mapResponse(maybeRawResponse.get());
+        String rawResponse = maybeRawResponse.get();
+        if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
+            return Optional.empty();
+        }
+        T response = mapResponse(rawResponse);
         validateResponse(response);
         if (!response.hasDetails()) {
             return Optional.empty();
@@ -82,7 +86,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                     )
             );
         } catch (Exception e) {
-            if (isNoDetailsPredicate().test(e)) {
+            if (isNoDetailsExceptionPredicate().test(e)) {
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
@@ -125,8 +129,12 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     protected abstract Optional<DetailsResponse> buildResponse(T response);
 
-    protected Predicate<Exception> isNoDetailsPredicate() {
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> false;
+    }
+
+    protected Predicate<String> hasResponseNoDetailsErrorPredicate() {
+        return s -> false;
     }
 
     protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {

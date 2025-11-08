@@ -82,7 +82,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Predicate<Exception> isNoDetailsPredicate() {
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
             if (e instanceof WebClientResponseException.BadRequest ex) {
                 try {
