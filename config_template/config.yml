@@ -4,10 +4,18 @@ alfa-team:
   token: ""
   key: ""
   secret: ""
+only-pays:
+  url: ""
+  secret: ""
+  id: ""
 evo-pay:
   url: ""
   key: ""
   change-key: ""
+nice-pay:
+  url: ""
+  merchant-id: ""
+  secret: ""
 honey-money:
   urls:
     main: ""
@@ -15,17 +23,6 @@ honey-money:
   secret: ""
   client-id: ""
   sign-key: ""
-only-pays:
-  url: ""
-  secret: ""
-  id: ""
-nice-pay:
-  url: ""
-  merchant-id: ""
-  secret: ""
-pay-points:
-  url: ""
-  token: ""
 well-bit:
   url: ""
   secret: ""
@@ -36,15 +33,12 @@ croco-pay:
   url: ""
   client-id: ""
   client-secret: ""
-eze-pay:
-  url: ""
-  key: ""
-  id: ""
 bit-zone:
   url: ""
   key: ""
-panda-pay:
+onyx-pay:
   url: ""
+  token: ""
   key: ""
   secret: ""
 extasy-pay:
@@ -53,27 +47,37 @@ extasy-pay:
 pay-lee:
   url: ""
   token: ""
-pulsar:
-  url: ""
-  code: ""
-  secret: ""
-  token: ""
 psp-ware:
   url: ""
   token: ""
-onyx-pay:
+
+pay-points:
   url: ""
   token: ""
+eze-pay:
+  url: ""
+  key: ""
+  id: ""
+panda-pay:
+  url: ""
   key: ""
   secret: ""
 wwps:
   url: ""
   token: ""
   merchant-id: ""
+pay-crown:
+  url: ""
+  key: ""
+  secret: ""
+  merchant-id: ""
 payscrow:
   url: ""
   key: ""
 lucky-pay:
+  url: ""
+  key: ""
+appexbit:
   url: ""
   key: ""
 mobius:
@@ -84,13 +88,6 @@ ya-pay:
   url: ""
   token: ""
   sign-key: ""
-paradox-pay:
-  url: ""
-  token: ""
-  merchant-id: ""
-appexbit:
-  url: ""
-  key: ""
 dao-payments:
   url: ""
   key: ""
