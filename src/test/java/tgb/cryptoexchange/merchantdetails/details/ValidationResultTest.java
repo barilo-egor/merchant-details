@@ -35,7 +35,7 @@ class ValidationResultTest {
         ValidationResult result = new ValidationResult();
         result.expectedEmpty(field, actual);
         assertEquals(
-                "field \"" + field + "\" must be empty but was " + actual,
+                "field \"" + field + "\" must be empty but was \"" + actual + "\"",
                 result.errorsToString()
         );
     }
