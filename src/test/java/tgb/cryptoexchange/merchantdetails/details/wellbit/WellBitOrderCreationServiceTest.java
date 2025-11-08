@@ -165,7 +165,7 @@ class WellBitOrderCreationServiceTest {
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfE0010Code() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfE0010Code() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         wellBitOrderCreationService.setObjectMapper(objectMapper);
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
@@ -181,7 +181,7 @@ class WellBitOrderCreationServiceTest {
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfCodeNotE0010() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfCodeNotE0010() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         wellBitOrderCreationService.setObjectMapper(objectMapper);
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
