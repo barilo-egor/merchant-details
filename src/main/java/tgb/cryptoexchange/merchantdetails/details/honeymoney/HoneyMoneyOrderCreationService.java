@@ -1,10 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.details.honeymoney;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -19,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -75,5 +79,21 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
         detailsResponse.setMerchantOrderId(response.getId().toString());
         detailsResponse.setMerchantOrderStatus(Status.PENDING.name());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.BadRequest ex) {
+                try {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has("detail")
+                            && response.get("detail").asText().equals("No requisites available for the moment. Please try again later.");
+                } catch (JsonProcessingException jsonProcessingException) {
+                    return false;
+                }
+            }
+            return false;
+        };
     }
 }

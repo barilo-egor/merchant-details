@@ -17,6 +17,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Сервис для выполнения запросов на создание ордера мерчантам.
@@ -29,7 +30,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private final Class<T> responseType;
 
-    private ObjectMapper objectMapper;
+    protected ObjectMapper objectMapper;
 
     private RequestService requestService;
 
@@ -50,8 +51,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         String body = mapBody(detailsRequest);
-        String rawResponse = makeRequest(detailsRequest, body);
-        T response = mapResponse(rawResponse);
+        Optional<String> maybeRawResponse = makeRequest(detailsRequest, body);
+        if (maybeRawResponse.isEmpty()) {
+            return Optional.empty();
+        }
+        T response = mapResponse(maybeRawResponse.get());
         validateResponse(response);
         if (!response.hasDetails()) {
             return Optional.empty();
@@ -69,13 +73,18 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    private String makeRequest(DetailsRequest detailsRequest, String body) {
+    private Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
         try {
-            return requestService.request(
-                    webClient, method(), uriBuilder(detailsRequest),
-                    headers(detailsRequest, body), body
+            return Optional.of(
+                    requestService.request(
+                            webClient, method(), uriBuilder(detailsRequest),
+                            headers(detailsRequest, body), body
+                    )
             );
         } catch (Exception e) {
+            if (isNoDetailsPredicate().test(e)) {
+                return Optional.empty();
+            }
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
                     currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
@@ -115,6 +124,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     protected abstract Object body(DetailsRequest detailsRequest);
 
     protected abstract Optional<DetailsResponse> buildResponse(T response);
+
+    protected Predicate<Exception> isNoDetailsPredicate() {
+        return e -> false;
+    }
 
     protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,
