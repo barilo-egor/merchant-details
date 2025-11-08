@@ -77,8 +77,8 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             );
         } catch (Exception e) {
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}): {}",
-                    currentTime, getMerchant().name(), detailsRequest.toString(), e.getMessage(), e);
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
+                    currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
     }
@@ -99,7 +99,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         ValidationResult validationResult = response.validate();
         if (!validationResult.isValid()) {
             long currentTime = System.currentTimeMillis();
-            log.error("Ответ мерчанта {} невалиден: ", validationResult.errorsToString());
+            log.error("Ответ мерчанта {} невалиден: {}", getMerchant().name(), validationResult.errorsToString());
             throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
         }
     }
