@@ -3,14 +3,15 @@ package tgb.cryptoexchange.merchantdetails.details;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
@@ -29,40 +30,63 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private final Class<T> responseType;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
+    private RequestService requestService;
 
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
         this.webClient = webClient;
         this.responseType = responseType;
     }
 
+    @Autowired
+    public void setRequestService(RequestService requestService) {
+        this.requestService = requestService;
+    }
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
-        T response;
-        String rawResponse;
-        String body;
+        String body = mapBody(detailsRequest);
+        String rawResponse = makeRequest(detailsRequest, body);
+        T response = mapResponse(rawResponse);
+        validateResponse(response);
+        if (!response.hasDetails()) {
+            return Optional.empty();
+        }
+        return buildResponse(response);
+    }
+
+    private String mapBody(DetailsRequest detailsRequest) {
         try {
-            body = objectMapper.writeValueAsString(body(detailsRequest));
+            return objectMapper.writeValueAsString(body(detailsRequest));
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при маппинге тела запроса(detailsRequest = {}): {}", currentTime, detailsRequest, e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
         }
+    }
+
+    private String makeRequest(DetailsRequest detailsRequest, String body) {
         try {
-            rawResponse = webClient.method(method())
-                    .uri(uriBuilder(detailsRequest))
-                    .headers(headers(detailsRequest, body))
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (WebClientException e) {
+            return requestService.request(
+                    webClient, method(), uriBuilder(detailsRequest),
+                    headers(detailsRequest, body), body
+            );
+        } catch (Exception e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}): {}",
                     currentTime, getMerchant().name(), detailsRequest.toString(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
+    }
+
+    private T mapResponse(String rawResponse) {
         try {
-            response = objectMapper.readValue(rawResponse, responseType);
+            return objectMapper.readValue(rawResponse, responseType);
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
@@ -70,16 +94,15 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             );
             throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
         }
+    }
+
+    private void validateResponse(T response) {
         ValidationResult validationResult = response.validate();
         if (!validationResult.isValid()) {
             long currentTime = System.currentTimeMillis();
             log.error("Ответ мерчанта {} невалиден: ", validationResult.errorsToString());
             throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
         }
-        if (!response.hasDetails()) {
-            return Optional.empty();
-        }
-        return buildResponse(response);
     }
 
     protected HttpMethod method() {
