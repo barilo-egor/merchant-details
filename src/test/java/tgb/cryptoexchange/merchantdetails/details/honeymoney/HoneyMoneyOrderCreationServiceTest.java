@@ -1,5 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.honeymoney;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,8 +11,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -21,9 +26,11 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +38,9 @@ class HoneyMoneyOrderCreationServiceTest {
 
     @Mock
     private HoneyMoneyProperties honeyMoneyProperties;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Mock
     private SignatureService signatureService;
@@ -129,5 +139,38 @@ class HoneyMoneyOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals("bankName " + cardNumber, actual.getDetails())
         );
+    }
+
+    @Test
+    void isNoDetailsPredicateShouldReturnTrueIfNoRequisitesResponse() throws JsonProcessingException {
+        honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(jsonNode.has("detail")).thenReturn(true);
+        JsonNode detailsNode = Mockito.mock(JsonNode.class);
+        when(detailsNode.asText()).thenReturn("No requisites available for the moment. Please try again later.");
+        when(jsonNode.get("detail")).thenReturn(detailsNode);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        assertTrue(predicate.test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsPredicateShouldReturnFalseIfJsonProcessingWasThrown() throws JsonProcessingException {
+        honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        assertFalse(predicate.test(badRequest));
+    }
+
+    @Test
+    void isNotDetailsPredicateShouldReturnFalseIfExceptionNotBadRequest() {
+        Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsPredicate();
+        assertFalse(predicate.test(Mockito.mock(WebClientResponseException.BadGateway.class)));
+        assertFalse(predicate.test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+        assertFalse(predicate.test(Mockito.mock(RuntimeException.class)));
     }
 }
