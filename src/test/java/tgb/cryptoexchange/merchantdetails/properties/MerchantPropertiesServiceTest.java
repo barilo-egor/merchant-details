@@ -50,7 +50,6 @@ class MerchantPropertiesServiceTest {
             case PULSAR -> assertInstanceOf(PulsarProperties.class, merchantProperties.get());
             case ROSTRAST -> assertInstanceOf(RostrastProperties.class, merchantProperties.get());
             case WELL_BIT -> assertInstanceOf(WellBitProperties.class, merchantProperties.get());
-            case WORLD_WIDE -> assertInstanceOf(WorldWidePaymentSystemsProperties.class, merchantProperties.get());
             case PAY_CROWN -> assertInstanceOf(PayCrownProperties.class, merchantProperties.get());
             case PAY_FINITY -> assertInstanceOf(PayFinityProperties.class, merchantProperties.get());
             default -> throw new IllegalArgumentException();
