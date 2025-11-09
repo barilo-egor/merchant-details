@@ -22,6 +22,10 @@ import java.util.function.Predicate;
 @Slf4j
 public abstract class PayscrowOrderCreationService extends MerchantOrderCreationService<Response> {
 
+    private static final String SUCCESS_FIELD = "success";
+
+    private static final String MESSAGE_FIELD = "message";
+
     private final PayscrowProperties payscrowPropertiesImpl;
 
     protected PayscrowOrderCreationService(WebClient webClient, PayscrowProperties payscrowProperties) {
@@ -67,16 +71,29 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
             if (e instanceof WebClientResponseException.InternalServerError ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return response.has("success")
-                            && !response.get("success").asBoolean()
-                            && response.has("message")
-                            && response.get("message").asText()
-                            .equals("No available traders that match order requirements. Please, try again later or change order parameters.");
+                    return isNoDetails(response) || isAmountError(response);
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
             }
             return false;
         };
+    }
+
+    private boolean isAmountError(JsonNode response) {
+        return isNotSuccessAndHasMessage(response)
+                && response.get(MESSAGE_FIELD).asText().contains("Amount for the chosen payment method doesn't meet limits.");
+    }
+
+    private boolean isNoDetails(JsonNode response) {
+        return isNotSuccessAndHasMessage(response)
+                && response.get(MESSAGE_FIELD).asText()
+                .equals("No available traders that match order requirements. Please, try again later or change order parameters.");
+    }
+
+    private boolean isNotSuccessAndHasMessage(JsonNode response) {
+        return response.has(SUCCESS_FIELD)
+                && !response.get(SUCCESS_FIELD).asBoolean()
+                && response.has(MESSAGE_FIELD);
     }
 }

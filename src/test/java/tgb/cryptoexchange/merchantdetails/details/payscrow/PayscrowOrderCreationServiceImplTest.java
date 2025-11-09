@@ -105,8 +105,12 @@ class PayscrowOrderCreationServiceImplTest {
         );
     }
 
-    @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoTraderMessage() throws JsonProcessingException {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "No available traders that match order requirements. Please, try again later or change order parameters.",
+            "Amount for the chosen payment method doesn't meet limits."
+    })
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoTraderMessageOrAmountError(String messageTest) throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         payscrowOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -118,8 +122,7 @@ class PayscrowOrderCreationServiceImplTest {
         when(response.has("message")).thenReturn(true);
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
-        when(message.asText()).thenReturn("No available traders that match order requirements. " +
-                "Please, try again later or change order parameters.");
+        when(message.asText()).thenReturn(messageTest);
         WebClientResponseException.InternalServerError internalServerError =
                 Mockito.mock(WebClientResponseException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
