@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -25,6 +26,8 @@ import java.util.function.Predicate;
 @Service
 @Slf4j
 public class BitZoneOrderCreationService extends MerchantOrderCreationService<Response> {
+
+    private static final String MESSAGE = "message";
 
     private final BitZoneProperties bitZoneProperties;
     
@@ -79,6 +82,23 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            try {
+                if (e instanceof WebClientResponseException.Forbidden ex) {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has(MESSAGE)
+                            && (response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT")
+                            || response.get(MESSAGE).asText().equals("CANT_CREATE_TRADE_FOR_THIS_AMOUNT"));
+                }
+            } catch (JsonProcessingException jsonProcessingException) {
+                return false;
+            }
+            return false;
+        };
+    }
+
+    @Override
     protected Predicate<String> hasResponseNoDetailsErrorPredicate() {
         return rawResponse -> {
             JsonNode response;
@@ -91,8 +111,8 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                 );
                 throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
             }
-            return response.has("message")
-                    && response.get("message").asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+            return response.has(MESSAGE)
+                    && response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
         };
     }
 }
