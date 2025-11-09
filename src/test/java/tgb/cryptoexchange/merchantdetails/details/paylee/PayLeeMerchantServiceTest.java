@@ -24,6 +24,7 @@ import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -215,5 +216,92 @@ class PayLeeMerchantServiceTest {
         assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(Mockito.mock(WebClientResponseException.Conflict.class)));
         assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
         assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(Mockito.mock(RuntimeException.class)));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payLeeMerchantService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("price")).thenReturn(true);
+        when(response.has("nonFieldErrors")).thenReturn(false);
+        JsonNode price = Mockito.mock(JsonNode.class);
+        when(response.get("price")).thenReturn(price);
+        when(price.isArray()).thenReturn(true);
+        when(price.size()).thenReturn(1);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(price.get(0)).thenReturn(messageNode);
+        when(messageNode.asText()).thenReturn("Убедитесь, что это значение больше 1000");
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertTrue(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfMessageNotAmountError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payLeeMerchantService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("price")).thenReturn(true);
+        when(response.has("nonFieldErrors")).thenReturn(false);
+        JsonNode price = Mockito.mock(JsonNode.class);
+        when(response.get("price")).thenReturn(price);
+        when(price.isArray()).thenReturn(true);
+        when(price.size()).thenReturn(1);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(price.get(0)).thenReturn(messageNode);
+        when(messageNode.asText()).thenReturn("Другая ошибка");
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @ValueSource(ints = {0,2,10})
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfPriceSizeNot1(int size) throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payLeeMerchantService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("price")).thenReturn(true);
+        when(response.has("nonFieldErrors")).thenReturn(false);
+        JsonNode price = Mockito.mock(JsonNode.class);
+        when(response.get("price")).thenReturn(price);
+        when(price.isArray()).thenReturn(true);
+        when(price.size()).thenReturn(size);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfPriceIsNotArray() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payLeeMerchantService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("price")).thenReturn(true);
+        when(response.has("nonFieldErrors")).thenReturn(false);
+        JsonNode price = Mockito.mock(JsonNode.class);
+        when(response.get("price")).thenReturn(price);
+        when(price.isArray()).thenReturn(false);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfHasNoPrice() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payLeeMerchantService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("nonFieldErrors")).thenReturn(false);
+        when(response.has("price")).thenReturn(false);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 }
