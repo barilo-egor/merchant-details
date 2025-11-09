@@ -13,6 +13,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -58,7 +59,11 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setDetails(response.getData().getPaymentGatewayName() + " " + response.getData().getPaymentDetail().getDetail());
+        if (Objects.nonNull(response.getData().getPaymentGatewayName())) {
+            detailsResponse.setDetails(response.getData().getPaymentGatewayName() + " " + response.getData().getPaymentDetail().getDetail());
+        } else {
+            detailsResponse.setDetails(response.getData().getPaymentGateway() + " " + response.getData().getPaymentDetail().getDetail());
+        }
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getOrderId());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
