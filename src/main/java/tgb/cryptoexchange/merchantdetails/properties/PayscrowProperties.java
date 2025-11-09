@@ -1,7 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface PayscrowProperties {
 
-@ConfigurationProperties(prefix = "payscrow")
-public record PayscrowProperties(String url, String key) {
+    String url();
+
+    String key();
 }

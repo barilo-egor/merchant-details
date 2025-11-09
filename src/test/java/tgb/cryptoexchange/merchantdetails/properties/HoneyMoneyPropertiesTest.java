@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class HoneyMoneyPropertiesTest {
@@ -15,11 +16,10 @@ class HoneyMoneyPropertiesTest {
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("honey-money-urls-token", honeyMoneyProperties.urls().token()),
-                () -> assertEquals("honey-money-urls-main", honeyMoneyProperties.urls().main()),
-                () -> assertEquals("honey-money-sign-key", honeyMoneyProperties.signKey()),
+                () -> assertEquals("honey-money-url", honeyMoneyProperties.url()),
                 () -> assertEquals("honey-money-client-id", honeyMoneyProperties.clientId()),
-                () -> assertEquals("honey-money-secret", honeyMoneyProperties.secret())
+                () -> assertEquals("honey-money-auth-token", honeyMoneyProperties.authToken()),
+                () -> assertEquals("honey-money-sign-token", honeyMoneyProperties.signToken())
         );
     }
 }
