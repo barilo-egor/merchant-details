@@ -89,7 +89,8 @@ class MerchantOrderCreationServiceTest {
     @Test
     void createOrderShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileWriteBody() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
-        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(null));
+        DetailsRequest request = new DetailsRequest();
+        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(request));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping body: "));
     }
 
