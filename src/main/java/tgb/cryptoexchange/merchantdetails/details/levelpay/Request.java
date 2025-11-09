@@ -24,4 +24,9 @@ public class Request {
 
     @JsonProperty("is_floating_amount")
     private Boolean floatingAmount;
+
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return "rub";
+    }
 }
