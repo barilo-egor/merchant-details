@@ -75,16 +75,28 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
             if (e instanceof WebClientResponseException.BadRequest ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return response.has(NON_FIELD_ERRORS)
-                            && response.get(NON_FIELD_ERRORS).isArray()
-                            && response.get(NON_FIELD_ERRORS).size() == 1
-                            && response.get(NON_FIELD_ERRORS).get(0).asText()
-                            .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
+                    return isNoTrader(response) || isAmountError(response);
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
             }
             return false;
         };
+    }
+
+    private boolean isAmountError(JsonNode response) {
+        if (response.has("price")) {
+            JsonNode price = response.get("price");
+            return price.isArray() && price.size() == 1 && price.get(0).asText().startsWith("Убедитесь, что это значение");
+        }
+        return false;
+    }
+
+    private boolean isNoTrader(JsonNode response) {
+        return response.has(NON_FIELD_ERRORS)
+                && response.get(NON_FIELD_ERRORS).isArray()
+                && response.get(NON_FIELD_ERRORS).size() == 1
+                && response.get(NON_FIELD_ERRORS).get(0).asText()
+                .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
     }
 }
