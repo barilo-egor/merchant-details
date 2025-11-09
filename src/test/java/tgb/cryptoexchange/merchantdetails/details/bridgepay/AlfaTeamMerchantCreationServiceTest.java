@@ -1,15 +1,20 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
@@ -142,5 +147,105 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(InvoiceStatus.NEW.name(), actualResponse.getMerchantOrderStatus()),
                 () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
         );
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfInvoiceAmountMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.isArray()).thenReturn(true);
+        when(response.size()).thenReturn(1);
+        JsonNode node = Mockito.mock(JsonNode.class);
+        when(response.get(0)).thenReturn(node);
+        when(node.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(node.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Invoice amount should be");
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertTrue(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInvoiceAmountError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.isArray()).thenReturn(true);
+        when(response.size()).thenReturn(1);
+        JsonNode node = Mockito.mock(JsonNode.class);
+        when(response.get(0)).thenReturn(node);
+        when(node.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(node.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Another error");
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.isArray()).thenReturn(true);
+        when(response.size()).thenReturn(1);
+        JsonNode node = Mockito.mock(JsonNode.class);
+        when(response.get(0)).thenReturn(node);
+        when(node.has("message")).thenReturn(false);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @ValueSource(ints = {0,2,10})
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfResponseSizeNot1(int size) throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.isArray()).thenReturn(true);
+        when(response.size()).thenReturn(size);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfResponseIsNotArray() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.isArray()).thenReturn(false);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        alfaTeamMerchantCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(badRequest.getResponseBodyAsString()).thenReturn("");
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotBadRequestException() {
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+        assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(RuntimeException.class)));
     }
 }
