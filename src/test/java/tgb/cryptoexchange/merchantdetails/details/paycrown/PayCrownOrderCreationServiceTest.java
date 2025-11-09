@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
@@ -41,11 +43,16 @@ class PayCrownOrderCreationServiceTest {
     @Mock
     private SignatureService signatureService;
 
-    @Mock
     private ObjectMapper objectMapper;
 
     @InjectMocks
     private PayCrownOrderCreationService payCrownOrderCreationService;
+
+    @BeforeEach
+    void setUp() {
+        this.objectMapper = Mockito.mock(ObjectMapper.class);
+        payCrownOrderCreationService.setObjectMapper(objectMapper);
+    }
 
     @Test
     void getMerchantShouldReturnPayCrown() {
