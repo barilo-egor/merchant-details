@@ -1,5 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.paybox;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,8 +11,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -22,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +51,7 @@ class ExtasyPayOrderCreationServiceTest {
         detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        assertEquals(method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
+        assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -119,5 +125,109 @@ class ExtasyPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
         );
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasCode1AndMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode codeNode = Mockito.mock(JsonNode.class);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(codeNode.asInt()).thenReturn(1);
+        when(messageNode.asText()).thenReturn("Unable to get requisites.");
+        JsonNode responseNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(responseNode);
+        when(responseNode.has("code")).thenReturn(true);
+        when(responseNode.has("message")).thenReturn(true);
+        when(responseNode.get("code")).thenReturn(codeNode);
+        when(responseNode.get("message")).thenReturn(messageNode);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionNotInternalServerError() {
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
+                Mockito.mock(WebClientResponseException.BadRequest.class)
+        ));
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
+                Mockito.mock(WebClientResponseException.Conflict.class)
+        ));
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
+                Mockito.mock(RuntimeException.class)
+        ));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfMessageNotUnableToGetRequisites() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode codeNode = Mockito.mock(JsonNode.class);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(codeNode.asInt()).thenReturn(1);
+        when(messageNode.asText()).thenReturn("AnotherError");
+        JsonNode responseNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(responseNode);
+        when(responseNode.has("code")).thenReturn(true);
+        when(responseNode.has("message")).thenReturn(true);
+        when(responseNode.get("code")).thenReturn(codeNode);
+        when(responseNode.get("message")).thenReturn(messageNode);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode codeNode = Mockito.mock(JsonNode.class);
+        when(codeNode.asInt()).thenReturn(1);
+        JsonNode responseNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(responseNode);
+        when(responseNode.has("code")).thenReturn(true);
+        when(responseNode.has("message")).thenReturn(false);
+        when(responseNode.get("code")).thenReturn(codeNode);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfCodeNot1() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode codeNode = Mockito.mock(JsonNode.class);
+        when(codeNode.asInt()).thenReturn(2);
+        JsonNode responseNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(responseNode);
+        when(responseNode.has("code")).thenReturn(true);
+        when(responseNode.get("code")).thenReturn(codeNode);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoCode() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode responseNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(responseNode);
+        when(responseNode.has("code")).thenReturn(false);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
 }

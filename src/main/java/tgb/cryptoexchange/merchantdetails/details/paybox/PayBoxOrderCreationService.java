@@ -1,8 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.paybox;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -15,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Slf4j
 public abstract class PayBoxOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -29,7 +33,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
-        return uriBuilder -> uriBuilder.path(method.getUri()).build();
+        return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 
     @Override
@@ -60,5 +64,23 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         }
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.InternalServerError ex) {
+                try {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has("code")
+                            && response.get("code").asInt() == 1
+                            && response.has("message")
+                            && response.get("message").asText().equals("Unable to get requisites.");
+                } catch (JsonProcessingException jsonProcessingException) {
+                    return false;
+                }
+            }
+            return false;
+        };
     }
 }
