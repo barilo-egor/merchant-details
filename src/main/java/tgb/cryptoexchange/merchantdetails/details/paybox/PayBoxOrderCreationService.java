@@ -62,23 +62,35 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         } else {
             detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
         }
-        detailsResponse.setMerchantOrderStatus(response.getStatus().name());
+        detailsResponse.setMerchantOrderStatus(Status.PROCESS.name());
         return Optional.of(detailsResponse);
     }
 
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.InternalServerError ex) {
-                try {
+            try {
+                if (e instanceof WebClientResponseException.InternalServerError ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return response.has("code")
                             && response.get("code").asInt() == 1
                             && response.has("message")
                             && response.get("message").asText().equals("Unable to get requisites.");
-                } catch (JsonProcessingException jsonProcessingException) {
+                } else if (e instanceof WebClientResponseException.UnprocessableEntity ex) {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    if (response.has("code") && response.get("code").asText().equals("422")
+                            && response.has("errors")) {
+                        JsonNode errors = response.get("errors");
+                        if (errors.has("amount")) {
+                            JsonNode amount = errors.get("amount");
+                            return amount.isArray() && amount.size() == 1
+                                    && amount.get(0).asText().startsWith("Amount should be");
+                        }
+                    }
                     return false;
                 }
+            } catch (JsonProcessingException jsonProcessingException) {
+                return false;
             }
             return false;
         };

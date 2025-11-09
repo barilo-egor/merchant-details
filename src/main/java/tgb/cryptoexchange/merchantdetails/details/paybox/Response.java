@@ -50,9 +50,6 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(bankName)) {
             result.notNull("bankName");
         }
-        if (Objects.isNull(status)) {
-            result.notNull("status");
-        }
         if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
             result.notNull("phoneNumber", "cardNumber");
         }

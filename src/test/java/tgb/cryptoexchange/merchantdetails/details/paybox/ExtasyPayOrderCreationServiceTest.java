@@ -85,14 +85,13 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "144008,1234123412341234,PAID,Статус Банк",
-            "1533,9876543212345678,OVERPAID,ALFA"
+            "144008,1234123412341234,Статус Банк",
+            "1533,9876543212345678,ALFA"
     })
     @ParameterizedTest
-    void buildResponseShouldBuildRequisiteResponseObjectWithCardNumber(Long id, String requisiteString, Status status, String bank) {
+    void buildResponseShouldBuildRequisiteResponseObjectWithCardNumber(Long id, String requisiteString, String bank) {
         Response response = new Response();
         response.setId(id);
-        response.setStatus(status);
         response.setCardNumber(requisiteString);
         response.setBankName(bank);
 
@@ -103,7 +102,7 @@ class ExtasyPayOrderCreationServiceTest {
                 () -> assertEquals(Merchant.EXTASY_PAY, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
                 () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
-                () -> assertEquals(status.name(), detailsResponse.getMerchantOrderStatus())
+                () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
 
@@ -115,7 +114,6 @@ class ExtasyPayOrderCreationServiceTest {
     void buildResponseShouldBuildRequisiteResponseObjectWithPhoneNumber(String requisiteString) {
         Response response = new Response();
         response.setId(1L);
-        response.setStatus(Status.ERROR);
         response.setPhoneNumber(requisiteString);
         response.setBankName("bank");
 
@@ -128,7 +126,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasCode1AndMessage() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasCode1AndMessageAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode codeNode = Mockito.mock(JsonNode.class);
@@ -147,7 +145,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrownAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
@@ -157,7 +155,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionNotInternalServerError() {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionNotInternalServerErrorAndInternalServerError() {
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
                 Mockito.mock(WebClientResponseException.BadRequest.class)
         ));
@@ -170,7 +168,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfMessageNotUnableToGetRequisites() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfMessageNotUnableToGetRequisitesAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode codeNode = Mockito.mock(JsonNode.class);
@@ -189,7 +187,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotMessage() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotMessageAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode codeNode = Mockito.mock(JsonNode.class);
@@ -205,7 +203,7 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfCodeNot1() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfCodeNot1AndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode codeNode = Mockito.mock(JsonNode.class);
@@ -220,13 +218,173 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoCode() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoCodeAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode responseNode = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(responseNode);
         when(responseNode.has("code")).thenReturn(false);
         WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasAmountErrorAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(true);
+        JsonNode errors = Mockito.mock(JsonNode.class);
+        when(response.get("errors")).thenReturn(errors);
+        when(errors.has("amount")).thenReturn(true);
+        JsonNode amount = Mockito.mock(JsonNode.class);
+        when(errors.get("amount")).thenReturn(amount);
+        when(amount.isArray()).thenReturn(true);
+        when(amount.size()).thenReturn(1);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(amount.get(0)).thenReturn(message);
+        when(message.asText()).thenReturn("Amount should be grater than 7000.");
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfMessageNotAmountShouldBeAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(true);
+        JsonNode errors = Mockito.mock(JsonNode.class);
+        when(response.get("errors")).thenReturn(errors);
+        when(errors.has("amount")).thenReturn(true);
+        JsonNode amount = Mockito.mock(JsonNode.class);
+        when(errors.get("amount")).thenReturn(amount);
+        when(amount.isArray()).thenReturn(true);
+        when(amount.size()).thenReturn(1);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(amount.get(0)).thenReturn(message);
+        when(message.asText()).thenReturn("Another amount error.");
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @ValueSource(ints = {0, 2, 10})
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountSizeNot1AndUnprocessableEntity(int size) throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(true);
+        JsonNode errors = Mockito.mock(JsonNode.class);
+        when(response.get("errors")).thenReturn(errors);
+        when(errors.has("amount")).thenReturn(true);
+        JsonNode amount = Mockito.mock(JsonNode.class);
+        when(errors.get("amount")).thenReturn(amount);
+        when(amount.isArray()).thenReturn(true);
+        when(amount.size()).thenReturn(size);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountNotArrayAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(true);
+        JsonNode errors = Mockito.mock(JsonNode.class);
+        when(response.get("errors")).thenReturn(errors);
+        when(errors.has("amount")).thenReturn(true);
+        JsonNode amount = Mockito.mock(JsonNode.class);
+        when(errors.get("amount")).thenReturn(amount);
+        when(amount.isArray()).thenReturn(false);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfErrorsHasNoAmountAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(true);
+        JsonNode errors = Mockito.mock(JsonNode.class);
+        when(response.get("errors")).thenReturn(errors);
+        when(errors.has("amount")).thenReturn(false);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasNoErrorsAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("422");
+        when(response.get("code")).thenReturn(code);
+        when(response.has("errors")).thenReturn(false);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfCodeNot422AndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(true);
+        JsonNode code = Mockito.mock(JsonNode.class);
+        when(code.asText()).thenReturn("421");
+        when(response.get("code")).thenReturn(code);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfHasNoCodeAndUnprocessableEntity() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("code")).thenReturn(false);
+        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }

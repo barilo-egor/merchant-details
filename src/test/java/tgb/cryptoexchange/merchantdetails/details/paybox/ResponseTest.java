@@ -48,7 +48,6 @@ class ResponseTest {
     void validateShouldReturnErrorIfIdIsNull() {
         Response response = new Response();
         response.setBankName("bankName");
-        response.setStatus(Status.PROCESS);
         response.setPhoneNumber("phoneNumber");
         assertEquals("field \"id\" must not be null", response.validate().errorsToString());
     }
@@ -57,25 +56,14 @@ class ResponseTest {
     void validateShouldReturnErrorIfBankNameIsNull() {
         Response response = new Response();
         response.setId(123L);
-        response.setStatus(Status.PROCESS);
         response.setPhoneNumber("phoneNumber");
         assertEquals("field \"bankName\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void validateShouldReturnErrorIfStatusIsNull() {
-        Response response = new Response();
-        response.setId(123L);
-        response.setBankName("bankName");
-        response.setPhoneNumber("phoneNumber");
-        assertEquals("field \"status\" must not be null", response.validate().errorsToString());
     }
 
     @Test
     void validateShouldReturnErrorIfPhoneAndCardNumbersIsNull() {
         Response response = new Response();
         response.setId(123L);
-        response.setStatus(Status.PROCESS);
         response.setBankName("bankName");
         assertEquals("field \"phoneNumber or cardNumber\" must not be null", response.validate().errorsToString());
     }
