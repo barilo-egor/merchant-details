@@ -71,13 +71,18 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
             if (e instanceof WebClientResponseException.InternalServerError ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return isNoDetails(response) || isAmountError(response);
+                    return isNoDetails(response) || isAmountError(response) || isInternalError(response);
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
             }
             return false;
         };
+    }
+
+    private boolean isInternalError(JsonNode response) {
+        return isNotSuccessAndHasMessage(response)
+                && response.get(MESSAGE_FIELD).asText().equals("Internal server error");
     }
 
     private boolean isAmountError(JsonNode response) {
