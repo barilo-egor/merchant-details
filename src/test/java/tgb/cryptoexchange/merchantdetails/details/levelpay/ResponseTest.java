@@ -53,7 +53,7 @@ class ResponseTest {
     }
 
     @Test
-    void validateShouldReturnErrorIfPaymentGatewayNameIsNull() {
+    void validateShouldReturnErrorIfPaymentGatewayNameAndPaymentGatewayIsNull() {
         Response response = new Response();
         response.setSuccess(true);
         Response.Order order = new Response.Order();
@@ -63,7 +63,7 @@ class ResponseTest {
         paymentDetail.setDetail("detail");
         order.setPaymentDetail(paymentDetail);
         response.setData(order);
-        assertEquals("field \"data.paymentGatewayName\" must not be null", response.validate().errorsToString());
+        assertEquals("field \"data.paymentGatewayName or data.paymentGateway\" must not be null", response.validate().errorsToString());
     }
 
     @Test
@@ -73,7 +73,7 @@ class ResponseTest {
         Response.Order order = new Response.Order();
         order.setOrderId("orderId");
         order.setStatus(Status.PENDING);
-        order.setPaymentGatewayName("paymentGatewayName");
+        order.setPaymentGateway("paymentGateway");
         response.setData(order);
         assertEquals("field \"data.paymentDetail\" must not be null", response.validate().errorsToString());
     }

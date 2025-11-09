@@ -37,8 +37,8 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(data.getStatus())) {
             result.notNull("data.status");
         }
-        if (Objects.isNull(data.getPaymentGatewayName())) {
-            result.notNull("data.paymentGatewayName");
+        if (Objects.isNull(data.getPaymentGatewayName()) && Objects.isNull(data.getPaymentGateway())) {
+            result.notNull("data.paymentGatewayName", "data.paymentGateway");
         }
         if (Objects.isNull(data.getPaymentDetail())) {
             result.notNull("data.paymentDetail");
@@ -67,6 +67,9 @@ public class Response implements MerchantDetailsResponse {
 
         @JsonProperty("payment_gateway_name")
         private String paymentGatewayName;
+
+        @JsonProperty("payment_gateway")
+        private String paymentGateway;
 
         @JsonProperty("payment_detail")
         private PaymentDetail paymentDetail;
