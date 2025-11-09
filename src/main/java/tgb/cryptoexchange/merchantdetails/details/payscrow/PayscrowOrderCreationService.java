@@ -1,8 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -14,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Slf4j
 public abstract class PayscrowOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -55,5 +59,24 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setDetails(response.getMethodName() + " " + response.getHolderAccount());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.InternalServerError ex) {
+                try {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has("success")
+                            && !response.get("success").asBoolean()
+                            && response.has("message")
+                            && response.get("message").asText()
+                            .equals("No available traders that match order requirements. Please, try again later or change order parameters.");
+                } catch (JsonProcessingException jsonProcessingException) {
+                    return false;
+                }
+            }
+            return false;
+        };
     }
 }
