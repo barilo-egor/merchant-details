@@ -1,13 +1,18 @@
 package tgb.cryptoexchange.merchantdetails.details.daopayments;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -20,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,5 +109,72 @@ class DaoPaymentsOrderCreationServiceTest {
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
                 () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
         );
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfAllTradersFailed() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        daoPaymentsOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("error")).thenReturn(true);
+        JsonNode error = Mockito.mock(JsonNode.class);
+        when(response.get("error")).thenReturn(error);
+        when(error.asText()).thenReturn("deposit processing failed: all traders failed, " +
+                "last error from last trader: Ошибка! Не удалось обработать платеж!");
+        WebClientResponseException.InternalServerError internalServerError =
+                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertTrue(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfErrorMessageNotDepositFailed() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        daoPaymentsOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("error")).thenReturn(true);
+        JsonNode error = Mockito.mock(JsonNode.class);
+        when(response.get("error")).thenReturn(error);
+        when(error.asText()).thenReturn("Another error");
+        WebClientResponseException.InternalServerError internalServerError =
+                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        daoPaymentsOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("error")).thenReturn(false);
+        WebClientResponseException.InternalServerError internalServerError =
+                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingException() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        daoPaymentsOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        WebClientResponseException.InternalServerError internalServerError =
+                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.UnprocessableEntity.class)));
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+        assertFalse(daoPaymentsOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(RuntimeException.class)));
     }
 }
