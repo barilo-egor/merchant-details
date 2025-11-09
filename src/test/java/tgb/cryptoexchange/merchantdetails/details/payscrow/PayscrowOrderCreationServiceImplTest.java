@@ -108,7 +108,8 @@ class PayscrowOrderCreationServiceImplTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "No available traders that match order requirements. Please, try again later or change order parameters.",
-            "Amount for the chosen payment method doesn't meet limits."
+            "Amount for the chosen payment method doesn't meet limits.",
+            "Internal server error"
     })
     void isNoDetailsExceptionPredicateShouldReturnTrueIfNoTraderMessageOrAmountError(String messageTest) throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
