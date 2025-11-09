@@ -1,9 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.daopayments;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -17,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class DaoPaymentsOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -68,5 +72,21 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
         detailsResponse.setDetails(transferDetails.getBankName() + " " + transferDetails.getCardNumber());
         detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            try {
+                if (e instanceof WebClientResponseException.InternalServerError ex) {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has("error")
+                            && response.get("error").asText().startsWith("deposit processing failed: all traders failed");
+                }
+            } catch (JsonProcessingException jsonProcessingException) {
+                return false;
+            }
+            return false;
+        };
     }
 }
