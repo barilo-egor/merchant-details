@@ -53,21 +53,35 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
+        log.debug("Запрос на создание ордера: {}", detailsRequest.toString());
         String body = mapBody(detailsRequest);
         Optional<String> maybeRawResponse = makeRequest(detailsRequest, body);
         if (maybeRawResponse.isEmpty()) {
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
         String rawResponse = maybeRawResponse.get();
         if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
         T response = mapResponse(rawResponse);
         validateResponse(response);
         if (!response.hasDetails()) {
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
-        return buildResponse(response);
+        Optional<DetailsResponse> maybeResponse = buildResponse(response);
+        if (maybeResponse.isPresent()) {
+            log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
+        } else {
+            logNoDetails(detailsRequest.getId());
+        }
+        return maybeResponse;
+    }
+
+    private void logNoDetails(Long id) {
+        log.debug("Реквизиты для запроса id={} найдены не были.", id);
     }
 
     private String mapBody(DetailsRequest detailsRequest) {
