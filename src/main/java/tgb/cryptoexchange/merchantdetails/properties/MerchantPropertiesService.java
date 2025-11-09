@@ -39,8 +39,7 @@ public class MerchantPropertiesService {
                                      PayscrowPropertiesImpl payscrowPropertiesImpl,
                                      PspWareProperties pspWareProperties,
                                      RostrastProperties rostrastProperties,
-                                     WellBitProperties wellBitProperties,
-                                     WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
+                                     WellBitProperties wellBitProperties) {
         properties = new EnumMap<>(Merchant.class);
         properties.put(ALFA_TEAM, alfaTeamProperties);
         properties.put(APPEXBIT, appexbitProperties);
@@ -65,7 +64,6 @@ public class MerchantPropertiesService {
         properties.put(PSP_WARE, pspWareProperties);
         properties.put(ROSTRAST, rostrastProperties);
         properties.put(WELL_BIT, wellBitProperties);
-        properties.put(WORLD_WIDE, worldWidePaymentSystemsProperties);
     }
 
     public Optional<Object> getProperties(Merchant merchant) {

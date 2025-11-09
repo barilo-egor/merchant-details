@@ -62,10 +62,6 @@ panda-pay:
   url: ""
   key: ""
   secret: ""
-wwps:
-  url: ""
-  token: ""
-  merchant-id: ""
 pay-crown:
   url: ""
   key: ""

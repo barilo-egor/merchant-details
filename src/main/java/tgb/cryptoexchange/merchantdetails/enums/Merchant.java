@@ -18,7 +18,6 @@ public enum Merchant {
     EXTASY_PAY,
     PAY_LEE,
     PSP_WARE,
-    WORLD_WIDE,
     PAY_CROWN,
     PAYSCROW,
     LUCKY_PAY,
@@ -46,7 +45,8 @@ public enum Merchant {
     PANDA_PAY,
     PAY_POINTS,
     PULSAR,
-    EZE_PAY
+    EZE_PAY,
+    WORLD_WIDE
     ;
 
     public static final List<Merchant> NOT_ACTIVE = List.of(

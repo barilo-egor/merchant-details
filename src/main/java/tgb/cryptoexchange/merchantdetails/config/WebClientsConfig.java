@@ -74,11 +74,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient worldWidePaymentsSystemsWebClient(WorldWidePaymentSystemsProperties worldWidePaymentSystemsProperties) {
-        return WebClient.builder().baseUrl(worldWidePaymentSystemsProperties.url()).build();
-    }
-
-    @Bean
     public WebClient honeyMoneyWebClient(HoneyMoneyProperties honeyMoneyProperties) {
         return WebClient.builder().baseUrl(honeyMoneyProperties.url()).build();
     }
