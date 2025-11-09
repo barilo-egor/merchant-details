@@ -4,17 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
+import tgb.cryptoexchange.merchantdetails.details.bridgepay.AlfaTeamMerchantCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +31,9 @@ class MerchantDetailsControllerTest {
 
     @MockitoBean
     private MerchantPropertiesService merchantPropertiesService;
+
+    @MockitoBean
+    private MerchantServiceRegistry merchantServiceRegistry;
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,5 +58,65 @@ class MerchantDetailsControllerTest {
         when(merchantPropertiesService.getProperties(Merchant.APPEXBIT)).thenReturn(Optional.empty());
         mockMvc.perform(get("/properties/APPEXBIT"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void detailsShouldReturn400IfNoMerchantImplementation() throws Exception {
+        when(merchantServiceRegistry.getService(any())).thenReturn(Optional.empty());
+        mockMvc.perform(get("/ALFA_TEAM")
+                        .param("method", "value")
+                        .param("amount", "1000"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.message")
+                        .value("Creation for this merchant is not implemented."));
+    }
+
+    @Test
+    void detailsShouldReturn204IfNoDetails() throws Exception {
+        AlfaTeamMerchantCreationService alfaTeamMerchantCreationService = Mockito.mock(AlfaTeamMerchantCreationService.class);
+        when(alfaTeamMerchantCreationService.createOrder(any())).thenReturn(Optional.empty());
+        when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(alfaTeamMerchantCreationService));
+        mockMvc.perform(get("/ALFA_TEAM")
+                        .param("method", "value")
+                        .param("amount", "1000"))
+                .andExpect(status().isNoContent());
+    }
+
+    @CsvSource(nullValues = "null", textBlock = """
+            ALFA_TEAM,ALFA 79878764521,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,PENDING,\
+            b98747be-0060-4b13-aee6-f7d489f23231,5444,\
+            c29tZSBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGZpbGU=
+            WELL_BIT,Сбербанк 1234123412341234,f669eb83-a6c2-4456-8416-c2b1fd514c99,CREATED,\
+            c7a29fbf-7c80-44dd-8781-4117165569dc,2055,\
+            c29tZSAybG9uZyAybG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgZmlsZSA=
+            """)
+    @ParameterizedTest
+    void detailsShouldReturnDetailsResponse(Merchant merchant, String details, String merchantOrderId,
+                                            String merchantOrderStatus, String merchantCustomId, Integer amount,
+                                            String qr) throws Exception {
+        AlfaTeamMerchantCreationService alfaTeamMerchantCreationService = Mockito.mock(AlfaTeamMerchantCreationService.class);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(merchant);
+        detailsResponse.setDetails(details);
+        detailsResponse.setMerchantOrderId(merchantOrderId);
+        detailsResponse.setMerchantOrderStatus(merchantOrderStatus);
+        detailsResponse.setMerchantCustomId(merchantCustomId);
+        detailsResponse.setAmount(amount);
+        detailsResponse.setQr(qr);
+        when(alfaTeamMerchantCreationService.createOrder(any())).thenReturn(Optional.of(detailsResponse));
+        when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(alfaTeamMerchantCreationService));
+        mockMvc.perform(get("/ALFA_TEAM")
+                        .param("method", "value")
+                        .param("amount", "1000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.merchant").value(merchant.name()))
+                .andExpect(jsonPath("$.data.details").value(details))
+                .andExpect(jsonPath("$.data.merchantOrderId").value(merchantOrderId))
+                .andExpect(jsonPath("$.data.merchantOrderStatus").value(merchantOrderStatus))
+                .andExpect(jsonPath("$.data.merchantCustomId").value(merchantCustomId))
+                .andExpect(jsonPath("$.data.amount").value(amount))
+                .andExpect(jsonPath("$.data.qr").value(qr));
     }
 }

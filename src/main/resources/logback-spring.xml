@@ -56,22 +56,6 @@
             <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
     </appender>
-
-    <!-- 5. HIBERNATE ФАЙЛ -->
-    <appender name="HIBERNATE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/hibernate.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/hibernate.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>5MB</maxFileSize>
-            <maxHistory>330</maxHistory>
-            <totalSizeCap>500MB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-
     <!-- НАСТРОЙКИ ЛОГГЕРОВ -->
 
     <!-- Application логи идут в application.log и консоль -->
@@ -84,12 +68,6 @@
     <!-- Spring логи идут в spring.log и консоль -->
     <logger name="org.springframework" additivity="false">
         <appender-ref ref="SPRING_FILE"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
-
-    <!-- Hibernate логи идут в hibernate.log и консоль -->
-    <logger name="org.hibernate" additivity="false">
-        <appender-ref ref="HIBERNATE_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
