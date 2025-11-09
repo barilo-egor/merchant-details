@@ -2,7 +2,6 @@ package tgb.cryptoexchange.merchantdetails.details.paycrown;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -32,15 +31,11 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
 
     private final SignatureService signatureService;
 
-    private final ObjectMapper objectMapper;
-
     protected PayCrownOrderCreationService(@Qualifier("payCrownWebClient") WebClient webClient,
-                                           PayCrownProperties payCrownProperties, SignatureService signatureService,
-                                           ObjectMapper objectMapper) {
+                                           PayCrownProperties payCrownProperties, SignatureService signatureService) {
         super(webClient, Response.class);
         this.payCrownProperties = payCrownProperties;
         this.signatureService = signatureService;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -71,6 +66,7 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
                 String signature = signatureService.getMD5Hash(stringToSign);
                 httpHeaders.add("X-Api-Key", payCrownProperties.key());
                 httpHeaders.add("X-Paycrown-Sign", signature);
+                httpHeaders.add("Content-Type", "application/json");
             } catch (NoSuchAlgorithmException e) {
                 log.error("Ошибка формирования подписи для method={}, body={}", method().name(), body);
                 throw new SignatureCreationException("Ошибка формирования подписи.", e);
