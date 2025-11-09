@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class DetailsRequest {
 
+    private Long id;
+
     @NotBlank
     private String method;
 
