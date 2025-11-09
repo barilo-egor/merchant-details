@@ -1,9 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -15,6 +18,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -69,5 +73,21 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         detailsResponse.setMerchantOrderId(responseData.getTransaction().getId());
         detailsResponse.setMerchantOrderStatus(responseData.getTransaction().getStatus().name());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.InternalServerError internalServerError) {
+                try {
+                    JsonNode response = objectMapper.readTree(internalServerError.getResponseBodyAsString());
+                    return response.has("code")
+                            && response.get("code").asText().equals("REQUISITE_NOT_FOUND");
+                } catch (JsonProcessingException ex) {
+                    return false;
+                }
+            }
+            return false;
+        };
     }
 }

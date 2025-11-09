@@ -87,13 +87,30 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
             if (e instanceof WebClientResponseException.BadRequest ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return response.has("detail")
-                            && response.get("detail").asText().equals("No requisites available for the moment. Please try again later.");
+                    return isNoDetails(response) || isAmountError(response);
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
             }
             return false;
         };
+    }
+
+    private boolean isAmountError(JsonNode response) {
+        if (response.has("errors")) {
+            JsonNode errors = response.get("errors");
+            if (errors.has("Amount")) {
+                JsonNode amount = errors.get("Amount");
+                if (amount.isArray() && amount.size() == 1) {
+                    return amount.get(0).asText().startsWith("Amount must be");
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isNoDetails(JsonNode response) {
+        return response.has("detail")
+                && response.get("detail").asText().equals("No requisites available for the moment. Please try again later.");
     }
 }
