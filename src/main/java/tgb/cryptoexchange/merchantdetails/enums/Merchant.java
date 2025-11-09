@@ -63,6 +63,7 @@ public enum Merchant {
             PANDA_PAY,
             PAY_POINTS,
             PULSAR,
-            EZE_PAY
+            EZE_PAY,
+            WORLD_WIDE
     );
 }
