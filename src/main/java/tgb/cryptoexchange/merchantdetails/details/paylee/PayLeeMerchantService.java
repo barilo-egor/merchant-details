@@ -1,9 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.paylee;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -15,10 +18,13 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class PayLeeMerchantService extends MerchantOrderCreationService<Response> {
-    
+
+    static final String NON_FIELD_ERRORS = "nonFieldErrors";
+
     private final PayLeeProperties payLeeProperties;
 
     protected PayLeeMerchantService(@Qualifier("payLeeWebClient") WebClient webClient, PayLeeProperties payLeeProperties) {
@@ -38,7 +44,10 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> httpHeaders.add("Authorization", "Token " + payLeeProperties.token());
+        return httpHeaders -> {
+            httpHeaders.add("Authorization", "Token " + payLeeProperties.token());
+            httpHeaders.add("Content-Type", "application/json");
+        };
     }
 
     @Override
@@ -58,5 +67,24 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
         vo.setMerchantOrderStatus(response.getStatus().name());
         vo.setAmount(response.getPrice().intValue());
         return Optional.of(vo);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.BadRequest ex) {
+                try {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has(NON_FIELD_ERRORS)
+                            && response.get(NON_FIELD_ERRORS).isArray()
+                            && response.get(NON_FIELD_ERRORS).size() == 1
+                            && response.get(NON_FIELD_ERRORS).get(0).asText()
+                            .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
+                } catch (JsonProcessingException jsonProcessingException) {
+                    return false;
+                }
+            }
+            return false;
+        };
     }
 }
