@@ -18,27 +18,25 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (!success) {
-            result.addError("success", "expected true, but was false: " + error);
-        } else {
-            if (hasDetails()) {
-                if (Objects.isNull(data.getId())) {
-                    result.notNull("data.id");
-                }
-                if (Objects.isNull(data.getRequisite())) {
-                    result.notNull("data.requisite");
-                }
-                if (Objects.isNull(data.getBank())) {
-                    result.notNull("data.bank");
-                }
+        if (hasDetails()) {
+            if (Objects.isNull(data.getId())) {
+                result.notNull("data.id");
             }
+            if (Objects.isNull(data.getRequisite())) {
+                result.notNull("data.requisite");
+            }
+            if (Objects.isNull(data.getBank())) {
+                result.notNull("data.bank");
+            }
+        } else if (Objects.nonNull(error) && !"No available requisites".equals(error)) {
+            result.expectedEmpty("error", error);
         }
         return result;
     }
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(data);
+        return success;
     }
 
     @lombok.Data
