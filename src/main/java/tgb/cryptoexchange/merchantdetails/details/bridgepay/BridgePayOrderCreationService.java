@@ -1,8 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -19,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Slf4j
 public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -89,4 +93,23 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         return dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
     }
 
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.BadRequest badRequest) {
+                JsonNode response;
+                try {
+                    response = objectMapper.readTree(badRequest.getResponseBodyAsString());
+                } catch (JsonProcessingException ex) {
+                    return false;
+                }
+                if (response.isArray() && response.size() == 1) {
+                    JsonNode node = response.get(0);
+                    return node.has("message")
+                            && node.get("message").asText().startsWith("Invoice amount should be");
+                }
+            }
+            return false;
+        };
+    }
 }
