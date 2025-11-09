@@ -53,7 +53,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
-        log.debug("Запрос на создание ордера: {}", detailsRequest.toString());
+        log.debug("Запрос на создание ордера мерчанта {}: {}", getMerchant().name(), detailsRequest.toString());
         String body = mapBody(detailsRequest);
         Optional<String> maybeRawResponse = makeRequest(detailsRequest, body);
         if (maybeRawResponse.isEmpty()) {
