@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
+import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 
 import java.net.URI;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import java.util.function.Predicate;
 
 /**
  * Сервис для выполнения запросов на создание ордера мерчантам.
+ *
  * @param <T> тип ответа от мерчанта
  */
 @Slf4j
@@ -90,8 +93,19 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
-                    currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
+            if (e instanceof WebClientResponseException webClientResponseException) {
+                String errorBody = switch (getMerchant()) {
+                    case FOX_PAYS, MOBIUS ->
+                            StringDecodeUtils.decodeUnicode(webClientResponseException.getResponseBodyAsString());
+                    default -> webClientResponseException.getResponseBodyAsString();
+                };
+                log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}, responseBody = {}",
+                        currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(),
+                        errorBody, e);
+            } else {
+                log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
+                        currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
+            }
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
     }
@@ -137,9 +151,9 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return s -> false;
     }
 
-    protected  <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
+    protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
-                + getMerchant().name() + " not found."));
+                        + getMerchant().name() + " not found."));
     }
 }

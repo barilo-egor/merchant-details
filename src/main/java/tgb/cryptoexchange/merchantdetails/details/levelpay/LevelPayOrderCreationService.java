@@ -1,8 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.levelpay;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -14,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Slf4j
 public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response> {
@@ -60,5 +64,21 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         detailsResponse.setAmount(Integer.parseInt(response.getData().getAmount()));
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            if (e instanceof WebClientResponseException.BadRequest ex) {
+                JsonNode response;
+                try {
+                    response = objectMapper.readTree(ex.getResponseBodyAsString());
+                } catch (JsonProcessingException exc) {
+                    return false;
+                }
+                return response.has("success") && !response.get("success").asBoolean();
+            }
+            return false;
+        };
     }
 }
