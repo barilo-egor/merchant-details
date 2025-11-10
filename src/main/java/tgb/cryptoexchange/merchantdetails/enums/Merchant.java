@@ -15,6 +15,7 @@ public enum Merchant {
     CROCO_PAY,
     BIT_ZONE,
     ONYX_PAY,
+    ONYX_PAY_SIM,
     EXTASY_PAY,
     PAY_LEE,
     PSP_WARE,
