@@ -25,6 +25,9 @@ public class Request {
     @JsonProperty("is_floating_amount")
     private Boolean floatingAmount;
 
+    @JsonProperty("payment_gateway")
+    private String paymentGateway;
+
     @JsonProperty("currency")
     public String getCurrency() {
         return "rub";

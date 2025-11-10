@@ -47,7 +47,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return headers -> {
             headers.add("Content-Type", "application/json");
-            headers.add("X-Identity", bridgePayProperties.key());
+            headers.add("X-Identity", keyFunction().apply(parseMethod(detailsRequest.getMethod(), Method.class)));
             String createInvoiceUrl = bridgePayProperties.url() + "/api/merchant/invoices";
             try {
                 headers.add("X-Signature", signatureService.hmacSHA1(
@@ -58,6 +58,10 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                 throw new SignatureCreationException("Ошибка формирования подписи.", e);
             }
         };
+    }
+
+    protected Function<Method, String> keyFunction() {
+        return method -> bridgePayProperties.key();
     }
 
     private String buildSignatureData(String url, String body) {
