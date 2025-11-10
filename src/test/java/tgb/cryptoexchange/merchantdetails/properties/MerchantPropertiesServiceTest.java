@@ -43,6 +43,7 @@ class MerchantPropertiesServiceTest {
             case NICE_PAY -> assertInstanceOf(NicePayProperties.class, merchantProperties.get());
             case ONLY_PAYS -> assertInstanceOf(OnlyPaysProperties.class, merchantProperties.get());
             case ONYX_PAY -> assertInstanceOf(OnyxPayProperties.class, merchantProperties.get());
+            case ONYX_PAY_SIM -> assertInstanceOf(OnyxPaySimProperties.class, merchantProperties.get());
             case YA_PAY -> assertInstanceOf(YaPayProperties.class, merchantProperties.get());
             case PAY_LEE -> assertInstanceOf(PayLeeProperties.class, merchantProperties.get());
             case PAYSCROW -> assertInstanceOf(PayscrowPropertiesImpl.class, merchantProperties.get());
@@ -51,7 +52,7 @@ class MerchantPropertiesServiceTest {
             case ROSTRAST -> assertInstanceOf(RostrastProperties.class, merchantProperties.get());
             case WELL_BIT -> assertInstanceOf(WellBitProperties.class, merchantProperties.get());
             case PAY_CROWN -> assertInstanceOf(PayCrownProperties.class, merchantProperties.get());
-            case PAY_FINITY -> assertInstanceOf(PayFinityProperties.class, merchantProperties.get());
+            case STORM_TRADE -> assertInstanceOf(StormTradeProperties.class, merchantProperties.get());
             default -> throw new IllegalArgumentException();
         }
     }
