@@ -8,18 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class OnyxPayPropertiesTest {
+class OnyxPaySimPropertiesTest {
 
     @Autowired
-    private OnyxPayProperties onyxPayProperties;
+    private OnyxPaySimProperties onyxPaySimProperties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("onyx-pay-url", onyxPayProperties.url()),
-                () -> assertEquals("onyx-pay-key", onyxPayProperties.key()),
-                () -> assertEquals("onyx-pay-token", onyxPayProperties.token()),
-                () -> assertEquals("onyx-pay-secret", onyxPayProperties.secret())
+                () -> assertEquals("onyx-pay-sim-url", onyxPaySimProperties.url()),
+                () -> assertEquals("onyx-pay-sim-key", onyxPaySimProperties.key()),
+                () -> assertEquals("onyx-pay-sim-token", onyxPaySimProperties.token()),
+                () -> assertEquals("onyx-pay-sim-secret", onyxPaySimProperties.secret())
         );
     }
 }
