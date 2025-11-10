@@ -28,6 +28,7 @@ public enum Merchant {
     GEO_TRANSFER,
     ROSTRAST,
     FOX_PAYS,
+    STORM_TRADE,
 
     /**
      * Более не используются

@@ -117,4 +117,9 @@ public class WebClientsConfig {
     public WebClient wellBitWebClient(WellBitProperties wellBitProperties) {
         return WebClient.builder().baseUrl(wellBitProperties.url()).build();
     }
+
+    @Bean
+    public WebClient stormTradeWebClient(StormTradeProperties stormTradeProperties) {
+        return WebClient.builder().baseUrl(stormTradeProperties.url()).build();
+    }
 }
