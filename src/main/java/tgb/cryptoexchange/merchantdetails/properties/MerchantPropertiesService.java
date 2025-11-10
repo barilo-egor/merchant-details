@@ -38,7 +38,9 @@ public class MerchantPropertiesService {
                                      PayscrowPropertiesImpl payscrowPropertiesImpl,
                                      PspWareProperties pspWareProperties,
                                      RostrastProperties rostrastProperties,
-                                     WellBitProperties wellBitProperties) {
+                                     WellBitProperties wellBitProperties,
+                                     StormTradeProperties stormTradeProperties,
+                                     OnyxPaySimProperties onyxPaySimProperties) {
         properties = new EnumMap<>(Merchant.class);
         properties.put(ALFA_TEAM, alfaTeamProperties);
         properties.put(APPEXBIT, appexbitProperties);
@@ -62,6 +64,8 @@ public class MerchantPropertiesService {
         properties.put(PSP_WARE, pspWareProperties);
         properties.put(ROSTRAST, rostrastProperties);
         properties.put(WELL_BIT, wellBitProperties);
+        properties.put(STORM_TRADE, stormTradeProperties);
+        properties.put(ONYX_PAY_SIM, onyxPaySimProperties);
     }
 
     public Optional<Object> getProperties(Merchant merchant) {
