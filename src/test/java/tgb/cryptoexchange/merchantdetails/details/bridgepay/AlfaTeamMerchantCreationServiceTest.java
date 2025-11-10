@@ -89,6 +89,7 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
         DetailsRequest request = Mockito.mock(DetailsRequest.class);
+        when(request.getMethod()).thenReturn(Method.TO_CARD.name());
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
