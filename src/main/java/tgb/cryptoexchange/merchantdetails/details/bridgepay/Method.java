@@ -13,7 +13,8 @@ import java.io.IOException;
 public enum Method {
     SBP("SBP", "СБП"),
     TO_CARD("TO_CARD", "Перевод на карту"),
-    CROSS_BORDER("CROSS_BORDER", "Трансграничный перевод");
+    CROSS_BORDER("CROSS_BORDER", "Трансграничный перевод"),
+    MOBILE_TOP_UP("MOBILE_TOP_UP", "Пополнение счета моб.телефона");
 
     private final String value;
 

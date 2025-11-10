@@ -39,11 +39,6 @@ onyx-pay:
   token: "onyx-pay-token"
   key: "onyx-pay-key"
   secret: "onyx-pay-secret"
-onyx-pay-sim:
-  url: "onyx-pay-sim-url"
-  token: "onyx-pay-sim-token"
-  key: "onyx-pay-sim-key"
-  secret: "onyx-pay-sim-secret"
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
