@@ -12,7 +12,8 @@ import java.io.IOException;
 @Getter
 public enum Method {
     CARD("card", "Карта"),
-    PHONE("phone", "СБП");
+    PHONE("phone", "СБП"),
+    ALFA_ALFA("phone", "Альфа-альфа");
 
     private final String value;
 

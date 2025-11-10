@@ -87,6 +87,21 @@ class FoxPaysOrderCreationServiceTest {
         );
     }
 
+    @Test
+    void bodyShouldBuildRequestObjectWithAlfaAlfaPaymentGateway() {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(1);
+        detailsRequest.setMethod(Method.ALFA_ALFA.name());
+        detailsRequest.setCallbackUrl("callbackUrl");
+        when(foxPaysProperties.merchantId()).thenReturn("merchantId");
+
+        Request request = foxPaysOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(Method.ALFA_ALFA, request.getPaymentDetailType()),
+                () -> assertEquals("alfa-alfa", request.getPaymentGateway())
+        );
+    }
+
     @CsvSource({
             "ALFA,1234432112344321,784fd85f-48a9-4521-8d3d-a2bef09b98ba,FAIL,5660",
             "Сбербанк,78965433443,e356e472-1837-4fe3-9a7a-c0fd445663df,PENDING,8321"
