@@ -28,4 +28,7 @@ public class Request {
 
     @JsonProperty("personal_id")
     private String personalId;
+
+    @JsonProperty("sim")
+    private Boolean sim;
 }
