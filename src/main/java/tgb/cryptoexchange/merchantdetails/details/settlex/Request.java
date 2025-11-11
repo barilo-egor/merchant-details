@@ -15,6 +15,7 @@ public class Request {
     private String orderId;
 
     @JsonSerialize(using = Method.Serializer.class)
+    @JsonProperty("methodId")
     private Method method;
 
     @JsonProperty("expired_at")
