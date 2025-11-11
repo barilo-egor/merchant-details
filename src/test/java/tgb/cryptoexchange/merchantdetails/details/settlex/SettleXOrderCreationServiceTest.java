@@ -52,7 +52,10 @@ class SettleXOrderCreationServiceTest {
         when(settleXProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
         service.headers(null, null).accept(headers);
-        assertEquals(key, headers.getFirst("x-merchant-api-key"));
+        assertAll(
+            () -> assertEquals(key, headers.getFirst("x-merchant-api-key")),
+            () -> assertEquals("application/json", headers.getFirst("Content-Type"))
+        );
     }
 
     @ParameterizedTest
