@@ -16,7 +16,7 @@ public enum Method {
 
     private final String value;
 
-    private final String displayName;
+    private final String description;
 
     public static class Serializer extends JsonSerializer<Method> {
         @Override
