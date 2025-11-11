@@ -66,7 +66,53 @@ class OnlyPaysOrderCreationServiceTest {
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> assertEquals(method, actual.getMethod()),
                 () -> assertEquals(secret, actual.getSecretKey()),
-                () -> assertDoesNotThrow(() -> UUID.fromString(actual.getPersonalId()))
+                () -> assertDoesNotThrow(() -> UUID.fromString(actual.getPersonalId())),
+                () -> assertNull(actual.getSim()),
+                () -> assertNull(actual.getBank())
+        );
+    }
+
+    @Test
+    void bodyShouldBuildRequestObjectWithSimTrueIfMethodSim() {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.SIM.name());
+        detailsRequest.setAmount(1000);
+        when(onlyPaysProperties.id()).thenReturn("id");
+        when(onlyPaysProperties.secret()).thenReturn("secret");
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(Method.SIM, actual.getMethod()),
+                () -> assertTrue(actual.getSim())
+        );
+    }
+
+    @Test
+    void bodyShouldBuildRequestObjectWithBankAlfaTrueIfMethodAlfaAlfa() {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.ALFA_ALFA.name());
+        detailsRequest.setAmount(1000);
+        when(onlyPaysProperties.id()).thenReturn("id");
+        when(onlyPaysProperties.secret()).thenReturn("secret");
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(Method.ALFA_ALFA, actual.getMethod()),
+                () -> assertNull(actual.getSim()),
+                () -> assertEquals("Альфа", actual.getBank())
+        );
+    }
+
+    @Test
+    void bodyShouldBuildRequestObjectWithBankOzonTrueIfMethodOzonOzon() {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.OZON_OZON.name());
+        detailsRequest.setAmount(1000);
+        when(onlyPaysProperties.id()).thenReturn("id");
+        when(onlyPaysProperties.secret()).thenReturn("secret");
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(Method.OZON_OZON, actual.getMethod()),
+                () -> assertNull(actual.getSim()),
+                () -> assertEquals("Озон", actual.getBank())
         );
     }
 

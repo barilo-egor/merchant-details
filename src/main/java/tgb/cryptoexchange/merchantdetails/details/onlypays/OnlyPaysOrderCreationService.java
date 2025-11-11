@@ -50,7 +50,17 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setApiId(onlyPaysProperties.id());
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setMethod(method);
+        if (Method.SIM.equals(method)) {
+            request.setSim(true);
+        }
+        switch (method) {
+            case SIM -> request.setSim(true);
+            case ALFA_ALFA -> request.setBank("Альфа");
+            case OZON_OZON -> request.setBank("Озон");
+            default -> {/* не требует действий */}
+        }
         request.setSecretKey(onlyPaysProperties.secret());
         request.setPersonalId(UUID.randomUUID().toString());
         return request;

@@ -12,7 +12,10 @@ import java.io.IOException;
 @Getter
 public enum Method {
     CARD("card", "Карта"),
-    SBP("sbp", "СБП");
+    SBP("sbp", "СБП"),
+    SIM("sbp", "SIM"),
+    ALFA_ALFA("sbp", "Альфа-Альфа"),
+    OZON_OZON("sbp", "Озон-Озон");
 
     private final String value;
 
