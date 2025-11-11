@@ -66,7 +66,22 @@ class OnlyPaysOrderCreationServiceTest {
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> assertEquals(method, actual.getMethod()),
                 () -> assertEquals(secret, actual.getSecretKey()),
-                () -> assertDoesNotThrow(() -> UUID.fromString(actual.getPersonalId()))
+                () -> assertDoesNotThrow(() -> UUID.fromString(actual.getPersonalId())),
+                () -> assertNull(actual.getSim())
+        );
+    }
+
+    @Test
+    void bodyShouldBuildRequestObjectWithSimTrueIfMethodSim() {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.SIM.name());
+        detailsRequest.setAmount(1000);
+        when(onlyPaysProperties.id()).thenReturn("id");
+        when(onlyPaysProperties.secret()).thenReturn("secret");
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(Method.SIM, actual.getMethod()),
+                () -> assertTrue(actual.getSim())
         );
     }
 

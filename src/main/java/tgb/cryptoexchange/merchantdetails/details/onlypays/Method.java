@@ -12,7 +12,8 @@ import java.io.IOException;
 @Getter
 public enum Method {
     CARD("card", "Карта"),
-    SBP("sbp", "СБП");
+    SBP("sbp", "СБП"),
+    SIM("sbp", "SIM");
 
     private final String value;
 
