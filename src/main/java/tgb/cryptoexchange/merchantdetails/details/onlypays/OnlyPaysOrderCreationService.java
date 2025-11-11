@@ -55,6 +55,12 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
         if (Method.SIM.equals(method)) {
             request.setSim(true);
         }
+        switch (method) {
+            case SIM -> request.setSim(true);
+            case ALFA_ALFA -> request.setBank("Альфа");
+            case OZON_OZON -> request.setBank("Озон");
+            default -> {/* не требует действий */}
+        }
         request.setSecretKey(onlyPaysProperties.secret());
         request.setPersonalId(UUID.randomUUID().toString());
         return request;
