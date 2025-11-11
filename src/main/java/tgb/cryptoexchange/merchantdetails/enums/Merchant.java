@@ -29,6 +29,7 @@ public enum Merchant {
     ROSTRAST,
     FOX_PAYS,
     STORM_TRADE,
+    SETTLE_X,
 
     /**
      * Более не используются
