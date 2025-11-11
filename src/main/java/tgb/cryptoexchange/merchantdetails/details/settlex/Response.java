@@ -25,6 +25,9 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(id)) {
             result.notNull("id");
         }
+        if (Objects.isNull(orderId)) {
+            result.notNull("orderId");
+        }
         if (Objects.isNull(status)) {
             result.notNull("status");
         }

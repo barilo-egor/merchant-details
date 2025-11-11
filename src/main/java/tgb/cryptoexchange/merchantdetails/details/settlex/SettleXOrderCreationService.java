@@ -44,13 +44,13 @@ public class SettleXOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Object body(DetailsRequest detailsRequest) {
+    protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
-        request.setAmount(detailsRequest.getAmount());
         request.setExpiredAt(LocalDateTime.now().plusMinutes(15));
+        request.setCallbackUri(detailsRequest.getCallbackUrl());
         return request;
     }
 
