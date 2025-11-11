@@ -39,7 +39,8 @@ public class MerchantPropertiesService {
                                      PspWareProperties pspWareProperties,
                                      RostrastProperties rostrastProperties,
                                      WellBitProperties wellBitProperties,
-                                     StormTradeProperties stormTradeProperties) {
+                                     StormTradeProperties stormTradeProperties,
+                                     SettleXProperties settleXProperties) {
         properties = new EnumMap<>(Merchant.class);
         properties.put(ALFA_TEAM, alfaTeamProperties);
         properties.put(APPEXBIT, appexbitProperties);
@@ -64,6 +65,7 @@ public class MerchantPropertiesService {
         properties.put(ROSTRAST, rostrastProperties);
         properties.put(WELL_BIT, wellBitProperties);
         properties.put(STORM_TRADE, stormTradeProperties);
+        properties.put(SETTLE_X, settleXProperties);
     }
 
     public Optional<Object> getProperties(Merchant merchant) {
