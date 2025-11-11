@@ -122,4 +122,9 @@ public class WebClientsConfig {
     public WebClient stormTradeWebClient(StormTradeProperties stormTradeProperties) {
         return WebClient.builder().baseUrl(stormTradeProperties.url()).build();
     }
+
+    @Bean
+    public WebClient settleXWebClient(SettleXProperties settleXProperties) {
+        return WebClient.builder().baseUrl(settleXProperties.url()).build();
+    }
 }
