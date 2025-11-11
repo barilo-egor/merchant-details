@@ -13,7 +13,9 @@ import java.io.IOException;
 public enum Method {
     CARD("card", "Карта"),
     SBP("sbp", "СБП"),
-    SIM("sbp", "SIM");
+    SIM("sbp", "SIM"),
+    ALFA_ALFA("sbp", "Альфа-Альфа"),
+    OZON_OZON("sbp", "Озон-Озон");
 
     private final String value;
 

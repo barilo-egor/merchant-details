@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.onlypays;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Request {
 
     @JsonProperty("api_id")
@@ -31,4 +33,7 @@ public class Request {
 
     @JsonProperty("sim")
     private Boolean sim;
+
+    @JsonProperty
+    private String bank;
 }
