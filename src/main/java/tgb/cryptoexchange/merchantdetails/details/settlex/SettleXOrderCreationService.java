@@ -40,7 +40,10 @@ public class SettleXOrderCreationService extends MerchantOrderCreationService<Re
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> httpHeaders.add("x-merchant-api-key", settleXProperties.key());
+        return httpHeaders -> {
+            httpHeaders.add("Content-Type", "application/json");
+            httpHeaders.add("x-merchant-api-key", settleXProperties.key());
+        };
     }
 
     @Override
