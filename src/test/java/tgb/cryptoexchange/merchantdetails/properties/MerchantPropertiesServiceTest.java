@@ -52,6 +52,7 @@ class MerchantPropertiesServiceTest {
             case WELL_BIT -> assertInstanceOf(WellBitProperties.class, merchantProperties.get());
             case PAY_CROWN -> assertInstanceOf(PayCrownProperties.class, merchantProperties.get());
             case STORM_TRADE -> assertInstanceOf(StormTradeProperties.class, merchantProperties.get());
+            case SETTLE_X -> assertInstanceOf(SettleXProperties.class, merchantProperties.get());
             default -> throw new IllegalArgumentException();
         }
     }
