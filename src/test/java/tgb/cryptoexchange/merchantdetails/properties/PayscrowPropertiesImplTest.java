@@ -17,7 +17,10 @@ class PayscrowPropertiesImplTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("payscrow-url", payscrowPropertiesImpl.url()),
-                () -> assertEquals("payscrow-key", payscrowPropertiesImpl.key())
+                () -> assertEquals("payscrow-key", payscrowPropertiesImpl.key()),
+                () -> assertEquals("payscrow-high-check-key", payscrowPropertiesImpl.highCheckKey()),
+                () -> assertEquals("payscrow-in-house-key", payscrowPropertiesImpl.inHouseKey()),
+                () -> assertEquals("payscrow-white-triangle-key", payscrowPropertiesImpl.whiteTriangleKey())
         );
     }
 }
