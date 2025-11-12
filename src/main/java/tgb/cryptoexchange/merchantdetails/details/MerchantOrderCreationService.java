@@ -54,6 +54,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
         log.debug("Запрос на создание ордера мерчанта {}: {}", getMerchant().name(), detailsRequest.toString());
+        if (!isValidRequestPredicate().test(detailsRequest)) {
+            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}", detailsRequest);
+            return Optional.empty();
+        }
         String body = mapBody(detailsRequest);
         Optional<String> maybeRawResponse = makeRequest(detailsRequest, body);
         if (maybeRawResponse.isEmpty()) {
@@ -143,6 +147,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             log.error("Ответ мерчанта {} невалиден: {}", getMerchant().name(), validationResult.errorsToString());
             throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
         }
+    }
+
+    protected Predicate<DetailsRequest> isValidRequestPredicate() {
+        return detailsRequest -> true;
     }
 
     protected HttpMethod method() {

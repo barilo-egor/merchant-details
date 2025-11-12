@@ -42,8 +42,12 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("X-API-Key", payscrowPropertiesImpl.key());
+            httpHeaders.add("X-API-Key", keyFunction().apply(detailsRequest));
         };
+    }
+
+    public Function<DetailsRequest, String> keyFunction() {
+        return method -> payscrowPropertiesImpl.key();
     }
 
     @Override

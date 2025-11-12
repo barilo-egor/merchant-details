@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -189,5 +190,44 @@ class MerchantOrderCreationServiceTest {
     @Test
     void hasResponseNoDetailsErrorPredicateShouldReturnFalse() {
         assertFalse(service.hasResponseNoDetailsErrorPredicate().test("error"));
+    }
+
+    @Test
+    void isValidRequestPredicateShouldReturnTrueIfNullDetailsRequest() {
+        assertTrue(service.isValidRequestPredicate().test(null));
+    }
+
+    @ParameterizedTest
+    @CsvSource(textBlock = """
+            method1,1000,53355,https://google.com,12515050
+            method2,2000,12586,https://example.com,642352525
+            """)
+    void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id, String callbackUrl) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method);
+        detailsRequest.setAmount(amount);
+        detailsRequest.setId(id);
+        detailsRequest.setCallbackUrl(callbackUrl);
+        assertTrue(service.isValidRequestPredicate().test(detailsRequest));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionIsNull() {
+        assertFalse(service.isNoDetailsExceptionPredicate().test(null));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionNotNull() {
+        assertFalse(service.isNoDetailsExceptionPredicate().test(new Exception()));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfExceptionIsNull() {
+        assertFalse(service.hasResponseNoDetailsErrorPredicate().test(null));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfExceptionNotNull() {
+        assertFalse(service.hasResponseNoDetailsErrorPredicate().test("some str"));
     }
 }

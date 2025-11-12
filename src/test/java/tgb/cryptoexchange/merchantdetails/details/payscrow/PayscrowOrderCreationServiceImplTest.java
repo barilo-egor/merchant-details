@@ -58,7 +58,10 @@ class PayscrowOrderCreationServiceImplTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(payscrowProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        payscrowOrderCreationService.headers(null, null).accept(headers);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(9000);
+        detailsRequest.setMethod(Method.SBP.name());
+        payscrowOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
                 () -> assertEquals(key, headers.getFirst("X-API-Key"))
@@ -215,5 +218,92 @@ class PayscrowOrderCreationServiceImplTest {
                 .test(Mockito.mock(WebClientResponseException.BadGateway.class)));
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
+    }
+
+    @CsvSource("""
+            ALFA,6ee288d1-5b67-4745-a7eb-da6c2a095621
+            PSB,7d06e334-b365-4f25-985f-331cfde833e1
+            GAZ_PROM,19feb8f2-fc3e-44f2-87e5-2e983730cbb8
+            OZON,28b3b304-5610-402a-bc9f-c85e2d4147d2
+            """)
+    @ParameterizedTest
+    void keyFunctionShouldReturnInHouseKeyIfBankInHouseMethod(Method method, String inHouseKey) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method.name());
+        when(payscrowProperties.inHouseKey()).thenReturn(inHouseKey);
+        assertEquals(inHouseKey, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
+    }
+
+    @CsvSource(textBlock = """
+            6ee288d1-5b67-4745-a7eb-da6c2a095621
+            7d06e334-b365-4f25-985f-331cfde833e1
+            19feb8f2-fc3e-44f2-87e5-2e983730cbb8
+            """)
+    @ParameterizedTest
+    void keyFunctionShouldReturnWhiteTriangleKeyIfTriangleMethod(String whiteTriangleKey) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.TRIANGLE.name());
+        when(payscrowProperties.whiteTriangleKey()).thenReturn(whiteTriangleKey);
+        assertEquals(whiteTriangleKey, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
+    }
+
+    @CsvSource(textBlock = """
+            TRANS_SBP,6ee288d1-5b67-4745-a7eb-da6c2a095621,1
+            BANK_CARD,7d06e334-b365-4f25-985f-331cfde833e1,9999
+            SBP,19feb8f2-fc3e-44f2-87e5-2e983730cbb8,5015
+            """)
+    @ParameterizedTest
+    void keyFunctionShouldReturnKeyIfNotTriangleAndNotInHouseMethodsAndAmountLessThan10000(Method method, String key, Integer amount) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method.name());
+        detailsRequest.setAmount(amount);
+        when(payscrowProperties.key()).thenReturn(key);
+        assertEquals(key, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
+    }
+
+    @CsvSource(textBlock = """
+            TRANS_SBP,6ee288d1-5b67-4745-a7eb-da6c2a095621,10000
+            BANK_CARD,7d06e334-b365-4f25-985f-331cfde833e1,10001
+            SBP,19feb8f2-fc3e-44f2-87e5-2e983730cbb8,25004
+            """)
+    @ParameterizedTest
+    void keyFunctionShouldReturnHighCheckKeyIfNotTriangleAndNotInHouseMethodsAndAmountEqualOrMoreThan10000(Method method, String key, Integer amount) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method.name());
+        detailsRequest.setAmount(amount);
+        when(payscrowProperties.highCheckKey()).thenReturn(key);
+        assertEquals(key, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
+    }
+
+    @ValueSource(strings = {
+            "SBP", "BANK_CARD", "TRANS_SBP"
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnTrueIfMethodIsNotTriangle(Method method) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(method.name());
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+    }
+
+    @ValueSource(ints = {
+            1, 5235, 9999
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnTrueIfMethodIsTriangleAndAmountLessThan10000(Integer amount) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.TRIANGLE.name());
+        detailsRequest.setAmount(amount);
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+    }
+
+    @ValueSource(ints = {
+            10000, 10001, 962636
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnFalseIfMethodIsTriangleAndAmountEqualOrMoreThan10000(Integer amount) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethod(Method.TRIANGLE.name());
+        detailsRequest.setAmount(amount);
+        assertFalse(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
     }
 }
