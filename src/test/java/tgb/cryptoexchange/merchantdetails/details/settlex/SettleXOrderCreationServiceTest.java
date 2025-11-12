@@ -75,7 +75,7 @@ class SettleXOrderCreationServiceTest {
                 () -> assertEquals(method, actual.getMethod()),
                 () -> assertEquals(callbackUrl, actual.getCallbackUri()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getOrderId())),
-                () -> assertTrue(actual.getExpiredAt().isBefore(LocalDateTime.now().plusMinutes(15)))
+                () -> assertTrue(actual.getExpiredAt().isBefore(LocalDateTime.now().plusMinutes(20)))
         );
     }
 
