@@ -9,5 +9,5 @@ public class Request {
     private Integer price;
 
     @JsonSerialize(using = Method.Serializer.class)
-    private Method requisiteType;
+    private Method requisitesType;
 }
