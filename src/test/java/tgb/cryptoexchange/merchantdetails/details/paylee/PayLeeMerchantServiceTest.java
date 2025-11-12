@@ -74,7 +74,7 @@ class PayLeeMerchantServiceTest {
         Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
-                () -> assertEquals(method, actual.getRequisiteType())
+                () -> assertEquals(method, actual.getRequisitesType())
         );
     }
 
