@@ -56,6 +56,9 @@ pay-crown:
 payscrow:
   url: "payscrow-url"
   key: "payscrow-key"
+  high-check-key: "payscrow-high-check-key"
+  in-house-key: "payscrow-in-house-key"
+  white-triangle-key: "payscrow-white-triangle-key"
 lucky-pay:
   url: "lucky-pay-url"
   key: "lucky-pay-key"
@@ -92,6 +95,9 @@ storm-trade:
   token: "storm-trade-token"
   key: "storm-trade-key"
   secret: "storm-trade-secret"
+settle-x:
+  url: "settle-x-url"
+  key: "settle-x-key"
 #Конфиг приложения
 server:
   servlet:

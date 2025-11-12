@@ -70,6 +70,9 @@ pay-crown:
 payscrow:
   url: ""
   key: ""
+  high-check-key: ""
+  in-house-key: ""
+  white-triangle-key: ""
 lucky-pay:
   url: ""
   key: ""
@@ -101,6 +104,14 @@ fox-pays:
   url: ""
   token: ""
   merchant-id: ""
+storm-trade:
+  token: ""
+  key: ""
+  secret: ""
+  url: ""
+settle-x:
+  url: ""
+  key: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
