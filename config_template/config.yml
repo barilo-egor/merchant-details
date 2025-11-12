@@ -101,6 +101,14 @@ fox-pays:
   url: ""
   token: ""
   merchant-id: ""
+storm-trade:
+  token: ""
+  key: ""
+  secret: ""
+  url: ""
+settle-x:
+  url: ""
+  key: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
