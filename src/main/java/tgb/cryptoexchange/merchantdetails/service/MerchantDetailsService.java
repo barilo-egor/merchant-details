@@ -15,14 +15,22 @@ public class MerchantDetailsService {
 
     private final MerchantServiceRegistry merchantServiceRegistry;
 
-    public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry) {
+    private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
+
+    public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
+                                  MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer) {
         this.merchantServiceRegistry = merchantServiceRegistry;
+        this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
     }
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isPresent()) {
-            return maybeCreationService.get().createOrder(request);
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
+            maybeDetailsResponse.ifPresent(
+                    detailsResponse -> merchantDetailsReceiveEventProducer.put(merchant, request, detailsResponse)
+            );
+            return maybeDetailsResponse;
         }
         log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
         return Optional.empty();
