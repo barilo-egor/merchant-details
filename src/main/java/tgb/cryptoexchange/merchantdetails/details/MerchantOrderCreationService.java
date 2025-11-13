@@ -35,7 +35,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     protected ObjectMapper objectMapper;
 
-    private RequestService requestService;
+    protected RequestService requestService;
 
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
         this.webClient = webClient;
@@ -59,7 +59,17 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             return Optional.empty();
         }
         String body = mapBody(detailsRequest);
-        Optional<String> maybeRawResponse = makeRequest(detailsRequest, body);
+        Optional<String> maybeRawResponse;
+        try {
+            maybeRawResponse = makeRequest(detailsRequest, body);
+        } catch (Exception e) {
+            if (isNoDetailsExceptionPredicate().test(e)) {
+                return Optional.empty();
+            }
+            long currentTime = System.currentTimeMillis();
+            handleRequestException(e, currentTime, detailsRequest, body);
+            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
+        }
         if (maybeRawResponse.isEmpty()) {
             logNoDetails(detailsRequest.getId());
             return Optional.empty();
@@ -98,33 +108,27 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    private Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
-        try {
-            return Optional.of(
-                    requestService.request(
-                            webClient, method(), uriBuilder(detailsRequest),
-                            headers(detailsRequest, body), body
-                    )
-            );
-        } catch (Exception e) {
-            if (isNoDetailsExceptionPredicate().test(e)) {
-                return Optional.empty();
-            }
-            long currentTime = System.currentTimeMillis();
-            if (e instanceof WebClientResponseException webClientResponseException) {
-                String errorBody = switch (getMerchant()) {
-                    case FOX_PAYS, MOBIUS ->
-                            StringDecodeUtils.decodeUnicode(webClientResponseException.getResponseBodyAsString());
-                    default -> webClientResponseException.getResponseBodyAsString();
-                };
-                log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}, responseBody = {}",
-                        currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(),
-                        errorBody, e);
-            } else {
-                log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
-                        currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
-            }
-            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
+    protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
+        return Optional.ofNullable(requestService.request(
+                        webClient, method(), uriBuilder(detailsRequest),
+                        headers(detailsRequest, body), body
+        ));
+    }
+
+    private void handleRequestException(Exception e, long currentTime, DetailsRequest detailsRequest, String body) {
+
+        if (e instanceof WebClientResponseException webClientResponseException) {
+            String errorBody = switch (getMerchant()) {
+                case FOX_PAYS, MOBIUS ->
+                        StringDecodeUtils.decodeUnicode(webClientResponseException.getResponseBodyAsString());
+                default -> webClientResponseException.getResponseBodyAsString();
+            };
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}, responseBody = {}",
+                    currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(),
+                    errorBody, e);
+        } else {
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
+                    currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
         }
     }
 
