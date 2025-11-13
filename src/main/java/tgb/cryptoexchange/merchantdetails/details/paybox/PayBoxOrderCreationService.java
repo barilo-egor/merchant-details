@@ -23,6 +23,8 @@ import java.util.function.Predicate;
 @Slf4j
 public abstract class PayBoxOrderCreationService extends MerchantOrderCreationService<Response> {
 
+    private static final String MESSAGE_FIELD = "message";
+
     private final PayBoxProperties payBoxProperties;
 
     protected PayBoxOrderCreationService(WebClient webClient, PayBoxProperties payBoxProperties) {
@@ -72,10 +74,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
             try {
                 if (e instanceof WebClientResponseException.InternalServerError ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return response.has("code")
-                            && response.get("code").asInt() == 1
-                            && response.has("message")
-                            && response.get("message").asText().equals("Unable to get requisites.");
+                    return isUnableToGetRequisites(response) || isInternalServerError(response);
                 } else if (e instanceof WebClientResponseException.UnprocessableEntity ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     if (response.has("code") && response.get("code").asText().equals("422")
@@ -94,5 +93,16 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
             }
             return false;
         };
+    }
+
+    private boolean isInternalServerError(JsonNode response) {
+        return response.has(MESSAGE_FIELD) && response.get(MESSAGE_FIELD).asText().equals("Internal Server Error");
+    }
+
+    private boolean isUnableToGetRequisites(JsonNode response) {
+        return response.has("code")
+                && response.get("code").asInt() == 1
+                && response.has(MESSAGE_FIELD)
+                && response.get(MESSAGE_FIELD).asText().equals("Unable to get requisites.");
     }
 }

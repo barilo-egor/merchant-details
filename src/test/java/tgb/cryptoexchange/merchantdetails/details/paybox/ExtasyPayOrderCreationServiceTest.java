@@ -145,6 +145,50 @@ class ExtasyPayOrderCreationServiceTest {
     }
 
     @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfInternalServerErrorWithInternalServerErrorMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("message")).thenReturn(true);
+        when(response.has("code")).thenReturn(false);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Internal Server Error");
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfInternalServerErrorWithNotInternalServerErrorMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("message")).thenReturn(true);
+        when(response.has("code")).thenReturn(false);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Another error");
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfInternalServerErrorWithoutMessage() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        extasyPayOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("message")).thenReturn(false);
+        when(response.has("code")).thenReturn(false);
+        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(ex.getResponseBodyAsString()).thenReturn("");
+        assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
+    }
+
+    @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrownAndInternalServerError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
