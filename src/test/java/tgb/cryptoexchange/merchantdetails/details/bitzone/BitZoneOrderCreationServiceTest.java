@@ -229,6 +229,12 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfGatewayTimeout() {
+        assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.GatewayTimeout.class)));
+    }
+
+    @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotForbidden() {
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
