@@ -12,6 +12,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEvent;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventSerializer;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveProducerListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +22,12 @@ public class CommonConfig {
 
     private final KafkaProperties kafkaProperties;
 
-    public CommonConfig(KafkaProperties kafkaProperties) {
+    private final MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener;
+
+    public CommonConfig(KafkaProperties kafkaProperties,
+                        MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener) {
         this.kafkaProperties = kafkaProperties;
+        this.merchantDetailsReceiveProducerListener = merchantDetailsReceiveProducerListener;
     }
 
     @Bean
@@ -43,6 +48,8 @@ public class CommonConfig {
 
     @Bean
     public KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(merchantHistoryProducerFactory());
+        KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory());
+        kafkaTemplate.setProducerListener(merchantDetailsReceiveProducerListener);
+        return kafkaTemplate;
     }
 }
