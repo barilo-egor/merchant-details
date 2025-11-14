@@ -1,11 +1,10 @@
-package tgb.cryptoexchange.merchantdetails.service;
+package tgb.cryptoexchange.merchantdetails.kafka;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantDetailsReceiveEvent;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.time.Instant;

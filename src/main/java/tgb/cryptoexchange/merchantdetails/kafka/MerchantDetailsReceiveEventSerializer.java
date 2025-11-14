@@ -1,9 +1,8 @@
-package tgb.cryptoexchange.merchantdetails.serialize;
+package tgb.cryptoexchange.merchantdetails.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serializer;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantDetailsReceiveEvent;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 
 @Slf4j

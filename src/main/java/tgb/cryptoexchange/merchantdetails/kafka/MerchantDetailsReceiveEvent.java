@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.dto;
+package tgb.cryptoexchange.merchantdetails.kafka;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
