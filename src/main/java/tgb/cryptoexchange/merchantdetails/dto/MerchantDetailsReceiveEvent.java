@@ -1,8 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 public class MerchantDetailsReceiveEvent {
@@ -25,7 +27,8 @@ public class MerchantDetailsReceiveEvent {
     /**
      * Дата и время получения реквизитов
      */
-    private LocalDateTime dateTime;
+    @JsonSerialize(using = InstantSerializer.class)
+    private Instant createdAt;
 
     /**
      * Идентификатор мерчанта выдавшего реквизиты

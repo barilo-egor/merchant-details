@@ -8,7 +8,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantDetailsReceiveEvent;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 public class MerchantDetailsReceiveEventProducer {
@@ -28,7 +28,7 @@ public class MerchantDetailsReceiveEventProducer {
         event.setDealId(detailsRequest.getId());
         event.setUserId(detailsRequest.getChatId());
         event.setInitiatorApp(detailsRequest.getInitiatorApp());
-        event.setDateTime(LocalDateTime.now());
+        event.setCreatedAt(Instant.now());
         event.setMerchant(merchant.name());
         event.setMerchantOrderId(detailsResponse.getMerchantOrderId());
         event.setRequestedAmount(detailsRequest.getAmount());
