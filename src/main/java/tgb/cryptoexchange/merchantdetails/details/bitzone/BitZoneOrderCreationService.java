@@ -90,6 +90,8 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                     return response.has(MESSAGE)
                             && (response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT")
                             || response.get(MESSAGE).asText().equals("CANT_CREATE_TRADE_FOR_THIS_AMOUNT"));
+                } else if (e instanceof WebClientResponseException.GatewayTimeout) {
+                    return true;
                 }
             } catch (JsonProcessingException jsonProcessingException) {
                 return false;
