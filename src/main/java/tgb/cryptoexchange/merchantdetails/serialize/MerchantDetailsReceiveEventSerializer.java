@@ -15,7 +15,7 @@ public class MerchantDetailsReceiveEventSerializer implements Serializer<Merchan
     public byte[] serialize(String topic, MerchantDetailsReceiveEvent merchantDetailsReceiveEvent) {
         try {
             if (merchantDetailsReceiveEvent == null) {
-                return null;
+                return new byte[0];
             }
             return objectMapper.writeValueAsBytes(merchantDetailsReceiveEvent);
         } catch (Exception e) {
