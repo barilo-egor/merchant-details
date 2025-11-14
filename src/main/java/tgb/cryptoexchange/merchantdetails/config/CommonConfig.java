@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantDetailsReceiveEvent;
-import tgb.cryptoexchange.merchantdetails.serialize.MerchantDetailsReceiveEventSerializer;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEvent;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
