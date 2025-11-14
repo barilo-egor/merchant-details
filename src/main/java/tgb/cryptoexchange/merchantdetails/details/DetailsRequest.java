@@ -20,4 +20,6 @@ public class DetailsRequest {
     private String callbackUrl;
 
     private Long chatId;
+
+    private String initiatorApp;
 }

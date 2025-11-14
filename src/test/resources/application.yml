@@ -102,3 +102,7 @@ settle-x:
 server:
   servlet:
     context-path: "/merchant-details"
+kafka:
+  topic:
+    merchant-details:
+      receive: 'test-merchant-details-receive-topic'

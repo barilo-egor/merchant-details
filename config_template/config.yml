@@ -121,3 +121,10 @@ springdoc:
     path: "/swagger/api-docs"
 server:
   port:
+spring:
+  kafka:
+    bootstrap-servers:
+kafka:
+  topic:
+    merchant-details:
+      receive: ""
