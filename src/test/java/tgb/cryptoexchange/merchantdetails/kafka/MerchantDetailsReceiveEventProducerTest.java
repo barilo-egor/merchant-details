@@ -12,8 +12,9 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,9 +44,10 @@ class MerchantDetailsReceiveEventProducerTest {
         detailsResponse.setMerchantOrderId(orderId);
         detailsResponse.setAmount(merchantAmount);
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MerchantDetailsReceiveEvent> eventCaptor = ArgumentCaptor.forClass(MerchantDetailsReceiveEvent.class);
         merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, detailsResponse);
-        verify(kafkaTemplate).send(topicCaptor.capture(), eventCaptor.capture());
+        verify(kafkaTemplate).send(topicCaptor.capture(), keyCaptor.capture(), eventCaptor.capture());
         MerchantDetailsReceiveEvent event = eventCaptor.getValue();
         assertAll(
                 () -> assertEquals(topic, topicCaptor.getValue()),
@@ -57,7 +59,8 @@ class MerchantDetailsReceiveEventProducerTest {
                 () -> assertEquals(requestedAmount, event.getRequestedAmount()),
                 () -> assertEquals(merchantAmount, event.getMerchantAmount()),
                 () -> assertEquals(method, event.getMethod()),
-                () -> assertEquals(details, event.getDetails())
+                () -> assertEquals(details, event.getDetails()),
+                () -> assertDoesNotThrow(() -> UUID.fromString(keyCaptor.getValue()))
 
         );
     }
