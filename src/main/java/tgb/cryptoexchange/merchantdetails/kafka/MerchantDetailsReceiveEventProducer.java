@@ -8,6 +8,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class MerchantDetailsReceiveEventProducer {
@@ -34,6 +35,6 @@ public class MerchantDetailsReceiveEventProducer {
         event.setMerchantAmount(detailsResponse.getAmount());
         event.setMethod(detailsRequest.getMethod());
         event.setDetails(detailsResponse.getDetails());
-        kafkaTemplate.send(receiveEventTopicName, event);
+        kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);
     }
 }
