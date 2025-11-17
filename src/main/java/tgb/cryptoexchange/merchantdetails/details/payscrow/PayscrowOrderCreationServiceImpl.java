@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
+@Slf4j
 public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationService {
 
     private static final int AMOUNT_BOUND = 10_000;
