@@ -47,7 +47,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     protected KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
 
     @Value("${kafka.topic.merchant-details.callback}")
-    private String callbackTopicName;
+    String callbackTopicName;
 
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType, Class<P> callbackType) {
         this.webClient = webClient;
@@ -231,6 +231,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при попытке обновления статуса мерчанта {}. Callback объект={}, оригинальное тело={}. Message={}.",
                     currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
+            throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
         }
     }
 }
