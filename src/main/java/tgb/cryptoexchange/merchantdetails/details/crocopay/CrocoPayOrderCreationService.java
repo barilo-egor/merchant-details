@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
@@ -21,13 +22,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response> {
+public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final CrocoPayProperties crocoPayProperties;
 
     protected CrocoPayOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
                                            CrocoPayProperties crocoPayProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.crocoPayProperties = crocoPayProperties;
     }
 

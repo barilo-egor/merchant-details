@@ -8,11 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
@@ -21,26 +20,27 @@ import tgb.cryptoexchange.merchantdetails.details.bridgepay.Request;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Response;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MerchantOrderCreationServiceTest {
 
-    public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response> {
+    public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
         protected TestMerchantOrderCreationService(WebClient webClient) {
-            super(webClient, Response.class);
+            super(webClient, Response.class, MerchantCallbackMock.class);
         }
 
         @Override
@@ -75,6 +75,9 @@ class MerchantOrderCreationServiceTest {
     private ObjectMapper objectMapper;
 
     private RequestService requestService;
+
+    @Mock
+    private KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
 
     @InjectMocks
     private TestMerchantOrderCreationService service;
@@ -229,5 +232,77 @@ class MerchantOrderCreationServiceTest {
     @Test
     void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfExceptionNotNull() {
         assertFalse(service.hasResponseNoDetailsErrorPredicate().test("some str"));
+    }
+
+    @Test
+    void updateStatusShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenThrow(JsonProcessingException.class);
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+    }
+
+    @Test
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoMerchantOrderId() throws JsonProcessingException {
+        MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
+        when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.empty());
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+    }
+
+    @Test
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatus() throws JsonProcessingException {
+        MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
+        when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatus()).thenReturn(Optional.empty());
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+    }
+
+    @Test
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatusDescription() throws JsonProcessingException {
+        MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
+        when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatus()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatusDescription()).thenReturn(Optional.empty());
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+    }
+
+    @Test
+    void updateStatusShouldThrowServiceUnavailableExceptionIfExceptionWasThrownWhileSendMessageToTopic() throws JsonProcessingException {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
+        when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatus()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(""));
+        when(callbackKafkaTemplate.send(anyString(), anyString(), any())).thenThrow(RuntimeException.class);
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+    }
+
+    @CsvSource("""
+            merchant-details-callback-v1,99f0213a-3828-4dc9-8417-2e22fa140f13,COMPLETED,Завершен
+            merchant-details-callback-v2,a0af4b95-c0be-426d-8a26-94e13562527f,ERROR,Ошибка
+            """)
+    @ParameterizedTest
+    void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JsonProcessingException {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.callbackTopicName = topic;
+        MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
+        when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
+        when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(orderId));
+        when(merchantCallback.getStatus()).thenReturn(Optional.of(status));
+        when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(statusDescription));
+        ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
+        ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
+        service.updateStatus("");
+        verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
+        MerchantCallbackEvent actual = eventCaptor.getValue();
+        assertAll(
+                () -> assertDoesNotThrow(() -> UUID.fromString(uuidCaptor.getValue())),
+                () -> assertEquals(orderId, actual.getMerchantOrderId()),
+                () -> assertEquals(status, actual.getStatus()),
+                () -> assertEquals(statusDescription, actual.getStatusDescription()),
+                () -> assertEquals(Merchant.ALFA_TEAM, actual.getMerchant())
+        );
     }
 }
