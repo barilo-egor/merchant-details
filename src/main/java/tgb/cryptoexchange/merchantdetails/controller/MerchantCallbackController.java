@@ -22,8 +22,9 @@ public class MerchantCallbackController extends ApiController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> callback(@RequestParam Merchant merchant, @RequestParam String secret, @RequestBody String callbackBody) {
-        if (this.secret.equals(secret)) {
+    public ResponseEntity<Void> callback(@RequestParam Merchant merchant, @RequestParam String secret,
+                                         @RequestBody String callbackBody) {
+        if (!this.secret.equals(secret)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         merchantDetailsService.updateStatus(merchant, callbackBody);
