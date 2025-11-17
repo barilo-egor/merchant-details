@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Callback implements MerchantCallback {
@@ -12,18 +15,27 @@ public class Callback implements MerchantCallback {
     private Payload payload;
 
     @Override
-    public String getMerchantOrderId() {
-        return getPayload().getId();
+    public Optional<String> getMerchantOrderId() {
+        if (Objects.nonNull(payload)) {
+            return Optional.ofNullable(payload.getId());
+        }
+        return Optional.empty();
     }
 
     @Override
-    public String getStatus() {
-        return getPayload().getStatus().name();
+    public Optional<String> getStatus() {
+        if (Objects.nonNull(payload) && Objects.nonNull(payload.getStatus())) {
+            return Optional.of(payload.getStatus().name());
+        }
+        return Optional.empty();
     }
 
     @Override
-    public String getStatusDescription() {
-        return getPayload().getStatus().getDescription();
+    public Optional<String> getStatusDescription() {
+        if (Objects.nonNull(payload) && Objects.nonNull(payload.getStatus())) {
+            return Optional.of(payload.getStatus().getDescription());
+        }
+        return Optional.empty();
     }
 
     @Data

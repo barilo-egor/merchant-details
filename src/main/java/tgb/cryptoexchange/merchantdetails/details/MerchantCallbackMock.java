@@ -1,21 +1,23 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import java.util.Optional;
+
 /**
  * Класс заглушка на время миграции коллбеков в микросервис.
  */
 public class MerchantCallbackMock implements MerchantCallback {
     @Override
-    public String getMerchantOrderId() {
-        return "order_id";
+    public Optional<String> getMerchantOrderId() {
+        return Optional.empty();
     }
 
     @Override
-    public String getStatus() {
-        return "status";
+    public Optional<String> getStatus() {
+        return Optional.empty();
     }
 
     @Override
-    public String getStatusDescription() {
-        return "status_description";
+    public Optional<String> getStatusDescription() {
+        return Optional.empty();
     }
 }

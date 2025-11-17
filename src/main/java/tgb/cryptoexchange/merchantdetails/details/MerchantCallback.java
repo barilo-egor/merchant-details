@@ -1,10 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import java.util.Optional;
+
 public interface MerchantCallback {
 
-    String getMerchantOrderId();
+    Optional<String> getMerchantOrderId();
 
-    String getStatus();
+    Optional<String> getStatus();
 
-    String getStatusDescription();
+    Optional<String> getStatusDescription();
 }

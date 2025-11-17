@@ -20,7 +20,6 @@ import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -213,15 +212,19 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                     currentTime, getMerchant().name(), callbackBody, e);
             throw new ServiceUnavailableException("Error occurred while mapping callback: " + currentTime + ".", e);
         }
-        if (Objects.isNull(callback.getStatus()) || Objects.isNull(callback.getMerchantOrderId())) {
+        Optional<String> maybeMerchantOrderId = callback.getMerchantOrderId();
+        Optional<String> maybeStatus = callback.getStatus();
+        Optional<String> maybeStatusDescription = callback.getStatusDescription();
+        if (maybeMerchantOrderId.isEmpty() || maybeStatus.isEmpty() || maybeStatusDescription.isEmpty()) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Невалидный объект callback мерчанта {}: {}", currentTime, getMerchant().name(), callbackBody);
             throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
         }
         MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
-        merchantCallbackEvent.setMerchantOrderId(callback.getMerchantOrderId());
-        merchantCallbackEvent.setStatus(callback.getStatus());
-        merchantCallbackEvent.setStatus(callback.getStatusDescription());
+        merchantCallbackEvent.setMerchantOrderId(maybeMerchantOrderId.get());
+        merchantCallbackEvent.setStatus(maybeStatus.get());
+        merchantCallbackEvent.setStatusDescription(maybeStatusDescription.get());
+        merchantCallbackEvent.setMerchant(getMerchant());
         try {
             callbackKafkaTemplate.send(callbackTopicName, UUID.randomUUID().toString(), merchantCallbackEvent);
         } catch (Exception e) {
