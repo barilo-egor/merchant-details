@@ -10,5 +10,7 @@ public class MerchantCallbackEvent {
 
     private String status;
 
+    private String statusDescription;
+
     private Merchant merchant;
 }
