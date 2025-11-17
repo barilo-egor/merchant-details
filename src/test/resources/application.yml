@@ -107,3 +107,4 @@ kafka:
     merchant-details:
       receive: 'test-merchant-details-receive-topic'
       callback: 'test-merchant-details-callback-topic'
+callback-secret: test-callback-secret
