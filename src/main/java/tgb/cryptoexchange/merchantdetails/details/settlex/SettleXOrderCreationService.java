@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
@@ -23,13 +24,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class SettleXOrderCreationService extends MerchantOrderCreationService<Response> {
+public class SettleXOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final SettleXProperties settleXProperties;
 
     protected SettleXOrderCreationService(@Qualifier("settleXWebClient") WebClient webClient,
                                           SettleXProperties settleXProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.settleXProperties = settleXProperties;
     }
 

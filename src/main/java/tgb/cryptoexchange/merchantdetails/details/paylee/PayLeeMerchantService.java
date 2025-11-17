@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
@@ -21,14 +22,14 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class PayLeeMerchantService extends MerchantOrderCreationService<Response> {
+public class PayLeeMerchantService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     static final String NON_FIELD_ERRORS = "nonFieldErrors";
 
     private final PayLeeProperties payLeeProperties;
 
     protected PayLeeMerchantService(@Qualifier("payLeeWebClient") WebClient webClient, PayLeeProperties payLeeProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.payLeeProperties = payLeeProperties;
     }
 

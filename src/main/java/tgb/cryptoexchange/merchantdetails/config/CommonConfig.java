@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEvent;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventSerializer;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveProducerListener;
+import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +22,14 @@ public class CommonConfig {
 
     private final MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener;
 
+    private final MerchantCallbackProducerListener merchantCallbackProducerListener;
+
     public CommonConfig(KafkaProperties kafkaProperties,
-                        MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener) {
+                        MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener,
+                        MerchantCallbackProducerListener merchantCallbackProducerListener) {
         this.kafkaProperties = kafkaProperties;
         this.merchantDetailsReceiveProducerListener = merchantDetailsReceiveProducerListener;
+        this.merchantCallbackProducerListener = merchantCallbackProducerListener;
     }
 
     @Bean
@@ -50,6 +52,22 @@ public class CommonConfig {
     public KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate() {
         KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory());
         kafkaTemplate.setProducerListener(merchantDetailsReceiveProducerListener);
+        return kafkaTemplate;
+    }
+
+    @Bean
+    public ProducerFactory<String, MerchantCallbackEvent> merchantCallbackProducerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MerchantCallbackSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    public KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate() {
+        KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = new KafkaTemplate<>(merchantCallbackProducerFactory());
+        kafkaTemplate.setProducerListener(merchantCallbackProducerListener);
         return kafkaTemplate;
     }
 }

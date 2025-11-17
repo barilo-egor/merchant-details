@@ -10,6 +10,7 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
@@ -25,7 +26,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response> {
+public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final BridgePayProperties bridgePayProperties;
 
@@ -33,7 +34,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     protected BridgePayOrderCreationService(WebClient webClient, BridgePayProperties bridgePayProperties,
                                             SignatureService signatureService) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
     }
