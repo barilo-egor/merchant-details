@@ -37,10 +37,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class MerchantOrderCreationServiceTest {
 
-    public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response> {
+    public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
         protected TestMerchantOrderCreationService(WebClient webClient) {
-            super(webClient, Response.class);
+            super(webClient, Response.class, MerchantCallbackMock.class);
         }
 
         @Override
