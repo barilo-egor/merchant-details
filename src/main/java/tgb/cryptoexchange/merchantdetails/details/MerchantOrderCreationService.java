@@ -4,19 +4,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,19 +33,27 @@ import java.util.function.Predicate;
  * @param <T> тип ответа от мерчанта
  */
 @Slf4j
-public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse> implements MerchantService {
+public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse, P extends MerchantCallback> implements MerchantService {
 
     private final WebClient webClient;
 
     private final Class<T> responseType;
 
+    private final Class<P> callbackType;
+
     protected ObjectMapper objectMapper;
 
     protected RequestService requestService;
 
-    protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType) {
+    protected KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
+
+    @Value("${kafka.topic.merchant-details.callback}")
+    private String callbackTopicName;
+
+    protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType, Class<P> callbackType) {
         this.webClient = webClient;
         this.responseType = responseType;
+        this.callbackType = callbackType;
     }
 
     @Autowired
@@ -50,6 +64,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     @Autowired
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    @Autowired
+    public void setCallbackKafkaTemplate(@Qualifier("callbackKafkaTemplate") KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate) {
+        this.callbackKafkaTemplate = callbackKafkaTemplate;
     }
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
@@ -181,5 +200,33 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
                         + getMerchant().name() + " not found."));
+    }
+
+    @Override
+    public void updateStatus(String callbackBody) {
+        P callback;
+        try {
+            callback = objectMapper.readValue(callbackBody, callbackType);
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при попытке преобразования callback мерчанта {}. Тело callback: {}",
+                    currentTime, getMerchant().name(), callbackBody, e);
+            throw new ServiceUnavailableException("Error occurred while mapping callback: " + currentTime + ".", e);
+        }
+        if (Objects.isNull(callback.getStatus()) || Objects.isNull(callback.getMerchantOrderId())) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Невалидный объект callback мерчанта {}: {}", currentTime, getMerchant().name(), callbackBody);
+            throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
+        }
+        MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
+        merchantCallbackEvent.setMerchantOrderId(callback.getMerchantOrderId());
+        merchantCallbackEvent.setStatus(callback.getStatus());
+        try {
+            callbackKafkaTemplate.send(callbackTopicName, UUID.randomUUID().toString(), merchantCallbackEvent);
+        } catch (Exception e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при попытке обновления статуса мерчанта {}. Callback объект={}, оригинальное тело={}. Message={}.",
+                    currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
+        }
     }
 }

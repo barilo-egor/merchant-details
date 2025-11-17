@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.NicePayProperties;
@@ -22,13 +23,13 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class NicePayOrderCreationService extends MerchantOrderCreationService<Response> {
+public class NicePayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final NicePayProperties nicePayProperties;
 
     protected NicePayOrderCreationService(@Qualifier("nicePayWebClient") WebClient webClient,
                                           NicePayProperties nicePayProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.nicePayProperties = nicePayProperties;
     }
 
