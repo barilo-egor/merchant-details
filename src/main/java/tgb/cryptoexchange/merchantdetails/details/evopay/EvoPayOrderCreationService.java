@@ -12,6 +12,7 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
@@ -26,7 +27,7 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response> {
+public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private static final String ENTRIES_FIELD = "entries";
 
@@ -38,7 +39,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient webClient,
                                          EvoPayProperties evoPayProperties, SleepingService sleepingService) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.evoPayProperties = evoPayProperties;
         this.webClient = webClient;
         this.sleepingService = sleepingService;

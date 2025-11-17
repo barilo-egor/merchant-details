@@ -2,6 +2,8 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -70,5 +72,18 @@ class MerchantDetailsServiceTest {
                 () -> assertEquals(detailsRequest, detailsRequestCaptor.getValue()),
                 () -> assertEquals(detailsResponse, detailsResponseCaptor.getValue())
         );
+    }
+
+    @CsvSource(delimiter = ';', textBlock = """
+            ALFA_TEAM;{"someField":"someValue","merchant":"ALFA_TEAM"}
+            WELL_BIT;{"someField":"someValue","merchant":"WELL_BIT"}
+            """)
+    @ParameterizedTest
+    void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String body) {
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
+        merchantDetailsService.updateStatus(merchant, body);
+        verify(merchantService).updateStatus(body);
+
     }
 }

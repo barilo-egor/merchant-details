@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
@@ -26,7 +27,7 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService<Response> {
+public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final HoneyMoneyProperties honeyMoneyProperties;
 
@@ -34,7 +35,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
 
     protected HoneyMoneyOrderCreationService(@Qualifier("honeyMoneyWebClient") WebClient webClient,
                                              HoneyMoneyProperties honeyMoneyProperties, SignatureService signatureService) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.honeyMoneyProperties = honeyMoneyProperties;
         this.signatureService = signatureService;
     }

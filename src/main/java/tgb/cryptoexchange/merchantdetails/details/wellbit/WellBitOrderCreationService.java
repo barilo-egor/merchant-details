@@ -11,6 +11,7 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
@@ -27,7 +28,7 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class WellBitOrderCreationService extends MerchantOrderCreationService<Response> {
+public class WellBitOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final WellBitProperties wellBitProperties;
 
@@ -37,7 +38,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
 
     protected WellBitOrderCreationService(@Qualifier("wellBitWebClient") WebClient webClient,
                                           WellBitProperties wellBitProperties, SignatureService signatureService) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.wellBitProperties = wellBitProperties;
         this.signatureService = signatureService;
     }
