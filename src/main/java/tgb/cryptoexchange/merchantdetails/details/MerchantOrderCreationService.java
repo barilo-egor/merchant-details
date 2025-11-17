@@ -221,6 +221,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
         merchantCallbackEvent.setMerchantOrderId(callback.getMerchantOrderId());
         merchantCallbackEvent.setStatus(callback.getStatus());
+        merchantCallbackEvent.setStatus(callback.getStatusDescription());
         try {
             callbackKafkaTemplate.send(callbackTopicName, UUID.randomUUID().toString(), merchantCallbackEvent);
         } catch (Exception e) {

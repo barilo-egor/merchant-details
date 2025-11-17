@@ -13,4 +13,9 @@ public class MerchantCallbackMock implements MerchantCallback {
     public String getStatus() {
         return "status";
     }
+
+    @Override
+    public String getStatusDescription() {
+        return "status_description";
+    }
 }

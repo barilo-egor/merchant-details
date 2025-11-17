@@ -21,6 +21,11 @@ public class Callback implements MerchantCallback {
         return getPayload().getStatus().name();
     }
 
+    @Override
+    public String getStatusDescription() {
+        return getPayload().getStatus().getDescription();
+    }
+
     @Data
     public static class Payload {
 

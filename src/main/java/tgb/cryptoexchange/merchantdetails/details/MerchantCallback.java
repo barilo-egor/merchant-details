@@ -5,4 +5,6 @@ public interface MerchantCallback {
     String getMerchantOrderId();
 
     String getStatus();
+
+    String getStatusDescription();
 }
