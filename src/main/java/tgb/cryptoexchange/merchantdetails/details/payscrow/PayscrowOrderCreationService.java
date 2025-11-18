@@ -20,7 +20,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class PayscrowOrderCreationService extends MerchantOrderCreationService<Response> {
+public abstract class PayscrowOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String SUCCESS_FIELD = "success";
 
@@ -29,7 +29,7 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     private final PayscrowProperties payscrowPropertiesImpl;
 
     protected PayscrowOrderCreationService(WebClient webClient, PayscrowProperties payscrowProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, Callback.class);
         this.payscrowPropertiesImpl = payscrowProperties;
     }
 

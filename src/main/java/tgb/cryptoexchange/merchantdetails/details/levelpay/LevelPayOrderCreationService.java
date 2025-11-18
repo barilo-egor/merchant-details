@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
 
@@ -21,12 +22,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response> {
+public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final LevelPayProperties levelPayProperties;
 
     protected LevelPayOrderCreationService(WebClient webClient, LevelPayProperties levelPayProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.levelPayProperties = levelPayProperties;
     }
 
