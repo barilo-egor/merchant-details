@@ -234,7 +234,22 @@ public enum Bank {
     ORIYONBONK("oriyonbonk", "Oriyonbonk"),
     IMON("imon", "Imon"),
     HUMOTJ("humotj", "Humo"),
-    VASL("vasl", "Vasl");
+    VASL("vasl", "Vasl"),
+    CHBRR("chbrr", "Черноморский банк развития и реконструкции"),
+    CMRBANK("cmrbank", "ЦМРБанк"),
+    CUPIS("1cupis", "Кошелек ЦУПИС"),
+    STAVRPROMSTROI("stavrpromstroi", "Ставропольпромстрой банк"),
+    ROCKETBANK("rocketbank", "Рокетбанк"),
+    KUZBANK("kuzbank", "Банк Кузнецкий"),
+    PULZZE_PRO("pulzze_pro", "Pulzze"),
+    YANDEX_TIPS("yandex_tips", "Яндекс Чаевые"),
+    KONTUR_BANK("kontur_bank", "Контур.Банк"),
+    KAPITALBANK("kapitalbank", "Kapital Bank"),
+    AVITO("avito", "Авито - кошелек"),
+    MEGAFON("megafon", "Мегафон"),
+    MTS_MOBILE("mts_mobile", "MTC"),
+    BEELINE("beeline", "Билайн"),
+    TELE2("tele2", "Теле2"),;
 
     private final String value;
 
