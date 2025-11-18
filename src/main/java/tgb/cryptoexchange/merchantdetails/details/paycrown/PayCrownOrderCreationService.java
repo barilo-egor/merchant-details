@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
@@ -25,7 +26,7 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class PayCrownOrderCreationService extends MerchantOrderCreationService<Response> {
+public class PayCrownOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final PayCrownProperties payCrownProperties;
 
@@ -33,7 +34,7 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
 
     protected PayCrownOrderCreationService(@Qualifier("payCrownWebClient") WebClient webClient,
                                            PayCrownProperties payCrownProperties, SignatureService signatureService) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.payCrownProperties = payCrownProperties;
         this.signatureService = signatureService;
     }

@@ -36,4 +36,14 @@ public class MerchantDetailsService {
         log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
         return Optional.empty();
     }
+
+    public void updateStatus(Merchant merchant, String callbackBody) {
+        var maybeCreationService = merchantServiceRegistry.getService(merchant);
+        if (maybeCreationService.isPresent()) {
+            maybeCreationService.get().updateStatus(callbackBody);
+        } else {
+            log.warn("Запрос обновления статуса ордера мерчанта {}, у которого отсутствует реализация: {}",
+                    merchant.name(), callbackBody);
+        }
+    }
 }

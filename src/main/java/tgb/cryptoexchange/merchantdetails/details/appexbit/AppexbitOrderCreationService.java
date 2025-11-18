@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
@@ -17,13 +18,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
-public class AppexbitOrderCreationService extends MerchantOrderCreationService<Response> {
+public class AppexbitOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
 
     private final AppexbitProperties appexbitProperties;
 
     public AppexbitOrderCreationService(@Qualifier("appexbitWebClient") WebClient webClient,
                                            AppexbitProperties appexbitProperties) {
-        super(webClient, Response.class);
+        super(webClient, Response.class, MerchantCallbackMock.class);
         this.appexbitProperties = appexbitProperties;
     }
 
