@@ -44,7 +44,7 @@ class MerchantDetailsControllerTest {
     void shouldReturnJsonProperties(String url, String key) throws Exception {
         var appexbitProperties = new AppexbitProperties(url, key);
         when(merchantPropertiesService.getProperties(Merchant.APPEXBIT)).thenReturn(Optional.of(appexbitProperties));
-        mockMvc.perform(get("/properties/APPEXBIT"))
+        mockMvc.perform(get("/merchant-details/properties/APPEXBIT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.url").value(url))
@@ -54,14 +54,14 @@ class MerchantDetailsControllerTest {
     @Test
     void shouldReturn404IfHasNoProperties() throws Exception {
         when(merchantPropertiesService.getProperties(Merchant.APPEXBIT)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/properties/APPEXBIT"))
+        mockMvc.perform(get("/merchant-details/properties/APPEXBIT"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void detailsShouldReturn204IfNoDetails() throws Exception {
         when(merchantDetailsService.getDetails(any(), any())).thenReturn(Optional.empty());
-        mockMvc.perform(get("/ALFA_TEAM")
+        mockMvc.perform(get("/merchant-details/ALFA_TEAM")
                         .param("method", "value")
                         .param("amount", "1000"))
                 .andExpect(status().isNoContent());
@@ -88,7 +88,7 @@ class MerchantDetailsControllerTest {
         detailsResponse.setAmount(amount);
         detailsResponse.setQr(qr);
         when(merchantDetailsService.getDetails(any(), any())).thenReturn(Optional.of(detailsResponse));
-        mockMvc.perform(get("/ALFA_TEAM")
+        mockMvc.perform(get("/merchant-details/ALFA_TEAM")
                         .param("method", "value")
                         .param("amount", "1000"))
                 .andExpect(status().isOk())
