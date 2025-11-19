@@ -3,6 +3,3 @@ spring:
     name: "merchant-requisite"
   config:
     import: "file:config/config.yml"
-server:
-  servlet:
-    context-path: "/merchant-details"
