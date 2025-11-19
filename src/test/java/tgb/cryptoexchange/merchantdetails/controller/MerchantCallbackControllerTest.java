@@ -31,7 +31,7 @@ class MerchantCallbackControllerTest {
     })
     @ParameterizedTest
     void callbackShouldReturn403IfWrongSecret(String secret) throws Exception {
-        mockMvc.perform(post("/callback")
+        mockMvc.perform(post("/merchant-details/callback")
                         .queryParam("merchant", Merchant.ALFA_TEAM.name())
                         .queryParam("secret", secret)
                         .content("body"))
@@ -44,7 +44,7 @@ class MerchantCallbackControllerTest {
             """)
     @ParameterizedTest
     void callbackShouldReturn200IfSecretAccessed(Merchant merchant, String body) throws Exception {
-        mockMvc.perform(post("/callback")
+        mockMvc.perform(post("/merchant-details/callback")
                         .queryParam("merchant", merchant.name())
                         .queryParam("secret", "test-callback-secret")
                         .content(body))
