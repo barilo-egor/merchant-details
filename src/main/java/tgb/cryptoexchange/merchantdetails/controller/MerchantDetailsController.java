@@ -17,7 +17,7 @@ import tgb.cryptoexchange.web.ApiResponse;
 import java.util.Optional;
 
 @RestController
-@RequestMapping
+@RequestMapping("/merchant-details")
 public class MerchantDetailsController extends ApiController {
 
     private final MerchantPropertiesService merchantPropertiesService;
