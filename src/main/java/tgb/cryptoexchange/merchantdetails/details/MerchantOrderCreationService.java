@@ -22,6 +22,7 @@ import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -127,10 +128,17 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
-        return Optional.ofNullable(requestService.request(
-                        webClient, method(), uriBuilder(detailsRequest),
-                        headers(detailsRequest, body), body
-        ));
+        try {
+            return Optional.ofNullable(requestService.request(
+                    webClient, method(), uriBuilder(detailsRequest),
+                    headers(detailsRequest, body), body
+            ));
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof TimeoutException) {
+                return Optional.empty();
+            }
+            throw e;
+        }
     }
 
     private void handleRequestException(Exception e, long currentTime, DetailsRequest detailsRequest, String body) {
