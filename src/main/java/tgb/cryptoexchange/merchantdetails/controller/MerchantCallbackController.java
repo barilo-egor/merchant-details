@@ -9,7 +9,7 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 @RestController
-@RequestMapping("/callback")
+@RequestMapping("/merchant-details/callback")
 public class MerchantCallbackController extends ApiController {
 
     private final MerchantDetailsService merchantDetailsService;
