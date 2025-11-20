@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.enums;
 
-import java.util.List;
-
 /**
  * Перечисление мерчантов
  */
@@ -29,43 +27,5 @@ public enum Merchant {
     ROSTRAST,
     FOX_PAYS,
     STORM_TRADE,
-    SETTLE_X,
-
-    /**
-     * Более не используются
-     */
-    ALFA_TEAM_TJS,
-    ALFA_TEAM_VTB,
-    ALFA_TEAM_ALFA,
-    ALFA_TEAM_SBER,
-    PAY_FINITY,
-    NOROS,
-    EASY_PAY,
-    DASH_PAY,
-    WAY_2_PAY,
-    PARADOX_PAY,
-    PANDA_PAY,
-    PAY_POINTS,
-    PULSAR,
-    EZE_PAY,
-    WORLD_WIDE
-    ;
-
-    public static final List<Merchant> NOT_ACTIVE = List.of(
-            ALFA_TEAM_TJS,
-            ALFA_TEAM_VTB,
-            ALFA_TEAM_ALFA,
-            ALFA_TEAM_SBER,
-            PAY_FINITY,
-            NOROS,
-            EASY_PAY,
-            DASH_PAY,
-            WAY_2_PAY,
-            PARADOX_PAY,
-            PANDA_PAY,
-            PAY_POINTS,
-            PULSAR,
-            EZE_PAY,
-            WORLD_WIDE
-    );
+    SETTLE_X
 }
