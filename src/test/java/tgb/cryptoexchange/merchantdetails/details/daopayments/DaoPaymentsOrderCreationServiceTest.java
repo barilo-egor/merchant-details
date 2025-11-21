@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -117,8 +118,12 @@ class DaoPaymentsOrderCreationServiceTest {
         );
     }
 
-    @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfAllTradersFailed() throws JsonProcessingException {
+    @ValueSource(strings = {
+            "deposit processing failed: all traders failed, last error from last trader: Ошибка! Не удалось обработать платеж!",
+            "deposit amount 997.00 is below minimum allowed amount 1000.00"
+    })
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsMessage(String message) throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         daoPaymentsOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -126,8 +131,7 @@ class DaoPaymentsOrderCreationServiceTest {
         when(response.has("error")).thenReturn(true);
         JsonNode error = Mockito.mock(JsonNode.class);
         when(response.get("error")).thenReturn(error);
-        when(error.asText()).thenReturn("deposit processing failed: all traders failed, " +
-                "last error from last trader: Ошибка! Не удалось обработать платеж!");
+        when(error.asText()).thenReturn(message);
         WebClientResponseException.InternalServerError internalServerError =
                 Mockito.mock(WebClientResponseException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");

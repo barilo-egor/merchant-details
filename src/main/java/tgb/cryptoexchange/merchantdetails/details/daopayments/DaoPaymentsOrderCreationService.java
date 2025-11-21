@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -25,6 +26,11 @@ import java.util.function.Predicate;
 
 @Service
 public class DaoPaymentsOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private static final List<String> NO_DETAILS_MESSAGES = List.of(
+            "deposit processing failed: all traders failed",
+            "deposit processing failed: deposit amount"
+    );
 
     private final DaoPaymentsProperties daoPaymentsProperties;
 
@@ -86,13 +92,16 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
             try {
                 if (e instanceof WebClientResponseException.InternalServerError ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return response.has("error")
-                            && response.get("error").asText().startsWith("deposit processing failed: all traders failed");
+                    return response.has("error") && isNoDetailsMessage(response.get("error").asText());
                 }
             } catch (JsonProcessingException jsonProcessingException) {
                 return false;
             }
             return false;
         };
+    }
+
+    private boolean isNoDetailsMessage(String message) {
+        return NO_DETAILS_MESSAGES.stream().anyMatch(message::startsWith);
     }
 }
