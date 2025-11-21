@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
@@ -15,6 +16,7 @@ public class Callback implements MerchantCallback {
     private String internalId;
 
     @JsonDeserialize(using = Status.Deserializer.class)
+    @JsonProperty("status")
     private Status responseStatus;
 
     @Override
