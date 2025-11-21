@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -31,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FoxPaysOrderCreationServiceTest {
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @Mock
     private FoxPaysProperties foxPaysProperties;
@@ -65,22 +69,24 @@ class FoxPaysOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "12500,CARD,https://gateway.paysendmmm.online/merchant/foxpays,BTC24MONEY",
-            "2566,PHONE,https://cryptoexchange.com/foxpays/callback,BULBAEXCHANGE"
+            "12500,CARD,https://gateway.paysendmmm.online/,BTC24MONEY,47XeX7IStQnx2qD",
+            "2566,PHONE,https://cryptoexchange.com/,BULBAEXCHANGE,XX8Dz6ln3Z7a813"
     })
     @ParameterizedTest
-    void bodyShouldBuildRequestObject(Integer amount, Method method, String callbackUrl, String merchantId) {
+    void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
-        detailsRequest.setCallbackUrl(callbackUrl);
         when(foxPaysProperties.merchantId()).thenReturn(merchantId);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         Request request = foxPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method, request.getPaymentDetailType()),
-                () -> assertEquals(callbackUrl, request.getCallbackUrl()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=FOX_PAYS&secret=" + secret,
+                        request.getCallbackUrl()),
                 () -> assertEquals(merchantId, request.getMerchantId()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExternalId())),
                 () -> assertTrue(request.getFloatingAmount())
