@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -27,10 +28,13 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
 
     private final DaoPaymentsProperties daoPaymentsProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected DaoPaymentsOrderCreationService(@Qualifier("daoPaymentsWebClient") WebClient webClient,
-                                              DaoPaymentsProperties daoPaymentsProperties) {
+                                              DaoPaymentsProperties daoPaymentsProperties, CallbackConfig callbackConfig) {
         super(webClient, Response.class, Callback.class);
         this.daoPaymentsProperties = daoPaymentsProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -57,7 +61,8 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
         request.setMerchantOrderId(UUID.randomUUID().toString());
         request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setAmount(detailsRequest.getAmount().toString());
-        request.setSuccessUrl(detailsRequest.getCallbackUrl());
+        request.setSuccessUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret="
+                + callbackConfig.getCallbackSecret());
         request.setFailUrl(detailsRequest.getCallbackUrl());
         return request;
     }
