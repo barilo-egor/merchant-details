@@ -176,8 +176,13 @@ class BitZoneOrderCreationServiceTest {
         assertThrows(ServiceUnavailableException.class, () -> hasResponseNoDetailsErrorPredicate.test(""));
     }
 
-    @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountError() throws JsonProcessingException {
+    @ValueSource(strings = {
+            "CANT_CREATE_TRADE_FOR_THIS_AMOUNT",
+            "MIN_FIAT_AMOUNT_SHOULD_BE_MORE_THAN_1000",
+            "SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT"
+    })
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -186,21 +191,6 @@ class BitZoneOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asText()).thenReturn("CANT_CREATE_TRADE_FOR_THIS_AMOUNT");
-        WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
-        when(forbidden.getResponseBodyAsString()).thenReturn("");
-        assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
-    }
-
-    @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfSbpDisabled() throws JsonProcessingException {
-        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
-        bitZoneOrderCreationService.setObjectMapper(objectMapper);
-        JsonNode response = Mockito.mock(JsonNode.class);
-        when(objectMapper.readTree(anyString())).thenReturn(response);
-        when(response.has("message")).thenReturn(true);
-        JsonNode message = Mockito.mock(JsonNode.class);
-        when(response.get("message")).thenReturn(message);
-        when(message.asText()).thenReturn("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
         WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));

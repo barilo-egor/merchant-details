@@ -31,7 +31,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     private static final String MESSAGE = "message";
 
     private final BitZoneProperties bitZoneProperties;
-    
+
     protected BitZoneOrderCreationService(@Qualifier("bitZoneWebClient") WebClient webClient,
                                           BitZoneProperties bitZoneProperties) {
         super(webClient, Response.class, MerchantCallbackMock.class);
@@ -89,8 +89,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                 if (e instanceof WebClientResponseException.Forbidden ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return response.has(MESSAGE)
-                            && (response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT")
-                            || response.get(MESSAGE).asText().equals("CANT_CREATE_TRADE_FOR_THIS_AMOUNT"));
+                            && isNoDetailsMessage(response.get(MESSAGE).asText());
                 } else if (e instanceof WebClientResponseException.GatewayTimeout) {
                     return true;
                 }
@@ -99,6 +98,12 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
             }
             return false;
         };
+    }
+
+    private boolean isNoDetailsMessage(String message) {
+        return message.equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT")
+                || message.equals("CANT_CREATE_TRADE_FOR_THIS_AMOUNT")
+                || message.startsWith("MIN_FIAT_AMOUNT_SHOULD_BE");
     }
 
     @Override
