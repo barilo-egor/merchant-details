@@ -11,20 +11,27 @@ import java.io.IOException;
 @AllArgsConstructor
 @Getter
 public enum Status {
-    PENDING("В ожидании"),
-    ACTIVE("Активный"),
-    CHECKING("Проверка"),
-    DISPUTE("Спор"),
-    RE_CALCULATION("Перерасчёт"),
-    CLOSED("Закрыт"),
-    CANCELED("Отменён");
+    PENDING("pending", "В ожидании"),
+    COMPLETED("completed", "Подтверждена"),
+    FAILED("failed", "Ошибка");
+
+    private final String value;
 
     private final String description;
 
+    public static Status fromValue(String value) {
+        for (Status status : Status.values()) {
+            if (status.getValue().equals(value)) {
+                return status;
+            }
+        }
+        return null;
+    }
+
     public static class Deserializer extends JsonDeserializer<Status> {
         @Override
-        public Status deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return Status.valueOf(p.getValueAsString().toUpperCase());
+        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return Status.fromValue(jsonParser.getValueAsString().toLowerCase());
         }
     }
 }

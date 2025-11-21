@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.appexbit;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
@@ -14,16 +15,25 @@ class Request {
 
     private String badReturnLink;
 
-    private final Integer type = 0;
-
-    private final String tokenCode = "USDT";
-
     @JsonSerialize(using = Method.Serializer.class)
     private Method paymentMethod;
+
+    @JsonProperty("type")
+    public Integer getType() {
+        return 0;
+    }
+
+    @JsonProperty("tokenCode")
+    public String getTokenCode() {
+        return "USDT";
+    }
 
     @Data
     public static class FiatInfo {
 
-        private final String fiatCode = "RUB";
+        @JsonProperty("fiatCode")
+        public String getFiatCode() {
+            return "RUB";
+        }
     }
 }

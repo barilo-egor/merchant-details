@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.evopay;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -11,7 +12,13 @@ public class Request {
 
     private Integer fiatSum;
 
-    private final String fiatCurrencyCode = "RUB";
+    @JsonProperty("fiatCurrencyCode")
+    public String getFiatCurrencyCode() {
+        return "RUB";
+    }
 
-    private final String cryptoCurrencyCode = "USDT";
+    @JsonProperty("cryptoCurrencyCode")
+    public String getCryptoCurrencyCode() {
+        return "USDT";
+    }
 }

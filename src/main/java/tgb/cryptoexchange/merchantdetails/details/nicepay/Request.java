@@ -24,11 +24,14 @@ public class Request {
 
     private Integer amount;
 
-    private final String currency = "RUB";
-
     @JsonSerialize(using = Method.Serializer.class)
     private Method method;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String methodSBP;
+
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return "RUB";
+    }
 }

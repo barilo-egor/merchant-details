@@ -35,8 +35,7 @@ public class MerchantPropertiesService {
                                      PspWareProperties pspWareProperties,
                                      RostrastProperties rostrastProperties,
                                      WellBitProperties wellBitProperties,
-                                     StormTradeProperties stormTradeProperties,
-                                     SettleXProperties settleXProperties) {
+                                     StormTradeProperties stormTradeProperties) {
         properties = new EnumMap<>(Merchant.class);
         properties.put(ALFA_TEAM, alfaTeamProperties);
         properties.put(BIT_ZONE, bitZoneProperties);
