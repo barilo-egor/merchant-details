@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
@@ -27,17 +27,21 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final HoneyMoneyProperties honeyMoneyProperties;
 
     private final SignatureService signatureService;
 
+    private final CallbackConfig callbackConfig;
+
     protected HoneyMoneyOrderCreationService(@Qualifier("honeyMoneyWebClient") WebClient webClient,
-                                             HoneyMoneyProperties honeyMoneyProperties, SignatureService signatureService) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                             HoneyMoneyProperties honeyMoneyProperties,
+                                             SignatureService signatureService, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.honeyMoneyProperties = honeyMoneyProperties;
         this.signatureService = signatureService;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -67,7 +71,8 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
         request.setAmount(detailsRequest.getAmount());
         request.setExtId(UUID.randomUUID().toString());
         request.setBank(parseMethod(detailsRequest.getMethod(), Method.class).getBank());
-        request.setCallbackUrl(detailsRequest.getCallbackUrl());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+                + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 
