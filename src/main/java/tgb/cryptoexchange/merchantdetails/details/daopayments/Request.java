@@ -9,8 +9,6 @@ public class Request {
 
     private String amount;
 
-    private final String currency = "RUB";
-
     @JsonProperty("merchant_order_id")
     private String merchantOrderId;
 
@@ -23,4 +21,9 @@ public class Request {
     @JsonProperty("requisite_type")
     @JsonSerialize(using = Method.Serializer.class)
     private Method requisiteType;
+
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return "RUB";
+    }
 }
