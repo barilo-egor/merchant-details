@@ -1,10 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
@@ -22,9 +20,6 @@ class MerchantPropertiesServiceTest {
     @ParameterizedTest
     @EnumSource(Merchant.class)
     void getMerchantPropertiesShouldProperties(Merchant merchant) {
-        if (Merchant.NOT_ACTIVE.contains(merchant)) {
-            return;
-        }
         Optional<Object> merchantProperties = merchantPropertiesService.getProperties(merchant);
         assertTrue(merchantProperties.isPresent());
         switch (merchant) {
@@ -47,7 +42,6 @@ class MerchantPropertiesServiceTest {
             case PAY_LEE -> assertInstanceOf(PayLeeProperties.class, merchantProperties.get());
             case PAYSCROW -> assertInstanceOf(PayscrowPropertiesImpl.class, merchantProperties.get());
             case PSP_WARE -> assertInstanceOf(PspWareProperties.class, merchantProperties.get());
-            case PULSAR -> assertInstanceOf(PulsarProperties.class, merchantProperties.get());
             case ROSTRAST -> assertInstanceOf(RostrastProperties.class, merchantProperties.get());
             case WELL_BIT -> assertInstanceOf(WellBitProperties.class, merchantProperties.get());
             case PAY_CROWN -> assertInstanceOf(PayCrownProperties.class, merchantProperties.get());
@@ -55,10 +49,5 @@ class MerchantPropertiesServiceTest {
             case SETTLE_X -> assertInstanceOf(SettleXProperties.class, merchantProperties.get());
             default -> throw new IllegalArgumentException();
         }
-    }
-
-    @Test
-    void getMerchantPropertiesShouldReturnEmptyOptional() {
-        assertTrue(merchantPropertiesService.getProperties(Merchant.ALFA_TEAM_ALFA).isEmpty());
     }
 }
