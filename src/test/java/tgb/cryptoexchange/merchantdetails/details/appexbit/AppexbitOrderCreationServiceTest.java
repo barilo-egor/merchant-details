@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AppexbitOrderCreationServiceTest {
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @Mock
     private AppexbitProperties appexbitProperties;
@@ -58,20 +62,22 @@ class AppexbitOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,https://gateway.paysendmmm.online/merchant/appexbit,CARD",
-            "2100,https://someaddress.online/merchant/appexbit,SBP"
+            "2100,https://gateway.paysendmmm.online/merchant/appexbit,CARD,fGM1uP8msgRvpjJ",
+            "2100,https://someaddress.online/merchant/appexbit,SBP,3UMKcCFZQeFE5uk"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCallbackUrl(callbackUrl);
         detailsRequest.setMethod(method);
+        String expectedUrl = gatewayUrl + "/merchant-details/callback?merchant=APPEXBIT&secret=" + secret;
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         Request request = (Request) appexbitOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount.toString(), request.getAmountFiat()),
-                () -> assertEquals(callbackUrl, request.getGoodReturnLink()),
-                () -> assertEquals(callbackUrl, request.getBadReturnLink()),
+                () -> assertEquals(expectedUrl, request.getGoodReturnLink()),
+                () -> assertEquals(expectedUrl, request.getBadReturnLink()),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),
                 () -> assertEquals("USDT", request.getTokenCode()),
                 () -> assertEquals("RUB", request.getFiatInfo().getFiatCode())
