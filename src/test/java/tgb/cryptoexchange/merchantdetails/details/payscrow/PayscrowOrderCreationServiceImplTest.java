@@ -211,9 +211,61 @@ class PayscrowOrderCreationServiceImplTest {
     }
 
     @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfConflictAndAmountError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Expectation Failed. Amount for the chosen payment method doesn't " +
+                "meet limits. Check payment method limits and try again.");
+        WebClientResponseException.Conflict conflict =
+                Mockito.mock(WebClientResponseException.Conflict.class);
+        when(conflict.getResponseBodyAsString()).thenReturn("");
+        assertTrue(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfConflictAndNotAmountError() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asText()).thenReturn("Another not amount error.");
+        WebClientResponseException.Conflict conflict =
+                Mockito.mock(WebClientResponseException.Conflict.class);
+        when(conflict.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfConflictAndJsonProcessingWasThrown() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        WebClientResponseException.Conflict internalServerError =
+                Mockito.mock(WebClientResponseException.Conflict.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+                .test(Mockito.mock(WebClientResponseException.UnprocessableEntity.class)));
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(WebClientResponseException.BadGateway.class)));
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
