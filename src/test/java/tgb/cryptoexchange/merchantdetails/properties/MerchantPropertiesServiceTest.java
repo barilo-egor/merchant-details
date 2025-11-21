@@ -24,15 +24,12 @@ class MerchantPropertiesServiceTest {
         assertTrue(merchantProperties.isPresent());
         switch (merchant) {
             case ALFA_TEAM -> assertInstanceOf(AlfaTeamProperties.class, merchantProperties.get());
-            case APPEXBIT -> assertInstanceOf(AppexbitProperties.class, merchantProperties.get());
             case BIT_ZONE -> assertInstanceOf(BitZoneProperties.class, merchantProperties.get());
             case CROCO_PAY -> assertInstanceOf(CrocoPayProperties.class, merchantProperties.get());
-            case DAO_PAYMENTS -> assertInstanceOf(DaoPaymentsProperties.class, merchantProperties.get());
             case EVO_PAY -> assertInstanceOf(EvoPayProperties.class, merchantProperties.get());
             case EXTASY_PAY -> assertInstanceOf(ExtasyPayProperties.class, merchantProperties.get());
             case FOX_PAYS -> assertInstanceOf(FoxPaysProperties.class, merchantProperties.get());
             case GEO_TRANSFER -> assertInstanceOf(GeoTransferProperties.class, merchantProperties.get());
-            case HONEY_MONEY -> assertInstanceOf(HoneyMoneyProperties.class, merchantProperties.get());
             case LUCKY_PAY -> assertInstanceOf(LuckyPayProperties.class, merchantProperties.get());
             case MOBIUS -> assertInstanceOf(MobiusProperties.class, merchantProperties.get());
             case NICE_PAY -> assertInstanceOf(NicePayProperties.class, merchantProperties.get());
@@ -44,9 +41,7 @@ class MerchantPropertiesServiceTest {
             case PSP_WARE -> assertInstanceOf(PspWareProperties.class, merchantProperties.get());
             case ROSTRAST -> assertInstanceOf(RostrastProperties.class, merchantProperties.get());
             case WELL_BIT -> assertInstanceOf(WellBitProperties.class, merchantProperties.get());
-            case PAY_CROWN -> assertInstanceOf(PayCrownProperties.class, merchantProperties.get());
             case STORM_TRADE -> assertInstanceOf(StormTradeProperties.class, merchantProperties.get());
-            case SETTLE_X -> assertInstanceOf(SettleXProperties.class, merchantProperties.get());
             default -> throw new IllegalArgumentException();
         }
     }
