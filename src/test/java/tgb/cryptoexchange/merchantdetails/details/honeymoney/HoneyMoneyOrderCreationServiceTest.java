@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -44,6 +45,9 @@ class HoneyMoneyOrderCreationServiceTest {
 
     @Mock
     private SignatureService signatureService;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @InjectMocks
     private HoneyMoneyOrderCreationService honeyMoneyOrderCreationService;
@@ -83,20 +87,22 @@ class HoneyMoneyOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "12500,CARD,https://gateway.paysendmmm.online/merchant/honeymoney",
-            "2566,SBP,https://cryptoexchange.com/honeymoney/callback"
+            "12500,CARD,https://gateway.paysendmmm.online/merchant/honeymoney,MV1xwso7dS35GCf",
+            "2566,SBP,https://cryptoexchange.com/honeymoney/callback,BfFpfLSGX8lqydL"
     })
     @ParameterizedTest
-    void bodyShouldBuildRequestObject(Integer amount, Method method, String callbackUrl) {
+    void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
-        detailsRequest.setCallbackUrl(callbackUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         Request request = honeyMoneyOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method.getBank(), request.getBank()),
-                () -> assertEquals(callbackUrl, request.getCallbackUrl()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=HONEY_MONEY&secret="
+                        + secret, request.getCallbackUrl()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExtId())),
                 () -> assertEquals("RUB", request.getCurrency())
         );

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
@@ -24,14 +24,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class SettleXOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class SettleXOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final SettleXProperties settleXProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected SettleXOrderCreationService(@Qualifier("settleXWebClient") WebClient webClient,
-                                          SettleXProperties settleXProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                          SettleXProperties settleXProperties, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.settleXProperties = settleXProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -54,7 +57,8 @@ public class SettleXOrderCreationService extends MerchantOrderCreationService<Re
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setExpiredAt(LocalDateTime.now().plusMinutes(15));
-        request.setCallbackUri(detailsRequest.getCallbackUrl());
+        request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+                + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 

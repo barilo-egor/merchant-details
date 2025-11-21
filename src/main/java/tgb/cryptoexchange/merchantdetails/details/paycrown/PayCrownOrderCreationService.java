@@ -8,9 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
@@ -26,17 +26,21 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class PayCrownOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class PayCrownOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final PayCrownProperties payCrownProperties;
 
     private final SignatureService signatureService;
 
+    private final CallbackConfig callbackConfig;
+
     protected PayCrownOrderCreationService(@Qualifier("payCrownWebClient") WebClient webClient,
-                                           PayCrownProperties payCrownProperties, SignatureService signatureService) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                           PayCrownProperties payCrownProperties, SignatureService signatureService,
+                                           CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.payCrownProperties = payCrownProperties;
         this.signatureService = signatureService;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -82,7 +86,8 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
         request.setMerchantId(payCrownProperties.merchantId());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setMethod(method);
-        request.setCallbackUrl(detailsRequest.getCallbackUrl());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+                + "&secret=" + callbackConfig.getCallbackSecret());
         Long unixTime = System.currentTimeMillis() / 1000L;
         request.setCreatedAt(unixTime);
         return request;
