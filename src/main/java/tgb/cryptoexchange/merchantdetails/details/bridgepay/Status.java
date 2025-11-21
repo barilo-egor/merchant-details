@@ -12,7 +12,7 @@ import java.io.IOException;
 @AllArgsConstructor
 @Getter
 @Slf4j
-public enum InvoiceStatus {
+public enum Status {
     NEW("new", "Инвойс только что создан."),
     PAID("paid", "Инвойс был оплачен."),
     CANCELED("canceled", "Инвойс был отменен."),
@@ -23,8 +23,8 @@ public enum InvoiceStatus {
 
     private final String description;
 
-    public static InvoiceStatus getByValue(String value) {
-        for (InvoiceStatus status : InvoiceStatus.values()) {
+    public static Status getByValue(String value) {
+        for (Status status : Status.values()) {
             if (status.getValue().equals(value)) {
                 return status;
             }
@@ -32,10 +32,10 @@ public enum InvoiceStatus {
         return null;
     }
 
-    public static class Deserializer extends JsonDeserializer<InvoiceStatus> {
+    public static class Deserializer extends JsonDeserializer<Status> {
         @Override
-        public InvoiceStatus deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return InvoiceStatus.getByValue(jsonParser.getValueAsString());
+        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return Status.getByValue(jsonParser.getValueAsString());
         }
     }
 }

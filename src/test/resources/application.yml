@@ -108,3 +108,4 @@ kafka:
       receive: 'test-merchant-details-receive-topic'
       callback: 'test-merchant-details-callback-topic'
 callback-secret: test-callback-secret
+gateway-url: "https://gateway-example-url.com"

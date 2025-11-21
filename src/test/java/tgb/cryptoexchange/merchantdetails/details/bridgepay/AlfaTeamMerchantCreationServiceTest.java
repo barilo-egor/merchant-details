@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -45,6 +46,9 @@ class AlfaTeamMerchantCreationServiceTest {
 
     @Mock
     private SignatureService signatureService;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @InjectMocks
     private AlfaTeamMerchantCreationService alfaTeamMerchantCreationService;
@@ -100,15 +104,16 @@ class AlfaTeamMerchantCreationServiceTest {
     }
 
     @CsvSource({
-            "1000,SBP,https://gateway.paysendmmm.online/merchant-details/callback/alfa,13NFHS8pzxsFwZr",
-            "3521,TO_CARD,https://bulba.paysendmmm.online/merchant/alfa,SP9HHlNKw0MIKas"
+            "1000,SBP,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr,b2DVpRm6WXxzBvN",
+            "3521,TO_CARD,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas,gCQ8DmeRRWb5fVm"
     })
     @ParameterizedTest
-    void bodyShouldBuildRequestObject(Integer amount, String method, String callbackUrl, String token) {
+    void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method);
-        detailsRequest.setCallbackUrl(callbackUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
 
@@ -117,7 +122,8 @@ class AlfaTeamMerchantCreationServiceTest {
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),
                 () -> assertEquals(FiatCurrency.RUB.name(), actual.getCurrency()),
-                () -> assertEquals(callbackUrl, actual.getNotificationUrl()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ALFA_TEAM&secret=" + secret,
+                        actual.getNotificationUrl()),
                 () -> assertEquals(token, actual.getNotificationToken()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getInternalId())),
                 () -> assertEquals(Method.valueOf(method), actual.getPaymentOption()),
@@ -146,7 +152,7 @@ class AlfaTeamMerchantCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.ALFA_TEAM, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
-                () -> assertEquals(InvoiceStatus.NEW.name(), actualResponse.getMerchantOrderStatus()),
+                () -> assertEquals(Status.NEW.name(), actualResponse.getMerchantOrderStatus()),
                 () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
         );
     }

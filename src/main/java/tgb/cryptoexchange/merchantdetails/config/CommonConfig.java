@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,5 +70,13 @@ public class CommonConfig {
         KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = new KafkaTemplate<>(merchantCallbackProducerFactory());
         kafkaTemplate.setProducerListener(merchantCallbackProducerListener);
         return kafkaTemplate;
+    }
+
+    @Bean
+    public CallbackConfig callbackConfig(@Value("${callback-secret}") String callbackSecret, @Value("${gateway-url}") String gatewayUrl) {
+        CallbackConfig callbackConfig = new CallbackConfig();
+        callbackConfig.setCallbackSecret(callbackSecret);
+        callbackConfig.setGatewayUrl(gatewayUrl);
+        return callbackConfig;
     }
 }

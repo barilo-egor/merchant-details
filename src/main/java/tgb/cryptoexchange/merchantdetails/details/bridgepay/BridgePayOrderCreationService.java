@@ -8,9 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
@@ -26,17 +26,20 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response, BridgeCallback> {
 
     private final BridgePayProperties bridgePayProperties;
 
     private final SignatureService signatureService;
 
+    private final CallbackConfig callbackConfig;
+
     protected BridgePayOrderCreationService(WebClient webClient, BridgePayProperties bridgePayProperties,
-                                            SignatureService signatureService) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                            SignatureService signatureService, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, BridgeCallback.class);
         this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -74,7 +77,8 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
-        request.setNotificationUrl(detailsRequest.getCallbackUrl());
+        request.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         request.setNotificationToken(bridgePayProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
         request.setPaymentOption(parseMethod(detailsRequest.getMethod(), Method.class));
@@ -88,7 +92,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         String invoiceId = response.getId();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(invoiceId);
-        requisiteVO.setMerchantOrderStatus(InvoiceStatus.NEW.name());
+        requisiteVO.setMerchantOrderStatus(Status.NEW.name());
         requisiteVO.setDetails(buildRequisite(response));
         return Optional.of(requisiteVO);
     }
