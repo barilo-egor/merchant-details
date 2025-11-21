@@ -6,7 +6,7 @@ public interface MerchantCallback {
 
     Optional<String> getMerchantOrderId();
 
-    Optional<String> getStatus();
+    Optional<String> getStatusName();
 
     Optional<String> getStatusDescription();
 }

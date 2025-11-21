@@ -253,7 +253,7 @@ class MerchantOrderCreationServiceTest {
         MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
         when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
-        when(merchantCallback.getStatus()).thenReturn(Optional.empty());
+        when(merchantCallback.getStatusName()).thenReturn(Optional.empty());
         assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
     }
 
@@ -262,7 +262,7 @@ class MerchantOrderCreationServiceTest {
         MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
         when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
-        when(merchantCallback.getStatus()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatusName()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.empty());
         assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
     }
@@ -273,7 +273,7 @@ class MerchantOrderCreationServiceTest {
         MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
         when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
-        when(merchantCallback.getStatus()).thenReturn(Optional.of(""));
+        when(merchantCallback.getStatusName()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(""));
         when(callbackKafkaTemplate.send(anyString(), anyString(), any())).thenThrow(RuntimeException.class);
         assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
@@ -290,7 +290,7 @@ class MerchantOrderCreationServiceTest {
         MerchantCallbackMock merchantCallback = Mockito.mock(MerchantCallbackMock.class);
         when(objectMapper.readValue(anyString(), eq(MerchantCallbackMock.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(orderId));
-        when(merchantCallback.getStatus()).thenReturn(Optional.of(status));
+        when(merchantCallback.getStatusName()).thenReturn(Optional.of(status));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(statusDescription));
         ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
         ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
