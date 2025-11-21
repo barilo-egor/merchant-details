@@ -79,6 +79,13 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
+            } else if (e instanceof WebClientResponseException.Conflict ex) {
+                try {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return isAmountError(response);
+                } catch (JsonProcessingException jsonProcessingException) {
+                    return false;
+                }
             }
             return false;
         };
