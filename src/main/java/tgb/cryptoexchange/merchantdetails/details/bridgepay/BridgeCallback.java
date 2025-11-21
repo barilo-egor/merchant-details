@@ -21,7 +21,7 @@ public class BridgeCallback implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
+    public Optional<String> getStatusName() {
         if (Objects.isNull(invoice) || Objects.isNull(invoice.status)) {
             return Optional.empty();
         }

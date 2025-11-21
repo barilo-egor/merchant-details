@@ -12,7 +12,7 @@ public class MerchantCallbackMock implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
+    public Optional<String> getStatusName() {
         return Optional.empty();
     }
 

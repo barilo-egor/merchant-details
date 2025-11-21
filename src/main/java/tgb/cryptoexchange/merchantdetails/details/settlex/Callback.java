@@ -15,7 +15,7 @@ public class Callback implements MerchantCallback {
     private String internalId;
 
     @JsonDeserialize(using = Status.Deserializer.class)
-    private Status responseStatus;
+    private Status status;
 
     @Override
     public Optional<String> getMerchantOrderId() {
@@ -23,18 +23,18 @@ public class Callback implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
-        if (Objects.isNull(responseStatus)) {
+    public Optional<String> getStatusName() {
+        if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(responseStatus.name());
+        return Optional.of(status.name());
     }
 
     @Override
     public Optional<String> getStatusDescription() {
-        if (Objects.isNull(responseStatus)) {
+        if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(responseStatus.getDescription());
+        return Optional.of(status.getDescription());
     }
 }

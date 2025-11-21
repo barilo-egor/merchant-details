@@ -23,7 +23,7 @@ public class Callback implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
+    public Optional<String> getStatusName() {
         if (Objects.isNull(responseStatus)) {
             return Optional.empty();
         }

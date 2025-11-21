@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.paycrown;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
@@ -14,8 +13,7 @@ public class Callback implements MerchantCallback {
     private String id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
-    @JsonProperty("status")
-    private Status responseStatus;
+    private Status status;
 
     @Override
     public Optional<String> getMerchantOrderId() {
@@ -23,18 +21,18 @@ public class Callback implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
-        if (Objects.isNull(responseStatus)) {
+    public Optional<String> getStatusName() {
+        if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(responseStatus.name());
+        return Optional.of(status.name());
     }
 
     @Override
     public Optional<String> getStatusDescription() {
-        if (Objects.isNull(responseStatus)) {
+        if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(responseStatus.getDescription());
+        return Optional.of(status.getDescription());
     }
 }
