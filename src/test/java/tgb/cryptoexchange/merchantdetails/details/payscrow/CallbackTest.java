@@ -15,8 +15,8 @@ class CallbackTest {
     }
 
     @Test
-    void getStatusShouldReturnEmptyIfPayloadIsNull() {
-        assertTrue(new Callback().getStatus().isEmpty());
+    void getStatusNameShouldReturnEmptyIfPayloadIsNull() {
+        assertTrue(new Callback().getStatusName().isEmpty());
     }
 
     @Test
@@ -32,10 +32,10 @@ class CallbackTest {
     }
 
     @Test
-    void getStatusShouldReturnEmptyIfStatusIsNull() {
+    void getStatusShouldReturnEmptyIfStatusNameIsNull() {
         Callback callback = new Callback();
         callback.setPayload(new Callback.Payload());
-        assertTrue(callback.getStatus().isEmpty());
+        assertTrue(callback.getStatusName().isEmpty());
     }
 
     @Test
@@ -62,13 +62,13 @@ class CallbackTest {
             "COMPLETED", "UNPAID"
     })
     @ParameterizedTest
-    void getStatusShouldReturnNotEmptyIfStatusIsNotNull(Status status) {
+    void getStatusShouldReturnNotEmptyIfStatusNameIsNotNull(Status status) {
         Callback callback = new Callback();
         Callback.Payload payload = new Callback.Payload();
         payload.setStatus(status);
         callback.setPayload(payload);
-        assertTrue(callback.getStatus().isPresent());
-        assertEquals(status.name(), callback.getStatus().get());
+        assertTrue(callback.getStatusName().isPresent());
+        assertEquals(status.name(), callback.getStatusName().get());
     }
 
     @ValueSource(strings = {

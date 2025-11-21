@@ -221,7 +221,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while mapping callback: " + currentTime + ".", e);
         }
         Optional<String> maybeMerchantOrderId = callback.getMerchantOrderId();
-        Optional<String> maybeStatus = callback.getStatus();
+        Optional<String> maybeStatus = callback.getStatusName();
         Optional<String> maybeStatusDescription = callback.getStatusDescription();
         if (maybeMerchantOrderId.isEmpty() || maybeStatus.isEmpty() || maybeStatusDescription.isEmpty()) {
             long currentTime = System.currentTimeMillis();
