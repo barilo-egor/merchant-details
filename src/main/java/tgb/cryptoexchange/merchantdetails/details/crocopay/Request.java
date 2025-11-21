@@ -8,8 +8,11 @@ public class Request {
 
     private Integer amount;
 
-    private final String currency = "RUB";
-
     @JsonProperty("payment_option")
     private Method method;
+
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return "RUB";
+    }
 }
