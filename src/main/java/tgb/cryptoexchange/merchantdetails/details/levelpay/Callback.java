@@ -22,7 +22,7 @@ public class Callback implements MerchantCallback {
 
     @Override
     public Optional<String> getMerchantOrderId() {
-        return Optional.of(orderId);
+        return Optional.ofNullable(orderId);
     }
 
     @Override
