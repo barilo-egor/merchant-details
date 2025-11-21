@@ -93,7 +93,7 @@ class DaoPaymentsOrderCreationServiceTest {
 
     @CsvSource({
             "7cc259a2-67a2-4a67-8e7e-e0342c08da81,PENDING,1234123412341234,5001,Альфа-банк",
-            "418adf2c-c382-42f4-8bbc-0d0ea008f701,CHECKING,9876987654325432,1222,Сбербанк"
+            "418adf2c-c382-42f4-8bbc-0d0ea008f701,COMPLETED,9876987654325432,1222,Сбербанк"
     })
     @ParameterizedTest
     void buildResponseShouldBuildRequisiteResponse(String id, Status status, String requisiteString, Integer amount, String bank) {
