@@ -120,7 +120,7 @@ class DaoPaymentsOrderCreationServiceTest {
 
     @ValueSource(strings = {
             "deposit processing failed: all traders failed, last error from last trader: Ошибка! Не удалось обработать платеж!",
-            "deposit amount 997.00 is below minimum allowed amount 1000.00"
+            "deposit processing failed: deposit amount 997.00 is below minimum allowed amount 1000.00"
     })
     @ParameterizedTest
     void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsMessage(String message) throws JsonProcessingException {
