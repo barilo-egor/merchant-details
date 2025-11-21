@@ -21,7 +21,7 @@ public class Callback implements MerchantCallback {
     }
 
     @Override
-    public Optional<String> getStatus() {
+    public Optional<String> getStatusName() {
         if (Objects.isNull(transaction) || Objects.isNull(transaction.status)) {
             return Optional.empty();
         }
