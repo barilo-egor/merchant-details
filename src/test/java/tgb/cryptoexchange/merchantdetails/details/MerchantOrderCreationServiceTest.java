@@ -280,8 +280,8 @@ class MerchantOrderCreationServiceTest {
     }
 
     @CsvSource("""
-            merchant-details-callback-v1,99f0213a-3828-4dc9-8417-2e22fa140f13,COMPLETED,Завершен
-            merchant-details-callback-v2,a0af4b95-c0be-426d-8a26-94e13562527f,ERROR,Ошибка
+            merchant-details-bridgeCallback-v1,99f0213a-3828-4dc9-8417-2e22fa140f13,COMPLETED,Завершен
+            merchant-details-bridgeCallback-v2,a0af4b95-c0be-426d-8a26-94e13562527f,ERROR,Ошибка
             """)
     @ParameterizedTest
     void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JsonProcessingException {
