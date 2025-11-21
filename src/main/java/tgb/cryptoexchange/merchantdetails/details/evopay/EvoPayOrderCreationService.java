@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -147,5 +149,15 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getOrderStatus().name());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return exception -> {
+            if (exception instanceof WebClientResponseException.InternalServerError internalServerError) {
+                return "Internal Server Error".equals(internalServerError.getResponseBodyAsString());
+            }
+            return exception instanceof WebClientResponseException.BadGateway;
+        };
     }
 }

@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
@@ -314,4 +315,35 @@ class EvoPayOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
         assertEquals(orderBody, maybeResponse.get());
     }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIf500() {
+        WebClientResponseException.InternalServerError internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("Internal Server Error");
+        assertTrue(evoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfBodyNotInternalServerError() {
+        WebClientResponseException.InternalServerError internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("Bad amount");
+        assertFalse(evoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
+        assertFalse(evoPayOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.BadRequest.class)));
+        assertFalse(evoPayOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+        assertFalse(evoPayOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(WebClientResponseException.UnprocessableEntity.class)));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIf502() {
+        WebClientResponseException.BadGateway internalServerError = Mockito.mock(WebClientResponseException.BadGateway.class);
+        assertTrue(evoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
 }
