@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 
@@ -19,6 +21,9 @@ class OnyxPayMerchantCreationServiceTest {
 
     @Mock
     private OnyxPayProperties onyxPayProperties;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @InjectMocks
     private OnyxPayMerchantCreationService onyxPayMerchantCreationService;
@@ -45,5 +50,24 @@ class OnyxPayMerchantCreationServiceTest {
     void keyFunctionShouldReturnKeyForNotMobileTopUp(String key, Method method) {
         when(onyxPayProperties.key()).thenReturn(key);
         assertEquals(key, onyxPayMerchantCreationService.keyFunction().apply(method));
+    }
+
+    @CsvSource({
+            "https://gateway.paysendmmm.online,b2DVpRm6WXxzBvN",
+            "https://bulba.paysendmmm.online,gCQ8DmeRRWb5fVm"
+    })
+    @ParameterizedTest
+    void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setAmount(1000);
+        detailsRequest.setMethod("SBP");
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+
+        when(onyxPayProperties.token()).thenReturn("token");
+
+        Request actual = onyxPayMerchantCreationService.body(detailsRequest);
+        assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ONYX_PAY&secret=" + secret,
+                actual.getNotificationUrl());
     }
 }
