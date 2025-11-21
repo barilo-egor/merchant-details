@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DaoPaymentsOrderCreationServiceTest {
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @Mock
     private DaoPaymentsProperties daoPaymentsProperties;
@@ -66,22 +70,24 @@ class DaoPaymentsOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,https://gateway.paysendmmm.online/merchant/appexbit,CARD",
-            "2100,https://someaddress.online/merchant/appexbit,SBP"
+            "2100,https://gateway.paysendmmm.online,CARD,xgjUpv5iEOnWKN2",
+            "2100,https://someaddress.online,SBP,PfWjesdX49mQSKJ"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCallbackUrl(callbackUrl);
         detailsRequest.setMethod(method);
+        String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret=" + secret;
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = daoPaymentsOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getMerchantOrderId())),
                 () -> assertEquals(Method.valueOf(method), request.getRequisiteType()),
                 () -> assertEquals(amount.toString(), request.getAmount()),
-                () -> assertEquals(callbackUrl, request.getSuccessUrl()),
-                () -> assertEquals(callbackUrl, request.getFailUrl())
+                () -> assertEquals(expectedCallbackUrl, request.getSuccessUrl()),
+                () -> assertEquals(expectedCallbackUrl, request.getFailUrl())
         );
     }
 
