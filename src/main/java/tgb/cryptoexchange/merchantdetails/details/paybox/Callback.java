@@ -4,19 +4,23 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Data
 public class Callback implements MerchantCallback {
 
-    private String id;
+    private Long id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     @Override
     public Optional<String> getMerchantOrderId() {
-        return Optional.ofNullable(id);
+        if (Objects.isNull(id)) {
+            return Optional.empty();
+        }
+        return Optional.of(id.toString());
     }
 
     @Override
