@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -31,6 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SettleXOrderCreationServiceTest {
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @Mock
     private SettleXProperties settleXProperties;
@@ -60,20 +64,21 @@ class SettleXOrderCreationServiceTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            5660,SBP,https://gateway.paysendmmm.online/merchant/settleX
-            12504,C2C,https://gateway.paysendmmm.online/merchant/settleX
+            5660,SBP,https://gateway.paysendmmm.online/merchant/settleX,3UMKcCFZQeFE5uk
+            12504,C2C,https://gateway.paysendmmm.online/merchant/settleX,O9GFCTfz8wf7o2Q
             """)
-    void body(Integer amount, Method method, String callbackUrl) {
+    void body(Integer amount, Method method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
-        detailsRequest.setCallbackUrl(callbackUrl);
-
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> assertEquals(method, actual.getMethod()),
-                () -> assertEquals(callbackUrl, actual.getCallbackUri()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=SETTLE_X&secret="
+                        + secret, actual.getCallbackUri()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getOrderId())),
                 () -> assertTrue(actual.getExpiredAt().isBefore(LocalDateTime.now().plusMinutes(20)))
         );

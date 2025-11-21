@@ -7,9 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
 
@@ -22,12 +22,16 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final CallbackConfig callbackConfig;
 
     private final LevelPayProperties levelPayProperties;
 
-    protected LevelPayOrderCreationService(WebClient webClient, LevelPayProperties levelPayProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+    protected LevelPayOrderCreationService(WebClient webClient, CallbackConfig callbackConfig,
+                                           LevelPayProperties levelPayProperties) {
+        super(webClient, Response.class, Callback.class);
+        this.callbackConfig = callbackConfig;
         this.levelPayProperties = levelPayProperties;
     }
 
@@ -56,7 +60,8 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
             request.setPaymentGateway("alfa-alfa");
         }
         request.setExternalId(UUID.randomUUID().toString());
-        request.setCallbackUrl(detailsRequest.getCallbackUrl());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+                + "&secret=" + callbackConfig.getCallbackSecret());
         request.setFloatingAmount(true);
         return request;
     }

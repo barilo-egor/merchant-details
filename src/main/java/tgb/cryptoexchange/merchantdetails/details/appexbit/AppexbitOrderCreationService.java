@@ -5,9 +5,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
@@ -18,14 +18,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
-public class AppexbitOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class AppexbitOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final AppexbitProperties appexbitProperties;
 
+    private final CallbackConfig callbackConfig;
+
     public AppexbitOrderCreationService(@Qualifier("appexbitWebClient") WebClient webClient,
-                                           AppexbitProperties appexbitProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                        AppexbitProperties appexbitProperties, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.appexbitProperties = appexbitProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -50,8 +53,11 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
     protected Object body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmountFiat(detailsRequest.getAmount().toString());
-        request.setGoodReturnLink(detailsRequest.getCallbackUrl());
-        request.setBadReturnLink(detailsRequest.getCallbackUrl());
+        String callbackUrl = callbackConfig.getGatewayUrl()
+                + "/merchant-details/callback?merchant=" + getMerchant().name()
+                + "&secret=" + callbackConfig.getCallbackSecret();
+        request.setGoodReturnLink(callbackUrl);
+        request.setBadReturnLink(callbackUrl);
         request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         Request.FiatInfo fiatInfo = new Request.FiatInfo();
         request.setFiatInfo(fiatInfo);

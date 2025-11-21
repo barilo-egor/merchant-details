@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -42,6 +43,9 @@ class PayCrownOrderCreationServiceTest {
 
     @Mock
     private SignatureService signatureService;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     private ObjectMapper objectMapper;
 
@@ -128,16 +132,17 @@ class PayCrownOrderCreationServiceTest {
     }
 
     @CsvSource(textBlock = """
-            1550,CARD,https://gateway.paysendmmm.online/merchant/payCrown,BTC24MONEY
-            5000,SBP,https://someaddress.online/merchant/payCrown,bulba_btc_bot
+            1550,CARD,https://gateway.paysendmmm.online,BTC24MONEY,BfFpfLSGX8lqydL
+            5000,SBP,https://someaddress.online,bulba_btc_bot,fGM1uP8msgRvpjJ
             """)
     @ParameterizedTest
-    void bodyShouldBuildRequestObject(Integer amount, Method method, String callbackUrl, String merchantId) {
+    void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethod(method.name());
         detailsRequest.setAmount(amount);
-        detailsRequest.setCallbackUrl(callbackUrl);
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
 
         Request actual = payCrownOrderCreationService.body(detailsRequest);
 
@@ -145,7 +150,8 @@ class PayCrownOrderCreationServiceTest {
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> assertEquals(merchantId, actual.getMerchantId()),
                 () -> assertEquals(method, actual.getMethod()),
-                () -> assertEquals(callbackUrl, actual.getCallbackUrl()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=PAY_CROWN&secret=" + secret,
+                        actual.getCallbackUrl()),
                 () -> assertNotNull(actual.getCreatedAt())
         );
     }
