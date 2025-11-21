@@ -211,6 +211,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     @Override
     public void updateStatus(String callbackBody) {
+        log.debug("Принят callback от мерчанта {}: {}", getMerchant().name(), callbackBody);
         P callback;
         try {
             callback = objectMapper.readValue(callbackBody, callbackType);
