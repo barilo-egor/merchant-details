@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
@@ -24,14 +24,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class DaoPaymentsOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class DaoPaymentsOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final DaoPaymentsProperties daoPaymentsProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected DaoPaymentsOrderCreationService(@Qualifier("daoPaymentsWebClient") WebClient webClient,
-                                              DaoPaymentsProperties daoPaymentsProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                              DaoPaymentsProperties daoPaymentsProperties, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.daoPaymentsProperties = daoPaymentsProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -58,8 +61,10 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
         request.setMerchantOrderId(UUID.randomUUID().toString());
         request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setAmount(detailsRequest.getAmount().toString());
-        request.setSuccessUrl(detailsRequest.getCallbackUrl());
-        request.setFailUrl(detailsRequest.getCallbackUrl());
+        String callbackUrl = callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret="
+                + callbackConfig.getCallbackSecret();
+        request.setSuccessUrl(callbackUrl);
+        request.setFailUrl(callbackUrl);
         return request;
     }
 
