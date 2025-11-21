@@ -24,7 +24,7 @@ class Request {
     }
 
     @JsonProperty("tokenCode")
-    private String getTokenCode() {
+    public String getTokenCode() {
         return "USDT";
     }
 
