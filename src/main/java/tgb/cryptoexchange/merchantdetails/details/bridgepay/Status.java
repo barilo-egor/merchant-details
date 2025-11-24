@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
 @Slf4j
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     NEW("new", "Инвойс только что создан."),
     PAID("paid", "Инвойс был оплачен."),
     CANCELED("canceled", "Инвойс был отменен."),

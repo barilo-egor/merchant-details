@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     PAID("paid", "Оплачено"),
     UNDERPAID("underpaid", "Недоплачено"),
     OVERPAID("overpaid", "Переплачено"),
@@ -21,7 +22,7 @@ public enum Status {
 
     private final String value;
 
-    private final String displayName;
+    private final String description;
 
     public static Status fromValue(String value) {
         for (Status payPointsStatus : Status.values()) {

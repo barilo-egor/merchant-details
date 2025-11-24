@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     CREATED(0, "Платёж создан."),
     SEARCHING_DETAILS_1(1, "Поиск реквизитов"),
     SEARCHING_DETAILS_2(2, "Поиск реквизитов"),
