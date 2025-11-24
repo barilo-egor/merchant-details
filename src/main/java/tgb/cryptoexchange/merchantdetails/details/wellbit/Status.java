@@ -7,12 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     NEW("new", "Новый"),
     COMPLETE("complete", "Вывод выполнен"),
     CANCEL("cancel", "Вывод отменен"),

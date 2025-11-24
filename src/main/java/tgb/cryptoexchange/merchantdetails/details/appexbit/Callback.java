@@ -3,38 +3,17 @@ package tgb.cryptoexchange.merchantdetails.details.appexbit;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
+import lombok.EqualsAndHashCode;
+import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
 
-import java.util.Objects;
-import java.util.Optional;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Callback implements MerchantCallback {
+public class Callback extends UnwrappedCallback {
 
-    private String offerId;
+    @JsonProperty("offerId")
+    private String id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
     @JsonProperty("status")
-    private Status responseStatus;
-
-    @Override
-    public Optional<String> getMerchantOrderId() {
-        return Optional.of(offerId);
-    }
-
-    @Override
-    public Optional<String> getStatusName() {
-        if (Objects.isNull(responseStatus)) {
-            return Optional.empty();
-        }
-        return Optional.of(responseStatus.name());
-    }
-
-    @Override
-    public Optional<String> getStatusDescription() {
-        if (Objects.isNull(responseStatus)) {
-            return Optional.empty();
-        }
-        return Optional.of(responseStatus.getDescription());
-    }
+    private Status status;
 }

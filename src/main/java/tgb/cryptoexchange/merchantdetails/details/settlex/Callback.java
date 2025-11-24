@@ -1,40 +1,20 @@
 package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
+import lombok.EqualsAndHashCode;
+import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
 
-import java.util.Objects;
-import java.util.Optional;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Callback implements MerchantCallback {
+public class Callback extends UnwrappedCallback {
 
-    private String internalId;
+    @JsonProperty("internalId")
+    private String id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
-
-    @Override
-    public Optional<String> getMerchantOrderId() {
-        return Optional.ofNullable(internalId);
-    }
-
-    @Override
-    public Optional<String> getStatusName() {
-        if (Objects.isNull(status)) {
-            return Optional.empty();
-        }
-        return Optional.of(status.name());
-    }
-
-    @Override
-    public Optional<String> getStatusDescription() {
-        if (Objects.isNull(status)) {
-            return Optional.empty();
-        }
-        return Optional.of(status.getDescription());
-    }
 }
