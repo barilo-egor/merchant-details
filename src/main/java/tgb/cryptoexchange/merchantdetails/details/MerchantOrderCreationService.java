@@ -35,7 +35,7 @@ import java.util.function.Predicate;
 @Slf4j
 public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse, P extends MerchantCallback> implements MerchantService {
 
-    private final WebClient webClient;
+    protected final WebClient webClient;
 
     private final Class<T> responseType;
 
@@ -244,5 +244,18 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                     currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
             throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
         }
+    }
+
+    public void cancelOrder(CancelOrderRequest cancelOrderRequest) {
+        try {
+            makeCancelRequest(cancelOrderRequest);
+        } catch (Exception e) {
+            log.error("Ошибка при попытке отмены ордера (cancelOrderRequest={}): {}", cancelOrderRequest, e.getMessage(), e);
+        }
+    }
+
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        log.trace("Реализация отмены ордера для мерчанта {} отсутствует. Ордер {} не будет отменен.",
+                getMerchant().name(), cancelOrderRequest.getOrderId());
     }
 }
