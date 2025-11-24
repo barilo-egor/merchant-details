@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -26,10 +27,13 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
 
     private final CrocoPayProperties crocoPayProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected CrocoPayOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
-                                           CrocoPayProperties crocoPayProperties) {
+                                           CrocoPayProperties crocoPayProperties, CallbackConfig callbackConfig) {
         super(webClient, Response.class, VoidCallback.class);
         this.crocoPayProperties = crocoPayProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -56,6 +60,8 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 
