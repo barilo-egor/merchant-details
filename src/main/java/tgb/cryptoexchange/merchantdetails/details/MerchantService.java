@@ -10,9 +10,7 @@ public interface MerchantService {
 
     Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest);
 
-    default void updateStatus(String callbackBody) {
-        // TODO Для постепенного перевода на коллбеки через этот микросервис
-    }
+    void updateStatus(String callbackBody);
 
     void cancelOrder(CancelOrderRequest cancelOrderRequest);
 }
