@@ -12,7 +12,6 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
@@ -23,7 +22,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
+public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final CrocoPayProperties crocoPayProperties;
 
@@ -31,7 +30,7 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
 
     protected CrocoPayOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
                                            CrocoPayProperties crocoPayProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, VoidCallback.class);
+        super(webClient, Response.class, Callback.class);
         this.crocoPayProperties = crocoPayProperties;
         this.callbackConfig = callbackConfig;
     }
