@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * Класс заглушка на время миграции коллбеков в микросервис.
  */
-public class MerchantCallbackMock implements MerchantCallback {
+public class VoidCallback implements MerchantCallback {
     @Override
     public Optional<String> getMerchantOrderId() {
         return Optional.empty();
