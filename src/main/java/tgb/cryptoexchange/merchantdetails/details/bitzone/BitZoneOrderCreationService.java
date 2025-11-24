@@ -12,8 +12,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class BitZoneOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class BitZoneOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
 
     private static final String MESSAGE = "message";
 
@@ -34,7 +34,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
 
     protected BitZoneOrderCreationService(@Qualifier("bitZoneWebClient") WebClient webClient,
                                           BitZoneProperties bitZoneProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+        super(webClient, Response.class, VoidCallback.class);
         this.bitZoneProperties = bitZoneProperties;
     }
 
