@@ -8,7 +8,7 @@ import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Callback extends UnwrappedCallback {
-    private Long id;
+    private String id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
