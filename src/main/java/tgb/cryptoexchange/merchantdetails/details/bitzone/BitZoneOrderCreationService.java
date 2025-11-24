@@ -10,10 +10,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
@@ -26,16 +26,19 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class BitZoneOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
+public class BitZoneOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String MESSAGE = "message";
 
     private final BitZoneProperties bitZoneProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected BitZoneOrderCreationService(@Qualifier("bitZoneWebClient") WebClient webClient,
-                                          BitZoneProperties bitZoneProperties) {
-        super(webClient, Response.class, VoidCallback.class);
+                                          BitZoneProperties bitZoneProperties, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.bitZoneProperties = bitZoneProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -63,6 +66,8 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
         request.setFiatAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 
