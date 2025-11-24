@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -50,18 +52,22 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return headers -> {
-            headers.add("Content-Type", "application/json");
-            headers.add("X-Identity", keyFunction().apply(parseMethod(detailsRequest.getMethod(), Method.class)));
-            String createInvoiceUrl = bridgePayProperties.url() + "/api/merchant/invoices";
-            try {
-                headers.add("X-Signature", signatureService.hmacSHA1(
-                        buildSignatureData(createInvoiceUrl, body), bridgePayProperties.secret()
-                ));
-            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-                log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), createInvoiceUrl, body);
-                throw new SignatureCreationException("Ошибка формирования подписи.", e);
-            }
+            addHeaders(headers, parseMethod(detailsRequest.getMethod(), Method.class), body);
         };
+    }
+
+    private void addHeaders(HttpHeaders headers, Method method, String body) {
+        headers.add("Content-Type", "application/json");
+        headers.add("X-Identity", keyFunction().apply(method));
+        String createInvoiceUrl = bridgePayProperties.url() + "/api/merchant/invoices";
+        try {
+            headers.add("X-Signature", signatureService.hmacSHA1(
+                    buildSignatureData(createInvoiceUrl, body), bridgePayProperties.secret()
+            ));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), createInvoiceUrl, body);
+            throw new SignatureCreationException("Ошибка формирования подписи.", e);
+        }
     }
 
     protected Function<Method, String> keyFunction() {
@@ -120,5 +126,14 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
             }
             return false;
         };
+    }
+
+    @Override
+    public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        requestService.request(webClient, HttpMethod.POST,
+                uriBuilder -> uriBuilder.path("/api/merchant/invoices/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
+                headers -> addHeaders(headers, parseMethod(cancelOrderRequest.getMethod(), Method.class), null),
+                null
+        );
     }
 }
