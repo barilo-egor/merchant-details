@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -36,6 +37,9 @@ class BitZoneOrderCreationServiceTest {
 
     @Mock
     private BitZoneProperties bitZoneProperties;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @InjectMocks
     private BitZoneOrderCreationService bitZoneOrderCreationService;
@@ -66,19 +70,22 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,CARD",
-            "2100,SBP"
+            "2100,CARD,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr",
+            "2100,SBP,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = bitZoneOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
-                () -> assertDoesNotThrow(() -> UUID.fromString(request.getExtra().getExternalTransactionId()))
+                () -> assertDoesNotThrow(() -> UUID.fromString(request.getExtra().getExternalTransactionId())),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=BIT_ZONE&secret=" + secret, request.getCallbackUrl())
         );
     }
 
