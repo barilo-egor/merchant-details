@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     PROCESSING("processing", "В процессе"),
     CANCELED("canceled", "Отменена"),
     APPEL("appel", "Апелляция"),

@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WellBitProperties;
@@ -26,9 +25,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Service
+/**
+ * Взаимодействие с данным мерчантом приостановлено.
+ * Отсутствует реализация обновления статусов ордеров.
+ */
 @Slf4j
-public class WellBitOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class WellBitOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
 
     private final WellBitProperties wellBitProperties;
 
@@ -38,7 +40,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
 
     protected WellBitOrderCreationService(@Qualifier("wellBitWebClient") WebClient webClient,
                                           WellBitProperties wellBitProperties, SignatureService signatureService) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+        super(webClient, Response.class, VoidCallback.class);
         this.wellBitProperties = wellBitProperties;
         this.signatureService = signatureService;
     }

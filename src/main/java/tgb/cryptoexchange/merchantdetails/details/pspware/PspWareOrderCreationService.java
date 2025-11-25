@@ -2,13 +2,12 @@ package tgb.cryptoexchange.merchantdetails.details.pspware;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
 
@@ -18,14 +17,17 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Service
-public class PspWareOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+/**
+ * Взаимодействие с данным мерчантом приостановлено.
+ * Отсутствует реализация обновления статусов ордеров.
+ */
+public class PspWareOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
 
     private final PspWareProperties pspWareProperties;
     
     protected PspWareOrderCreationService(@Qualifier("pspWareWebClient") WebClient webClient, 
                                           PspWareProperties pspWareProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+        super(webClient, Response.class, VoidCallback.class);
         this.pspWareProperties = pspWareProperties;
     }
 

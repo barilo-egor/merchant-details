@@ -8,24 +8,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
+import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
+import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -33,9 +35,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,8 +54,17 @@ class AlfaTeamMerchantCreationServiceTest {
     @Mock
     private CallbackConfig callbackConfig;
 
+    @Mock
+    private RequestService requestService;
+
+    @Mock
+    private WebClient webClient;
+
     @InjectMocks
     private AlfaTeamMerchantCreationService alfaTeamMerchantCreationService;
+
+    @Captor
+    private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
 
     @Test
     void getMerchantShouldReturnAlfaTeam() {
@@ -255,5 +268,22 @@ class AlfaTeamMerchantCreationServiceTest {
                 .test(Mockito.mock(WebClientResponseException.Conflict.class)));
         assertFalse(alfaTeamMerchantCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
+    }
+
+    @CsvSource("""
+            4be41169-2786-48f3-98b9-002a23417c45,TO_CARD
+            578f16e0-5941-4330-80c3-b2d22ef302b8,MOBILE_TOP_UP
+            """)
+    @ParameterizedTest
+    void makeCancelRequestShouldMakeRequest(String orderId, Method method) {
+        alfaTeamMerchantCreationService.setRequestService(requestService);
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderId(orderId);
+        cancelOrderRequest.setMethod(method.name());
+        alfaTeamMerchantCreationService.makeCancelRequest(cancelOrderRequest);
+        verify(requestService).request(eq(webClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
+                any(), eq(null));
+        UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        assertEquals("/api/merchant/invoices/" + orderId + "/cancel", uriBuilderCaptor.getValue().apply(uriBuilder).getPath());
     }
 }

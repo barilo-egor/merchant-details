@@ -60,4 +60,9 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
             }
         };
     }
+
+    @Override
+    protected Boolean getUniqueAmount() {
+        return true;
+    }
 }

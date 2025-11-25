@@ -10,9 +10,11 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -56,8 +58,11 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
         request.setAmount(detailsRequest.getAmount());
         request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setClientOrderId(UUID.randomUUID().toString());
+        request.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
         return request;
     }
+
+    protected abstract Boolean getUniqueAmount();
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
@@ -66,6 +71,9 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setDetails(response.getMethodName() + " " + response.getHolderAccount());
+        if (Objects.nonNull(response.getAmount())) {
+            detailsResponse.setAmount(response.getAmount().intValue());
+        }
         return Optional.of(detailsResponse);
     }
 

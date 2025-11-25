@@ -11,6 +11,9 @@ public class Request {
     @JsonProperty("payment_option")
     private Method method;
 
+    @JsonProperty("callback_url")
+    private String callbackUrl;
+
     @JsonProperty("currency")
     public String getCurrency() {
         return "RUB";

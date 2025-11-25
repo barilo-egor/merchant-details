@@ -9,10 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantService;
-import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
+import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
@@ -84,6 +81,20 @@ class MerchantDetailsServiceTest {
         when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
         merchantDetailsService.updateStatus(merchant, body);
         verify(merchantService).updateStatus(body);
+    }
 
+    @CsvSource(textBlock = """
+            ALFA_TEAM,20fb47cc-bbb2-4e39-84db-9f67c0b2900e,CARD
+            WELL_BIT,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP
+            """)
+    @ParameterizedTest
+    void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String orderId, String method) {
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderId(orderId);
+        cancelOrderRequest.setMethod(method);
+        merchantDetailsService.cancelOrder(merchant, cancelOrderRequest);
+        verify(merchantService).cancelOrder(cancelOrderRequest);
     }
 }

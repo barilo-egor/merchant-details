@@ -4,11 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
@@ -17,9 +19,14 @@ import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,5 +107,24 @@ class MerchantDetailsControllerTest {
                 .andExpect(jsonPath("$.data.merchantCustomId").value(merchantCustomId))
                 .andExpect(jsonPath("$.data.amount").value(amount))
                 .andExpect(jsonPath("$.data.qr").value(qr));
+    }
+
+    @CsvSource("""
+            ALFA_TEAM,f669eb83-a6c2-4456-8416-c2b1fd514c99,CARD
+            ONLY_PAYS,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,SBP
+            """)
+    @ParameterizedTest
+    void cancelShouldCallCancelOrderMethod(Merchant merchant, String orderId, String method) throws Exception {
+        mockMvc.perform(patch("/merchant-details/" + merchant.name())
+                .queryParam("orderId", orderId)
+                .queryParam("method", method)
+        ).andExpect(status().isOk());
+        ArgumentCaptor<CancelOrderRequest> cancelOrderRequestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
+        verify(merchantDetailsService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
+        CancelOrderRequest actual = cancelOrderRequestCaptor.getValue();
+        assertAll(
+                () -> assertEquals(orderId, actual.getOrderId()),
+                () -> assertEquals(method, actual.getMethod())
+        );
     }
 }

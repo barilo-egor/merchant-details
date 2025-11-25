@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.paybox;
+package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;

@@ -14,6 +14,8 @@ public class Request {
 
     private Extra extra;
 
+    private String callbackUrl;
+
     @Data
     @AllArgsConstructor
     public static class Extra {

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -40,10 +42,12 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> {
-            httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("Authorization", "Bearer " + payBoxProperties.token());
-        };
+        return this::addHeaders;
+    }
+
+    private void addHeaders(HttpHeaders httpHeaders) {
+        httpHeaders.add("Content-Type", "application/json");
+        httpHeaders.add("Authorization", "Bearer " + payBoxProperties.token());
     }
 
     @Override
@@ -104,5 +108,13 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
                 && response.get("code").asInt() == 1
                 && response.has(MESSAGE_FIELD)
                 && response.get(MESSAGE_FIELD).asText().equals("Unable to get requisites.");
+    }
+
+    @Override
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        requestService.request(webClient, HttpMethod.POST,
+                uriBuilder -> uriBuilder.path("/api/v1/transactions/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
+                this::addHeaders, null
+        );
     }
 }
