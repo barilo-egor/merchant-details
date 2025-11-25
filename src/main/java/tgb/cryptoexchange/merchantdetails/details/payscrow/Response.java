@@ -22,6 +22,8 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("holder_account")
     private String holderAccount;
 
+    private Double amount;
+
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();

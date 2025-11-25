@@ -12,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.LuckyPayProperties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,5 +49,10 @@ class LuckyPayOrderCreationServiceTest {
         detailsRequest.setChatId(chatId);
         when(luckyPayProperties.key()).thenReturn(key);
         assertEquals(luckyPayProperties.key(), key);
+    }
+
+    @Test
+    void getUniqueAmountShouldReturnTrue() {
+        assertNull(service.getUniqueAmount());
     }
 }
