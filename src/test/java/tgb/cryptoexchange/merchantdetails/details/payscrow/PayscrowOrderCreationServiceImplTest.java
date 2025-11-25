@@ -85,17 +85,18 @@ class PayscrowOrderCreationServiceImplTest {
         );
     }
 
-    @CsvSource(textBlock = """
-            8ab90c56-4a96-4f01-be9a-170a9e8f9d68,UNPAID,Альфа,79877892387
-            c1098ddc-ef6c-48c0-bd27-cd0f08abffa4,COMPLETED,SBER,6666555544443333
+    @CsvSource(nullValues = "null", textBlock = """
+            8ab90c56-4a96-4f01-be9a-170a9e8f9d68,UNPAID,Альфа,79877892387,5430.26
+            c1098ddc-ef6c-48c0-bd27-cd0f08abffa4,COMPLETED,SBER,6666555544443333,5360.00
             """)
     @ParameterizedTest
-    void buildResponseShouldBuildResponseObject(String id, Status status, String methodName, String holderAccount) {
+    void buildResponseShouldBuildResponseObject(String id, Status status, String methodName, String holderAccount, Double amount) {
         Response response = new Response();
         response.setId(id);
         response.setStatus(status);
         response.setMethodName(methodName);
         response.setHolderAccount(holderAccount);
+        response.setAmount(amount);
 
         Optional<DetailsResponse> detailsResponse = payscrowOrderCreationService.buildResponse(response);
         assertTrue(detailsResponse.isPresent());
@@ -104,8 +105,23 @@ class PayscrowOrderCreationServiceImplTest {
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
                 () -> assertEquals(methodName + " " + holderAccount, actual.getDetails()),
-                () -> assertEquals(Merchant.PAYSCROW, actual.getMerchant())
+                () -> assertEquals(Merchant.PAYSCROW, actual.getMerchant()),
+                () -> assertEquals(amount.intValue(), actual.getAmount())
         );
+    }
+
+    @Test
+    void buildResponseShouldBuildResponseObjectWithoutAmountIfNoAmount() {
+        Response response = new Response();
+        response.setId("id");
+        response.setStatus(Status.CANCELED_BY_SERVICE);
+        response.setMethodName(Method.ALFA.name());
+        response.setHolderAccount("holderAccount");
+
+        Optional<DetailsResponse> detailsResponse = payscrowOrderCreationService.buildResponse(response);
+        assertTrue(detailsResponse.isPresent());
+        DetailsResponse actual = detailsResponse.get();
+        assertNull(actual.getAmount());
     }
 
     @ParameterizedTest
@@ -357,5 +373,10 @@ class PayscrowOrderCreationServiceImplTest {
         detailsRequest.setMethod(Method.TRIANGLE.name());
         detailsRequest.setAmount(amount);
         assertFalse(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+    }
+
+    @Test
+    void getUniqueAmountShouldReturnTrue() {
+        assertTrue(payscrowOrderCreationService.getUniqueAmount());
     }
 }
