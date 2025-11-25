@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
@@ -44,6 +45,17 @@ public class MerchantDetailsService {
         } else {
             log.warn("Запрос обновления статуса ордера мерчанта {}, у которого отсутствует реализация: {}",
                     merchant.name(), callbackBody);
+        }
+    }
+
+    public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
+        log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
+        var maybeCreationService = merchantServiceRegistry.getService(merchant);
+        if (maybeCreationService.isPresent()) {
+            maybeCreationService.get().cancelOrder(cancelOrderRequest);
+        } else {
+            log.warn("Запрос отмены ордера мерчанта {}, у которого отсутствует реализация: {}",
+                    merchant.name(), cancelOrderRequest);
         }
     }
 }

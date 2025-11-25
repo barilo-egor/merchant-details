@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantCallbackMock;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
@@ -22,14 +22,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
-public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, MerchantCallbackMock> {
+public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final CrocoPayProperties crocoPayProperties;
 
+    private final CallbackConfig callbackConfig;
+
     protected CrocoPayOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
-                                           CrocoPayProperties crocoPayProperties) {
-        super(webClient, Response.class, MerchantCallbackMock.class);
+                                           CrocoPayProperties crocoPayProperties, CallbackConfig callbackConfig) {
+        super(webClient, Response.class, Callback.class);
         this.crocoPayProperties = crocoPayProperties;
+        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -56,6 +59,8 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 

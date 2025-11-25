@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
@@ -32,6 +33,9 @@ class CrocoPayOrderCreationServiceTest {
 
     @Mock
     private CrocoPayProperties crocoPayProperties;
+
+    @Mock
+    private CallbackConfig callbackConfig;
 
     @InjectMocks
     private CrocoPayOrderCreationService crocoPayOrderCreationService;
@@ -66,18 +70,22 @@ class CrocoPayOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,TO_CARD",
-            "2100,SBP"
+            "2100,TO_CARD,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr",
+            "2100,SBP,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = crocoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
-                () -> assertEquals(Method.valueOf(method), request.getMethod())
+                () -> assertEquals(Method.valueOf(method), request.getMethod()),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=CROCO_PAY&secret=" + secret,
+                        request.getCallbackUrl())
         );
     }
 

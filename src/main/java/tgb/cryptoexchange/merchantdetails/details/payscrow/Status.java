@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Status {
+public enum Status implements MerchantOrderStatus {
     UNPAID("Unpaid", "Ожидает оплаты"),
     COMPLETED("Completed", "Успешно завершено"),
     CANCELED_BY_TIMEOUT("CanceledByTimeout", "Отменен по таймауту"),
