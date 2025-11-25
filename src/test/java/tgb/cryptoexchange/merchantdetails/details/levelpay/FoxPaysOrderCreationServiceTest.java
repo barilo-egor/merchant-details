@@ -8,26 +8,31 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.FoxPaysProperties;
+import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +46,15 @@ class FoxPaysOrderCreationServiceTest {
 
     @InjectMocks
     private FoxPaysOrderCreationService foxPaysOrderCreationService;
+
+    @Captor
+    private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
+
+    @Mock
+    private WebClient webClient;
+
+    @Mock
+    private RequestService requestService;
 
     @Test
     void getMerchantShouldReturnFoxPays() {
@@ -197,5 +211,22 @@ class FoxPaysOrderCreationServiceTest {
                 .test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
         assertFalse(foxPaysOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
+    }
+
+    @CsvSource("""
+            4be41169-2786-48f3-98b9-002a23417c45,CARD
+            578f16e0-5941-4330-80c3-b2d22ef302b8,PHONE
+            """)
+    @ParameterizedTest
+    void makeCancelRequestShouldMakeRequest(String orderId, Method method) {
+        foxPaysOrderCreationService.setRequestService(requestService);
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderId(orderId);
+        cancelOrderRequest.setMethod(method.name());
+        foxPaysOrderCreationService.makeCancelRequest(cancelOrderRequest);
+        verify(requestService).request(eq(webClient), eq(HttpMethod.PATCH), uriBuilderCaptor.capture(),
+                any(), eq(null));
+        UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        assertEquals("/api/h2h/order/" + orderId + "/cancel", uriBuilderCaptor.getValue().apply(uriBuilder).getPath());
     }
 }
