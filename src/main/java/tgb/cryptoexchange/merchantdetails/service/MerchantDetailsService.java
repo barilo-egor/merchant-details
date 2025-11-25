@@ -49,6 +49,7 @@ public class MerchantDetailsService {
     }
 
     public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
+        log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isPresent()) {
             maybeCreationService.get().cancelOrder(cancelOrderRequest);
