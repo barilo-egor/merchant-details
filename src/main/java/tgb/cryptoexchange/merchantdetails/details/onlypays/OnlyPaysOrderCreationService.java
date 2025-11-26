@@ -9,7 +9,6 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.OnlyPaysProperties;
 
@@ -21,13 +20,13 @@ import java.util.function.Function;
 
 @Service
 @Slf4j
-public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
+public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
     
     private final OnlyPaysProperties onlyPaysProperties;
     
     protected OnlyPaysOrderCreationService(@Qualifier("onlyPaysWebClient") WebClient webClient, 
                                            OnlyPaysProperties onlyPaysProperties) {
-        super(webClient, Response.class, VoidCallback.class);
+        super(webClient, Response.class, Callback.class);
         this.onlyPaysProperties = onlyPaysProperties;
     }
 
