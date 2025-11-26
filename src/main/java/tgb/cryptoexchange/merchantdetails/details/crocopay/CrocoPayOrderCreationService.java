@@ -59,8 +59,8 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
-                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/crocoPay?dealId="
+                + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
     }
 
