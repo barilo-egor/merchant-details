@@ -237,7 +237,7 @@ class MerchantOrderCreationServiceTest {
     @Test
     void updateStatusShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @Test
@@ -245,7 +245,7 @@ class MerchantOrderCreationServiceTest {
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.empty());
-        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @Test
@@ -254,7 +254,7 @@ class MerchantOrderCreationServiceTest {
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusName()).thenReturn(Optional.empty());
-        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @Test
@@ -264,7 +264,7 @@ class MerchantOrderCreationServiceTest {
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusName()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.empty());
-        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @Test
@@ -276,7 +276,7 @@ class MerchantOrderCreationServiceTest {
         when(merchantCallback.getStatusName()).thenReturn(Optional.of(""));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(""));
         when(callbackKafkaTemplate.send(anyString(), anyString(), any())).thenThrow(RuntimeException.class);
-        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(""));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @CsvSource("""
@@ -294,7 +294,7 @@ class MerchantOrderCreationServiceTest {
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(statusDescription));
         ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
         ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
-        service.updateStatus("");
+        service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}");
         verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
         MerchantCallbackEvent actual = eventCaptor.getValue();
         assertAll(

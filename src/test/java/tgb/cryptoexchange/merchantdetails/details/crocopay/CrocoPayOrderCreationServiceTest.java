@@ -70,12 +70,13 @@ class CrocoPayOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,TO_CARD,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr",
-            "2100,SBP,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas"
+            "2100,TO_CARD,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr,5634",
+            "2100,SBP,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas,25535"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
+    void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret, Long dealId) {
         DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(dealId);
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
@@ -84,7 +85,7 @@ class CrocoPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
-                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=CROCO_PAY&secret=" + secret,
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback/crocoPay?dealId=" + dealId + "&secret=" + secret,
                         request.getCallbackUrl())
         );
     }
