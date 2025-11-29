@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
+import tgb.cryptoexchange.merchantdetails.service.CryptoService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MerchantCallbackControllerTest {
 
     @MockitoBean
+    private CryptoService cryptoService;
+
+    @MockitoBean
     private MerchantDetailsService merchantDetailsService;
+
+    @MockitoBean
+    private PayLeeProperties payLeeProperties;
 
     @Autowired
     private MockMvc mockMvc;

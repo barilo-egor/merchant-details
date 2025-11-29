@@ -45,6 +45,7 @@ extasy-pay:
 pay-lee:
   url: "pay-lee-url"
   token: "pay-lee-token"
+  secret: "pay-lee-secret"
 psp-ware:
   url: "psp-ware-url"
   token: "psp-ware-token"
