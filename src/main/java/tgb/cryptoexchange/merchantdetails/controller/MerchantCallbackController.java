@@ -54,6 +54,8 @@ public class MerchantCallbackController extends ApiController {
             } catch (GeneralSecurityException e) {
                 log.error("Ошибка преобразования токена PayLee: {} ", e.getMessage(), e);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
         merchantDetailsService.updateStatus(merchant, callbackBody);
