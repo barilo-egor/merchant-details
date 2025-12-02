@@ -25,6 +25,7 @@ import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,7 +63,7 @@ class ExtasyPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(method.name()).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());

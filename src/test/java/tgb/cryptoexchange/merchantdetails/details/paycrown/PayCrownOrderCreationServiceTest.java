@@ -26,6 +26,7 @@ import tgb.cryptoexchange.merchantdetails.properties.PayCrownProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -85,7 +86,7 @@ class PayCrownOrderCreationServiceTest {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         objectNode.put("created_at", System.currentTimeMillis());
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(Method.CARD.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Method.CARD.name()).build()));
         detailsRequest.setAmount(1000);
         Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, "");
         HttpHeaders headers = new HttpHeaders();
@@ -117,7 +118,7 @@ class PayCrownOrderCreationServiceTest {
         when(signatureService.getMD5Hash(anyString())).thenReturn(signature);
 
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(method.name()).build()));
         detailsRequest.setAmount(amount);
 
         HttpHeaders headers = new HttpHeaders();
@@ -138,7 +139,7 @@ class PayCrownOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(method.name()).build()));
         detailsRequest.setAmount(amount);
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

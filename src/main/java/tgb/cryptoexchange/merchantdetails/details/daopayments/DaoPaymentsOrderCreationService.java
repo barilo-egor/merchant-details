@@ -65,7 +65,7 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setMerchantOrderId(UUID.randomUUID().toString());
-        request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setRequisiteType(parseMethod(detailsRequest, Method.class));
         request.setAmount(detailsRequest.getAmount().toString());
         String callbackUrl = callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret="
                 + callbackConfig.getCallbackSecret();

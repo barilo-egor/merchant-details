@@ -51,9 +51,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return headers -> {
-            addHeaders(headers, parseMethod(detailsRequest.getMethod(), Method.class), body);
-        };
+        return headers -> addHeaders(headers, parseMethod(detailsRequest, Method.class), body);
     }
 
     private void addHeaders(HttpHeaders headers, Method method, String body) {
@@ -87,7 +85,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         request.setNotificationToken(bridgePayProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setPaymentOption(parseMethod(detailsRequest, Method.class));
         request.setStartDeal(true);
         return request;
     }

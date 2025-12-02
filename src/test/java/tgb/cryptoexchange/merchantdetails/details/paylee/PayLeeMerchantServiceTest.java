@@ -21,6 +21,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,7 +70,7 @@ class PayLeeMerchantServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(method.name()).build()));
 
         Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(

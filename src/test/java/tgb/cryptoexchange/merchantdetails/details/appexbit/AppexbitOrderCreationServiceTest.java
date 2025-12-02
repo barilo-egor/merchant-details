@@ -69,7 +69,7 @@ class AppexbitOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(method);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.APPEXBIT).method(method).build()));
         String expectedUrl = gatewayUrl + "/merchant-details/callback?merchant=APPEXBIT&secret=" + secret;
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

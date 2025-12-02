@@ -83,7 +83,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
         Request createOrderRequest = new Request();
         createOrderRequest.setCredentialRequire("yes");
         createOrderRequest.setAmount(detailsRequest.getAmount());
-        createOrderRequest.setCredentialType(parseMethod(detailsRequest.getMethod(), Method.class).getValue());
+        createOrderRequest.setCredentialType(parseMethod(detailsRequest, Method.class).getValue());
         createOrderRequest.setCustomNumber(UUID.randomUUID().toString());
         return createOrderRequest;
     }

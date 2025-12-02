@@ -58,7 +58,7 @@ public class AppexbitOrderCreationService extends MerchantOrderCreationService<R
                 + "&secret=" + callbackConfig.getCallbackSecret();
         request.setGoodReturnLink(callbackUrl);
         request.setBadReturnLink(callbackUrl);
-        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
         Request.FiatInfo fiatInfo = new Request.FiatInfo();
         request.setFiatInfo(fiatInfo);
         return request;

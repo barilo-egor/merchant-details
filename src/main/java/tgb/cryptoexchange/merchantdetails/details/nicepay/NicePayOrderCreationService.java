@@ -57,7 +57,7 @@ public class NicePayOrderCreationService extends MerchantOrderCreationService<Re
         request.setSecret(nicePayProperties.secret());
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(new BigDecimal(detailsRequest.getAmount()).multiply(new BigDecimal(100)).intValue());
-        Method nicePayMethod = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method nicePayMethod = parseMethod(detailsRequest, Method.class);
         request.setMethod(nicePayMethod);
         if (Method.SBP_RU.equals(nicePayMethod)) {
             request.setMethodSBP("onlyRU");

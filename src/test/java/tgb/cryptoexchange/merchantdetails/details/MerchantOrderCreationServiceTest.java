@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,8 @@ import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -170,6 +173,37 @@ class MerchantOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
     }
 
+    @Test
+    void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethods() {
+        DetailsRequest request = new DetailsRequest();
+        request.setMethods(new ArrayList<>());
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request, Method.class));
+    }
+
+    @Test
+    void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethodsOfPassedMerchant() {
+        DetailsRequest request = new DetailsRequest();
+        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method("method").build());
+        request.setMethods(methods);
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request, Method.class));
+    }
+
+    @ValueSource(strings = {"TO_CARD", "SBP", "CROSS_BORDER"})
+    @ParameterizedTest
+    void parseMethodShouldReturnMethod(String method) {
+        DetailsRequest request = new DetailsRequest();
+        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method("method").build());
+        request.setMethods(methods);
+        Method actual = service.parseMethod(request, Method.class);
+        assertEquals(method, actual.name());
+    }
+
     @EnumSource(Method.class)
     @ParameterizedTest
     void parseMethodShouldParseFromMethodName(Method method) {
@@ -207,7 +241,7 @@ class MerchantOrderCreationServiceTest {
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate().test(detailsRequest));

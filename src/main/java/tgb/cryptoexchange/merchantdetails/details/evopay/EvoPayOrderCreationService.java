@@ -35,15 +35,15 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     private final EvoPayProperties evoPayProperties;
 
-    private final WebClient webClient;
+    private final WebClient evoPayWebClient;
 
     private final SleepingService sleepingService;
 
-    protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient webClient,
+    protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient evoPayWebClient,
                                          EvoPayProperties evoPayProperties, SleepingService sleepingService) {
-        super(webClient, Response.class, VoidCallback.class);
+        super(evoPayWebClient, Response.class, VoidCallback.class);
         this.evoPayProperties = evoPayProperties;
-        this.webClient = webClient;
+        this.evoPayWebClient = evoPayWebClient;
         this.sleepingService = sleepingService;
     }
 
@@ -73,7 +73,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
             throw new ServiceUnavailableException("Error occurred while wait: " + currentTime);
         }
         String listOrderStringResponse = requestService.request(
-                webClient,
+                evoPayWebClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
                 this.headers(detailsRequest, body),
@@ -128,7 +128,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         Request request = new Request();
         request.setCustomId(UUID.randomUUID().toString());
         request.setFiatSum(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
         return request;
     }
 

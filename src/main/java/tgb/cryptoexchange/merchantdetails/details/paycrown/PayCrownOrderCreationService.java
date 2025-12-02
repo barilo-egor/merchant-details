@@ -64,7 +64,7 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
                 log.error("Ошибка парсинга тела запроса мерчанта {} : {}", getMerchant().name(), body);
                 throw new BodyMappingException("Ошибка парсинга тела запроса.");
             }
-            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest, Method.class);
             try {
                 String stringToSign = detailsRequest.getAmount() + unixTime + "rub"
                         + payCrownProperties.merchantId() + method.getValue() + payCrownProperties.secret();
@@ -84,7 +84,7 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantId(payCrownProperties.merchantId());
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         request.setMethod(method);
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
