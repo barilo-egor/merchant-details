@@ -112,7 +112,7 @@ storm-trade:
 settle-x:
   url: ""
   key: ""
-# Конфиг приложение
+# Конфиг приложения
 springdoc:
   swagger-ui:
     enabled: "true"
@@ -124,6 +124,11 @@ server:
 spring:
   kafka:
     bootstrap-servers:
+  datasource:
+    username: ""
+    password: ""
+    driver-class-name: ""
+    url: ""
 kafka:
   topic:
     merchant-details:
