@@ -36,7 +36,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 

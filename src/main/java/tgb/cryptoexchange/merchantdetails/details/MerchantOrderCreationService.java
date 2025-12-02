@@ -203,6 +203,13 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return s -> false;
     }
 
+    protected <E extends Enum<E>> E parseMethod(DetailsRequest detailsRequest, Class<E> methodType) {
+        String value = detailsRequest.getMethod(getMerchant()).orElseThrow(
+                () -> new MerchantMethodNotFoundException("Method for merchant " + getMerchant().name() + " not found.")
+        );
+        return parseMethod(value, methodType);
+    }
+
     protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "

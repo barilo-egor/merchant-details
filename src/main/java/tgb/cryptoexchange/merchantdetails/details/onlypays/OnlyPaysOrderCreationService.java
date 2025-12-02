@@ -50,7 +50,7 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setApiId(onlyPaysProperties.id());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         request.setMethod(method);
         if (Method.SIM.equals(method)) {
             request.setSim(true);

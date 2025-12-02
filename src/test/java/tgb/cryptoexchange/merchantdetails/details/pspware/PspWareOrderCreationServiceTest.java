@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -59,7 +60,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithTJKGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(Method.TRANSGRAN_PHONE.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Method.TRANSGRAN_PHONE.name()).build()));
 
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(1, actual.getGeos().size());
@@ -76,7 +77,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithRUAndABHGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(Method.SBP.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Method.SBP.name()).build()));
 
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(2, actual.getGeos().size());
@@ -91,7 +92,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithRUGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(Method.CARD.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Method.CARD.name()).build()));
 
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(1, actual.getGeos().size());

@@ -64,7 +64,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setFiatAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setMethod(parseMethod(detailsRequest, Method.class));
         request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
