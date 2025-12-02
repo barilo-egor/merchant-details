@@ -37,8 +37,8 @@ class LuckyPayOrderCreationServiceTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            method1,1000,53355,https://google.com,12515050,someKey1
-            method2,2000,12586,https://example.com,6423525253,some-key-2
+            method1,1000,53355,12515050,someKey1
+            method2,2000,12586,6423525253,some-key-2
             """)
     void keyFunctionShouldAlwaysReturnKey(String method, Integer amount, Long id, Long chatId, String key) {
         DetailsRequest detailsRequest = new DetailsRequest();
