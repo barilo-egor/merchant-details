@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -10,7 +11,6 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,12 +24,15 @@ public class MerchantDetailsService {
 
     private final MerchantConfigService merchantConfigService;
 
+    private final VariableService variableService;
+
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
                                   MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
-                                  MerchantConfigService merchantConfigService) {
+                                  MerchantConfigService merchantConfigService, VariableService variableService) {
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
         this.merchantConfigService = merchantConfigService;
+        this.variableService = variableService;
     }
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
@@ -70,8 +73,8 @@ public class MerchantDetailsService {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
-        int maxAttemptCount = getAttemptsCount(merchantConfigList);
-        for (int attemptNumber = 1; attemptNumber <= maxAttemptCount; attemptNumber++) {
+        int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
+        for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
             if (maybeDetailsResponse.isPresent()) break;
         }
@@ -85,21 +88,16 @@ public class MerchantDetailsService {
                                                     int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
-        while (maybeDetailsResponse.isEmpty() || index < merchantConfigList.size()) {
+        while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
             MerchantConfig merchantConfig = merchantConfigList.get(index);
             Merchant merchant = merchantConfig.getMerchant();
             try {
-                int merchantAttemptsCount = merchantConfig.getAttemptsCount();
-                if (merchantAttemptsCount < attemptNumber) {
-                    continue;
-                }
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
             }
-            sleepIfNeed(merchantConfig, attemptNumber);
             index++;
         }
         maybeDetailsResponse.ifPresent(detailsResponse ->
@@ -107,21 +105,5 @@ public class MerchantDetailsService {
                         request.getChatId(), detailsResponse.getMerchant().name(), detailsResponse)
         );
         return maybeDetailsResponse;
-    }
-
-    private void sleepIfNeed(MerchantConfig merchantConfig, int attemptNumber) {
-        try {
-            if (attemptNumber < merchantConfig.getAttemptsCount()) {
-                Thread.sleep(merchantConfig.getDelay() * 1000L);
-            }
-        } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private int getAttemptsCount(List<MerchantConfig> merchantConfigs) {
-        Optional<MerchantConfig> maxAttemptCountsConfig = merchantConfigs.stream()
-                .max(Comparator.comparing(MerchantConfig::getAttemptsCount));
-        return maxAttemptCountsConfig.isPresent() ? maxAttemptCountsConfig.get().getAttemptsCount() : 1;
     }
 }

@@ -36,6 +36,8 @@ public class MerchantConfig {
 
     private Integer maxAmount;
 
+    private Integer minAmount;
+
     @Column(unique = true, nullable = false)
     private Integer merchantOrder;
 
@@ -43,8 +45,6 @@ public class MerchantConfig {
     private List<AutoConfirmConfig> confirmConfigs;
 
     private Integer delay;
-
-    private Integer attemptsCount;
 
     private Long groupChatId;
 
