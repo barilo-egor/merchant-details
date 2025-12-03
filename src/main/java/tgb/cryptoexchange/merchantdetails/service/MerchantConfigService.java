@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,10 @@ public class MerchantConfigService {
 
     public MerchantConfigService(MerchantConfigRepository repository) {
         this.repository = repository;
+    }
+
+    @PostConstruct
+    public void init() {
         for (Merchant merchant : Merchant.values()) {
             Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
             if (merchantConfig.isEmpty()) {
@@ -62,7 +67,7 @@ public class MerchantConfigService {
     }
 
     private MerchantConfig create(Merchant merchant) {
-        Integer maxValue = repository.finMaxMerchantOrder();
+        Integer maxValue = repository.findMaxMerchantOrder();
         return repository.save(
                 MerchantConfig.builder()
                         .isOn(false)
@@ -84,7 +89,7 @@ public class MerchantConfigService {
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + " not found")
         );
         int currentOrder = config.getMerchantOrder();
-        int maxOrder = repository.finMaxMerchantOrder();
+        int maxOrder = repository.findMaxMerchantOrder();
 
         if ((isUp && currentOrder == 1) || (!isUp && currentOrder == maxOrder)) {
             return;
@@ -114,7 +119,10 @@ public class MerchantConfigService {
     }
 
     public List<MerchantConfig> findAllByIsOn(boolean isOn) {
-        return repository.findBy(Example.of(MerchantConfig.builder().isOn(isOn).build()), FluentQuery.FetchableFluentQuery::all);
+        return repository.findBy(Example.of(
+                MerchantConfig.builder().isOn(isOn).build()),
+                FluentQuery.FetchableFluentQuery::all
+        );
     }
 
     public MerchantConfig save(MerchantConfig config) {

@@ -15,7 +15,7 @@ public interface MerchantConfigRepository extends JpaRepository<MerchantConfig, 
     List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn);
 
     @Query("select max(merchantOrder) from MerchantConfig")
-    Integer finMaxMerchantOrder();
+    Integer findMaxMerchantOrder();
 
     MerchantConfig findByMerchantOrder(Integer merchantOrder);
 
