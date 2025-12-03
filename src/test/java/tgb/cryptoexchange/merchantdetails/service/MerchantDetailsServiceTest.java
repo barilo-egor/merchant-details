@@ -9,14 +9,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
+import tgb.cryptoexchange.merchantdetails.entity.Variable;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +32,12 @@ class MerchantDetailsServiceTest {
 
     @Mock
     private MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
+
+    @Mock
+    private MerchantConfigService merchantConfigService;
+
+    @Mock
+    private VariableService variableService;
 
     @InjectMocks
     private MerchantDetailsService merchantDetailsService;
@@ -96,5 +106,17 @@ class MerchantDetailsServiceTest {
         cancelOrderRequest.setMethod(method);
         merchantDetailsService.cancelOrder(merchant, cancelOrderRequest);
         verify(merchantService).cancelOrder(cancelOrderRequest);
+    }
+
+    @Test
+    void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
+        Variable variable = new Variable();
+        variable.setValue("3");
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setMethods(new ArrayList<>());
+        detailsRequest.setAmount(1000);
+        assertTrue(merchantDetailsService.getDetails(detailsRequest).isEmpty());
     }
 }
