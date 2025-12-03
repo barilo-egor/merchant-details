@@ -56,11 +56,8 @@ public class MerchantConfigService {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
-                .filter(config -> amount <= config.getMaxAmount())
-                .filter(config -> {
-                    DetailsRequest.MerchantMethod method = sortedMerchantMethods.get(config.getMerchant());
-                    return sortedMerchantMethods.containsKey(config.getMerchant());
-                })
+                .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
+                .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
                 .toList();
     }
 
@@ -72,8 +69,6 @@ public class MerchantConfigService {
                         .merchant(merchant)
                         .isAutoWithdrawalOn(false)
                         .maxAmount(5000)
-                        .delay(3)
-                        .attemptsCount(5)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
                         .build()
         );
