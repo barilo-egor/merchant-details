@@ -4,15 +4,18 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
 
 @Service
 public class MerchantConfigService {
@@ -47,6 +50,18 @@ public class MerchantConfigService {
 
     public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
         return repository.findAllByIsOnOrderByMerchantOrder(isOn);
+    }
+
+    public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
+        Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
+                .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
+        return findAllByIsOnOrderByMerchantOrder(true).stream()
+                .filter(config -> amount <= config.getMaxAmount())
+                .filter(config -> {
+                    DetailsRequest.MerchantMethod method = sortedMerchantMethods.get(config.getMerchant());
+                    return sortedMerchantMethods.containsKey(config.getMerchant());
+                })
+                .toList();
     }
 
     private MerchantConfig create(Merchant merchant) {

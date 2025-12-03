@@ -10,9 +10,9 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -66,60 +66,62 @@ public class MerchantDetailsService {
         }
     }
 
-    public Optional<DetailsResponse> getRequisites(DetailsRequest request) {
+    public Optional<DetailsResponse> getDetails(DetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
-        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByIsOnOrderByMerchantOrder(true).stream()
-                .filter(config -> request.getAmount() <= config.getMaxAmount())
-                .filter(config -> {
-                    Optional<String> method = request.getMethod(config.getMerchant());
-                    return method.isPresent();
-                })
-                .toList();
-        int maxAttemptCount = 5;
-        for (MerchantConfig merchantConfig : merchantConfigList) {
-            if (merchantConfig.getAttemptsCount() > maxAttemptCount) {
-                maxAttemptCount = merchantConfig.getAttemptsCount();
-            }
-        }
-        List<Merchant> merchantList = merchantConfigList.stream().map(MerchantConfig::getMerchant).toList();
-        log.debug("Список мерчантов для сделки {}: {}", request.getId(),
-                merchantList.stream().map(Merchant::name).collect(Collectors.joining(", ")));
-        for (int i = 0; i < maxAttemptCount; i++) {
-            for (MerchantConfig merchantConfig : merchantConfigList) {
-                Merchant merchant = merchantConfig.getMerchant();
-                try {
-                    int merchantAttemptsCount = merchantConfig.getAttemptsCount();
-                    if (merchantAttemptsCount < i + 1) {
-                        continue;
-                    }
-                    log.debug("Попытка №{} мерчанта {} для сделки {}.", i + 1, merchant.name(), request.getId());
-                    maybeDetailsResponse = getDetails(merchant, request);
-                    if (maybeDetailsResponse.isPresent()) {
-                        log.debug("Реквизиты для пользователя {} получены. Мерчант={}, реквизиты={}.",
-                                request.getChatId(), merchant.name(), maybeDetailsResponse.get());
-                        break;
-                    } else {
-                        log.debug("Реквизиты для сделки {} мерчанта {} с попытки №{} не получены.",
-                                request, merchant.name(), i + 1);
-                    }
-                } catch (Exception e) {
-                    log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} c попытки №{}: {}",
-                            merchant.name(), request.getId(), i + 1, e.getMessage(), e);
-                }
-                try {
-                    if (i < merchantConfig.getAttemptsCount() - 1) {
-                        Thread.sleep(merchantConfig.getDelay() * 1000L);
-                    }
-                } catch (InterruptedException ignored) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
+        int maxAttemptCount = getAttemptsCount(merchantConfigList);
+        for (int attemptNumber = 1; attemptNumber <= maxAttemptCount; attemptNumber++) {
+            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
             if (maybeDetailsResponse.isPresent()) break;
         }
         if (maybeDetailsResponse.isEmpty()) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
         return maybeDetailsResponse;
+    }
+
+    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest request,
+                                                    int attemptNumber) {
+        Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
+        int index = 0;
+        while (maybeDetailsResponse.isEmpty() || index < merchantConfigList.size()) {
+            MerchantConfig merchantConfig = merchantConfigList.get(index);
+            Merchant merchant = merchantConfig.getMerchant();
+            try {
+                int merchantAttemptsCount = merchantConfig.getAttemptsCount();
+                if (merchantAttemptsCount < attemptNumber) {
+                    continue;
+                }
+                log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
+                maybeDetailsResponse = getDetails(merchant, request);
+            } catch (Exception e) {
+                log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
+                        merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
+            }
+            sleepIfNeed(merchantConfig, attemptNumber);
+            index++;
+        }
+        maybeDetailsResponse.ifPresent(detailsResponse ->
+                log.debug("Реквизиты для пользователя {} получены. Мерчант={}, реквизиты={}.",
+                        request.getChatId(), detailsResponse.getMerchant().name(), detailsResponse)
+        );
+        return maybeDetailsResponse;
+    }
+
+    private void sleepIfNeed(MerchantConfig merchantConfig, int attemptNumber) {
+        try {
+            if (attemptNumber < merchantConfig.getAttemptsCount()) {
+                Thread.sleep(merchantConfig.getDelay() * 1000L);
+            }
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private int getAttemptsCount(List<MerchantConfig> merchantConfigs) {
+        Optional<MerchantConfig> maxAttemptCountsConfig = merchantConfigs.stream()
+                .max(Comparator.comparing(MerchantConfig::getAttemptsCount));
+        return maxAttemptCountsConfig.isPresent() ? maxAttemptCountsConfig.get().getAttemptsCount() : 1;
     }
 }
