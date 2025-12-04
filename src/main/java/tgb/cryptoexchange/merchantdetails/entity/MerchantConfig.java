@@ -5,13 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tgb.cryptoexchange.enums.CryptoCurrency;
-import tgb.cryptoexchange.enums.DeliveryType;
-import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.util.List;
-import java.util.Optional;
 
 @Entity
 @Data
@@ -44,22 +40,5 @@ public class MerchantConfig {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<AutoConfirmConfig> confirmConfigs;
 
-    private Integer delay;
-
     private Long groupChatId;
-
-    public Optional<AutoConfirmConfig> getAutoConfirmConfig(CryptoCurrency cryptoCurrency, DeliveryType deliveryType) {
-        return confirmConfigs.stream()
-                .filter(conf -> cryptoCurrency.equals(conf.getCryptoCurrency())
-                        && deliveryType.equals(conf.getDeliveryType()))
-                .findFirst();
-    }
-
-    public Optional<AutoConfirmConfig> getAutoConfirmConfig(CryptoCurrency cryptoCurrency, DeliveryType deliveryType, AutoConfirmType autoConfirmType) {
-        return confirmConfigs.stream()
-                .filter(conf -> cryptoCurrency.equals(conf.getCryptoCurrency())
-                        && deliveryType.equals(conf.getDeliveryType())
-                && autoConfirmType.equals(conf.getAutoConfirmType()))
-                .findFirst();
-    }
 }

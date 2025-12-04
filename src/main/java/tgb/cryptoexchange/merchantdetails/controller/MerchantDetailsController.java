@@ -3,6 +3,9 @@ package tgb.cryptoexchange.merchantdetails.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,8 +13,12 @@ import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigResponse;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
+import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.web.ApiResponse;
 
@@ -25,10 +32,14 @@ public class MerchantDetailsController extends ApiController {
 
     private final MerchantDetailsService merchantDetailsService;
 
+    private final MerchantConfigService merchantConfigService;
+
     public MerchantDetailsController(MerchantPropertiesService merchantPropertiesService,
-                                     MerchantDetailsService merchantDetailsService) {
+                                     MerchantDetailsService merchantDetailsService,
+                                     MerchantConfigService merchantConfigService) {
         this.merchantPropertiesService = merchantPropertiesService;
         this.merchantDetailsService = merchantDetailsService;
+        this.merchantConfigService = merchantConfigService;
     }
 
     @Operation(summary = "Получение списка пропертей мерчанта.")
@@ -70,5 +81,14 @@ public class MerchantDetailsController extends ApiController {
     @ResponseStatus(HttpStatus.OK)
     public void cancel(@PathVariable Merchant merchant, @ModelAttribute CancelOrderRequest cancelOrderRequest) {
         merchantDetailsService.cancelOrder(merchant, cancelOrderRequest);
+    }
+
+    @GetMapping("/config")
+    public ResponseEntity<MerchantConfigResponse> config(@PageableDefault(size = 20) Pageable pageable,
+                                                         @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
+        Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, merchantConfigRequest);
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(page.getTotalElements()))
+                .body(new MerchantConfigResponse(page.getContent()));
     }
 }
