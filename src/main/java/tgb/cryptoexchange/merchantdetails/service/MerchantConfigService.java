@@ -1,11 +1,16 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
@@ -45,12 +50,13 @@ public class MerchantConfigService {
         return repository.findBy(Example.of(MerchantConfig.builder().merchantOrder(order).build()), FluentQuery.FetchableFluentQuery::one);
     }
 
-    public List<MerchantConfig> findAll() {
-        return repository.findAll();
-    }
-
-    public List<MerchantConfig> findAllSortedByMerchantOrder() {
-        return repository.findAllByOrderByMerchantOrder();
+    public Page<MerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
+        return repository.findAll(
+                ((root, query, criteriaBuilder) -> criteriaBuilder.and(
+                        request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
+                )),
+                pageable
+        ).map(MerchantConfigDTO::fromEntity);
     }
 
     public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
@@ -66,9 +72,9 @@ public class MerchantConfigService {
                 .toList();
     }
 
-    private MerchantConfig create(Merchant merchant) {
+    private void create(Merchant merchant) {
         Integer maxValue = repository.findMaxMerchantOrder();
-        return repository.save(
+        repository.save(
                 MerchantConfig.builder()
                         .isOn(false)
                         .merchant(merchant)
