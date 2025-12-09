@@ -42,6 +42,20 @@ public class MerchantConfigService {
         }
     }
 
+    private void create(Merchant merchant) {
+        Integer maxValue = repository.findMaxMerchantOrder();
+        repository.save(
+                MerchantConfig.builder()
+                        .isOn(false)
+                        .merchant(merchant)
+                        .isAutoWithdrawalOn(false)
+                        .maxAmount(5000)
+                        .minAmount(1)
+                        .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
+                        .build()
+        );
+    }
+
     public Optional<MerchantConfig> getMerchantConfig(Merchant merchant) {
         return repository.findBy(Example.of(MerchantConfig.builder().merchant(merchant).build()), FluentQuery.FetchableFluentQuery::one);
     }
@@ -70,19 +84,6 @@ public class MerchantConfigService {
                 .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
                 .toList();
-    }
-
-    private void create(Merchant merchant) {
-        Integer maxValue = repository.findMaxMerchantOrder();
-        repository.save(
-                MerchantConfig.builder()
-                        .isOn(false)
-                        .merchant(merchant)
-                        .isAutoWithdrawalOn(false)
-                        .maxAmount(5000)
-                        .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
-                        .build()
-        );
     }
 
     public void delete(MerchantConfig config) {
