@@ -57,11 +57,17 @@ public class MerchantConfigService {
     }
 
     public Optional<MerchantConfig> getMerchantConfig(Merchant merchant) {
-        return repository.findBy(Example.of(MerchantConfig.builder().merchant(merchant).build()), FluentQuery.FetchableFluentQuery::one);
+        return repository.findBy(
+                Example.of(MerchantConfig.builder().merchant(merchant).build()),
+                FluentQuery.FetchableFluentQuery::one
+        );
     }
 
     public Optional<MerchantConfig> getByMerchantOrder(Integer order) {
-        return repository.findBy(Example.of(MerchantConfig.builder().merchantOrder(order).build()), FluentQuery.FetchableFluentQuery::one);
+        return repository.findBy(
+                Example.of(MerchantConfig.builder().merchantOrder(order).build()),
+                FluentQuery.FetchableFluentQuery::one
+        );
     }
 
     public Page<MerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
@@ -81,8 +87,8 @@ public class MerchantConfigService {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
-                .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
+                .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .toList();
     }
 
