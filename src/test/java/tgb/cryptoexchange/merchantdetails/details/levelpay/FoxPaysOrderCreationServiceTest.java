@@ -112,7 +112,6 @@ class FoxPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
         detailsRequest.setMethod(Method.ALFA_ALFA.name());
-        detailsRequest.setCallbackUrl("callbackUrl");
         when(foxPaysProperties.merchantId()).thenReturn("merchantId");
 
         Request request = foxPaysOrderCreationService.body(detailsRequest);

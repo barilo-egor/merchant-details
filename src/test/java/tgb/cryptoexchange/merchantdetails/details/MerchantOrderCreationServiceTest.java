@@ -202,15 +202,14 @@ class MerchantOrderCreationServiceTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            method1,1000,53355,https://google.com,12515050
-            method2,2000,12586,https://example.com,642352525
+            method1,1000,53355
+            method2,2000,12586
             """)
-    void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id, String callbackUrl) {
+    void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethod(method);
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
-        detailsRequest.setCallbackUrl(callbackUrl);
         assertTrue(service.isValidRequestPredicate().test(detailsRequest));
     }
 
