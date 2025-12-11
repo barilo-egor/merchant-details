@@ -14,6 +14,7 @@ public class Request {
 
     private String orderId;
 
+    @JsonProperty("methodId")
     private String method;
 
     @JsonProperty("expired_at")
