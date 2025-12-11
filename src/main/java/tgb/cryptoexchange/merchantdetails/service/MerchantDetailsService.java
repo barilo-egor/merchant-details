@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -12,6 +13,7 @@ import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,7 +29,7 @@ public class MerchantDetailsService {
     private final VariableService variableService;
 
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
-                                  MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
+                                  @Autowired(required = false) MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
                                   MerchantConfigService merchantConfigService, VariableService variableService) {
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
@@ -39,9 +41,11 @@ public class MerchantDetailsService {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isPresent()) {
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
-            maybeDetailsResponse.ifPresent(
-                    detailsResponse -> merchantDetailsReceiveEventProducer.put(merchant, request, detailsResponse)
-            );
+            if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
+                maybeDetailsResponse.ifPresent(
+                        detailsResponse -> merchantDetailsReceiveEventProducer.put(merchant, request, detailsResponse)
+                );
+            }
             return maybeDetailsResponse;
         }
         log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
