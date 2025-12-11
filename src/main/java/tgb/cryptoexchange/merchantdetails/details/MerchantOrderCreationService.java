@@ -119,7 +119,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     private void logNoDetails(Long id) {
-        log.debug("Реквизиты для запроса id={} найдены не были.", id);
+        log.debug("Реквизиты для запроса id={} у мерчанта {} получены не были.", id, getMerchant().name());
     }
 
     private String mapBody(DetailsRequest detailsRequest) {
