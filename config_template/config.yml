@@ -132,7 +132,12 @@ spring:
     password: ""
     driver-class-name: ""
     url: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
 kafka:
   topic:
     merchant-details:
       receive: ""
+callback-secret: ""
+gateway-url: ""

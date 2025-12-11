@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,6 +20,7 @@ import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -47,13 +48,17 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     protected KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
 
-    @Value("${kafka.topic.merchant-details.callback}")
-    String callbackTopicName;
+    private Environment environment;
 
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType, Class<P> callbackType) {
         this.webClient = webClient;
         this.responseType = responseType;
         this.callbackType = callbackType;
+    }
+
+    @Autowired
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     @Autowired
@@ -66,7 +71,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         this.objectMapper = objectMapper;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setCallbackKafkaTemplate(@Qualifier("callbackKafkaTemplate") KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate) {
         this.callbackKafkaTemplate = callbackKafkaTemplate;
     }
@@ -246,13 +251,18 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         merchantCallbackEvent.setStatus(maybeStatus.get());
         merchantCallbackEvent.setStatusDescription(maybeStatusDescription.get());
         merchantCallbackEvent.setMerchant(getMerchant());
-        try {
-            callbackKafkaTemplate.send(callbackTopicName, UUID.randomUUID().toString(), merchantCallbackEvent);
-        } catch (Exception e) {
-            long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при попытке обновления статуса мерчанта {}. Callback объект={}, оригинальное тело={}. Message={}.",
-                    currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
-            throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
+        if (Objects.nonNull(callbackKafkaTemplate)) {
+            try {
+                callbackKafkaTemplate.send(
+                        environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
+                        UUID.randomUUID().toString(), merchantCallbackEvent
+                );
+            } catch (Exception e) {
+                long currentTime = System.currentTimeMillis();
+                log.error("{} Ошибка при попытке обновления статуса мерчанта {}. Callback объект={}, оригинальное тело={}. Message={}.",
+                        currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
+                throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
+            }
         }
     }
 
