@@ -23,6 +23,7 @@ public class MerchantConfig {
     private Boolean isOn;
 
     @Column(unique = true, nullable = false)
+    @Enumerated(EnumType.STRING)
     private Merchant merchant;
 
     private Boolean isAutoWithdrawalOn;
