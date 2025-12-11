@@ -64,19 +64,30 @@ class SettleXOrderCreationServiceTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            5660,SBP,https://gateway.paysendmmm.online/merchant/settleX,3UMKcCFZQeFE5uk
-            12504,C2C,https://gateway.paysendmmm.online/merchant/settleX,O9GFCTfz8wf7o2Q
+            5660,SBP,https://gateway.paysendmmm.online/merchant/settleX,3UMKcCFZQeFE5uk,cmhhrccre0shany01q8oah3cd,cmhhrcwo40szlny01q71c4djw
+            12504,C2C,https://gateway.paysendmmm.online/merchant/settleX,O9GFCTfz8wf7o2Q,cmhhrccre0shany01q8oah3cd,cmhhrcwo40szlny01q71c4djw
             """)
-    void body(Integer amount, Method method, String gatewayUrl, String secret) {
+    void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        if (Method.SBP.equals(method)) {
+            when(settleXProperties.sbpId()).thenReturn(sbpId);
+        } else {
+            when(settleXProperties.c2cId()).thenReturn(c2cId);
+        }
         Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
-                () -> assertEquals(method, actual.getMethod()),
+                () -> {
+                    if (Method.SBP.equals(method)) {
+                        assertEquals(sbpId, actual.getMethod());
+                    } else {
+                        assertEquals(c2cId, actual.getMethod());
+                    }
+                },
                 () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=SETTLE_X&secret="
                         + secret, actual.getCallbackUri()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getOrderId())),

@@ -108,14 +108,13 @@ class EvoPayOrderCreationServiceTest {
     }
 
     @CsvSource({
-            "2100,https://gateway.paysendmmm.online/merchant/evopay,BANK_CARD",
-            "2100,https://someaddress.online/merchant/evopay,SBP"
+            "2100,BANK_CARD",
+            "2100,SBP"
     })
     @ParameterizedTest
-    void bodyShouldReturnMappedBody(Integer amount, String callbackUrl, String method) {
+    void bodyShouldReturnMappedBody(Integer amount, String method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCallbackUrl(callbackUrl);
         detailsRequest.setMethod(method);
         Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
