@@ -77,6 +77,14 @@ public class MerchantDetailsController extends ApiController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<DetailsResponse>> details(@Valid @ModelAttribute DetailsRequest request) {
+        Optional<DetailsResponse> maybeRequisiteResponse = merchantDetailsService.getDetails(request);
+        return maybeRequisiteResponse
+                .map(requisiteResponse -> new ResponseEntity<>(ApiResponse.success(requisiteResponse), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
     @PatchMapping("/{merchant}")
     @ResponseStatus(HttpStatus.OK)
     public void cancel(@PathVariable Merchant merchant, @ModelAttribute CancelOrderRequest cancelOrderRequest) {
