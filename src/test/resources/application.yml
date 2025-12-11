@@ -99,6 +99,8 @@ storm-trade:
 settle-x:
   url: "settle-x-url"
   key: "settle-x-key"
+  sbp-id: "settle-sbp-id"
+  c2c-id: "settle-c2c-id"
 #Конфиг приложения
 server:
   servlet:
