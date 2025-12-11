@@ -113,6 +113,9 @@ settle-x:
   url: ""
   key: ""
 # Конфиг приложения
+  sbp-id: ""
+  c2c-id: ""
+# Конфиг приложение
 springdoc:
   swagger-ui:
     enabled: "true"

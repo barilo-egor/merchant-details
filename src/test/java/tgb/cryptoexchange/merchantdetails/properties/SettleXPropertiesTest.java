@@ -17,7 +17,9 @@ class SettleXPropertiesTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("settle-x-url", settleXProperties.url()),
-                () -> assertEquals("settle-x-key", settleXProperties.key())
+                () -> assertEquals("settle-x-key", settleXProperties.key()),
+                () -> assertEquals("settle-sbp-id", settleXProperties.sbpId()),
+                () -> assertEquals("settle-c2c-id", settleXProperties.c2cId())
         );
     }
 }

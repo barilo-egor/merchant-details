@@ -55,7 +55,12 @@ public class SettleXOrderCreationService extends MerchantOrderCreationService<Re
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest, Method.class));
+        Method method = parseMethod(detailsRequest, Method.class);
+        if (Method.SBP.equals(method)) {
+            request.setMethod(settleXProperties.sbpId());
+        } else {
+            request.setMethod(settleXProperties.c2cId());
+        }
         request.setExpiredAt(LocalDateTime.now().plusMinutes(15));
         request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
