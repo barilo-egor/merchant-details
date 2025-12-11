@@ -18,6 +18,8 @@ public class DetailsRequest {
 
     private Long id;
 
+    private String method;
+
     @NotNull
     @Min(1)
     private Integer amount;
@@ -29,9 +31,9 @@ public class DetailsRequest {
     private List<MerchantMethod> methods;
 
     public Optional<String> getMethod(Merchant merchant) {
-        for (MerchantMethod method : methods) {
-            if (method.getMerchant().equals(merchant)) {
-                return Optional.of(method.getMethod());
+        for (MerchantMethod merchantMethod : methods) {
+            if (merchantMethod.getMerchant().equals(merchant)) {
+                return Optional.of(merchantMethod.getMethod());
             }
         }
         return Optional.empty();
