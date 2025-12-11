@@ -15,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProdu
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -77,9 +78,24 @@ public class MerchantDetailsService {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
+        log.debug("Найденные мерчанты для запроса по сделке {}: {}", request.getId(),
+                merchantConfigList.stream()
+                        .map(merchantConfig -> merchantConfig.getMerchant().name())
+                        .collect(Collectors.joining(","))
+        );
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
+            long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
+            long t2 = System.currentTimeMillis();
+            long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
+            if (attemptNumber < attemptsCount && leftTime > 0) {
+                try {
+                    Thread.sleep(leftTime);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             if (maybeDetailsResponse.isPresent()) break;
         }
         if (maybeDetailsResponse.isEmpty()) {
