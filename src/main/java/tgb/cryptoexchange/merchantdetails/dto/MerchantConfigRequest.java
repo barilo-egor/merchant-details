@@ -4,6 +4,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 
 import java.util.ArrayList;
@@ -13,9 +14,9 @@ import java.util.Objects;
 @Data
 public class MerchantConfigRequest {
 
-    private Integer merchantOrder;
+    private Merchant merchant;
 
-    private Boolean isOn;
+    private Integer merchantOrder;
 
     private String sort;
 
@@ -24,10 +25,9 @@ public class MerchantConfigRequest {
         if (Objects.nonNull(merchantOrder)) {
             predicates.add(cb.equal(root.get("merchantOrder"), merchantOrder));
         }
-        if (isOn != null) {
-            predicates.add(cb.equal(root.get("isOn"), isOn));
+        if (Objects.nonNull(merchant)) {
+            predicates.add(cb.equal(root.get("merchant"), merchant));
         }
-
         return predicates;
     }
 }
