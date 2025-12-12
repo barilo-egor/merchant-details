@@ -19,6 +19,7 @@ import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
@@ -29,8 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -232,5 +232,25 @@ class MerchantDetailsControllerTest {
                 .andExpect(jsonPath("data[0]").exists())
                 .andExpect(jsonPath("data[1]").exists())
                 .andExpect(jsonPath("data[2]").doesNotExist());
+    }
+
+    @Test
+    void updateConfigShouldCallServiceUpdateMethod() throws Exception {
+        mockMvc.perform(patch("/merchant-details/config")
+                        .header("Content-Type", "application/json")
+                        .content("""
+                                {
+                                    "id": 25552,
+                                    "isOn": true
+                                }
+                                """))
+                .andExpect(status().isOk());
+        ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
+        verify(merchantConfigService).update(dtoCaptor.capture());
+        var actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertEquals(25552, actual.getId()),
+                () -> assertTrue(actual.getIsOn())
+        );
     }
 }
