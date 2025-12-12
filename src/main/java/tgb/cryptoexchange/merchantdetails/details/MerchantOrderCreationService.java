@@ -230,8 +230,8 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeMerchantOrderId.isEmpty() || maybeStatus.isEmpty() || maybeStatusDescription.isEmpty()) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Невалидный объект callback мерчанта {}: id is present {}, status is present {}, " +
-                    "status description is present {}, body {}", currentTime, maybeMerchantOrderId.isPresent(),
-                    maybeStatus.isPresent(), maybeStatusDescription.isPresent(), getMerchant().name(), callbackBody);
+                    "status description is present {}, body {}", currentTime, getMerchant().name(), maybeMerchantOrderId.isPresent(),
+                    maybeStatus.isPresent(), maybeStatusDescription.isPresent(), callbackBody);
             throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
         }
         MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();

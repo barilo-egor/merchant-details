@@ -50,6 +50,7 @@ public class MerchantCallbackController extends ApiController {
         }
         if (Merchant.PAY_LEE.equals(merchant)) {
             try {
+                log.debug("Callback мерчанта PAY_LEE до дешифровки: {}", callbackBody);
                 callbackBody = cryptoService.decrypt(payLeeProperties.secret(), callbackBody);
             } catch (GeneralSecurityException e) {
                 log.error("Ошибка преобразования токена PayLee: {} ", e.getMessage(), e);
