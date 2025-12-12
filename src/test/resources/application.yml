@@ -101,6 +101,10 @@ settle-x:
   key: "settle-x-key"
   sbp-id: "settle-sbp-id"
   c2c-id: "settle-c2c-id"
+aurora-pay:
+  url: "aurora-url"
+  token: "aurora-token"
+  merchant-id: "aurora-merchant-id"
 #Конфиг приложения
 server:
   servlet:
