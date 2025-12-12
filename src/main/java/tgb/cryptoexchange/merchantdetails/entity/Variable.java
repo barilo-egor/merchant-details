@@ -1,7 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 
 /**
@@ -9,6 +12,9 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
  */
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Variable {
 
     @Id

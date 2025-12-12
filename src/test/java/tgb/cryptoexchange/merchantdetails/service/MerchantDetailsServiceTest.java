@@ -43,6 +43,9 @@ class MerchantDetailsServiceTest {
     @Mock
     private VariableService variableService;
 
+    @Mock
+    private SleepService sleepService;
+
     @InjectMocks
     private MerchantDetailsService merchantDetailsService;
 
@@ -115,9 +118,10 @@ class MerchantDetailsServiceTest {
     @Test
     void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
-        Variable variable = new Variable();
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(new ArrayList<>());
         detailsRequest.setAmount(1000);
@@ -138,10 +142,10 @@ class MerchantDetailsServiceTest {
                 .build()
         );
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
@@ -164,10 +168,10 @@ class MerchantDetailsServiceTest {
                 .build()
         );
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
@@ -200,10 +204,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
@@ -235,10 +239,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
         when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
@@ -284,10 +288,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
         when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
@@ -326,10 +330,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("3");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
         String expectedId = UUID.randomUUID().toString();
@@ -377,10 +381,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue(times.toString());
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value(String.valueOf(times)).build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
         when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
@@ -423,10 +427,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("5");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
         String expectedId = UUID.randomUUID().toString();
@@ -477,10 +481,10 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        Variable variable = new Variable();
-        variable.setType(VariableType.ATTEMPTS_COUNT);
-        variable.setValue("5");
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(variable);
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
         String expectedId = UUID.randomUUID().toString();

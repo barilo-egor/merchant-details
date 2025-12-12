@@ -307,6 +307,7 @@ class MerchantOrderCreationServiceTest {
     @Test
     void updateStatusShouldThrowServiceUnavailableExceptionIfExceptionWasThrownWhileSendMessageToTopic() throws JsonProcessingException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
