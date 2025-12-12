@@ -29,13 +29,17 @@ public class MerchantDetailsService {
 
     private final VariableService variableService;
 
+    private final SleepService sleepService;
+
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
                                   @Autowired(required = false) MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
-                                  MerchantConfigService merchantConfigService, VariableService variableService) {
+                                  MerchantConfigService merchantConfigService, VariableService variableService,
+                                  SleepService sleepService) {
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
+        this.sleepService = sleepService;
     }
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
@@ -90,11 +94,7 @@ public class MerchantDetailsService {
             long t2 = System.currentTimeMillis();
             long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
             if (attemptNumber < attemptsCount && leftTime > 0) {
-                try {
-                    Thread.sleep(leftTime);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+                sleepService.sleep(leftTime);
             }
             if (maybeDetailsResponse.isPresent()) break;
         }
