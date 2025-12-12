@@ -138,4 +138,9 @@ public class WebClientsConfig {
     public WebClient settleXWebClient(SettleXProperties settleXProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(settleXProperties.url()).build();
     }
+
+    @Bean
+    public WebClient auroraWebClient(AuroraPayProperties auroraPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(auroraPayProperties.url()).build();
+    }
 }

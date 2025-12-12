@@ -27,5 +27,6 @@ public enum Merchant {
     ROSTRAST,
     FOX_PAYS,
     STORM_TRADE,
-    SETTLE_X
+    SETTLE_X,
+    AURORA_PAY
 }
