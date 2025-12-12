@@ -1,7 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
 @Data
 public class DetailsResponse {

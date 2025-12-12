@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
 import java.util.List;
 import java.util.Optional;

@@ -5,12 +5,13 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
-public enum Method {
+public enum Method implements MerchantMethod {
     SBP("2ec6dbd6-49a5-45d0-bd6d-b0134ee4639a", "СБП"),
     BANK_CARD("8fe3669a-a448-4053-bc4b-43bb51cb3e9d", "Карта"),
     TRANS_SBP("c154be74-5e4e-4edb-85c2-d2aa175165f5", "Трансгран СБП"),

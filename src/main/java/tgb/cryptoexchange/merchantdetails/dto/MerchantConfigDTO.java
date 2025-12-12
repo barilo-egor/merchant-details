@@ -1,8 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
 import lombok.Data;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 
 import java.util.List;
 
@@ -15,7 +18,11 @@ public class MerchantConfigDTO {
 
     private Boolean isAutoWithdrawalOn;
 
-    private List<MerchantSuccessStatusDTO> successStatuses;
+    private List<MerchantOrderStatus> statuses;
+
+    private List<String> successStatuses;
+
+    private List<MerchantMethod> methods;
 
     private Integer maxAmount;
 
@@ -32,9 +39,9 @@ public class MerchantConfigDTO {
         merchantConfigDTO.setIsOn(merchantConfig.getIsOn());
         merchantConfigDTO.setMerchant(merchantConfig.getMerchant());
         merchantConfigDTO.setIsAutoWithdrawalOn(merchantConfig.getIsAutoWithdrawalOn());
-        merchantConfigDTO.setSuccessStatuses(
-                merchantConfig.getSuccessStatuses().stream().map(MerchantSuccessStatusDTO::fromEntity).toList()
-        );
+        merchantConfigDTO.setStatuses(merchantConfig.getMerchant().getStatuses());
+        merchantConfigDTO.setSuccessStatuses(merchantConfig.getSuccessStatuses().stream().map(MerchantSuccessStatus::getStatus).toList());
+        merchantConfigDTO.setMethods(merchantConfig.getMerchant().getMethods());
         merchantConfigDTO.setMaxAmount(merchantConfig.getMaxAmount());
         merchantConfigDTO.setMinAmount(merchantConfig.getMinAmount());
         merchantConfigDTO.setMerchantOrder(merchantConfig.getMerchantOrder());

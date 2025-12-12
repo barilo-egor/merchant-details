@@ -1,6 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
 import java.util.Optional;
 
