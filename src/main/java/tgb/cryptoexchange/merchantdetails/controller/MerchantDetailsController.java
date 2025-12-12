@@ -101,7 +101,6 @@ public class MerchantDetailsController extends ApiController {
                 .body(new MerchantConfigResponse(page.getContent()));
     }
 
-
     @PatchMapping("/config")
     @ResponseStatus(HttpStatus.OK)
     public void updateConfig(@RequestBody UpdateMerchantConfigDTO dto) {
