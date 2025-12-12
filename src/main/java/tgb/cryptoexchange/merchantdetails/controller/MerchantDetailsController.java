@@ -106,4 +106,10 @@ public class MerchantDetailsController extends ApiController {
     public void updateConfig(@RequestBody UpdateMerchantConfigDTO dto) {
         merchantConfigService.update(dto);
     }
+
+    @PatchMapping("/config/order")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateOrder(@RequestParam Merchant merchant, @RequestParam Boolean isUp) {
+        merchantConfigService.changeOrder(merchant, isUp);
+    }
 }

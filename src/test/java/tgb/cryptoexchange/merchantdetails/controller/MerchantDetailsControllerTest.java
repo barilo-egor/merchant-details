@@ -209,10 +209,10 @@ class MerchantDetailsControllerTest {
                 .id(150L)
                 .merchant(Merchant.ALFA_TEAM)
                 .isOn(true)
-                        .minAmount(100)
-                        .maxAmount(200)
-                        .merchantOrder(5)
-                        .isAutoWithdrawalOn(true)
+                .minAmount(100)
+                .maxAmount(200)
+                .merchantOrder(5)
+                .isAutoWithdrawalOn(true)
                 .build()));
         configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
                 .id(152346L)
@@ -252,5 +252,14 @@ class MerchantDetailsControllerTest {
                 () -> assertEquals(25552, actual.getId()),
                 () -> assertTrue(actual.getIsOn())
         );
+    }
+
+    @Test
+    void updateOrderShouldPCallServiceChangeOrderMethod() throws Exception {
+        mockMvc.perform(patch("/merchant-details/config/order")
+                        .param("merchant", "ALFA_TEAM")
+                        .param("isUp", "true"))
+                .andExpect(status().isOk());
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
     }
 }
