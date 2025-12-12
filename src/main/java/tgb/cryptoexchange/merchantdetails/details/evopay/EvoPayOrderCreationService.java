@@ -14,7 +14,6 @@ import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -29,21 +28,21 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
+public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String ENTRIES_FIELD = "entries";
 
     private final EvoPayProperties evoPayProperties;
 
-    private final WebClient webClient;
+    private final WebClient evoPayWebClient;
 
     private final SleepingService sleepingService;
 
-    protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient webClient,
+    protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient evoPayWebClient,
                                          EvoPayProperties evoPayProperties, SleepingService sleepingService) {
-        super(webClient, Response.class, VoidCallback.class);
+        super(evoPayWebClient, Response.class, Callback.class);
         this.evoPayProperties = evoPayProperties;
-        this.webClient = webClient;
+        this.evoPayWebClient = evoPayWebClient;
         this.sleepingService = sleepingService;
     }
 
@@ -73,7 +72,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
             throw new ServiceUnavailableException("Error occurred while wait: " + currentTime);
         }
         String listOrderStringResponse = requestService.request(
-                webClient,
+                evoPayWebClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
                 this.headers(detailsRequest, body),
