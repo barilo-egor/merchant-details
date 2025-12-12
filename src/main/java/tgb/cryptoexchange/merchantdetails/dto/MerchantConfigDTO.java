@@ -8,6 +8,7 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class MerchantConfigDTO {
@@ -40,14 +41,20 @@ public class MerchantConfigDTO {
         merchantConfigDTO.setMerchant(merchantConfig.getMerchant());
         merchantConfigDTO.setIsAutoWithdrawalOn(merchantConfig.getIsAutoWithdrawalOn());
         merchantConfigDTO.setStatuses(merchantConfig.getMerchant().getStatuses());
-        merchantConfigDTO.setSuccessStatuses(merchantConfig.getSuccessStatuses().stream().map(MerchantSuccessStatus::getStatus).toList());
+        if (Objects.nonNull(merchantConfig.getSuccessStatuses())) {
+            merchantConfigDTO.setSuccessStatuses(merchantConfig.getSuccessStatuses().stream()
+                    .map(MerchantSuccessStatus::getStatus)
+                    .toList());
+        }
         merchantConfigDTO.setMethods(merchantConfig.getMerchant().getMethods());
         merchantConfigDTO.setMaxAmount(merchantConfig.getMaxAmount());
         merchantConfigDTO.setMinAmount(merchantConfig.getMinAmount());
         merchantConfigDTO.setMerchantOrder(merchantConfig.getMerchantOrder());
-        merchantConfigDTO.setConfirmConfigs(
-                merchantConfig.getConfirmConfigs().stream().map(AutoConfirmConfigDTO::fromEntity).toList()
-        );
+        if (Objects.nonNull(merchantConfig.getConfirmConfigs())) {
+            merchantConfigDTO.setConfirmConfigs(
+                    merchantConfig.getConfirmConfigs().stream().map(AutoConfirmConfigDTO::fromEntity).toList()
+            );
+        }
         merchantConfigDTO.setGroupChatId(merchantConfig.getGroupChatId());
         return merchantConfigDTO;
     }
