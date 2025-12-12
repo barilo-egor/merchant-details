@@ -92,7 +92,7 @@ public class MerchantDetailsController extends ApiController {
     }
 
     @GetMapping("/config")
-    public ResponseEntity<MerchantConfigResponse> config(@PageableDefault(size = 20) Pageable pageable,
+    public ResponseEntity<MerchantConfigResponse> getConfig(@PageableDefault(size = 20) Pageable pageable,
                                                          @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
         Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, merchantConfigRequest);
         return ResponseEntity.ok()
