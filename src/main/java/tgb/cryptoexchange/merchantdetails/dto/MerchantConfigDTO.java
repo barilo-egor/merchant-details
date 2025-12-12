@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
@@ -11,7 +12,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MerchantConfigDTO {
+
+    private Long id;
 
     private Boolean isOn;
 
@@ -37,6 +41,7 @@ public class MerchantConfigDTO {
 
     public static MerchantConfigDTO fromEntity(MerchantConfig merchantConfig) {
         MerchantConfigDTO merchantConfigDTO = new MerchantConfigDTO();
+        merchantConfigDTO.setId(merchantConfig.getId());
         merchantConfigDTO.setIsOn(merchantConfig.getIsOn());
         merchantConfigDTO.setMerchant(merchantConfig.getMerchant());
         merchantConfigDTO.setIsAutoWithdrawalOn(merchantConfig.getIsAutoWithdrawalOn());

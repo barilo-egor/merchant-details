@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigResponse;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
@@ -98,5 +99,12 @@ public class MerchantDetailsController extends ApiController {
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
                 .body(new MerchantConfigResponse(page.getContent()));
+    }
+
+
+    @PatchMapping("/config")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateConfig(@RequestBody UpdateMerchantConfigDTO dto) {
+        merchantConfigService.update(dto);
     }
 }

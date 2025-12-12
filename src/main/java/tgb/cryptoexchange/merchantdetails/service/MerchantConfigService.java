@@ -12,14 +12,14 @@ import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
+import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
@@ -28,8 +28,11 @@ public class MerchantConfigService {
 
     private final MerchantConfigRepository repository;
 
-    public MerchantConfigService(MerchantConfigRepository repository) {
+    private final MerchantSuccessStatusRepository merchantSuccessStatusRepository;
+
+    public MerchantConfigService(MerchantConfigRepository repository, MerchantSuccessStatusRepository merchantSuccessStatusRepository) {
         this.repository = repository;
+        this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
     }
 
     @PostConstruct
@@ -96,7 +99,6 @@ public class MerchantConfigService {
         repository.delete(config);
     }
 
-    @Transactional
     public void changeOrder(Merchant merchant, boolean isUp) {
         MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + " not found")
@@ -140,5 +142,37 @@ public class MerchantConfigService {
 
     public MerchantConfig save(MerchantConfig config) {
         return repository.save(config);
+    }
+
+    @Transactional
+    public void update(UpdateMerchantConfigDTO dto) {
+        MerchantConfig merchantConfig = repository.findById(dto.getId())
+                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + dto.getId() + " not found"));
+        if (Objects.nonNull(dto.getIsOn())) {
+            merchantConfig.setIsOn(dto.getIsOn());
+        }
+        if (Objects.nonNull(dto.getIsAutoWithdrawalOn())) {
+            merchantConfig.setIsAutoWithdrawalOn(dto.getIsAutoWithdrawalOn());
+        }
+        if (Objects.nonNull(dto.getSuccessStatuses())) {
+            List<MerchantSuccessStatus> oldStatuses = merchantConfig.getSuccessStatuses();
+            merchantConfig.setSuccessStatuses(new ArrayList<>());
+            merchantSuccessStatusRepository.deleteAll(oldStatuses);
+            for (String successStatus : dto.getSuccessStatuses()) {
+                MerchantSuccessStatus newSuccessStatus = new MerchantSuccessStatus();
+                newSuccessStatus.setStatus(successStatus);
+                merchantConfig.getSuccessStatuses().add(merchantSuccessStatusRepository.save(newSuccessStatus));
+            }
+        }
+        if (Objects.nonNull(dto.getMaxAmount())) {
+            merchantConfig.setMaxAmount(dto.getMaxAmount());
+        }
+        if (Objects.nonNull(dto.getMinAmount())) {
+            merchantConfig.setMinAmount(dto.getMinAmount());
+        }
+        if (Objects.nonNull(dto.getGroupChatId())) {
+            merchantConfig.setGroupChatId(dto.getGroupChatId());
+        }
+        repository.save(merchantConfig);
     }
 }

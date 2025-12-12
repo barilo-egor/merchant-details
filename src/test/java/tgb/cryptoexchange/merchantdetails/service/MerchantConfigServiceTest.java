@@ -11,8 +11,12 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
+import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,6 +30,9 @@ class MerchantConfigServiceTest {
 
     @Mock
     private MerchantConfigRepository merchantConfigRepository;
+
+    @Mock
+    private MerchantSuccessStatusRepository merchantSuccessStatusRepository;
 
     @InjectMocks
     private MerchantConfigService merchantConfigService;
@@ -360,4 +367,173 @@ class MerchantConfigServiceTest {
         merchantConfigService.save(merchantConfig);
         verify(merchantConfigRepository).save(merchantConfig);
     }
+
+    @Test
+    void updateShouldThrowMerchantConfigNotFoundExceptionIfMerchantConfigNotFound() {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.empty());
+        assertThrows(MerchantConfigNotFoundException.class, () -> merchantConfigService.update(dto));
+    }
+
+    @ValueSource(booleans = {true, false})
+    @ParameterizedTest
+    void updateShouldUpdateOnlyIsOnIfOnlyIsOnPassed(Boolean isOn) {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        dto.setIsOn(isOn);
+        MerchantConfig merchantConfig = MerchantConfig.builder().id(123L).merchant(Merchant.ALFA_TEAM).build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.update(dto);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertEquals(isOn, actual.getIsOn()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getSuccessStatuses()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getMinAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
+
+
+    @ValueSource(booleans = {true, false})
+    @ParameterizedTest
+    void updateShouldUpdateOnlyIsAutoWithdrawalOnIfOnlyIsAutoWithdrawalOnPassed(Boolean isAutoWithdrawalOn) {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        dto.setIsAutoWithdrawalOn(isAutoWithdrawalOn);
+        MerchantConfig merchantConfig = MerchantConfig.builder().id(123L).merchant(Merchant.ALFA_TEAM).build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.update(dto);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertEquals(isAutoWithdrawalOn, actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getSuccessStatuses()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getMinAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
+
+    @ValueSource(ints = {1000, 2500})
+    @ParameterizedTest
+    void updateShouldUpdateOnlyMaxAmountIfOnlyIsMaxAmountPassed(Integer maxAmount) {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        dto.setMaxAmount(maxAmount);
+        MerchantConfig merchantConfig = MerchantConfig.builder().id(123L).merchant(Merchant.ALFA_TEAM).build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.update(dto);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertEquals(maxAmount, actual.getMaxAmount()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getSuccessStatuses()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getMinAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
+
+    @ValueSource(ints = {1000, 2500})
+    @ParameterizedTest
+    void updateShouldUpdateOnlyMinAmountIfOnlyIsMinAmountPassed(Integer minAmount) {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        dto.setMinAmount(minAmount);
+        MerchantConfig merchantConfig = MerchantConfig.builder().id(123L).merchant(Merchant.ALFA_TEAM).build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.update(dto);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertEquals(minAmount, actual.getMinAmount()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getSuccessStatuses()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
+
+    @ValueSource(longs = {1245126626L, 23562646346L})
+    @ParameterizedTest
+    void updateShouldUpdateOnlyGroupChatIdIfOnlyIsGroupChatIdPassed(Long groupChatId) {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        dto.setGroupChatId(groupChatId);
+        MerchantConfig merchantConfig = MerchantConfig.builder().id(123L).merchant(Merchant.ALFA_TEAM).build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.update(dto);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertEquals(groupChatId, actual.getGroupChatId()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getSuccessStatuses()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getMinAmount())
+        );
+    }
+
+    @Test
+    void updateShouldUpdateOnlySuccessStatusesIfOnlyIsSuccessStatusesPassed() {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        List<String> successStatuses = new ArrayList<>();
+        successStatuses.add("SUCCESS");
+        successStatuses.add("COMPLETED");
+        dto.setSuccessStatuses(successStatuses);
+        List<MerchantSuccessStatus> merchantSuccessStatuses = new ArrayList<>();
+        merchantSuccessStatuses.add(MerchantSuccessStatus.builder().status("ANOTHER_SUCCESS").build());
+        merchantSuccessStatuses.add(MerchantSuccessStatus.builder().status("ANOTHER_SUCCESS2").build());
+        merchantSuccessStatuses.add(MerchantSuccessStatus.builder().status("ANOTHER_COMPLETED").build());
+        merchantSuccessStatuses.add(MerchantSuccessStatus.builder().status("ANOTHER_COMPLETED2").build());
+        MerchantConfig merchantConfig = MerchantConfig.builder()
+                .id(123L)
+                .merchant(Merchant.ALFA_TEAM)
+                .successStatuses(merchantSuccessStatuses)
+                .build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        when(merchantSuccessStatusRepository.save(argThat(status -> Objects.nonNull(status) && status.getStatus().equals("SUCCESS"))))
+                .thenReturn(MerchantSuccessStatus.builder().status("SUCCESS").build());
+        when(merchantSuccessStatusRepository.save(argThat(status -> Objects.nonNull(status) && status.getStatus().equals("COMPLETED"))))
+                .thenReturn(MerchantSuccessStatus.builder().status("COMPLETED").build());
+        merchantConfigService.update(dto);
+        verify(merchantSuccessStatusRepository).deleteAll(merchantSuccessStatuses);
+        verify(merchantSuccessStatusRepository, times(2)).save(any(MerchantSuccessStatus.class));
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertNotNull(actual.getSuccessStatuses());
+        assertEquals(2, actual.getSuccessStatuses().size());
+        assertEquals("SUCCESS", actual.getSuccessStatuses().getFirst().getStatus());
+        assertEquals("COMPLETED", actual.getSuccessStatuses().get(1).getStatus());
+        assertAll(
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getMinAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
+
+
 }
