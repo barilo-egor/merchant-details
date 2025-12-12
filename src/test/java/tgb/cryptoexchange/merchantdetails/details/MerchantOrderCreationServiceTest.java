@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -78,6 +79,9 @@ class MerchantOrderCreationServiceTest {
     private ObjectMapper objectMapper;
 
     private RequestService requestService;
+
+    @Mock
+    private Environment environment;
 
     @Mock
     private KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
@@ -319,7 +323,8 @@ class MerchantOrderCreationServiceTest {
     @ParameterizedTest
     void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JsonProcessingException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
-        service.callbackTopicName = topic;
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn(topic);
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(orderId));
