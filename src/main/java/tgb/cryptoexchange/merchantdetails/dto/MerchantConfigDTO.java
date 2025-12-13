@@ -1,6 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
@@ -8,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,10 +28,12 @@ public class MerchantConfigDTO {
 
     private Boolean isAutoWithdrawalOn;
 
+    @JsonSerialize(using = MerchantOrderStatusSerializer.class)
     private List<MerchantOrderStatus> statuses;
 
     private List<String> successStatuses;
 
+    @JsonSerialize(using = MerchantMethodSerializer.class)
     private List<MerchantMethod> methods;
 
     private Integer maxAmount;
@@ -62,5 +69,26 @@ public class MerchantConfigDTO {
         }
         merchantConfigDTO.setGroupChatId(merchantConfig.getGroupChatId());
         return merchantConfigDTO;
+    }
+
+    public static class MerchantMethodSerializer extends JsonSerializer<MerchantMethod> {
+
+        @Override
+        public void serialize(MerchantMethod merchantMethod, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("name", merchantMethod.name());
+            jsonGenerator.writeStringField("description", merchantMethod.getDescription());
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    public static class MerchantOrderStatusSerializer extends JsonSerializer<MerchantOrderStatus> {
+        @Override
+        public void serialize(MerchantOrderStatus merchantOrderStatus, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("name", merchantOrderStatus.name());
+            jsonGenerator.writeStringField("description", merchantOrderStatus.getDescription());
+            jsonGenerator.writeEndObject();
+        }
     }
 }
