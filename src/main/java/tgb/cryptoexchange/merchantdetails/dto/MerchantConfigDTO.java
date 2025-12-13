@@ -28,12 +28,12 @@ public class MerchantConfigDTO {
 
     private Boolean isAutoWithdrawalOn;
 
-    @JsonSerialize(using = MerchantOrderStatusSerializer.class)
+    @JsonSerialize(contentUsing = MerchantOrderStatusSerializer.class)
     private List<MerchantOrderStatus> statuses;
 
     private List<String> successStatuses;
 
-    @JsonSerialize(using = MerchantMethodSerializer.class)
+    @JsonSerialize(contentUsing = MerchantMethodSerializer.class)
     private List<MerchantMethod> methods;
 
     private Integer maxAmount;
