@@ -115,6 +115,10 @@ settle-x:
 # Конфиг приложения
   sbp-id: ""
   c2c-id: ""
+aurora-pay:
+  url: ""
+  token: ""
+  merchant-id: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
