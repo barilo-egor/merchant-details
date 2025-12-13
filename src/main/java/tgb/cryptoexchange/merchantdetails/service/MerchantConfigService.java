@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tgb.cryptoexchange.exception.BadRequestException;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MerchantConfigService {
+
+    private static final String NOT_FOUND = " not found";
 
     private final MerchantConfigRepository repository;
 
@@ -109,7 +112,7 @@ public class MerchantConfigService {
 
     public void changeOrder(Merchant merchant, boolean isUp) {
         MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
-                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + " not found")
+                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
         int currentOrder = config.getMerchantOrder();
         int maxOrder = repository.findMaxMerchantOrder();
@@ -128,7 +131,7 @@ public class MerchantConfigService {
             }
         }
         if (Objects.isNull(otherConfig)) {
-            throw new IllegalStateException("Config with order " + newOrder + " not found");
+            throw new IllegalStateException("Config with order " + newOrder + NOT_FOUND);
         }
 
         otherConfig.setMerchantOrder(-1);
@@ -148,7 +151,7 @@ public class MerchantConfigService {
     @Transactional
     public void update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())
-                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + dto.getId() + " not found"));
+                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + dto.getId() + NOT_FOUND));
         if (Objects.nonNull(dto.getIsOn())) {
             merchantConfig.setIsOn(dto.getIsOn());
         }
@@ -185,6 +188,17 @@ public class MerchantConfigService {
                 autoConfirmConfig.setCryptoCurrency(confirmConfigDTO.getCryptoCurrency());
                 merchantConfig.getConfirmConfigs().add(autoConfirmConfigRepository.save(autoConfirmConfig));
             }
+        }
+        repository.save(merchantConfig);
+    }
+
+    public void deleteField(Long id, String field) {
+        MerchantConfig merchantConfig = repository.findById(id)
+                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + id + NOT_FOUND));
+        if ("groupChatId".equals(field)) {
+            merchantConfig.setGroupChatId(null);
+        } else {
+            throw new BadRequestException("Deleting field \"" + field + "\" unsupported.");
         }
         repository.save(merchantConfig);
     }

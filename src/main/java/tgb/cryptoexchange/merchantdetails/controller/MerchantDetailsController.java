@@ -107,6 +107,12 @@ public class MerchantDetailsController extends ApiController {
         merchantConfigService.update(dto);
     }
 
+    @DeleteMapping("/config/{id}/{fieldName}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteConfigField(@PathVariable Long id, @PathVariable String fieldName) {
+        merchantConfigService.deleteField(id, fieldName);
+    }
+
     @PatchMapping("/config/order")
     @ResponseStatus(HttpStatus.OK)
     public void updateOrder(@RequestParam Merchant merchant, @RequestParam Boolean isUp) {
