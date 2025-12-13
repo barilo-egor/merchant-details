@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.kafka;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
 import java.nio.charset.StandardCharsets;
 

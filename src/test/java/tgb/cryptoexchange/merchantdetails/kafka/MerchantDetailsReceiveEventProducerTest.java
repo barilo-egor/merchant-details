@@ -8,10 +8,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,7 @@ class MerchantDetailsReceiveEventProducerTest {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setId(dealId);
-        detailsRequest.setMethod(method);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build()));
         detailsRequest.setAmount(requestedAmount);
         detailsRequest.setChatId(userId);
         detailsRequest.setInitiatorApp(appId);

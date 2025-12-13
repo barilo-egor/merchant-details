@@ -8,22 +8,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Request;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Response;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -75,6 +79,9 @@ class MerchantOrderCreationServiceTest {
     private ObjectMapper objectMapper;
 
     private RequestService requestService;
+
+    @Mock
+    private Environment environment;
 
     @Mock
     private KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
@@ -170,6 +177,37 @@ class MerchantOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
     }
 
+    @Test
+    void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethods() {
+        DetailsRequest request = new DetailsRequest();
+        request.setMethods(new ArrayList<>());
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request, Method.class));
+    }
+
+    @Test
+    void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethodsOfPassedMerchant() {
+        DetailsRequest request = new DetailsRequest();
+        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method("method").build());
+        request.setMethods(methods);
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request, Method.class));
+    }
+
+    @ValueSource(strings = {"TO_CARD", "SBP", "CROSS_BORDER"})
+    @ParameterizedTest
+    void parseMethodShouldReturnMethod(String method) {
+        DetailsRequest request = new DetailsRequest();
+        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method("method").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method("method").build());
+        request.setMethods(methods);
+        Method actual = service.parseMethod(request, Method.class);
+        assertEquals(method, actual.name());
+    }
+
     @EnumSource(Method.class)
     @ParameterizedTest
     void parseMethodShouldParseFromMethodName(Method method) {
@@ -207,7 +245,7 @@ class MerchantOrderCreationServiceTest {
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate().test(detailsRequest));
@@ -269,6 +307,7 @@ class MerchantOrderCreationServiceTest {
     @Test
     void updateStatusShouldThrowServiceUnavailableExceptionIfExceptionWasThrownWhileSendMessageToTopic() throws JsonProcessingException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
@@ -285,7 +324,8 @@ class MerchantOrderCreationServiceTest {
     @ParameterizedTest
     void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JsonProcessingException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
-        service.callbackTopicName = topic;
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn(topic);
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(orderId));

@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
 
 import java.net.URI;
@@ -55,7 +55,7 @@ public class SettleXOrderCreationService extends MerchantOrderCreationService<Re
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         if (Method.SBP.equals(method)) {
             request.setMethod(settleXProperties.sbpId());
         } else {
