@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 
 import java.io.IOException;
 
 @AllArgsConstructor
 @Getter
 @SuppressWarnings("java:S1192")
-public enum Method {
+public enum Method implements MerchantMethod {
     SBP("sbp_rub", "СБП"),
     CARD("any_bank_card", "Карта"),
     SBP_RU("sbp_rub", "СБП РФ"),

@@ -5,30 +5,38 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
+import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = MerchantDetailsController.class)
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +47,9 @@ class MerchantDetailsControllerTest {
 
     @MockitoBean
     private MerchantDetailsService merchantDetailsService;
+
+    @MockitoBean
+    private MerchantConfigService merchantConfigService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -109,6 +120,56 @@ class MerchantDetailsControllerTest {
                 .andExpect(jsonPath("$.data.qr").value(qr));
     }
 
+    @CsvSource(nullValues = "null", textBlock = """
+            ALFA_TEAM,ALFA 79878764521,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,PENDING,\
+            b98747be-0060-4b13-aee6-f7d489f23231,5444,\
+            c29tZSBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGZpbGU=
+            WELL_BIT,Сбербанк 1234123412341234,f669eb83-a6c2-4456-8416-c2b1fd514c99,CREATED,\
+            c7a29fbf-7c80-44dd-8781-4117165569dc,2055,\
+            c29tZSAybG9uZyAybG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgZmlsZSA=
+            """)
+    @ParameterizedTest
+    void getDetailsShouldReturnDetailsResponse(Merchant merchant, String details, String merchantOrderId,
+                                               String merchantOrderStatus, String merchantCustomId, Integer amount,
+                                               String qr) throws Exception {
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(merchant);
+        detailsResponse.setDetails(details);
+        detailsResponse.setMerchantOrderId(merchantOrderId);
+        detailsResponse.setMerchantOrderStatus(merchantOrderStatus);
+        detailsResponse.setMerchantCustomId(merchantCustomId);
+        detailsResponse.setAmount(amount);
+        detailsResponse.setQr(qr);
+        ArgumentCaptor<DetailsRequest> requestCaptor = ArgumentCaptor.forClass(DetailsRequest.class);
+        when(merchantDetailsService.getDetails(any())).thenReturn(Optional.of(detailsResponse));
+        mockMvc.perform(get("/merchant-details")
+                        .param("amount", "1000")
+                        .param("methods[0].merchant", "ALFA_TEAM")
+                        .param("methods[0].method", "SBP")
+                        .param("methods[1].merchant", "ONLY_PAYS")
+                        .param("methods[1].method", "CARD")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.merchant").value(merchant.name()))
+                .andExpect(jsonPath("$.data.details").value(details))
+                .andExpect(jsonPath("$.data.merchantOrderId").value(merchantOrderId))
+                .andExpect(jsonPath("$.data.merchantOrderStatus").value(merchantOrderStatus))
+                .andExpect(jsonPath("$.data.merchantCustomId").value(merchantCustomId))
+                .andExpect(jsonPath("$.data.amount").value(amount))
+                .andExpect(jsonPath("$.data.qr").value(qr));
+        verify(merchantDetailsService).getDetails(requestCaptor.capture());
+        DetailsRequest actual = requestCaptor.getValue();
+        assertAll(
+                () -> assertEquals(1000, actual.getAmount()),
+                () -> assertEquals(2, actual.getMethods().size()),
+                () -> assertEquals(Merchant.ALFA_TEAM, actual.getMethods().getFirst().getMerchant()),
+                () -> assertEquals("SBP", actual.getMethods().getFirst().getMethod()),
+                () -> assertEquals(Merchant.ONLY_PAYS, actual.getMethods().get(1).getMerchant()),
+                () -> assertEquals("CARD", actual.getMethods().get(1).getMethod())
+        );
+    }
+
     @CsvSource("""
             ALFA_TEAM,f669eb83-a6c2-4456-8416-c2b1fd514c99,CARD
             ONLY_PAYS,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,SBP
@@ -126,5 +187,85 @@ class MerchantDetailsControllerTest {
                 () -> assertEquals(orderId, actual.getOrderId()),
                 () -> assertEquals(method, actual.getMethod())
         );
+    }
+
+    @Test
+    void getConfigShouldReturnEmptyArrayIfConfigNotFound() throws Exception {
+        Page<MerchantConfigDTO> page = Page.empty();
+        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+        mockMvc.perform(get("/merchant-details/config"))
+                .andExpect(header().string("X-Total-Count", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("success").value(true))
+                .andExpect(jsonPath("data").isArray())
+                .andExpect(jsonPath("data").isEmpty());
+    }
+
+    @Test
+    void getConfigShouldReturnConfigArray() throws Exception {
+        List<MerchantConfigDTO> configs = new ArrayList<>();
+        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+                .id(150L)
+                .merchant(Merchant.ALFA_TEAM)
+                .isOn(true)
+                .minAmount(100)
+                .maxAmount(200)
+                .merchantOrder(5)
+                .isAutoWithdrawalOn(true)
+                .build()));
+        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+                .id(152346L)
+                .merchant(Merchant.WELL_BIT)
+                .isOn(false)
+                .minAmount(150)
+                .maxAmount(5000)
+                .merchantOrder(2)
+                .isAutoWithdrawalOn(true)
+                .build()));
+        Page<MerchantConfigDTO> page = new PageImpl<>(configs, Mockito.mock(Pageable.class), 2);
+        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+        mockMvc.perform(get("/merchant-details/config"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("success").value(true))
+                .andExpect(jsonPath("data").isArray())
+                .andExpect(jsonPath("data[0]").exists())
+                .andExpect(jsonPath("data[1]").exists())
+                .andExpect(jsonPath("data[2]").doesNotExist());
+    }
+
+    @Test
+    void updateConfigShouldCallServiceUpdateMethod() throws Exception {
+        mockMvc.perform(patch("/merchant-details/config")
+                        .header("Content-Type", "application/json")
+                        .content("""
+                                {
+                                    "id": 25552,
+                                    "isOn": true
+                                }
+                                """))
+                .andExpect(status().isOk());
+        ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
+        verify(merchantConfigService).update(dtoCaptor.capture());
+        var actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertEquals(25552, actual.getId()),
+                () -> assertTrue(actual.getIsOn())
+        );
+    }
+
+    @Test
+    void updateOrderShouldPCallServiceChangeOrderMethod() throws Exception {
+        mockMvc.perform(patch("/merchant-details/config/order")
+                        .param("merchant", "ALFA_TEAM")
+                        .param("isUp", "true"))
+                .andExpect(status().isOk());
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
+    }
+
+    @Test
+    void deleteFieldShouldCallServiceMethod() throws Exception {
+        mockMvc.perform(delete("/merchant-details/config/1/groupChatId"))
+                .andExpect(status().isOk());
+        verify(merchantConfigService).deleteField(1L, "groupChatId");
     }
 }

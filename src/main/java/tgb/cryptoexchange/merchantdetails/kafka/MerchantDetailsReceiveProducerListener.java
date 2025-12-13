@@ -3,11 +3,13 @@ package tgb.cryptoexchange.merchantdetails.kafka;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.support.ProducerListener;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@Profile({"!kafka-disabled"})
 public class MerchantDetailsReceiveProducerListener implements ProducerListener<String, MerchantDetailsReceiveEvent> {
 
     @Override

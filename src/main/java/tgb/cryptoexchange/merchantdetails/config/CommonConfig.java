@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -19,21 +20,8 @@ import java.util.Map;
 @Configuration
 public class CommonConfig {
 
-    private final KafkaProperties kafkaProperties;
-
-    private final MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener;
-
-    private final MerchantCallbackProducerListener merchantCallbackProducerListener;
-
-    public CommonConfig(KafkaProperties kafkaProperties,
-                        MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener,
-                        MerchantCallbackProducerListener merchantCallbackProducerListener) {
-        this.kafkaProperties = kafkaProperties;
-        this.merchantDetailsReceiveProducerListener = merchantDetailsReceiveProducerListener;
-        this.merchantCallbackProducerListener = merchantCallbackProducerListener;
-    }
-
     @Bean
+    @Profile("!kafka-disabled")
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -41,7 +29,8 @@ public class CommonConfig {
     }
 
     @Bean
-    public ProducerFactory<String, MerchantDetailsReceiveEvent> merchantHistoryProducerFactory() {
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, MerchantDetailsReceiveEvent> merchantHistoryProducerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -50,14 +39,17 @@ public class CommonConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate() {
-        KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory());
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate(MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener,
+                                                                            KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory(kafkaProperties));
         kafkaTemplate.setProducerListener(merchantDetailsReceiveProducerListener);
         return kafkaTemplate;
     }
 
     @Bean
-    public ProducerFactory<String, MerchantCallbackEvent> merchantCallbackProducerFactory() {
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, MerchantCallbackEvent> merchantCallbackProducerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -66,8 +58,10 @@ public class CommonConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate() {
-        KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = new KafkaTemplate<>(merchantCallbackProducerFactory());
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate(MerchantCallbackProducerListener merchantCallbackProducerListener,
+                                                                              KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = new KafkaTemplate<>(merchantCallbackProducerFactory(kafkaProperties));
         kafkaTemplate.setProducerListener(merchantCallbackProducerListener);
         return kafkaTemplate;
     }

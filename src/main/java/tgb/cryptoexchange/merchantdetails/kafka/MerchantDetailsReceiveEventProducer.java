@@ -1,16 +1,18 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@Profile({"!kafka-disabled"})
 public class MerchantDetailsReceiveEventProducer {
 
     private final KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate;
@@ -33,7 +35,7 @@ public class MerchantDetailsReceiveEventProducer {
         event.setMerchantOrderId(detailsResponse.getMerchantOrderId());
         event.setRequestedAmount(detailsRequest.getAmount());
         event.setMerchantAmount(detailsResponse.getAmount());
-        event.setMethod(detailsRequest.getMethod());
+        detailsRequest.getMethod(merchant).ifPresent(event::setMethod);
         event.setDetails(detailsResponse.getDetails());
         kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);
     }

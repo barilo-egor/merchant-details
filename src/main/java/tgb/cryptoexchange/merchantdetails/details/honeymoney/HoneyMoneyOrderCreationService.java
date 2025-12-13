@@ -10,10 +10,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -51,7 +51,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
@@ -60,7 +60,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + honeyMoneyProperties.authToken());
             httpHeaders.add("Content-Type", "application/json");
-            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest, Method.class);
             httpHeaders.add("X-Signature", signatureService.hmacSHA256(body, URI.create(honeyMoneyProperties.url() + method.getUri()), honeyMoneyProperties.signToken()));
         };
     }
@@ -70,7 +70,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setExtId(UUID.randomUUID().toString());
-        request.setBank(parseMethod(detailsRequest.getMethod(), Method.class).getBank());
+        request.setBank(parseMethod(detailsRequest, Method.class).getBank());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         return request;

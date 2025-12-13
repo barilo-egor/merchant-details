@@ -116,3 +116,9 @@ kafka:
       callback: 'test-merchant-details-callback-topic'
 callback-secret: test-callback-secret
 gateway-url: "https://gateway-example-url.com"
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
