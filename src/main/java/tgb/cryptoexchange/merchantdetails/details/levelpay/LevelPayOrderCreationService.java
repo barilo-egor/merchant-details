@@ -81,8 +81,12 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getOrderId());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
-        detailsResponse.setAmount(Integer.parseInt(response.getData().getAmount()));
+        detailsResponse.setAmount(getAmount(response.getData().getAmount()));
         return Optional.of(detailsResponse);
+    }
+
+    protected Integer getAmount(String amount) {
+        return Integer.parseInt(amount);
     }
 
     @Override
