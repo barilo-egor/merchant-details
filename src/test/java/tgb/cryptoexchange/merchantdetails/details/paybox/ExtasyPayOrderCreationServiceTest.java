@@ -17,14 +17,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,7 +63,7 @@ class ExtasyPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(method.name()).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());

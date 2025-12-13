@@ -9,10 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
 import java.math.BigDecimal;
@@ -65,7 +65,7 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setMerchantOrderId(UUID.randomUUID().toString());
-        request.setRequisiteType(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setRequisiteType(parseMethod(detailsRequest, Method.class));
         request.setAmount(detailsRequest.getAmount().toString());
         String callbackUrl = callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret="
                 + callbackConfig.getCallbackSecret();

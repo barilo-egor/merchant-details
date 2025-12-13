@@ -18,12 +18,13 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,7 +62,7 @@ class HoneyMoneyOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldAddPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(method.name()).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(method.getUri(), honeyMoneyOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
@@ -76,7 +77,7 @@ class HoneyMoneyOrderCreationServiceTest {
         when(signatureService.hmacSHA256(any(), any(), any())).thenReturn(signature);
 
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethod(Method.CARD.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Method.CARD.name()).build()));
         HttpHeaders headers = new HttpHeaders();
         honeyMoneyOrderCreationService.headers(detailsRequest, "body").accept(headers);
         assertAll(
@@ -94,7 +95,7 @@ class HoneyMoneyOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(method.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(method.name()).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         Request request = honeyMoneyOrderCreationService.body(detailsRequest);

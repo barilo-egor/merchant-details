@@ -12,9 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 
 import java.util.List;
@@ -69,7 +69,7 @@ class AppexbitOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(method);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.APPEXBIT).method(method).build()));
         String expectedUrl = gatewayUrl + "/merchant-details/callback?merchant=APPEXBIT&secret=" + secret;
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

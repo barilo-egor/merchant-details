@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowPropertiesImpl;
 
 import java.util.Set;
@@ -33,7 +33,7 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
     @Override
     protected Predicate<DetailsRequest> isValidRequestPredicate() {
         return detailsRequest -> {
-            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest, Method.class);
             return !Method.TRIANGLE.equals(method) || detailsRequest.getAmount() < AMOUNT_BOUND;
         };
     }
@@ -46,7 +46,7 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
     @Override
     public Function<DetailsRequest, String> keyFunction() {
         return detailsRequest -> {
-            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest, Method.class);
             if (IN_HOUSE_METHODS.contains(method)) {
                 return payscrowProperties.inHouseKey();
             }

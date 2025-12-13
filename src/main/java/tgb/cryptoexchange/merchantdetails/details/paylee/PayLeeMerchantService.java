@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
@@ -54,7 +54,7 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setPrice(detailsRequest.getAmount());
-        request.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setRequisitesType(parseMethod(detailsRequest, Method.class));
         return request;
     }
 

@@ -7,10 +7,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
 
 import java.net.URI;
@@ -56,7 +56,7 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
         request.setClientOrderId(UUID.randomUUID().toString());
         request.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
         return request;

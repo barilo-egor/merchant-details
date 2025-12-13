@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
 
 import java.net.URI;
@@ -50,7 +50,7 @@ public class PspWareOrderCreationService extends MerchantOrderCreationService<Re
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setSum(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         request.setPayTypes(List.of(method));
         if (Method.TRANSGRAN_PHONE.equals(method)) {
             request.setGeos(List.of("TJK"));

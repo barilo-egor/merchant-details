@@ -10,11 +10,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.NicePayProperties;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,7 +58,7 @@ class NicePayOrderCreationServiceTest {
     void bodyShouldBuildRequestObjectForSbpRu(Integer amount, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethod(Method.SBP_RU.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NICE_PAY).method(Method.SBP_RU.name()).build()));
         when(nicePayProperties.merchantId()).thenReturn(merchantId);
         when(nicePayProperties.secret()).thenReturn(secret);
 
@@ -76,7 +77,7 @@ class NicePayOrderCreationServiceTest {
     void bodyShouldBuildRequestObjectForSbpTransgran() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
-        detailsRequest.setMethod(Method.SBP_TRANSGRAN.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NICE_PAY).method(Method.SBP_TRANSGRAN.name()).build()));
         when(nicePayProperties.merchantId()).thenReturn("merchantId");
         when(nicePayProperties.secret()).thenReturn("secret");
 
@@ -90,7 +91,7 @@ class NicePayOrderCreationServiceTest {
     void bodyShouldBuildRequestObjectWithNullMethodSBP() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
-        detailsRequest.setMethod(Method.SBP.name());
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NICE_PAY).method(Method.SBP.name()).build()));
         when(nicePayProperties.merchantId()).thenReturn("merchantId");
         when(nicePayProperties.secret()).thenReturn("secret");
 

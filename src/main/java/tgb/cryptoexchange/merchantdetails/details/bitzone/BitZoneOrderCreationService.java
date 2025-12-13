@@ -11,10 +11,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
 import java.net.URI;
@@ -64,7 +64,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setFiatAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setMethod(parseMethod(detailsRequest, Method.class));
         request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
