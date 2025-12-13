@@ -11,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
 import tgb.cryptoexchange.enums.CryptoCurrency;
 import tgb.cryptoexchange.enums.DeliveryType;
+import tgb.cryptoexchange.exception.BadRequestException;
 import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -629,5 +630,21 @@ class MerchantConfigServiceTest {
                 () -> assertNull(actual.getMinAmount()),
                 () -> assertNull(actual.getGroupChatId())
         );
+    }
+
+    @ValueSource(strings = {"isOn", "successStatuses", "maxAmount"})
+    @ParameterizedTest
+    void deleteFieldShouldThrowBadRequestIfFieldNotSupported(String field) {
+        when(merchantConfigRepository.findById(1L)).thenReturn(Optional.of(MerchantConfig.builder().build()));
+        assertThrows(BadRequestException.class, () -> merchantConfigService.deleteField(1L, field));
+    }
+
+    @Test
+    void deleteFieldShouldSetGroupChatToNull() {
+        when(merchantConfigRepository.findById(1L)).thenReturn(Optional.of(MerchantConfig.builder().groupChatId(123L).build()));
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        merchantConfigService.deleteField(1L, "groupChatId");
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        assertNull(configCaptor.getValue().getGroupChatId());
     }
 }
