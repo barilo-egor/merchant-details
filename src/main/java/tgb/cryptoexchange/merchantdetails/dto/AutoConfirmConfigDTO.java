@@ -1,12 +1,18 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import tgb.cryptoexchange.enums.CryptoCurrency;
 import tgb.cryptoexchange.enums.DeliveryType;
 import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class AutoConfirmConfigDTO {
 
     private CryptoCurrency cryptoCurrency;

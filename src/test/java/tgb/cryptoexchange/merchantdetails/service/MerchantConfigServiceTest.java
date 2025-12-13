@@ -9,12 +9,18 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Example;
 import org.springframework.data.repository.query.FluentQuery;
+import tgb.cryptoexchange.enums.CryptoCurrency;
+import tgb.cryptoexchange.enums.DeliveryType;
+import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
+import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
 
@@ -33,6 +39,9 @@ class MerchantConfigServiceTest {
 
     @Mock
     private MerchantSuccessStatusRepository merchantSuccessStatusRepository;
+
+    @Mock
+    private AutoConfirmConfigRepository autoConfirmConfigRepository;
 
     @InjectMocks
     private MerchantConfigService merchantConfigService;
@@ -219,12 +228,12 @@ class MerchantConfigServiceTest {
     }
 
     @CsvSource("""
-            ALFA_TEAM,SBP
-            EVO_PAY,CARD
-            BIT_ZONE,PHONE
+            SBP
+            CARD
+            PHONE
             """)
     @ParameterizedTest
-    void findAllShouldReturnMatchConfigIfOneOfFewMatchToOneMethod(Merchant merchant, String method) {
+    void findAllShouldReturnMatchConfigIfOneOfFewMatchToOneMethod(String method) {
         List<MerchantConfig> merchantConfigs = new ArrayList<>();
         MerchantConfig merchantConfig1 = MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).minAmount(7000).maxAmount(10000).build();
         MerchantConfig merchantConfig2 = MerchantConfig.builder().merchant(Merchant.EVO_PAY).minAmount(1000).maxAmount(2000).build();
@@ -243,12 +252,12 @@ class MerchantConfigServiceTest {
     }
 
     @CsvSource("""
-            ALFA_TEAM,SBP
-            EVO_PAY,CARD
-            BIT_ZONE,PHONE
+            SBP
+            CARD
+            PHONE
             """)
     @ParameterizedTest
-    void findAllShouldReturnMatchConfigIfFewMatchToFewMethods(Merchant merchant, String method) {
+    void findAllShouldReturnMatchConfigIfFewMatchToFewMethods(String method) {
         List<MerchantConfig> merchantConfigs = new ArrayList<>();
         MerchantConfig merchantConfig1 = MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).minAmount(1000).maxAmount(10000).build();
         MerchantConfig merchantConfig2 = MerchantConfig.builder().merchant(Merchant.EVO_PAY).minAmount(1000).maxAmount(2000).build();
@@ -351,16 +360,8 @@ class MerchantConfigServiceTest {
         );
     }
 
-    @ValueSource(booleans = {true, false})
-    @ParameterizedTest
-    void getMerchantConfigShouldFindConfigOfPassedIsOn(boolean isOn) {
-        merchantConfigService.findAllByIsOn(isOn);
-        verify(merchantConfigRepository).findBy(merchantConfigExampleCaptor.capture(), any());
-        assertEquals(isOn, merchantConfigExampleCaptor.getValue().getProbe().getIsOn());
-    }
-
     @Test
-    void saveShouldCallDelete() {
+    void saveShouldCallSave() {
         MerchantConfig merchantConfig = new MerchantConfig();
         merchantConfig.setMerchant(Merchant.ALFA_TEAM);
         merchantConfig.setId(505L);
@@ -535,5 +536,98 @@ class MerchantConfigServiceTest {
         );
     }
 
-
+    @Test
+    void updateShouldUpdateOnlyAutoConfirmConfigsIfOnlyIsAutoConfirmConfigsPassed() {
+        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
+        dto.setId(123L);
+        List<AutoConfirmConfigDTO> dtoConfirmConfigs = new ArrayList<>();
+        dtoConfirmConfigs.add(AutoConfirmConfigDTO.builder()
+                .autoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL)
+                .cryptoCurrency(CryptoCurrency.BITCOIN)
+                .deliveryType(DeliveryType.STANDARD)
+                .build());
+        dtoConfirmConfigs.add(AutoConfirmConfigDTO.builder()
+                .autoConfirmType(AutoConfirmType.ADD_TO_POOL)
+                .cryptoCurrency(CryptoCurrency.LITECOIN)
+                .deliveryType(DeliveryType.VIP)
+                .build());
+        dto.setConfirmConfigs(dtoConfirmConfigs);
+        List<AutoConfirmConfig> confirmConfigs = new ArrayList<>();
+        confirmConfigs.add(AutoConfirmConfig.builder()
+                .id(15523L)
+                .autoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL)
+                .cryptoCurrency(CryptoCurrency.BITCOIN)
+                .deliveryType(DeliveryType.STANDARD)
+                .build());
+        confirmConfigs.add(AutoConfirmConfig.builder()
+                .id(15623L)
+                .autoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL)
+                .cryptoCurrency(CryptoCurrency.BITCOIN)
+                .deliveryType(DeliveryType.STANDARD)
+                .build());
+        confirmConfigs.add(AutoConfirmConfig.builder()
+                .id(15624L)
+                .autoConfirmType(AutoConfirmType.ADD_TO_POOL)
+                .cryptoCurrency(CryptoCurrency.LITECOIN)
+                .deliveryType(DeliveryType.VIP)
+                .build());
+        confirmConfigs.add(AutoConfirmConfig.builder()
+                .id(15630L)
+                .autoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL)
+                .cryptoCurrency(CryptoCurrency.LITECOIN)
+                .deliveryType(DeliveryType.STANDARD)
+                .build());
+        MerchantConfig merchantConfig = MerchantConfig.builder()
+                .id(123L)
+                .merchant(Merchant.ALFA_TEAM)
+                .confirmConfigs(confirmConfigs)
+                .build();
+        when(merchantConfigRepository.findById(123L)).thenReturn(Optional.of(merchantConfig));
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        when(autoConfirmConfigRepository.save(argThat(config -> Objects.nonNull(config)
+                && config.getAutoConfirmType().equals(AutoConfirmType.AUTO_WITHDRAWAL)
+                && config.getCryptoCurrency().equals(CryptoCurrency.BITCOIN)
+                && config.getDeliveryType().equals(DeliveryType.STANDARD))))
+                .thenReturn(AutoConfirmConfig.builder()
+                        .autoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL)
+                        .cryptoCurrency(CryptoCurrency.BITCOIN)
+                        .deliveryType(DeliveryType.STANDARD)
+                        .build());
+        when(autoConfirmConfigRepository.save(argThat(config -> Objects.nonNull(config)
+                && config.getAutoConfirmType().equals(AutoConfirmType.ADD_TO_POOL)
+                && config.getCryptoCurrency().equals(CryptoCurrency.LITECOIN)
+                && config.getDeliveryType().equals(DeliveryType.VIP))))
+                .thenReturn(AutoConfirmConfig.builder()
+                        .autoConfirmType(AutoConfirmType.ADD_TO_POOL)
+                        .cryptoCurrency(CryptoCurrency.LITECOIN)
+                        .deliveryType(DeliveryType.VIP)
+                        .build());
+        merchantConfigService.update(dto);
+        verify(autoConfirmConfigRepository).deleteAll(confirmConfigs);
+        verify(autoConfirmConfigRepository, times(2)).save(any(AutoConfirmConfig.class));
+        verify(merchantConfigRepository).save(configCaptor.capture());
+        MerchantConfig actual = configCaptor.getValue();
+        assertNotNull(actual.getConfirmConfigs());
+        assertEquals(2, actual.getConfirmConfigs().size());
+        assertAll(
+                () -> assertEquals(dtoConfirmConfigs.getFirst().getAutoConfirmType(),
+                        actual.getConfirmConfigs().getFirst().getAutoConfirmType()),
+                () -> assertEquals(dtoConfirmConfigs.getFirst().getDeliveryType(),
+                        actual.getConfirmConfigs().getFirst().getDeliveryType()),
+                () -> assertEquals(dtoConfirmConfigs.getFirst().getCryptoCurrency(),
+                        actual.getConfirmConfigs().getFirst().getCryptoCurrency()),
+                () -> assertEquals(dtoConfirmConfigs.get(1).getAutoConfirmType(),
+                        actual.getConfirmConfigs().get(1).getAutoConfirmType()),
+                () -> assertEquals(dtoConfirmConfigs.get(1).getDeliveryType(),
+                        actual.getConfirmConfigs().get(1).getDeliveryType()),
+                () -> assertEquals(dtoConfirmConfigs.get(1).getCryptoCurrency(),
+                        actual.getConfirmConfigs().get(1).getCryptoCurrency()),
+                () -> assertEquals(123L, actual.getId()),
+                () -> assertNull(actual.getIsOn()),
+                () -> assertNull(actual.getIsAutoWithdrawalOn()),
+                () -> assertNull(actual.getMaxAmount()),
+                () -> assertNull(actual.getMinAmount()),
+                () -> assertNull(actual.getGroupChatId())
+        );
+    }
 }

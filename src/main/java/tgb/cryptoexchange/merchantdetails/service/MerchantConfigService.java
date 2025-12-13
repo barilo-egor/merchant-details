@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
+import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
 
@@ -30,9 +33,14 @@ public class MerchantConfigService {
 
     private final MerchantSuccessStatusRepository merchantSuccessStatusRepository;
 
-    public MerchantConfigService(MerchantConfigRepository repository, MerchantSuccessStatusRepository merchantSuccessStatusRepository) {
+    private final AutoConfirmConfigRepository autoConfirmConfigRepository;
+
+    public MerchantConfigService(MerchantConfigRepository repository,
+                                 MerchantSuccessStatusRepository merchantSuccessStatusRepository,
+                                 AutoConfirmConfigRepository autoConfirmConfigRepository) {
         this.repository = repository;
         this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
+        this.autoConfirmConfigRepository = autoConfirmConfigRepository;
     }
 
     @PostConstruct
@@ -133,13 +141,6 @@ public class MerchantConfigService {
         repository.saveAndFlush(otherConfig);
     }
 
-    public List<MerchantConfig> findAllByIsOn(boolean isOn) {
-        return repository.findBy(Example.of(
-                MerchantConfig.builder().isOn(isOn).build()),
-                FluentQuery.FetchableFluentQuery::all
-        );
-    }
-
     public MerchantConfig save(MerchantConfig config) {
         return repository.save(config);
     }
@@ -172,6 +173,18 @@ public class MerchantConfigService {
         }
         if (Objects.nonNull(dto.getGroupChatId())) {
             merchantConfig.setGroupChatId(dto.getGroupChatId());
+        }
+        if (Objects.nonNull(dto.getConfirmConfigs())) {
+            List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();
+            merchantConfig.setConfirmConfigs(new ArrayList<>());
+            autoConfirmConfigRepository.deleteAll(confirmConfigs);
+            for (AutoConfirmConfigDTO confirmConfigDTO : dto.getConfirmConfigs()) {
+                AutoConfirmConfig autoConfirmConfig = new AutoConfirmConfig();
+                autoConfirmConfig.setAutoConfirmType(confirmConfigDTO.getAutoConfirmType());
+                autoConfirmConfig.setDeliveryType(confirmConfigDTO.getDeliveryType());
+                autoConfirmConfig.setCryptoCurrency(confirmConfigDTO.getCryptoCurrency());
+                merchantConfig.getConfirmConfigs().add(autoConfirmConfigRepository.save(autoConfirmConfig));
+            }
         }
         repository.save(merchantConfig);
     }
