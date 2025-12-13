@@ -11,11 +11,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
+import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
+public class EvoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String ENTRIES_FIELD = "entries";
 
@@ -41,7 +41,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient evoPayWebClient,
                                          EvoPayProperties evoPayProperties, SleepingService sleepingService) {
-        super(evoPayWebClient, Response.class, VoidCallback.class);
+        super(evoPayWebClient, Response.class, Callback.class);
         this.evoPayProperties = evoPayProperties;
         this.evoPayWebClient = evoPayWebClient;
         this.sleepingService = sleepingService;
@@ -128,7 +128,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         Request request = new Request();
         request.setCustomId(UUID.randomUUID().toString());
         request.setFiatSum(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         return request;
     }
 
