@@ -8,11 +8,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.WellBitProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -83,7 +83,7 @@ public class WellBitOrderCreationService extends MerchantOrderCreationService<Re
         Request createOrderRequest = new Request();
         createOrderRequest.setCredentialRequire("yes");
         createOrderRequest.setAmount(detailsRequest.getAmount());
-        createOrderRequest.setCredentialType(parseMethod(detailsRequest.getMethod(), Method.class).getValue());
+        createOrderRequest.setCredentialType(parseMethod(detailsRequest, Method.class).getValue());
         createOrderRequest.setCustomNumber(UUID.randomUUID().toString());
         return createOrderRequest;
     }

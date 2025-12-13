@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
-import tgb.cryptoexchange.merchantdetails.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.NicePayProperties;
 
 import java.math.BigDecimal;
@@ -57,7 +57,7 @@ public class NicePayOrderCreationService extends MerchantOrderCreationService<Re
         request.setSecret(nicePayProperties.secret());
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(new BigDecimal(detailsRequest.getAmount()).multiply(new BigDecimal(100)).intValue());
-        Method nicePayMethod = parseMethod(detailsRequest.getMethod(), Method.class);
+        Method nicePayMethod = parseMethod(detailsRequest, Method.class);
         request.setMethod(nicePayMethod);
         if (Method.SBP_RU.equals(nicePayMethod)) {
             request.setMethodSBP("onlyRU");
