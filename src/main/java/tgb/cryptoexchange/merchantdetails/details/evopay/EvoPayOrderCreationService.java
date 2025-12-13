@@ -127,7 +127,8 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         Request request = new Request();
         request.setCustomId(UUID.randomUUID().toString());
         request.setFiatSum(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        Method method = parseMethod(detailsRequest, Method.class);
+        request.setPaymentMethod(method);
         return request;
     }
 
