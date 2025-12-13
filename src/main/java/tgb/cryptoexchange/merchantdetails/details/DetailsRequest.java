@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Data
@@ -31,6 +32,9 @@ public class DetailsRequest {
     private List<MerchantMethod> methods;
 
     public Optional<String> getMethod(Merchant merchant) {
+        if (Objects.isNull(methods)) {
+            return Optional.of(method);
+        }
         for (MerchantMethod merchantMethod : methods) {
             if (merchantMethod.getMerchant().equals(merchant)) {
                 return Optional.of(merchantMethod.getMethod());
