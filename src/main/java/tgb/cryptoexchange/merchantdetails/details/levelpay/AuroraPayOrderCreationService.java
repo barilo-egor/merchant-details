@@ -16,6 +16,11 @@ public class AuroraPayOrderCreationService extends LevelPayOrderCreationService 
     }
 
     @Override
+    protected Integer getAmount(String amount) {
+        return super.getAmount(amount) / 100;
+    }
+
+    @Override
     public Merchant getMerchant() {
         return Merchant.AURORA_PAY;
     }
