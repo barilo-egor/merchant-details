@@ -109,7 +109,11 @@ public enum Merchant {
     SETTLE_X(
             tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
-    ),;
+    ),
+    AURORA_PAY(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    );
 
     private final MerchantOrderStatus[] statuses;
 
