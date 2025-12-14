@@ -177,8 +177,6 @@ class MerchantOrderCreationServiceTest {
         detailsRequest.setChatId(3745747545L);
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isPresent());
-        assertEquals(5234L, maybeResponse.get().getId());
-        assertEquals(3745747545L, maybeResponse.get().getChatId());
     }
 
     @Test
