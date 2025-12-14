@@ -143,5 +143,8 @@ kafka:
   topic:
     merchant-details:
       receive: ""
+      callback: ""
+      request: ""
+      response: ""
 callback-secret: ""
 gateway-url: ""
