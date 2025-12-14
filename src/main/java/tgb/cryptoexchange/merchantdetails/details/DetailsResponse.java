@@ -13,6 +13,8 @@ public class DetailsResponse {
 
     private String requestId;
 
+    private Long id;
+
     private Merchant merchant;
 
     private String details;
