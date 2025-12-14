@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MerchantDetailsReceiveEventSerializerTest {
+class KafkaSerializerTest {
 
     @Test
     void serializeShouldReturnEmptyArrayIfEventIsNull() {
