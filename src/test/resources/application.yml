@@ -114,6 +114,8 @@ kafka:
     merchant-details:
       receive: 'test-merchant-details-receive-topic'
       callback: 'test-merchant-details-callback-topic'
+      request: 'test-merchant-details-receive-topic'
+      response: 'test-merchant-details-receive-topic'
 callback-secret: test-callback-secret
 gateway-url: "https://gateway-example-url.com"
 spring:

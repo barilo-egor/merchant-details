@@ -2,16 +2,22 @@ package tgb.cryptoexchange.merchantdetails.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.util.backoff.FixedBackOff;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
@@ -72,5 +78,52 @@ public class CommonConfig {
         callbackConfig.setCallbackSecret(callbackSecret);
         callbackConfig.setGatewayUrl(gatewayUrl);
         return callbackConfig;
+    }
+
+    @Bean
+    public ConsumerFactory<String, DetailsRequest> consumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, DetailsRequest.KafkaDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, DetailsRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                         DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, DetailsRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(kafkaProperties));
+        factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
+        return factory;
+    }
+
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(DetailsRequestErrorService detailsRequestErrorService) {
+        return new DefaultErrorHandler(
+                detailsRequestErrorService::handle,
+                new FixedBackOff(60000, 1)
+        );
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, DetailsResponse> detailsResponseProducerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DetailsResponse.KafkaSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, DetailsResponse> detailsResponseKafkaTemplate(DetailsReponseFoundProducerListener detailsReponseFoundProducerListener,
+                                                                               KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, DetailsResponse> kafkaTemplate = new KafkaTemplate<>(detailsResponseProducerFactory(kafkaProperties));
+        kafkaTemplate.setProducerListener(detailsReponseFoundProducerListener);
+        return kafkaTemplate;
     }
 }
