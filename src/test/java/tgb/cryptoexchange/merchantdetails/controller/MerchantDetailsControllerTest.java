@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,16 +16,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.entity.Variable;
 import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +54,9 @@ class MerchantDetailsControllerTest {
 
     @MockitoBean
     private MerchantConfigService merchantConfigService;
+
+    @MockitoBean
+    private VariableService variableService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -267,5 +274,31 @@ class MerchantDetailsControllerTest {
         mockMvc.perform(delete("/merchant-details/config/1/groupChatId"))
                 .andExpect(status().isOk());
         verify(merchantConfigService).deleteField(1L, "groupChatId");
+    }
+
+    @EnumSource(VariableType.class)
+    @ParameterizedTest
+    void getVariableShouldCallServiceMethod(VariableType variableType) throws Exception {
+        when(variableService.findByType(variableType)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue()).build());
+        mockMvc.perform(get("/merchant-details/variable/" + variableType.name()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("success").value(true))
+                .andExpect(jsonPath("data").exists())
+                .andExpect(jsonPath("data.type").value(variableType.name()))
+                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue()));
+    }
+
+    @CsvSource("""
+            ATTEMPTS_COUNT,8
+            ATTEMPTS_COUNT,1
+            MIN_ATTEMPT_TIME,25
+            MIN_ATTEMPT_TIME,10
+            """)
+    @ParameterizedTest
+    void updateVariableShouldCallServiceMethod(VariableType variableType, String value) throws Exception {
+        mockMvc.perform(patch("/merchant-details/variable/" + variableType.name())
+                        .queryParam("value", value))
+                .andExpect(status().isOk());
+        verify(variableService).update(variableType, value);
     }
 }
