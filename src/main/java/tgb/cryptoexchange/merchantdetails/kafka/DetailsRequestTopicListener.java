@@ -28,7 +28,7 @@ public class DetailsRequestTopicListener {
         this.detailsResponseFoundTopic = detailsResponseFoundTopic;
     }
 
-    @KafkaListener(topics = "${kafka.topic.merchant-details.request}")
+    @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}")
     public void receive(DetailsRequest request) {
         Optional<DetailsResponse> detailsResponse = merchantDetailsService.getDetails(request);
         DetailsResponse result;
