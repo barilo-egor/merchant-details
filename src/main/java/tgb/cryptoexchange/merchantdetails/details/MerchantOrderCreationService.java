@@ -113,6 +113,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeResponse.isPresent()) {
             log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
             maybeResponse.get().setId(detailsRequest.getId());
+            maybeResponse.get().setChatId(detailsRequest.getChatId());
         } else {
             logNoDetails(detailsRequest.getId());
         }

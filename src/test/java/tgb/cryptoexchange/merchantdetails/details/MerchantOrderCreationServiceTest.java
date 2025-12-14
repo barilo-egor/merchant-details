@@ -174,9 +174,11 @@ class MerchantOrderCreationServiceTest {
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setId(5234L);
+        detailsRequest.setChatId(3745747545L);
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isPresent());
         assertEquals(5234L, maybeResponse.get().getId());
+        assertEquals(3745747545L, maybeResponse.get().getChatId());
     }
 
     @Test
