@@ -35,7 +35,7 @@ public class MerchantDetailsReceiveEventProducer {
         event.setMerchantOrderId(detailsResponse.getMerchantOrderId());
         event.setRequestedAmount(detailsRequest.getAmount());
         event.setMerchantAmount(detailsResponse.getAmount());
-        detailsRequest.getMethod(merchant).ifPresent(event::setMethod);
+        detailsRequest.getMerchantMethod(merchant).ifPresent(event::setMethod);
         event.setDetails(detailsResponse.getDetails());
         kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);
     }
