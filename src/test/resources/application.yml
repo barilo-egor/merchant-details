@@ -110,6 +110,7 @@ server:
   servlet:
     context-path: "/merchant-details"
 kafka:
+  group-id: 'group-id-dev'
   topic:
     merchant-details:
       receive: 'test-merchant-details-receive-topic'
