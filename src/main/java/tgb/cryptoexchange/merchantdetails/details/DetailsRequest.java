@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -38,7 +39,8 @@ public class DetailsRequest {
 
     private List<MerchantMethod> methods;
 
-    public Optional<String> getMethod(Merchant merchant) {
+    @JsonIgnore
+    public Optional<String> getMerchantMethod(Merchant merchant) {
         if (Objects.isNull(methods)) {
             return Optional.of(method);
         }
