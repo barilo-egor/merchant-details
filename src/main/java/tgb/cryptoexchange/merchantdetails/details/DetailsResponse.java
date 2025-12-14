@@ -15,6 +15,8 @@ public class DetailsResponse {
 
     private Long id;
 
+    private Long chatId;
+
     private Merchant merchant;
 
     private String details;
