@@ -140,6 +140,7 @@ spring:
     hibernate:
       ddl-auto: update
 kafka:
+  group-id: ''
   topic:
     merchant-details:
       receive: ""
