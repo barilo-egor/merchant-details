@@ -11,16 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigResponse;
-import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.*;
 import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tgb.cryptoexchange.merchantdetails.service.VariableService;
 import tgb.cryptoexchange.web.ApiResponse;
 
 import java.util.Optional;
@@ -35,12 +34,15 @@ public class MerchantDetailsController extends ApiController {
 
     private final MerchantConfigService merchantConfigService;
 
+    private final VariableService variableService;
+
     public MerchantDetailsController(MerchantPropertiesService merchantPropertiesService,
                                      MerchantDetailsService merchantDetailsService,
-                                     MerchantConfigService merchantConfigService) {
+                                     MerchantConfigService merchantConfigService, VariableService variableService) {
         this.merchantPropertiesService = merchantPropertiesService;
         this.merchantDetailsService = merchantDetailsService;
         this.merchantConfigService = merchantConfigService;
+        this.variableService = variableService;
     }
 
     @Operation(summary = "Получение списка пропертей мерчанта.")
@@ -117,5 +119,20 @@ public class MerchantDetailsController extends ApiController {
     @ResponseStatus(HttpStatus.OK)
     public void updateOrder(@RequestParam Merchant merchant, @RequestParam Boolean isUp) {
         merchantConfigService.changeOrder(merchant, isUp);
+    }
+
+    @GetMapping("/variable/{variableType}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType) {
+        return new ResponseEntity<>(ApiResponse.success(
+                VariableDTO.fromEntity(variableService.findByType(variableType))),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/variable/{variableType}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateVariable(@PathVariable VariableType variableType, @RequestParam String value) {
+        variableService.update(variableType, value);
     }
 }
