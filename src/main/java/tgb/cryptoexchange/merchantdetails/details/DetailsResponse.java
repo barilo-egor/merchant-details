@@ -13,10 +13,6 @@ public class DetailsResponse {
 
     private String requestId;
 
-    private Long id;
-
-    private Long chatId;
-
     private Merchant merchant;
 
     private String details;

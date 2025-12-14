@@ -112,8 +112,6 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         Optional<DetailsResponse> maybeResponse = buildResponse(response);
         if (maybeResponse.isPresent()) {
             log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
-            maybeResponse.get().setId(detailsRequest.getId());
-            maybeResponse.get().setChatId(detailsRequest.getChatId());
         } else {
             logNoDetails(detailsRequest.getId());
         }
@@ -211,7 +209,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     protected <E extends Enum<E>> E parseMethod(DetailsRequest detailsRequest, Class<E> methodType) {
-        String value = detailsRequest.getMethod(getMerchant()).orElseThrow(
+        String value = detailsRequest.getMerchantMethod(getMerchant()).orElseThrow(
                 () -> new MerchantMethodNotFoundException("Method for merchant " + getMerchant().name() + " not found.")
         );
         return parseMethod(value, methodType);
