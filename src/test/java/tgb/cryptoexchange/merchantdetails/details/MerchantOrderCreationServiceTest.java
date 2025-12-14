@@ -173,8 +173,10 @@ class MerchantOrderCreationServiceTest {
         when(response.hasDetails()).thenReturn(true);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
         DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(5234L);
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isPresent());
+        assertEquals(5234L, maybeResponse.get().getId());
     }
 
     @Test
