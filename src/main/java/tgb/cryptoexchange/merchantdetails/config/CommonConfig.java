@@ -15,6 +15,8 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -22,8 +24,10 @@ import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 @Configuration
+@EnableAsync
 public class CommonConfig {
 
     @Bean
@@ -125,5 +129,16 @@ public class CommonConfig {
         KafkaTemplate<String, DetailsResponse> kafkaTemplate = new KafkaTemplate<>(detailsResponseProducerFactory(kafkaProperties));
         kafkaTemplate.setProducerListener(detailsReponseFoundProducerListener);
         return kafkaTemplate;
+    }
+
+    @Bean(name = "detailsRequestSearchExecutor")
+    public Executor detailsRequestSearchExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("DetailsRequestSearch-");
+        executor.initialize();
+        return executor;
     }
 }
