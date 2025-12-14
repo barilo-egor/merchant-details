@@ -23,4 +23,10 @@ public class VariableService {
                     return variableRepository.save(newVariable);
                 });
     }
+
+    public void update(VariableType variableType,String value) {
+        Variable variable = findByType(variableType);
+        variable.setValue(value);
+        variableRepository.save(variable);
+    }
 }

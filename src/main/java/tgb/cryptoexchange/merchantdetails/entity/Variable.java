@@ -25,6 +25,7 @@ public class Variable {
      * Тип переменной
      */
     @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
     private VariableType type;
 
     /**
