@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
-import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
+import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
@@ -88,9 +85,10 @@ public class MerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
+        DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId());
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
             long t1 = System.currentTimeMillis();
-            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
+            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
             long t2 = System.currentTimeMillis();
             long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
             if (attemptNumber < attemptsCount && leftTime > 0) {
@@ -98,23 +96,28 @@ public class MerchantDetailsService {
             }
             if (maybeDetailsResponse.isPresent()) break;
         }
-        if (maybeDetailsResponse.isEmpty()) {
+        boolean hasDetails = maybeDetailsResponse.isPresent();
+        detailsReceiveMonitor.stop(hasDetails);
+        if (hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
         return maybeDetailsResponse;
     }
 
     private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest request,
-                                                    int attemptNumber) {
+                                                    int attemptNumber, DetailsReceiveMonitor detailsReceiveMonitor) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
             MerchantConfig merchantConfig = merchantConfigList.get(index);
             Merchant merchant = merchantConfig.getMerchant();
+            var merchantAttempt = detailsReceiveMonitor.start(merchant);
             try {
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
+                merchantAttempt.stop(maybeDetailsResponse.isPresent());
             } catch (Exception e) {
+                merchantAttempt.error();
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
             }
