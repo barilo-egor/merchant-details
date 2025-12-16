@@ -2,10 +2,13 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
+import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
@@ -18,6 +21,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MerchantDetailsService {
 
+    @Value("${kafka.topic.merchant-details.monitor}")
+    private String detailsReceiveMonitorTopic;
+
     private final MerchantServiceRegistry merchantServiceRegistry;
 
     private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
@@ -28,15 +34,19 @@ public class MerchantDetailsService {
 
     private final SleepService sleepService;
 
+    private final KafkaTemplate<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorKafkaTemplate;
+
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
                                   @Autowired(required = false) MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
                                   MerchantConfigService merchantConfigService, VariableService variableService,
-                                  SleepService sleepService) {
+                                  SleepService sleepService,
+                                  KafkaTemplate<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorKafkaTemplate) {
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
         this.sleepService = sleepService;
+        this.detailsReceiveMonitorKafkaTemplate = detailsReceiveMonitorKafkaTemplate;
     }
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
@@ -98,6 +108,7 @@ public class MerchantDetailsService {
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
         detailsReceiveMonitor.stop(hasDetails);
+        detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
         if (hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
