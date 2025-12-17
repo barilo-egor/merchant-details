@@ -10,6 +10,7 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.List;
@@ -95,7 +96,7 @@ public class MerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
-        DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId());
+        DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId(), request.getAmount());
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
             long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
@@ -120,9 +121,11 @@ public class MerchantDetailsService {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
-            MerchantConfig merchantConfig = merchantConfigList.get(index);
-            Merchant merchant = merchantConfig.getMerchant();
-            var merchantAttempt = detailsReceiveMonitor.start(merchant);
+            Merchant merchant = merchantConfigList.get(index).getMerchant();
+            String method = request.getMerchantMethod(merchant).orElseThrow(
+                    () -> new MerchantMethodNotFoundException("Method for merchant " + merchant.name() + " not found.")
+            );
+            var merchantAttempt = detailsReceiveMonitor.start(merchant, method);
             try {
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
