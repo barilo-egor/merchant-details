@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,9 +14,9 @@ public class DetailsReceiveMonitor {
 
     private final Integer amount;
     
-    private final LocalDateTime startTime;
+    private final Instant startTime;
     
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     private boolean success;
 
@@ -25,7 +25,7 @@ public class DetailsReceiveMonitor {
     public DetailsReceiveMonitor(Long dealId, Integer amount) {
         this.dealId = dealId;
         this.amount = amount;
-        this.startTime = LocalDateTime.now();
+        this.startTime = Instant.now();
     }
 
     public MerchantAttempt start(Merchant merchant, String method) {
@@ -35,14 +35,14 @@ public class DetailsReceiveMonitor {
         MerchantAttempt merchantAttempt = new MerchantAttempt();
         merchantAttempt.merchant = merchant;
         merchantAttempt.method = method;
-        merchantAttempt.startTime = LocalDateTime.now();
+        merchantAttempt.startTime = Instant.now();
         attempts.add(merchantAttempt);
         return merchantAttempt;
     }
 
     public void stop(boolean success) {
         this.success = success;
-        this.endTime = LocalDateTime.now();
+        this.endTime = Instant.now();
     }
 
     public DetailsReceiveMonitorDTO toDTO() {
@@ -73,9 +73,9 @@ public class DetailsReceiveMonitor {
 
         private String method;
 
-        private LocalDateTime startTime;
+        private Instant startTime;
 
-        private LocalDateTime endTime;
+        private Instant endTime;
 
         private boolean success;
 
@@ -84,13 +84,13 @@ public class DetailsReceiveMonitor {
         public void stop(boolean success) {
             this.success = success;
             this.error = false;
-            this.endTime = LocalDateTime.now();
+            this.endTime = Instant.now();
         }
 
         public void error() {
             this.success = false;
             this.error = true;
-            this.endTime = LocalDateTime.now();
+            this.endTime = Instant.now();
         }
     }
 }
