@@ -113,7 +113,11 @@ public class MerchantDetailsService {
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
         detailsReceiveMonitor.stop(hasDetails);
-        detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+        try {
+            detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+        } catch (Exception e) {
+            log.error("Ошибки при попытке отправить монитор в топик: {}", e.getMessage(), e);
+        }
         if (hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
