@@ -18,6 +18,7 @@ public class DetailsReceiveMonitorDTO {
     @JsonSerialize(using = InstantSerializer.class)
     private Instant startTime;
 
+    @JsonSerialize(using = InstantSerializer.class)
     private Instant endTime;
 
     private boolean success;
