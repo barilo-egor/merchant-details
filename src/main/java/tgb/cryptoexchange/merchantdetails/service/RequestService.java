@@ -8,6 +8,7 @@ import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -16,10 +17,13 @@ public class RequestService {
 
     public String request(WebClient webClient, HttpMethod httpMethod, Function<UriBuilder, URI> uriBuilder,
                           Consumer<HttpHeaders> headersConsumer, String body) {
-        return webClient.method(httpMethod)
+        WebClient.RequestBodySpec requestBodySpec = webClient.method(httpMethod)
                 .uri(uriBuilder)
-                .headers(headersConsumer)
-                .bodyValue(body)
+                .headers(headersConsumer);
+        if (Objects.nonNull(body)) {
+            requestBodySpec.bodyValue(body);
+        }
+        return requestBodySpec
                 .retrieve()
                 .bodyToMono(String.class)
                 .block(Duration.ofSeconds(30));

@@ -20,6 +20,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
@@ -141,4 +142,24 @@ public class CommonConfig {
         executor.initialize();
         return executor;
     }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorProducerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DetailsReceiveMonitorSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorKafkaTemplate(DetailsReceiveMonitorProducerListener detailsReceiveMonitorProducerListener,
+                                                                                 KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, DetailsReceiveMonitorDTO> kafkaTemplate = new KafkaTemplate<>(detailsReceiveMonitorProducerFactory(kafkaProperties));
+        kafkaTemplate.setProducerListener(detailsReceiveMonitorProducerListener);
+        return kafkaTemplate;
+    }
+
 }

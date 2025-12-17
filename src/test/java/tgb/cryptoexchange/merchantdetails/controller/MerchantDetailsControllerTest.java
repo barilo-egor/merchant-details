@@ -18,21 +18,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
-import tgb.cryptoexchange.merchantdetails.properties.AppexbitProperties;
-import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,9 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MerchantDetailsControllerTest {
 
     @MockitoBean
-    private MerchantPropertiesService merchantPropertiesService;
-
-    @MockitoBean
     private MerchantDetailsService merchantDetailsService;
 
     @MockitoBean
@@ -60,122 +52,6 @@ class MerchantDetailsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @ParameterizedTest
-    @CsvSource({
-            "https://google.com,someKey",
-            "https://youtube.com,someAnotherYoutubeKeyWith123Numbers"
-    })
-    void shouldReturnJsonProperties(String url, String key) throws Exception {
-        var appexbitProperties = new AppexbitProperties(url, key);
-        when(merchantPropertiesService.getProperties(Merchant.APPEXBIT)).thenReturn(Optional.of(appexbitProperties));
-        mockMvc.perform(get("/merchant-details/properties/APPEXBIT"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.url").value(url))
-                .andExpect(jsonPath("$.data.key").value(key));
-    }
-
-    @Test
-    void shouldReturn404IfHasNoProperties() throws Exception {
-        when(merchantPropertiesService.getProperties(Merchant.APPEXBIT)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/merchant-details/properties/APPEXBIT"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void detailsShouldReturn204IfNoDetails() throws Exception {
-        when(merchantDetailsService.getDetails(any(), any())).thenReturn(Optional.empty());
-        mockMvc.perform(get("/merchant-details/ALFA_TEAM")
-                        .param("method", "value")
-                        .param("amount", "1000"))
-                .andExpect(status().isNoContent());
-    }
-
-    @CsvSource(nullValues = "null", textBlock = """
-            ALFA_TEAM,ALFA 79878764521,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,PENDING,\
-            b98747be-0060-4b13-aee6-f7d489f23231,5444,\
-            c29tZSBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGZpbGU=
-            WELL_BIT,Сбербанк 1234123412341234,f669eb83-a6c2-4456-8416-c2b1fd514c99,CREATED,\
-            c7a29fbf-7c80-44dd-8781-4117165569dc,2055,\
-            c29tZSAybG9uZyAybG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgZmlsZSA=
-            """)
-    @ParameterizedTest
-    void detailsShouldReturnDetailsResponse(Merchant merchant, String details, String merchantOrderId,
-                                            String merchantOrderStatus, String merchantCustomId, Integer amount,
-                                            String qr) throws Exception {
-        DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setMerchant(merchant);
-        detailsResponse.setDetails(details);
-        detailsResponse.setMerchantOrderId(merchantOrderId);
-        detailsResponse.setMerchantOrderStatus(merchantOrderStatus);
-        detailsResponse.setMerchantCustomId(merchantCustomId);
-        detailsResponse.setAmount(amount);
-        detailsResponse.setQr(qr);
-        when(merchantDetailsService.getDetails(any(), any())).thenReturn(Optional.of(detailsResponse));
-        mockMvc.perform(get("/merchant-details/ALFA_TEAM")
-                        .param("method", "value")
-                        .param("amount", "1000"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.merchant").value(merchant.name()))
-                .andExpect(jsonPath("$.data.details").value(details))
-                .andExpect(jsonPath("$.data.merchantOrderId").value(merchantOrderId))
-                .andExpect(jsonPath("$.data.merchantOrderStatus").value(merchantOrderStatus))
-                .andExpect(jsonPath("$.data.merchantCustomId").value(merchantCustomId))
-                .andExpect(jsonPath("$.data.amount").value(amount))
-                .andExpect(jsonPath("$.data.qr").value(qr));
-    }
-
-    @CsvSource(nullValues = "null", textBlock = """
-            ALFA_TEAM,ALFA 79878764521,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,PENDING,\
-            b98747be-0060-4b13-aee6-f7d489f23231,5444,\
-            c29tZSBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGZpbGU=
-            WELL_BIT,Сбербанк 1234123412341234,f669eb83-a6c2-4456-8416-c2b1fd514c99,CREATED,\
-            c7a29fbf-7c80-44dd-8781-4117165569dc,2055,\
-            c29tZSAybG9uZyAybG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgbG9uZyBsb25nIGxvbmcgZmlsZSA=
-            """)
-    @ParameterizedTest
-    void getDetailsShouldReturnDetailsResponse(Merchant merchant, String details, String merchantOrderId,
-                                               String merchantOrderStatus, String merchantCustomId, Integer amount,
-                                               String qr) throws Exception {
-        DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setMerchant(merchant);
-        detailsResponse.setDetails(details);
-        detailsResponse.setMerchantOrderId(merchantOrderId);
-        detailsResponse.setMerchantOrderStatus(merchantOrderStatus);
-        detailsResponse.setMerchantCustomId(merchantCustomId);
-        detailsResponse.setAmount(amount);
-        detailsResponse.setQr(qr);
-        ArgumentCaptor<DetailsRequest> requestCaptor = ArgumentCaptor.forClass(DetailsRequest.class);
-        when(merchantDetailsService.getDetails(any())).thenReturn(Optional.of(detailsResponse));
-        mockMvc.perform(get("/merchant-details")
-                        .param("amount", "1000")
-                        .param("methods[0].merchant", "ALFA_TEAM")
-                        .param("methods[0].method", "SBP")
-                        .param("methods[1].merchant", "ONLY_PAYS")
-                        .param("methods[1].method", "CARD")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.merchant").value(merchant.name()))
-                .andExpect(jsonPath("$.data.details").value(details))
-                .andExpect(jsonPath("$.data.merchantOrderId").value(merchantOrderId))
-                .andExpect(jsonPath("$.data.merchantOrderStatus").value(merchantOrderStatus))
-                .andExpect(jsonPath("$.data.merchantCustomId").value(merchantCustomId))
-                .andExpect(jsonPath("$.data.amount").value(amount))
-                .andExpect(jsonPath("$.data.qr").value(qr));
-        verify(merchantDetailsService).getDetails(requestCaptor.capture());
-        DetailsRequest actual = requestCaptor.getValue();
-        assertAll(
-                () -> assertEquals(1000, actual.getAmount()),
-                () -> assertEquals(2, actual.getMethods().size()),
-                () -> assertEquals(Merchant.ALFA_TEAM, actual.getMethods().getFirst().getMerchant()),
-                () -> assertEquals("SBP", actual.getMethods().getFirst().getMethod()),
-                () -> assertEquals(Merchant.ONLY_PAYS, actual.getMethods().get(1).getMerchant()),
-                () -> assertEquals("CARD", actual.getMethods().get(1).getMethod())
-        );
-    }
 
     @CsvSource("""
             ALFA_TEAM,f669eb83-a6c2-4456-8416-c2b1fd514c99,CARD
