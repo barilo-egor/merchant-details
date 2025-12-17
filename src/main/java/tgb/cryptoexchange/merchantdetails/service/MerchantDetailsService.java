@@ -89,7 +89,9 @@ public class MerchantDetailsService {
     public Optional<DetailsResponse> getDetails(DetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
-        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
+        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(
+                request.getMethods(), request.getAmount()
+        );
         log.debug("Найденные мерчанты для запроса по сделке {}: {}", request.getId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
@@ -101,9 +103,11 @@ public class MerchantDetailsService {
             long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
             long t2 = System.currentTimeMillis();
-            long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
-            if (attemptNumber < attemptsCount && leftTime > 0) {
-                sleepService.sleep(leftTime);
+            if (attemptNumber < attemptsCount) {
+                long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
+                if (leftTime > 0) {
+                    sleepService.sleep(leftTime);
+                }
             }
             if (maybeDetailsResponse.isPresent()) break;
         }
