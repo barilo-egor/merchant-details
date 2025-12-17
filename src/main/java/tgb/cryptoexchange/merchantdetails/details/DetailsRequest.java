@@ -16,7 +16,6 @@ import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Data
@@ -26,8 +25,6 @@ public class DetailsRequest {
     private String requestId;
 
     private Long id;
-
-    private String method;
 
     @NotNull
     @Min(1)
@@ -41,9 +38,6 @@ public class DetailsRequest {
 
     @JsonIgnore
     public Optional<String> getMerchantMethod(Merchant merchant) {
-        if (Objects.isNull(methods)) {
-            return Optional.of(method);
-        }
         for (MerchantMethod merchantMethod : methods) {
             if (merchantMethod.getMerchant().equals(merchant)) {
                 return Optional.of(merchantMethod.getMethod());
