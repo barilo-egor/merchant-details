@@ -114,6 +114,7 @@ kafka:
   topic:
     merchant-details:
       receive: 'test-merchant-details-receive-topic'
+      monitor: 'test-merchant-details-monitor-topic'
       callback: 'test-merchant-details-callback-topic'
       request: 'test-merchant-details-receive-topic'
       response: 'test-merchant-details-receive-topic'

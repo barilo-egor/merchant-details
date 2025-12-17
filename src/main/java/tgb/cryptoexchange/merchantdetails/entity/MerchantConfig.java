@@ -1,12 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,6 +12,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "successStatuses")
+@EqualsAndHashCode(exclude = "successStatuses")
 public class MerchantConfig {
 
     @Id
@@ -38,8 +38,9 @@ public class MerchantConfig {
     @Column(unique = true, nullable = false)
     private Integer merchantOrder;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<AutoConfirmConfig> confirmConfigs;
+    private List<AutoConfirmConfig> confirmConfigs = new ArrayList<>();
 
     private Long groupChatId;
 }

@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,10 +11,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
+import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
@@ -46,8 +50,16 @@ class MerchantDetailsServiceTest {
     @Mock
     private SleepService sleepService;
 
+    @Mock
+    private KafkaTemplate<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorKafkaTemplate;
+
     @InjectMocks
     private MerchantDetailsService merchantDetailsService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(merchantDetailsService, "detailsReceiveMonitorTopic", "test-topic-name");
+    }
 
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantServiceNotImplemented() {
@@ -383,8 +395,10 @@ class MerchantDetailsServiceTest {
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value(String.valueOf(times)).build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
-                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
+        if (times > 1) {
+            when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+                    .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
+        }
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
         when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
@@ -521,5 +535,128 @@ class MerchantDetailsServiceTest {
         verify(onlyPaysMerchantService, times(2)).createOrder(detailsRequest);
         verify(evoPayMerchantService, times(2)).createOrder(detailsRequest);
         verify(honeyMoneyMerchantService, times(2)).createOrder(detailsRequest);
+    }
+
+    @Test
+    void getDetailsShouldSendMonitorWithOneErrorAttempt() {
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
+                List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
+        );
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantService.createOrder(any())).thenThrow(RuntimeException.class);
+        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
+        ArgumentCaptor<DetailsReceiveMonitorDTO> dtoCaptor = ArgumentCaptor.forClass(DetailsReceiveMonitorDTO.class);
+
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(125236L);
+        String requestId = UUID.randomUUID().toString();
+        detailsRequest.setRequestId(requestId);
+        detailsRequest.setAmount(2500);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build()));
+        merchantDetailsService.getDetails(detailsRequest);
+        verify(detailsReceiveMonitorKafkaTemplate).send(eq("test-topic-name"), eq(requestId), dtoCaptor.capture());
+        DetailsReceiveMonitorDTO actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertEquals(125236L, actual.getDealId()),
+                () -> assertEquals(2500, actual.getAmount()),
+                () -> assertNotNull(actual.getStartTime()),
+                () -> assertNotNull(actual.getEndTime()),
+                () -> assertFalse(actual.isSuccess()),
+                () -> assertEquals(1, actual.getAttempts().size()),
+                () -> assertEquals(Merchant.ALFA_TEAM, actual.getAttempts().getFirst().getMerchant()),
+                () -> assertEquals("SBP", actual.getAttempts().getFirst().getMethod()),
+                () -> assertNotNull(actual.getAttempts().getFirst().getStartTime()),
+                () -> assertNotNull(actual.getAttempts().getFirst().getEndTime()),
+                () -> assertFalse(actual.getAttempts().getFirst().isSuccess()),
+                () -> assertTrue(actual.getAttempts().getFirst().isError())
+        );
+    }
+
+    @Test
+    void getDetailsShouldSendMonitorWithOneSuccessAttempt() {
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
+                List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
+        );
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(Merchant.ALFA_TEAM);
+        detailsResponse.setAmount(2501);
+        detailsResponse.setMerchantOrderStatus("SUCCESS");
+        detailsResponse.setMerchantOrderId(UUID.randomUUID().toString());
+        when(merchantService.createOrder(any())).thenReturn(Optional.of(detailsResponse));
+        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
+        ArgumentCaptor<DetailsReceiveMonitorDTO> dtoCaptor = ArgumentCaptor.forClass(DetailsReceiveMonitorDTO.class);
+
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(125236L);
+        String requestId = UUID.randomUUID().toString();
+        detailsRequest.setRequestId(requestId);
+        detailsRequest.setAmount(2500);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build()));
+        merchantDetailsService.getDetails(detailsRequest);
+        verify(detailsReceiveMonitorKafkaTemplate).send(eq("test-topic-name"), eq(requestId), dtoCaptor.capture());
+        DetailsReceiveMonitorDTO actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertTrue(actual.getAttempts().getFirst().isSuccess()),
+                () -> assertFalse(actual.getAttempts().getFirst().isError())
+        );
+    }
+
+    @Test
+    void getDetailsShouldSendMonitorWithOneNotSuccessAttempt() {
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
+                List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
+        );
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantService.createOrder(any())).thenReturn(Optional.empty());
+        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
+        ArgumentCaptor<DetailsReceiveMonitorDTO> dtoCaptor = ArgumentCaptor.forClass(DetailsReceiveMonitorDTO.class);
+
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(125236L);
+        String requestId = UUID.randomUUID().toString();
+        detailsRequest.setRequestId(requestId);
+        detailsRequest.setAmount(2500);
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build()));
+        merchantDetailsService.getDetails(detailsRequest);
+        verify(detailsReceiveMonitorKafkaTemplate).send(eq("test-topic-name"), eq(requestId), dtoCaptor.capture());
+        DetailsReceiveMonitorDTO actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertFalse(actual.getAttempts().getFirst().isSuccess()),
+                () -> assertFalse(actual.getAttempts().getFirst().isError())
+        );
+    }
+
+    @Test
+    void getDetailsShouldSendMonitorWith6AttemptsIfTwoMerchantAnd3AttemptsCount() {
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(List.of(
+                MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build(),
+                MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build()
+        ));
+        when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("3").build());
+        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME)).thenReturn(Variable.builder().value("15").build());
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantService.createOrder(any())).thenReturn(Optional.empty());
+        when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
+        ArgumentCaptor<DetailsReceiveMonitorDTO> dtoCaptor = ArgumentCaptor.forClass(DetailsReceiveMonitorDTO.class);
+
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setId(125236L);
+        String requestId = UUID.randomUUID().toString();
+        detailsRequest.setRequestId(requestId);
+        detailsRequest.setAmount(2500);
+        detailsRequest.setMethods(List.of(
+                DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build(),
+                DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method("PHONE").build()
+        ));
+        merchantDetailsService.getDetails(detailsRequest);
+        verify(detailsReceiveMonitorKafkaTemplate).send(eq("test-topic-name"), eq(requestId), dtoCaptor.capture());
+        DetailsReceiveMonitorDTO actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertEquals(6, actual.getAttempts().size())
+        );
     }
 }

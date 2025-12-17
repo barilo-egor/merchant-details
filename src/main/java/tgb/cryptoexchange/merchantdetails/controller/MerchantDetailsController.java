@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -13,22 +10,15 @@ import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.dto.*;
-import tgb.cryptoexchange.merchantdetails.properties.MerchantPropertiesService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 import tgb.cryptoexchange.web.ApiResponse;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/merchant-details")
 public class MerchantDetailsController extends ApiController {
-
-    private final MerchantPropertiesService merchantPropertiesService;
 
     private final MerchantDetailsService merchantDetailsService;
 
@@ -36,56 +26,11 @@ public class MerchantDetailsController extends ApiController {
 
     private final VariableService variableService;
 
-    public MerchantDetailsController(MerchantPropertiesService merchantPropertiesService,
-                                     MerchantDetailsService merchantDetailsService,
+    public MerchantDetailsController(MerchantDetailsService merchantDetailsService,
                                      MerchantConfigService merchantConfigService, VariableService variableService) {
-        this.merchantPropertiesService = merchantPropertiesService;
         this.merchantDetailsService = merchantDetailsService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
-    }
-
-    @Operation(summary = "Получение списка пропертей мерчанта.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200", description = "Проперти мерчанта найдены."
-            ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "404", description = "Проперти для данного мерчанта не найдены"
-            )
-    })
-    @GetMapping("/properties/{merchant}")
-    public ResponseEntity<ApiResponse<Object>> properties(@PathVariable Merchant merchant) {
-        Optional<Object> maybeProperties = merchantPropertiesService.getProperties(merchant);
-        return maybeProperties
-                .map(properties -> new ResponseEntity<>(ApiResponse.success(properties), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @Operation(summary = "Попытка получения реквизитов у запрошенного мерчанта.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200", description = "Реквизиты мерчанта найдены."
-            ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "204", description = "Реквизиты у мерчанта получены не были."
-            )
-    })
-    @GetMapping("/{merchant}")
-    public ResponseEntity<ApiResponse<DetailsResponse>> details(@Valid @ModelAttribute DetailsRequest request,
-                                                                  @PathVariable Merchant merchant) {
-        Optional<DetailsResponse> maybeRequisiteResponse = merchantDetailsService.getDetails(merchant, request);
-        return maybeRequisiteResponse
-                .map(requisiteResponse -> new ResponseEntity<>(ApiResponse.success(requisiteResponse), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<DetailsResponse>> details(@Valid @ModelAttribute DetailsRequest request) {
-        Optional<DetailsResponse> maybeRequisiteResponse = merchantDetailsService.getDetails(request);
-        return maybeRequisiteResponse
-                .map(requisiteResponse -> new ResponseEntity<>(ApiResponse.success(requisiteResponse), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
     @PatchMapping("/{merchant}")
