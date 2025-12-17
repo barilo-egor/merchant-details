@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.dto;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -13,9 +13,9 @@ public class DetailsReceiveMonitorDTO {
 
     private Integer amount;
 
-    private LocalDateTime startTime;
+    private Instant startTime;
 
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     private boolean success;
 
@@ -28,9 +28,9 @@ public class DetailsReceiveMonitorDTO {
 
         private String method;
 
-        private LocalDateTime startTime;
+        private Instant startTime;
 
-        private LocalDateTime endTime;
+        private Instant endTime;
 
         private boolean success;
 
