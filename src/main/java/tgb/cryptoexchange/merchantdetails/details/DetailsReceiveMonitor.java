@@ -11,6 +11,8 @@ import java.util.Objects;
 public class DetailsReceiveMonitor {
 
     private final Long dealId;
+
+    private final Integer amount;
     
     private final LocalDateTime startTime;
     
@@ -20,17 +22,19 @@ public class DetailsReceiveMonitor {
 
     private final List<MerchantAttempt> attempts = new ArrayList<>();
 
-    public DetailsReceiveMonitor(Long dealId) {
+    public DetailsReceiveMonitor(Long dealId, Integer amount) {
         this.dealId = dealId;
+        this.amount = amount;
         this.startTime = LocalDateTime.now();
     }
 
-    public MerchantAttempt start(Merchant merchant) {
+    public MerchantAttempt start(Merchant merchant, String method) {
         if (Objects.nonNull(endTime)) {
             throw new UnsupportedOperationException("An attempt cannot be added because the monitor is closed.");
         }
         MerchantAttempt merchantAttempt = new MerchantAttempt();
         merchantAttempt.merchant = merchant;
+        merchantAttempt.method = method;
         merchantAttempt.startTime = LocalDateTime.now();
         attempts.add(merchantAttempt);
         return merchantAttempt;
@@ -44,6 +48,7 @@ public class DetailsReceiveMonitor {
     public DetailsReceiveMonitorDTO toDTO() {
         DetailsReceiveMonitorDTO dto = new DetailsReceiveMonitorDTO();
         dto.setDealId(dealId);
+        dto.setAmount(amount);
         dto.setStartTime(startTime);
         dto.setEndTime(endTime);
         dto.setSuccess(success);
@@ -51,6 +56,7 @@ public class DetailsReceiveMonitor {
         for (MerchantAttempt merchantAttempt : attempts) {
             DetailsReceiveMonitorDTO.MerchantAttempt dtoAttempt = new DetailsReceiveMonitorDTO.MerchantAttempt();
             dtoAttempt.setMerchant(merchantAttempt.merchant);
+            dtoAttempt.setMethod(merchantAttempt.method);
             dtoAttempt.setStartTime(merchantAttempt.startTime);
             dtoAttempt.setEndTime(merchantAttempt.endTime);
             dtoAttempt.setSuccess(merchantAttempt.success);
@@ -64,6 +70,8 @@ public class DetailsReceiveMonitor {
     public static class MerchantAttempt {
 
         private Merchant merchant;
+
+        private String method;
 
         private LocalDateTime startTime;
 

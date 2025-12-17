@@ -11,6 +11,8 @@ public class DetailsReceiveMonitorDTO {
 
     private Long dealId;
 
+    private Integer amount;
+
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
@@ -23,6 +25,8 @@ public class DetailsReceiveMonitorDTO {
     public static class MerchantAttempt {
 
         private Merchant merchant;
+
+        private String method;
 
         private LocalDateTime startTime;
 
