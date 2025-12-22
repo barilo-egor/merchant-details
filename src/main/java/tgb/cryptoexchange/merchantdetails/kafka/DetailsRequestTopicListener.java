@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @Profile("!kafka-disabled")
 public class DetailsRequestTopicListener {
 
+    private static final String VERSION_0_9_1 = "0.9.1";
+
     private static final Set<Merchant> MERCHANTS_VERSION_0_9_1 = Arrays.stream(Merchant.values())
             .filter(merchant -> !Merchant.PLATA_PAYMENT.equals(merchant))
             .collect(Collectors.toSet());
@@ -30,13 +32,13 @@ public class DetailsRequestTopicListener {
     }
 
     @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}")
-    public void receive(@Payload DetailsRequest request, @Header(name = "API-version", defaultValue = "0.9.1") String version) {
+    public void receive(@Payload DetailsRequest request, @Header(name = "API-version", defaultValue = VERSION_0_9_1) String version) {
         Collection<Merchant> merchants;
         Semver semver;
         try {
             semver = new Semver(version);
         } catch (SemverException e) {
-            semver = new Semver("0.10.0");
+            semver = new Semver(VERSION_0_9_1);
         }
         if (semver.isGreaterThanOrEqualTo("0.10.0")) {
             merchants = Arrays.asList(Merchant.values());
