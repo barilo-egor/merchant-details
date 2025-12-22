@@ -1,5 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
+import org.semver4j.Semver;
+import org.semver4j.SemverException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -30,7 +32,13 @@ public class DetailsRequestTopicListener {
     @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}")
     public void receive(@Payload DetailsRequest request, @Header(name = "API-version", defaultValue = "0.9.1") String version) {
         Collection<Merchant> merchants;
-        if ("0.10".equals(version)) {
+        Semver semver;
+        try {
+            semver = new Semver(version);
+        } catch (SemverException e) {
+            semver = new Semver("0.10.0");
+        }
+        if (semver.isGreaterThanOrEqualTo("0.10.0")) {
             merchants = Arrays.asList(Merchant.values());
         } else {
             merchants = MERCHANTS_VERSION_0_9_1;
