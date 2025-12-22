@@ -105,7 +105,7 @@ public class MerchantDetailsService {
             long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
             long t2 = System.currentTimeMillis();
-            if (attemptNumber < attemptsCount) {
+            if (attemptNumber < attemptsCount && maybeDetailsResponse.isEmpty()) {
                 long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
                 if (leftTime > 0) {
                     sleepService.sleep(leftTime);
@@ -120,7 +120,7 @@ public class MerchantDetailsService {
         } catch (Exception e) {
             log.error("Ошибки при попытке отправить монитор в топик: {}", e.getMessage(), e);
         }
-        if (hasDetails) {
+        if (!hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
         return maybeDetailsResponse;
