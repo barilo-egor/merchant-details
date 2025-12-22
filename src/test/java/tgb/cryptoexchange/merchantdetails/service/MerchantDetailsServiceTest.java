@@ -179,8 +179,6 @@ class MerchantDetailsServiceTest {
         when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
-                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
@@ -215,8 +213,6 @@ class MerchantDetailsServiceTest {
         when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
-                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
@@ -250,11 +246,8 @@ class MerchantDetailsServiceTest {
         when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
-                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
