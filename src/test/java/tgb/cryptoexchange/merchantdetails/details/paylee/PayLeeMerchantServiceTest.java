@@ -71,11 +71,15 @@ class PayLeeMerchantServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(method.name()).build()));
+        detailsRequest.setChatId(1231231231L);
 
         Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
-                () -> assertEquals(method, actual.getRequisitesType())
+                () -> assertEquals(method, actual.getRequisitesType()),
+                () -> assertNotNull(actual.getClientId()),
+                () -> assertEquals(8, actual.getClientId().length()),
+                () -> assertEquals("USDT", actual.getAmountCurrency())
         );
     }
 
