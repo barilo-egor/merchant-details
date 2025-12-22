@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.constants;
 
 import lombok.AllArgsConstructor;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
@@ -10,10 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Перечисление мерчантов
+ * Перечисление констант(методов и статусов) мерчантов.
  */
 @AllArgsConstructor
-public enum Merchant {
+public enum MerchantConstants {
     ALFA_TEAM(
             Status.values(),
             Method.values()
@@ -113,17 +114,22 @@ public enum Merchant {
     AURORA_PAY(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
-    );
+    ),
+    PLATA_PAYMENT(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
+    ;
 
     private final MerchantOrderStatus[] statuses;
 
     private final MerchantMethod[] methods;
 
-    public List<MerchantOrderStatus> getStatuses() {
-        return Arrays.asList(statuses);
+    public static List<MerchantOrderStatus> getStatuses(Merchant merchant) {
+        return Arrays.asList(MerchantConstants.valueOf(merchant.name()).statuses);
     }
 
-    public List<MerchantMethod> getMethods() {
-        return Arrays.asList(methods);
+    public static List<MerchantMethod> getMethods(Merchant merchant) {
+        return Arrays.asList(MerchantConstants.valueOf(merchant.name()).methods);
     }
 }

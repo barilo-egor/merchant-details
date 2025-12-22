@@ -106,6 +106,10 @@ aurora-pay:
   url: "aurora-url"
   token: "aurora-token"
   merchant-id: "aurora-merchant-id"
+plata-payment:
+  url: "plata-payment-url"
+  token: "plata-payment-token"
+  merchant-id: "plata-payment-merchant-id"
 #Конфиг приложения
 server:
   servlet:

@@ -9,13 +9,13 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-class AuroraPayOrderCreationServiceTest {
+class PlataPaymentOrderCreationServiceTest {
 
     @InjectMocks
-    private AuroraPayOrderCreationService auroraPayOrderCreationService;
+    private PlataPaymentOrderCreationService plataPaymentOrderCreationService;
 
     @Test
     void getMerchantShouldReturnMobius() {
-        assertEquals(Merchant.AURORA_PAY, auroraPayOrderCreationService.getMerchant());
+        assertEquals(Merchant.PLATA_PAYMENT, plataPaymentOrderCreationService.getMerchant());
     }
 }
