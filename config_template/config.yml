@@ -119,6 +119,10 @@ aurora-pay:
   url: ""
   token: ""
   merchant-id: ""
+plata-payment:
+  url: ""
+  token: ""
+  merchant-id: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:

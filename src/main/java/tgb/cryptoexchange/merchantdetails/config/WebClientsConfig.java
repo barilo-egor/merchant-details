@@ -143,4 +143,9 @@ public class WebClientsConfig {
     public WebClient auroraWebClient(AuroraPayProperties auroraPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(auroraPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient plataPaymentWebClient(PlataPaymentProperties properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(properties.url()).build();
+    }
 }
