@@ -78,7 +78,8 @@ class PayLeeMerchantServiceTest {
                 () -> assertEquals(amount, actual.getPrice()),
                 () -> assertEquals(method, actual.getRequisitesType()),
                 () -> assertNotNull(actual.getClientId()),
-                () -> assertEquals(8, actual.getClientId().length())
+                () -> assertEquals(8, actual.getClientId().length()),
+                () -> assertEquals("USDT", actual.getAmountCurrency())
         );
     }
 
