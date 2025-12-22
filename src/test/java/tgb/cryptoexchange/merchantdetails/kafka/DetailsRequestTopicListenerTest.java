@@ -36,7 +36,7 @@ class DetailsRequestTopicListenerTest {
     void receiveShouldCallServiceMethodWithAllMerchants() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setRequestId(UUID.randomUUID().toString());
-        detailsRequestTopicListener.receive(detailsRequest, "0.10");
+        detailsRequestTopicListener.receive(detailsRequest, "0.10.0");
         verify(detailsRequestProcessorService).process(detailsRequest, Arrays.asList(Merchant.values()));
     }
 
