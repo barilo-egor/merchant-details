@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
@@ -52,13 +53,13 @@ public class MerchantConfigDTO {
         merchantConfigDTO.setIsOn(merchantConfig.getIsOn());
         merchantConfigDTO.setMerchant(merchantConfig.getMerchant());
         merchantConfigDTO.setIsAutoWithdrawalOn(merchantConfig.getIsAutoWithdrawalOn());
-        merchantConfigDTO.setStatuses(merchantConfig.getMerchant().getStatuses());
+        merchantConfigDTO.setStatuses(MerchantConstants.getStatuses(merchantConfig.getMerchant()));
         if (Objects.nonNull(merchantConfig.getSuccessStatuses())) {
             merchantConfigDTO.setSuccessStatuses(merchantConfig.getSuccessStatuses().stream()
                     .map(MerchantSuccessStatus::getStatus)
                     .toList());
         }
-        merchantConfigDTO.setMethods(merchantConfig.getMerchant().getMethods());
+        merchantConfigDTO.setMethods(MerchantConstants.getMethods(merchantConfig.getMerchant()));
         merchantConfigDTO.setMaxAmount(merchantConfig.getMaxAmount());
         merchantConfigDTO.setMinAmount(merchantConfig.getMinAmount());
         merchantConfigDTO.setMerchantOrder(merchantConfig.getMerchantOrder());
