@@ -12,4 +12,10 @@ public class Request {
     private Method requisitesType;
 
     private String clientId;
+
+    private String amountCurrency;
+
+    public String getAmountCurrency() {
+        return "USDT";
+    }
 }
