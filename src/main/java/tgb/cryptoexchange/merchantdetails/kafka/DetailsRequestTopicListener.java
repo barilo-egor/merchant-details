@@ -28,7 +28,7 @@ public class DetailsRequestTopicListener {
     }
 
     @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}")
-    public void receive(@Payload DetailsRequest request, @Header(name = "API-version", defaultValue = "0.10") String version) {
+    public void receive(@Payload DetailsRequest request, @Header(name = "API-version", defaultValue = "0.9.1") String version) {
         Collection<Merchant> merchants;
         if ("0.10".equals(version)) {
             merchants = Arrays.asList(Merchant.values());
