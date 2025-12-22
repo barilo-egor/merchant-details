@@ -14,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,8 +46,8 @@ class DetailsRequestProcessorServiceTest {
         DetailsRequest request = new DetailsRequest();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
-        when(merchantDetailsService.getDetails(request)).thenReturn(Optional.empty());
-        service.process(request);
+        when(merchantDetailsService.getDetails(request, Arrays.asList(Merchant.values()))).thenReturn(Optional.empty());
+        service.process(request, Arrays.asList(Merchant.values()));
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
         verify(kafkaTemplate).send(eq("merchant-details-request-topic"), eq(id), captor.capture());
         assertEquals(id, captor.getValue().getRequestId());
@@ -66,8 +67,8 @@ class DetailsRequestProcessorServiceTest {
         response.setMerchant(Merchant.ALFA_TEAM);
         response.setMerchantOrderStatus("PENDING");
         response.setAmount(5000);
-        when(merchantDetailsService.getDetails(request)).thenReturn(Optional.of(response));
-        service.process(request);
+        when(merchantDetailsService.getDetails(request, Arrays.asList(Merchant.values()))).thenReturn(Optional.of(response));
+        service.process(request, Arrays.asList(Merchant.values()));
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
         verify(kafkaTemplate).send(eq("merchant-details-request-topic"), eq(id), captor.capture());
         DetailsResponse actual = captor.getValue();
