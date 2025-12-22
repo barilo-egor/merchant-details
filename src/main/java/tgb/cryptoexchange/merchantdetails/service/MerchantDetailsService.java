@@ -120,7 +120,7 @@ public class MerchantDetailsService {
         } catch (Exception e) {
             log.error("Ошибки при попытке отправить монитор в топик: {}", e.getMessage(), e);
         }
-        if (hasDetails) {
+        if (!hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
         return maybeDetailsResponse;
