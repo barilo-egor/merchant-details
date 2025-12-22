@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.dto;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.time.Instant;
 import java.util.List;

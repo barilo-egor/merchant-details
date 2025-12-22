@@ -1,7 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
 import org.springframework.stereotype.Component;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.util.EnumMap;
 import java.util.List;

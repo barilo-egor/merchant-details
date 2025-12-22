@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.util.ArrayList;
 import java.util.List;

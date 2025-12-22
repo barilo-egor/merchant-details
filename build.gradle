@@ -41,6 +41,7 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.hashids:hashids:1.0.3'
+	implementation 'tgb.cryptoexchange:commons:1.0'
 }
 
 tasks.named('test') {
