@@ -46,6 +46,7 @@ pay-lee:
   url: "pay-lee-url"
   token: "pay-lee-token"
   secret: "pay-lee-secret"
+  client-id-salt: "pay-lee-client-id-salt"
 psp-ware:
   url: "psp-ware-url"
   token: "psp-ware-token"
