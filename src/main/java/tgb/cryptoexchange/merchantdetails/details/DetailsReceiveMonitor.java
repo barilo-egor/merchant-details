@@ -1,6 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
 
 import java.time.Instant;

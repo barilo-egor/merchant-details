@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.dto.DetailsReceiveMonitorDTO;
@@ -13,9 +13,7 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,10 +85,14 @@ public class MerchantDetailsService {
     }
 
     public Optional<DetailsResponse> getDetails(DetailsRequest request) {
+        return getDetails(request, Arrays.asList(Merchant.values()));
+    }
+
+    public Optional<DetailsResponse> getDetails(DetailsRequest request, Collection<Merchant> merchants) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(
-                request.getMethods(), request.getAmount()
+                merchants, request.getMethods(), request.getAmount()
         );
         log.debug("Найденные мерчанты для запроса по сделке {}: {}", request.getId(),
                 merchantConfigList.stream()

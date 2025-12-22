@@ -1,7 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
 import lombok.Data;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 @Data
 public class MerchantCallbackEvent {

@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.BadRequestException;
-import tgb.cryptoexchange.merchantdetails.constants.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
@@ -93,14 +93,15 @@ public class MerchantConfigService {
         ).map(MerchantConfigDTO::fromEntity);
     }
 
-    public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
-        return repository.findAllByIsOnOrderByMerchantOrder(isOn);
+    public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn, Collection<Merchant> merchants) {
+        return repository.findAllByIsOnAndMerchantInOrderByMerchantOrder(isOn, merchants);
     }
 
-    public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
+    public List<MerchantConfig> findAllByMethodsAndAmount(Collection<Merchant> merchants,
+                                                          List<DetailsRequest.MerchantMethod> methods, Integer amount) {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
-        return findAllByIsOnOrderByMerchantOrder(true).stream()
+        return findAllByIsOnOrderByMerchantOrder(true, merchants).stream()
                 .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
                 .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .toList();
@@ -144,8 +145,8 @@ public class MerchantConfigService {
         repository.saveAndFlush(otherConfig);
     }
 
-    public MerchantConfig save(MerchantConfig config) {
-        return repository.save(config);
+    public void save(MerchantConfig config) {
+        repository.save(config);
     }
 
     @Transactional
