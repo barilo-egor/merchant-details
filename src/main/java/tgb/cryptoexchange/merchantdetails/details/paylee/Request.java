@@ -10,4 +10,6 @@ public class Request {
 
     @JsonSerialize(using = Method.Serializer.class)
     private Method requisitesType;
+
+    private String clientId;
 }

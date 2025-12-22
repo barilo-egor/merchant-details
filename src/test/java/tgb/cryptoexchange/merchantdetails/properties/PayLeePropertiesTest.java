@@ -18,7 +18,8 @@ class PayLeePropertiesTest {
         assertAll(
                 () -> assertEquals("pay-lee-url", payLeeProperties.url()),
                 () -> assertEquals("pay-lee-token", payLeeProperties.token()),
-                () -> assertEquals("pay-lee-secret", payLeeProperties.secret())
+                () -> assertEquals("pay-lee-secret", payLeeProperties.secret()),
+                () -> assertEquals("pay-lee-client-id-salt", payLeeProperties.clientIdSalt())
         );
     }
 }

@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.paylee;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -27,9 +29,12 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
 
     private final PayLeeProperties payLeeProperties;
 
+    private final Hashids hashids;
+
     protected PayLeeMerchantService(@Qualifier("payLeeWebClient") WebClient webClient, PayLeeProperties payLeeProperties) {
         super(webClient, Response.class, Callback.class);
         this.payLeeProperties = payLeeProperties;
+        this.hashids = new Hashids(payLeeProperties.clientIdSalt(), 8);
     }
 
     @Override
@@ -55,6 +60,9 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
         Request request = new Request();
         request.setPrice(detailsRequest.getAmount());
         request.setRequisitesType(parseMethod(detailsRequest, Method.class));
+        if (Objects.nonNull(detailsRequest.getChatId())) {
+            request.setClientId(hashids.encode(detailsRequest.getChatId()));
+        }
         return request;
     }
 
