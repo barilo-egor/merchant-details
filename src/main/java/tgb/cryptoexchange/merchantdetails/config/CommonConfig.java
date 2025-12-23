@@ -162,9 +162,28 @@ public class CommonConfig {
     @Bean
     @Profile("!kafka-disabled")
     public KafkaTemplate<String, DetailsReceiveMonitorDTO> detailsReceiveMonitorKafkaTemplate(DetailsReceiveMonitorProducerListener detailsReceiveMonitorProducerListener,
-                                                                                 KafkaProperties kafkaProperties) {
+                                                                                              KafkaProperties kafkaProperties) {
         KafkaTemplate<String, DetailsReceiveMonitorDTO> kafkaTemplate = new KafkaTemplate<>(detailsReceiveMonitorProducerFactory(kafkaProperties));
         kafkaTemplate.setProducerListener(detailsReceiveMonitorProducerListener);
         return kafkaTemplate;
+    }
+
+    @Bean
+    public ConsumerFactory<String, StopSearchRequest> stopSearchRequestConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StopSearchRequest.KafkaDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, StopSearchRequest> stopSearchRequestContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                             DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, StopSearchRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(stopSearchRequestConsumerFactory(kafkaProperties));
+        factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
+        return factory;
     }
 }

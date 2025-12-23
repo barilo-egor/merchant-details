@@ -152,5 +152,6 @@ kafka:
       callback: ""
       request: ""
       response: ""
+      stop-search: ""
 callback-secret: ""
 gateway-url: ""
