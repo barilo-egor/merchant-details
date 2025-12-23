@@ -102,6 +102,10 @@ public class MerchantDetailsService {
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
         DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId(), request.getAmount());
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
+            if (Thread.currentThread().isInterrupted()) {
+                log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
+                return Optional.empty();
+            }
             long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
             long t2 = System.currentTimeMillis();
@@ -116,7 +120,12 @@ public class MerchantDetailsService {
         boolean hasDetails = maybeDetailsResponse.isPresent();
         detailsReceiveMonitor.stop(hasDetails);
         try {
-            detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+            if (!Thread.currentThread().isInterrupted()) {
+                detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+            } else {
+                log.debug("Поиск реквизитов для сделки {} был прерван перед отправкой монитора.", request.getId());
+                return Optional.empty();
+            }
         } catch (Exception e) {
             log.error("Ошибки при попытке отправить монитор в топик: {}", e.getMessage(), e);
         }
