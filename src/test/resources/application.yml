@@ -110,6 +110,11 @@ plata-payment:
   url: "plata-payment-url"
   token: "plata-payment-token"
   merchant-id: "plata-payment-merchant-id"
+pay-lee-qr:
+  url: "pay-lee-qr-url"
+  token: "pay-lee-qr-token"
+  secret: "pay-lee-qr-secret"
+  client-id-salt: "pay-lee-qr-client-id-salt"
 #Конфиг приложения
 server:
   servlet:

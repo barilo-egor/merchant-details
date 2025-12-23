@@ -1,7 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface PayLeeProperties {
 
-@ConfigurationProperties(prefix = "pay-lee")
-public record PayLeeProperties(String url, String token, String secret, String clientIdSalt) {
+    String url();
+
+    String token();
+
+    String secret();
+
+    String clientIdSalt();
 }

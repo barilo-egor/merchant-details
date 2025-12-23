@@ -3,13 +3,10 @@ package tgb.cryptoexchange.merchantdetails.details.paylee;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hashids.Hashids;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -22,8 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Service
-public class PayLeeMerchantService extends MerchantOrderCreationService<Response, Callback> {
+public abstract class PayLeeMerchantService extends MerchantOrderCreationService<Response, Callback> {
 
     static final String NON_FIELD_ERRORS = "nonFieldErrors";
 
@@ -31,15 +27,10 @@ public class PayLeeMerchantService extends MerchantOrderCreationService<Response
 
     private final Hashids hashids;
 
-    protected PayLeeMerchantService(@Qualifier("payLeeWebClient") WebClient webClient, PayLeeProperties payLeeProperties) {
+    protected PayLeeMerchantService(WebClient webClient, PayLeeProperties payLeeProperties) {
         super(webClient, Response.class, Callback.class);
         this.payLeeProperties = payLeeProperties;
         this.hashids = new Hashids(payLeeProperties.clientIdSalt(), 8);
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.PAY_LEE;
     }
 
     @Override

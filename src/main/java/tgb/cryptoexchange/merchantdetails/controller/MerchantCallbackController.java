@@ -11,7 +11,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
-import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
+import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.CryptoService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -28,13 +28,13 @@ public class MerchantCallbackController extends ApiController {
 
     private final CryptoService cryptoService;
 
-    private final PayLeeProperties payLeeProperties;
+    private final PayLeePropertiesImpl payLeeProperties;
 
     private final ObjectMapper objectMapper;
 
     public MerchantCallbackController(MerchantDetailsService merchantDetailsService,
                                       @Value("${callback-secret}") String secret, ObjectMapper objectMapper,
-                                      CryptoService cryptoService, PayLeeProperties payLeeProperties) {
+                                      CryptoService cryptoService, PayLeePropertiesImpl payLeeProperties) {
         this.merchantDetailsService = merchantDetailsService;
         this.secret = secret;
         this.cryptoService = cryptoService;

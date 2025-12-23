@@ -19,7 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
+import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 class PayLeeMerchantServiceTest {
 
     @Mock
-    private PayLeeProperties payLeeProperties;
+    private PayLeePropertiesImpl payLeeProperties;
 
     @InjectMocks
-    private PayLeeMerchantService payLeeMerchantService;
+    private PayLeeMerchantServiceImpl payLeeMerchantService;
 
     @Test
     void getMerchantShouldReturnPayLee() {
