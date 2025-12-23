@@ -25,7 +25,8 @@ import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
 @Configuration
 @EnableAsync
@@ -133,14 +134,19 @@ public class CommonConfig {
     }
 
     @Bean(name = "detailsRequestSearchExecutor")
-    public Executor detailsRequestSearchExecutor() {
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(20);
+        executor.setCorePoolSize(20);
+        executor.setMaxPoolSize(40);
         executor.setQueueCapacity(50);
         executor.setThreadNamePrefix("DetailsRequestSearch-");
         executor.initialize();
         return executor;
+    }
+
+    @Bean
+    public Map<Long, Future<Void>> activeSearchMap() {
+        return new ConcurrentHashMap<>();
     }
 
     @Bean
@@ -161,5 +167,4 @@ public class CommonConfig {
         kafkaTemplate.setProducerListener(detailsReceiveMonitorProducerListener);
         return kafkaTemplate;
     }
-
 }
