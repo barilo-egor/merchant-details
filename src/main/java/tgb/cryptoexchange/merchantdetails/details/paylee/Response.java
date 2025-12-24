@@ -5,6 +5,7 @@ import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -18,6 +19,9 @@ public class Response implements MerchantDetailsResponse {
 
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
+
+    @JsonDeserialize(contentUsing = Method.Deserializer.class)
+    private List<Method> requisitesType;
 
     private Double  price;
 

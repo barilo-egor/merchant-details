@@ -115,7 +115,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient payLeeWebClient(PayLeeProperties payLeeProperties) {
+    public WebClient payLeeWebClient(PayLeePropertiesImpl payLeeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
 
@@ -147,5 +147,10 @@ public class WebClientsConfig {
     @Bean
     public WebClient plataPaymentWebClient(PlataPaymentProperties properties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(properties.url()).build();
+    }
+
+    @Bean
+    public WebClient payLeeQRWebClient(PayLeePropertiesImpl payLeeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
 }

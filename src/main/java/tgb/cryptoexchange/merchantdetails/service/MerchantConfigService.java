@@ -93,15 +93,14 @@ public class MerchantConfigService {
         ).map(MerchantConfigDTO::fromEntity);
     }
 
-    public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn, Collection<Merchant> merchants) {
-        return repository.findAllByIsOnAndMerchantInOrderByMerchantOrder(isOn, merchants);
+    public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
+        return repository.findAllByIsOnOrderByMerchantOrder(isOn);
     }
 
-    public List<MerchantConfig> findAllByMethodsAndAmount(Collection<Merchant> merchants,
-                                                          List<DetailsRequest.MerchantMethod> methods, Integer amount) {
+    public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
-        return findAllByIsOnOrderByMerchantOrder(true, merchants).stream()
+        return findAllByIsOnOrderByMerchantOrder(true).stream()
                 .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
                 .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .toList();

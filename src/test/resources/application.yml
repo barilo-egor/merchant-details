@@ -110,6 +110,11 @@ plata-payment:
   url: "plata-payment-url"
   token: "plata-payment-token"
   merchant-id: "plata-payment-merchant-id"
+pay-lee-qr:
+  url: "pay-lee-qr-url"
+  token: "pay-lee-qr-token"
+  secret: "pay-lee-qr-secret"
+  client-id-salt: "pay-lee-qr-client-id-salt"
 #Конфиг приложения
 server:
   servlet:
@@ -121,8 +126,9 @@ kafka:
       receive: 'test-merchant-details-receive-topic'
       monitor: 'test-merchant-details-monitor-topic'
       callback: 'test-merchant-details-callback-topic'
-      request: 'test-merchant-details-receive-topic'
-      response: 'test-merchant-details-receive-topic'
+      request: 'test-merchant-details-request-topic'
+      response: 'test-merchant-details-response-topic'
+      stop-search: 'test-merchant-details-stop-search-topic'
 callback-secret: test-callback-secret
 gateway-url: "https://gateway-example-url.com"
 spring:

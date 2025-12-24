@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
@@ -13,7 +14,9 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,15 +88,9 @@ public class MerchantDetailsService {
     }
 
     public Optional<DetailsResponse> getDetails(DetailsRequest request) {
-        return getDetails(request, Arrays.asList(Merchant.values()));
-    }
-
-    public Optional<DetailsResponse> getDetails(DetailsRequest request, Collection<Merchant> merchants) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
-        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(
-                merchants, request.getMethods(), request.getAmount()
-        );
+        List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
         log.debug("Найденные мерчанты для запроса по сделке {}: {}", request.getId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
@@ -102,6 +99,10 @@ public class MerchantDetailsService {
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
         DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId(), request.getAmount());
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
+            if (Thread.currentThread().isInterrupted()) {
+                log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
+                return Optional.empty();
+            }
             long t1 = System.currentTimeMillis();
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
             long t2 = System.currentTimeMillis();
@@ -116,7 +117,12 @@ public class MerchantDetailsService {
         boolean hasDetails = maybeDetailsResponse.isPresent();
         detailsReceiveMonitor.stop(hasDetails);
         try {
-            detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+            if (!Thread.currentThread().isInterrupted()) {
+                detailsReceiveMonitorKafkaTemplate.send(detailsReceiveMonitorTopic, request.getRequestId(), detailsReceiveMonitor.toDTO());
+            } else {
+                log.debug("Поиск реквизитов для сделки {} был прерван перед отправкой монитора.", request.getId());
+                return Optional.empty();
+            }
         } catch (Exception e) {
             log.error("Ошибки при попытке отправить монитор в топик: {}", e.getMessage(), e);
         }
@@ -152,5 +158,14 @@ public class MerchantDetailsService {
                         request.getChatId(), detailsResponse.getMerchant().name(), detailsResponse)
         );
         return maybeDetailsResponse;
+    }
+
+    public void sendReceipt(Merchant merchant, String orderId, MultipartFile file) {
+        Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
+        if (maybeMerchantService.isPresent()) {
+            maybeMerchantService.get().sendReceipt(orderId, file);
+        } else {
+            log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
+        }
     }
 }

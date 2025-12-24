@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
@@ -22,7 +23,10 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -126,7 +130,7 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(new ArrayList<>());
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -150,7 +154,7 @@ class MerchantDetailsServiceTest {
                 .merchant(Merchant.ALFA_TEAM)
                 .build()
         );
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -176,7 +180,7 @@ class MerchantDetailsServiceTest {
                 .merchant(Merchant.ALFA_TEAM)
                 .build()
         );
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
@@ -210,7 +214,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
@@ -243,7 +247,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
@@ -289,7 +293,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -331,7 +335,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -382,7 +386,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value(String.valueOf(times)).build());
         if (times > 1) {
@@ -430,7 +434,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -484,7 +488,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any(), anyInt())).thenReturn(merchantConfigs);
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
         when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
@@ -529,7 +533,7 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldSendMonitorWithOneErrorAttempt() {
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), anyList(), any())).thenReturn(
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
                 List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
         );
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
@@ -565,7 +569,7 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldSendMonitorWithOneSuccessAttempt() {
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), anyList(), any())).thenReturn(
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
                 List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
         );
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
@@ -585,7 +589,7 @@ class MerchantDetailsServiceTest {
         detailsRequest.setRequestId(requestId);
         detailsRequest.setAmount(2500);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build()));
-        merchantDetailsService.getDetails(detailsRequest, Arrays.asList(Merchant.values()));
+        merchantDetailsService.getDetails(detailsRequest);
         verify(detailsReceiveMonitorKafkaTemplate).send(eq("test-topic-name"), eq(requestId), dtoCaptor.capture());
         DetailsReceiveMonitorDTO actual = dtoCaptor.getValue();
         assertAll(
@@ -596,7 +600,7 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldSendMonitorWithOneNotSuccessAttempt() {
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), anyList(), any())).thenReturn(
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(
                 List.of(MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build())
         );
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT)).thenReturn(Variable.builder().value("1").build());
@@ -622,7 +626,7 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldSendMonitorWith6AttemptsIfTwoMerchantAnd3AttemptsCount() {
-        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), anyList(), any())).thenReturn(List.of(
+        when(merchantConfigService.findAllByMethodsAndAmount(anyList(), any())).thenReturn(List.of(
                 MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build(),
                 MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).build()
         ));
@@ -648,5 +652,18 @@ class MerchantDetailsServiceTest {
         assertAll(
                 () -> assertEquals(6, actual.getAttempts().size())
         );
+    }
+
+    @CsvSource("""
+            ALFA_TEAM,c2b38482-3901-44e4-a2ee-ef706bdea3e6
+            BIT_ZONE,54907906-cb06-471f-8a10-7506803f3354
+            """)
+    @ParameterizedTest
+    void sendReceiptShouldCallMerchantServiceMethod(Merchant merchant, String orderId) {
+        MerchantService merchantService = mock(MerchantService.class);
+        MultipartFile file = mock(MultipartFile.class);
+        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
+        merchantDetailsService.sendReceipt(merchant, orderId, file);
+        verify(merchantService).sendReceipt(orderId, file);
     }
 }
