@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class PayLeePropertiesTest {
+class PayLeePropertiesImplTest {
 
     @Autowired
-    private PayLeeProperties payLeeProperties;
+    private PayLeePropertiesImpl payLeeProperties;
 
     @Test
     void shouldLoadProperties() {

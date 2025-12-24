@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
+import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.CryptoService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -32,7 +32,7 @@ class MerchantCallbackControllerTest {
     private MerchantDetailsService merchantDetailsService;
 
     @MockitoBean
-    private PayLeeProperties payLeeProperties;
+    private PayLeePropertiesImpl payLeeProperties;
 
     @Autowired
     private MockMvc mockMvc;
