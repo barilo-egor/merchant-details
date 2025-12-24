@@ -118,6 +118,38 @@ class PayLeeMerchantServiceTest {
     }
 
     @Test
+    void buildResponseShouldSetRequisitesIfHasNotQRMethod() {
+        Response response = new Response();
+        response.setBankName("bankName");
+        response.setRequisites("requisites");
+        response.setId(1);
+        response.setStatus(Status.PENDING);
+        response.setPrice(1000.0);
+        response.setRequisitesType(List.of(Method.CARD));
+        Optional<DetailsResponse> maybeResponse = payLeeMerchantService.buildResponse(response);
+        assertTrue(maybeResponse.isPresent());
+        DetailsResponse actual = maybeResponse.get();
+        assertEquals("bankName requisites", actual.getDetails());
+        assertNull(actual.getQr());
+    }
+
+    @Test
+    void buildResponseShouldSetQRIfHasQRMethod() {
+        Response response = new Response();
+        response.setBankName("bankName");
+        response.setRequisites("requisites");
+        response.setId(1);
+        response.setStatus(Status.PENDING);
+        response.setPrice(1000.0);
+        response.setRequisitesType(List.of(Method.ANY_QR));
+        Optional<DetailsResponse> maybeResponse = payLeeMerchantService.buildResponse(response);
+        assertTrue(maybeResponse.isPresent());
+        DetailsResponse actual = maybeResponse.get();
+        assertEquals("requisites", actual.getQr());
+        assertNull(actual.getDetails());
+    }
+
+    @Test
     void isNoDetailsExceptionPredicateShouldReturnTrueIfNoTraderError() throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         payLeeMerchantService.setObjectMapper(objectMapper);
