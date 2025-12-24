@@ -8,11 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -20,19 +22,26 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
+import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PayLeeMerchantServiceTest {
 
     @Mock
     private PayLeePropertiesImpl payLeeProperties;
+
+    @Mock
+    private WebClient webClient;
 
     @InjectMocks
     private PayLeeMerchantServiceImpl payLeeMerchantService;
@@ -263,7 +272,7 @@ class PayLeeMerchantServiceTest {
         assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
-    @ValueSource(ints = {0,2,10})
+    @ValueSource(ints = {0, 2, 10})
     @ParameterizedTest
     void isNoDetailsExceptionPredicateShouldReturnFalseIfPriceSizeNot1(int size) throws JsonProcessingException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
@@ -308,5 +317,37 @@ class PayLeeMerchantServiceTest {
         WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(payLeeMerchantService.isNoDetailsExceptionPredicate().test(badRequest));
+    }
+
+    @Captor
+    private ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor;
+
+    @Captor
+    private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
+
+    @ValueSource(strings = {"54907906-cb06-471f-8a10-7506803f3354", "5e587b13-ac58-4877-8ccd-31581c4a5a1f"})
+    @ParameterizedTest
+    void sendReceiptShouldCallRequestServiceMethod(String orderId) {
+        RequestService requestService = Mockito.mock(RequestService.class);
+        payLeeMerchantService.setRequestService(requestService);
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        payLeeMerchantService.sendReceipt(orderId, multipartFile);
+        when(payLeeProperties.token()).thenReturn("token");
+        verify(requestService).request(
+                eq(webClient),
+                eq(HttpMethod.POST),
+                uriBuilderCaptor.capture(),
+                headersCaptor.capture(),
+                any(BodyInserters.MultipartInserter.class),
+                any()
+        );
+        URI uri = uriBuilderCaptor.getValue().apply(UriComponentsBuilder.newInstance());
+        HttpHeaders headers = new HttpHeaders();
+        headersCaptor.getValue().accept(headers);
+        assertAll(
+                () -> assertTrue(uri.getPath().endsWith("/partners/purchases/" + orderId + "/receipt")),
+                () -> assertEquals("Token token", headers.getFirst("Authorization")),
+                () -> assertEquals("multipart/form-data", headers.getFirst("Content-Type"))
+        );
     }
 }

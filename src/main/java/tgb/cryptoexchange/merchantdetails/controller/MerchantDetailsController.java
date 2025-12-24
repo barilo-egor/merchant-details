@@ -6,6 +6,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
@@ -88,5 +89,12 @@ public class MerchantDetailsController extends ApiController {
     @ResponseStatus(HttpStatus.OK)
     public void updateVariable(@PathVariable VariableType variableType, @RequestParam String value) {
         variableService.update(variableType, value);
+    }
+
+    @PostMapping("/receipt/{merchant}/{orderId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void receipt(@PathVariable Merchant merchant, @PathVariable String orderId,
+                        @RequestParam MultipartFile receipt) {
+        merchantDetailsService.sendReceipt(merchant, orderId, receipt);
     }
 }

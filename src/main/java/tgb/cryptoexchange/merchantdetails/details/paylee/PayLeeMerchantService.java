@@ -2,8 +2,12 @@ package tgb.cryptoexchange.merchantdetails.details.paylee;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
@@ -19,6 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@Slf4j
 public abstract class PayLeeMerchantService extends MerchantOrderCreationService<Response, Callback> {
 
     static final String NON_FIELD_ERRORS = "nonFieldErrors";
@@ -97,5 +102,20 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                 && response.get(NON_FIELD_ERRORS).size() == 1
                 && response.get(NON_FIELD_ERRORS).get(0).asText()
                 .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
+    }
+
+    @Override
+    public void sendReceipt(String orderId, MultipartFile multipartFile) {
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
+                uriBuilder -> uriBuilder.pathSegment("partners", "purchases", "{id}", "receipt").build(orderId),
+                headers -> {
+                    headers.add("Authorization", "Token " + payLeeProperties.token());
+                    headers.add("Content-Type", "multipart/form-data");
+                },
+                BodyInserters.fromMultipartData("attachment", multipartFile),
+                t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
+        );
     }
 }

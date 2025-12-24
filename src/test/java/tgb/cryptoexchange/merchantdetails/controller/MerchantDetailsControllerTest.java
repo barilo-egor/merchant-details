@@ -14,8 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -29,6 +31,7 @@ import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,7 +166,6 @@ class MerchantDetailsControllerTest {
     }
 
 
-
     @Test
     void updateConfigShouldCallServiceUpdateMethod() throws Exception {
         mockMvc.perform(patch("/merchant-details/config")
@@ -224,5 +226,46 @@ class MerchantDetailsControllerTest {
                         .queryParam("value", value))
                 .andExpect(status().isOk());
         verify(variableService).update(variableType, value);
+    }
+
+    @CsvSource("""
+            ALFA_TEAM,2ba66f30-fd38-4688-b7d1-f8fc592b537a
+            BIT_ZONE,f7f3ff42-8e0f-4682-9434-4ea3577af076
+            """)
+    @ParameterizedTest
+    void receiptShouldCallServiceMethod(Merchant merchant, String orderId) throws Exception {
+        String pdfContent = """
+                %PDF-1.7
+                1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+                2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+                3 0 obj <<\s
+                  /Type /Page\s
+                  /Parent 2 0 R\s
+                  /MediaBox [0 0 612 792]\s
+                  /Resources << /Font << /F1 4 0 R >> >>\s
+                  /Contents 5 0 R\s
+                >> endobj
+                4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+                5 0 obj << /Length 44 >> stream
+                BT /F1 24 Tf 100 700 Td (Hello, World!) Tj ET
+                endstream
+                xref
+                0 6
+                0000000000 65535 f\s
+                0000000010 00000 n\s
+                0000000059 00000 n\s
+                0000000115 00000 n\s
+                0000000262 00000 n\s
+                0000000332 00000 n\s
+                trailer << /Size 6 /Root 1 0 R >>
+                startxref
+                426
+                %%EOF
+               \s""";
+        MockMultipartFile multipartFile = new MockMultipartFile("receipt", pdfContent.getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart("/merchant-details/receipt/" + merchant.name() + "/" + orderId)
+                        .file(multipartFile))
+                .andExpect(status().isOk());
+        verify(merchantDetailsService).sendReceipt(eq(merchant), eq(orderId), any(MultipartFile.class));
     }
 }
