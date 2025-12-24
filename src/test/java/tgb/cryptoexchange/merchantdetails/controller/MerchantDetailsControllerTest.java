@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,7 +25,6 @@ import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
-import tgb.cryptoexchange.merchantdetails.service.MerchantApiService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -55,9 +53,6 @@ class MerchantDetailsControllerTest {
 
     @MockitoBean
     private VariableService variableService;
-
-    @MockitoBean
-    private MerchantApiService merchantApiService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -125,9 +120,8 @@ class MerchantDetailsControllerTest {
                 .andExpect(jsonPath("data[2]").doesNotExist());
     }
 
-    @ValueSource(strings = {"0.10.0", "0.10.1", "1.0.0", "0.11.0"})
-    @ParameterizedTest
-    void getDetailsShouldAddMerchantsByApiVersion091IfNoHeader(String version) throws Exception {
+    @Test
+    void getDetailsShouldAddMerchantsByApiVersion091IfNoHeader() throws Exception {
         List<MerchantConfigDTO> configs = new ArrayList<>();
         configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
                 .id(150L)
@@ -149,10 +143,7 @@ class MerchantDetailsControllerTest {
                 .build()));
         Page<MerchantConfigDTO> page = new PageImpl<>(configs, Mockito.mock(Pageable.class), 2);
         when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
-        List<Merchant> merchants = List.of(Merchant.ALFA_TEAM, Merchant.WELL_BIT);
-        when(merchantApiService.getMerchantsByApiVersion(any())).thenReturn(merchants);
-        mockMvc.perform(get("/merchant-details/config")
-                        .header("API-Version", version))
+        mockMvc.perform(get("/merchant-details/config"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("success").value(true))
                 .andExpect(jsonPath("data").isArray())
@@ -161,8 +152,6 @@ class MerchantDetailsControllerTest {
                 .andExpect(jsonPath("data[2]").doesNotExist());
         ArgumentCaptor<MerchantConfigRequest> requestCaptor = ArgumentCaptor.forClass(MerchantConfigRequest.class);
         verify(merchantConfigService).findAll(any(Pageable.class), requestCaptor.capture());
-        assertEquals(requestCaptor.getValue().getMerchants(), merchants);
-        verify(merchantApiService).getMerchantsByApiVersion(version);
     }
 
 

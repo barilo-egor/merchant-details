@@ -16,7 +16,6 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,8 +66,8 @@ class DetailsRequestProcessorServiceTest {
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
         }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
-        when(merchantDetailsService.getDetails(request, Arrays.asList(Merchant.values()))).thenReturn(Optional.empty());
-        service.process(request, Arrays.asList(Merchant.values()));
+        when(merchantDetailsService.getDetails(request)).thenReturn(Optional.empty());
+        service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
         verify(kafkaTemplate).send(eq("merchant-details-request-topic"), eq(id), captor.capture());
         verify(activeSearchMap).put(eq(12352963876L), any());
@@ -88,8 +87,8 @@ class DetailsRequestProcessorServiceTest {
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
         }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
-        when(merchantDetailsService.getDetails(request, Arrays.asList(Merchant.values()))).thenThrow(RuntimeException.class);
-        service.process(request, Arrays.asList(Merchant.values()));
+        when(merchantDetailsService.getDetails(request)).thenThrow(RuntimeException.class);
+        service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
         verify(kafkaTemplate).send(eq("merchant-details-request-topic"), eq(id), captor.capture());
         verify(activeSearchMap).put(eq(12352963876L), any());
@@ -118,8 +117,8 @@ class DetailsRequestProcessorServiceTest {
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
         }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
-        when(merchantDetailsService.getDetails(request, Arrays.asList(Merchant.values()))).thenReturn(Optional.of(response));
-        service.process(request, Arrays.asList(Merchant.values()));
+        when(merchantDetailsService.getDetails(request)).thenReturn(Optional.of(response));
+        service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
         verify(kafkaTemplate).send(eq("merchant-details-request-topic"), eq(id), captor.capture());
         verify(activeSearchMap).put(eq(12352963876L), any());

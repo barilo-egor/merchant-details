@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -41,11 +39,11 @@ public class DetailsRequestProcessorService {
         this.activeSearchMap = activeSearchMap;
     }
 
-    public void process(DetailsRequest detailsRequest, Collection<Merchant> merchants) {
+    public void process(DetailsRequest detailsRequest) {
         Future<Void> future = detailsRequestSearchExecutor.submit(() -> {
             DetailsResponse result;
             try {
-                Optional<DetailsResponse> detailsResponse = merchantDetailsService.getDetails(detailsRequest, merchants);
+                Optional<DetailsResponse> detailsResponse = merchantDetailsService.getDetails(detailsRequest);
                 if (!Thread.currentThread().isInterrupted()) {
                     result = detailsResponse.orElseGet(DetailsResponse::new);
                     result.setRequestId(detailsRequest.getRequestId());

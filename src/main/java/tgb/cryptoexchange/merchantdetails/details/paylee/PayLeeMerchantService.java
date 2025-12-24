@@ -65,7 +65,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse vo = new DetailsResponse();
-        if (response.getRequisitesType().contains(Method.ANY_QR)) {
+        if (Objects.nonNull(response.getRequisitesType()) && response.getRequisitesType().contains(Method.ANY_QR)) {
             vo.setQr(response.getRequisites());
         } else {
             vo.setDetails(response.getBankName() + " " + response.getRequisites());
