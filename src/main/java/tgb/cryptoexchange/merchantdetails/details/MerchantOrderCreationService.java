@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
@@ -277,5 +278,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         log.trace("Реализация отмены ордера для мерчанта {} отсутствует. Ордер {} не будет отменен.",
                 getMerchant().name(), cancelOrderRequest.getOrderId());
+    }
+
+    public void sendReceipt(String orderId, MultipartFile multipartFile) {
+        log.trace("Реализация отправки чека мерчанту {} отсутствует. Чек для ордера {} не будет отправлен.",
+                getMerchant().name(), orderId);
     }
 }

@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
@@ -648,5 +649,18 @@ class MerchantDetailsServiceTest {
         assertAll(
                 () -> assertEquals(6, actual.getAttempts().size())
         );
+    }
+
+    @CsvSource("""
+            ALFA_TEAM,c2b38482-3901-44e4-a2ee-ef706bdea3e6
+            BIT_ZONE,54907906-cb06-471f-8a10-7506803f3354
+            """)
+    @ParameterizedTest
+    void sendReceiptShouldCallMerchantServiceMethod(Merchant merchant, String orderId) {
+        MerchantService merchantService = mock(MerchantService.class);
+        MultipartFile file = mock(MultipartFile.class);
+        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
+        merchantDetailsService.sendReceipt(merchant, orderId, file);
+        verify(merchantService).sendReceipt(orderId, file);
     }
 }

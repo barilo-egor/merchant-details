@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
@@ -161,5 +162,14 @@ public class MerchantDetailsService {
                         request.getChatId(), detailsResponse.getMerchant().name(), detailsResponse)
         );
         return maybeDetailsResponse;
+    }
+
+    public void sendReceipt(Merchant merchant, String orderId, MultipartFile file) {
+        Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
+        if (maybeMerchantService.isPresent()) {
+            maybeMerchantService.get().sendReceipt(orderId, file);
+        } else {
+            log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
+        }
     }
 }
