@@ -89,6 +89,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             maybeRawResponse = makeRequest(detailsRequest, body);
         } catch (Exception e) {
             if (isNoDetailsExceptionPredicate().test(e)) {
+                logNoDetails(detailsRequest.getId());
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
