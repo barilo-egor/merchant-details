@@ -134,11 +134,15 @@ public class CommonConfig {
     }
 
     @Bean(name = "detailsRequestSearchExecutor")
-    public ThreadPoolTaskExecutor detailsRequestSearchExecutor() {
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutor(
+            @Value("${details.executor.core-pool-size}") Integer corePoolSize,
+            @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
+            @Value("${details.executor.queue-capacity}") Integer queueCapacity
+    ) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(40);
-        executor.setQueueCapacity(50);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
         executor.setThreadNamePrefix("DetailsRequestSearch-");
         executor.initialize();
         return executor;
