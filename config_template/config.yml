@@ -155,3 +155,8 @@ kafka:
       stop-search: ""
 callback-secret: ""
 gateway-url: ""
+details:
+  executor:
+    core-pool-size:
+    max-pool-size:
+    queue-capacity:
