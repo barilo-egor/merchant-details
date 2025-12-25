@@ -137,3 +137,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+details:
+  executor:
+    core-pool-size: 40
+    max-pool-size: 80
+    queue-capacity: 100
