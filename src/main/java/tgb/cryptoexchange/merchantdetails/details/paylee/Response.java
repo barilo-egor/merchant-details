@@ -20,7 +20,7 @@ public class Response implements MerchantDetailsResponse {
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
-    @JsonDeserialize(contentUsing = Method.Deserializer.class)
+    @JsonDeserialize(using = Method.Deserializer.class)
     private List<Method> requisitesType;
 
     private Double  price;

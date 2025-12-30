@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.paylee;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -11,6 +12,8 @@ import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -40,11 +43,21 @@ public enum Method implements MerchantMethod {
         }
     }
 
-    public static class Deserializer extends JsonDeserializer<Method> {
+    public static class Deserializer extends JsonDeserializer<List<Method>> {
 
         @Override
-        public Method deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return Method.fromValue(jsonParser.getText());
+        public List<Method> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            List<Method> methods = new ArrayList<>();
+            if (jsonParser.currentToken() == JsonToken.START_ARRAY) {
+                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                    String value = jsonParser.getValueAsString();
+                    methods.add(Method.fromValue(value));
+                }
+            } else {
+                String value = jsonParser.getValueAsString();
+                methods.add(Method.fromValue(value));
+            }
+            return methods;
         }
     }
 }
