@@ -100,6 +100,21 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient payscrowHighCheckWebClient(PayscrowHighCheckProperties payscrowHighCheckProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowHighCheckProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payscrowWTWebClient(PayscrowWTProperties payscrowWTProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowWTProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payscrowSimWebClient(PayscrowSimProperties payscrowSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowSimProperties.url()).build();
+    }
+
+    @Bean
     public WebClient luckyPayWebClient(LuckyPayProperties luckyPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(luckyPayProperties.url()).build();
     }
