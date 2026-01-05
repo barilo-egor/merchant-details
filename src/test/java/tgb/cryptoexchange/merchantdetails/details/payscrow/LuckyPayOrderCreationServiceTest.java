@@ -31,12 +31,6 @@ class LuckyPayOrderCreationServiceTest {
         assertEquals(Merchant.LUCKY_PAY, service.getMerchant());
     }
 
-    @Test
-    void keyFunctionShouldReturnKeyIfDetailsRequestIsNull() {
-        when(luckyPayProperties.key()).thenReturn("key");
-        assertEquals("key", service.keyFunction().apply(null));
-    }
-
     @ParameterizedTest
     @CsvSource(textBlock = """
             method1,1000,53355,12515050,someKey1

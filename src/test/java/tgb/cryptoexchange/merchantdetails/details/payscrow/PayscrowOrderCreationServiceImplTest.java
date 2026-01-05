@@ -289,61 +289,6 @@ class PayscrowOrderCreationServiceImplTest {
                 .test(Mockito.mock(RuntimeException.class)));
     }
 
-    @CsvSource("""
-            ALFA,6ee288d1-5b67-4745-a7eb-da6c2a095621
-            PSB,7d06e334-b365-4f25-985f-331cfde833e1
-            GAZ_PROM,19feb8f2-fc3e-44f2-87e5-2e983730cbb8
-            OZON,28b3b304-5610-402a-bc9f-c85e2d4147d2
-            """)
-    @ParameterizedTest
-    void keyFunctionShouldReturnInHouseKeyIfBankInHouseMethod(Method method, String inHouseKey) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(method.name()).build()));
-        when(payscrowProperties.inHouseKey()).thenReturn(inHouseKey);
-        assertEquals(inHouseKey, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
-    }
-
-    @CsvSource(textBlock = """
-            6ee288d1-5b67-4745-a7eb-da6c2a095621
-            7d06e334-b365-4f25-985f-331cfde833e1
-            19feb8f2-fc3e-44f2-87e5-2e983730cbb8
-            """)
-    @ParameterizedTest
-    void keyFunctionShouldReturnWhiteTriangleKeyIfTriangleMethod(String whiteTriangleKey) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Method.TRIANGLE.name()).build()));
-        when(payscrowProperties.whiteTriangleKey()).thenReturn(whiteTriangleKey);
-        assertEquals(whiteTriangleKey, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
-    }
-
-    @CsvSource(textBlock = """
-            TRANS_SBP,6ee288d1-5b67-4745-a7eb-da6c2a095621,1
-            BANK_CARD,7d06e334-b365-4f25-985f-331cfde833e1,9999
-            SBP,19feb8f2-fc3e-44f2-87e5-2e983730cbb8,5015
-            """)
-    @ParameterizedTest
-    void keyFunctionShouldReturnKeyIfNotTriangleAndNotInHouseMethodsAndAmountLessThan10000(Method method, String key, Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(method.name()).build()));
-        detailsRequest.setAmount(amount);
-        when(payscrowProperties.key()).thenReturn(key);
-        assertEquals(key, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
-    }
-
-    @CsvSource(textBlock = """
-            TRANS_SBP,6ee288d1-5b67-4745-a7eb-da6c2a095621,10000
-            BANK_CARD,7d06e334-b365-4f25-985f-331cfde833e1,10001
-            SBP,19feb8f2-fc3e-44f2-87e5-2e983730cbb8,25004
-            """)
-    @ParameterizedTest
-    void keyFunctionShouldReturnHighCheckKeyIfNotTriangleAndNotInHouseMethodsAndAmountEqualOrMoreThan10000(Method method, String key, Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(method.name()).build()));
-        detailsRequest.setAmount(amount);
-        when(payscrowProperties.highCheckKey()).thenReturn(key);
-        assertEquals(key, payscrowOrderCreationService.keyFunction().apply(detailsRequest));
-    }
-
     @ValueSource(strings = {
             "SBP", "BANK_CARD", "TRANS_SBP"
     })

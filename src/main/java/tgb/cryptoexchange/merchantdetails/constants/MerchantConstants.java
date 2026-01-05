@@ -71,6 +71,18 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
+    PAYSCROW_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_WHITE_TRIANGLE(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_SIM(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
     LUCKY_PAY(
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()

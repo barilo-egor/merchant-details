@@ -58,9 +58,15 @@ pay-crown:
 payscrow:
   url: "payscrow-url"
   key: "payscrow-key"
-  high-check-key: "payscrow-high-check-key"
-  in-house-key: "payscrow-in-house-key"
-  white-triangle-key: "payscrow-white-triangle-key"
+payscrow-high-check:
+  url: "payscrow-high-check-url"
+  key: "payscrow-high-check-key"
+payscrow-white-triangle:
+  url: "payscrow-white-triangle-url"
+  key: "payscrow-white-triangle-key"
+payscrow-sim:
+  url: "payscrow-sim-url"
+  key: "payscrow-sim-key"
 lucky-pay:
   url: "lucky-pay-url"
   key: "lucky-pay-key"

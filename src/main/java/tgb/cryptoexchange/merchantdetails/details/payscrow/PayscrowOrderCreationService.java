@@ -28,11 +28,11 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
 
     private static final String MESSAGE_FIELD = "message";
 
-    private final PayscrowProperties payscrowPropertiesImpl;
+    private final PayscrowProperties payscrowProperties;
 
     protected PayscrowOrderCreationService(WebClient webClient, PayscrowProperties payscrowProperties) {
         super(webClient, Response.class, Callback.class);
-        this.payscrowPropertiesImpl = payscrowProperties;
+        this.payscrowProperties = payscrowProperties;
     }
 
     @Override
@@ -44,12 +44,8 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("X-API-Key", keyFunction().apply(detailsRequest));
+            httpHeaders.add("X-API-Key", payscrowProperties.key());
         };
-    }
-
-    public Function<DetailsRequest, String> keyFunction() {
-        return method -> payscrowPropertiesImpl.key();
     }
 
     @Override
