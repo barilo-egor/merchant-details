@@ -25,6 +25,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient alfaTeamWTWebClient(AlfaTeamWTProperties alfaTeamWTProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(alfaTeamWTProperties.url()).build();
+    }
+
+    @Bean
     public WebClient geoTransferWebClient(GeoTransferProperties geoTransferProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(geoTransferProperties.url()).build();
     }

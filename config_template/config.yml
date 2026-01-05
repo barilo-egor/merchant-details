@@ -4,6 +4,11 @@ alfa-team:
   token: ""
   key: ""
   secret: ""
+alfa-team-white-triangle:
+  url: ""
+  token: ""
+  key: ""
+  secret: ""
 only-pays:
   url: ""
   secret: ""
