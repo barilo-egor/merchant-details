@@ -14,7 +14,8 @@ import java.io.IOException;
 public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
     PHONE("phone", "СБП"),
-    ALFA_ALFA("phone", "Альфа-альфа");
+    ALFA_ALFA("phone", "Альфа-альфа"),
+    SIM("sim", "SIM");
 
     private final String value;
 

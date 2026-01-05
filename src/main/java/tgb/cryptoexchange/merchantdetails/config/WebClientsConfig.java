@@ -25,6 +25,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient alfaTeamWTWebClient(AlfaTeamWTProperties alfaTeamWTProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(alfaTeamWTProperties.url()).build();
+    }
+
+    @Bean
     public WebClient geoTransferWebClient(GeoTransferProperties geoTransferProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(geoTransferProperties.url()).build();
     }
@@ -92,6 +97,21 @@ public class WebClientsConfig {
     @Bean
     public WebClient payscrowWebClient(PayscrowPropertiesImpl payscrowProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payscrowHighCheckWebClient(PayscrowHighCheckProperties payscrowHighCheckProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowHighCheckProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payscrowWTWebClient(PayscrowWTProperties payscrowWTProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowWTProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient payscrowSimWebClient(PayscrowSimProperties payscrowSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payscrowSimProperties.url()).build();
     }
 
     @Bean

@@ -19,6 +19,10 @@ public enum MerchantConstants {
             Status.values(),
             Method.values()
     ),
+    ALFA_TEAM_WT(
+            Status.values(),
+            Method.values()
+    ),
     ONLY_PAYS(
             tgb.cryptoexchange.merchantdetails.details.onlypays.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.onlypays.Method.values()
@@ -68,6 +72,18 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paycrown.Method.values()
     ),
     PAYSCROW(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_WHITE_TRIANGLE(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_SIM(
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
