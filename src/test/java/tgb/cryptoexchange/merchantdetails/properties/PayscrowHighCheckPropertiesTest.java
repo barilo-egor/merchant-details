@@ -8,16 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class PayscrowPropertiesImplTest {
+class PayscrowHighCheckPropertiesTest {
 
     @Autowired
-    private PayscrowPropertiesImpl payscrowPropertiesImpl;
+    private PayscrowHighCheckProperties payscrowHighCheckProperties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("payscrow-url", payscrowPropertiesImpl.url()),
-                () -> assertEquals("payscrow-key", payscrowPropertiesImpl.key())
+                () -> assertEquals("payscrow-high-check-url", payscrowHighCheckProperties.url()),
+                () -> assertEquals("payscrow-high-check-key", payscrowHighCheckProperties.key())
         );
     }
 }

@@ -4,6 +4,11 @@ alfa-team:
   token: "alfa-team-token"
   key: "alfa-team-key"
   secret: "alfa-team-secret"
+alfa-team-white-triangle:
+  url: "alfa-team-white-triangle-url"
+  token: "alfa-team-white-triangle-token"
+  key: "alfa-team-white-triangle-key"
+  secret: "alfa-team-white-triangle-secret"
 only-pays:
   url: "only-pays-url"
   secret: "only-pays-secret"
@@ -58,9 +63,15 @@ pay-crown:
 payscrow:
   url: "payscrow-url"
   key: "payscrow-key"
-  high-check-key: "payscrow-high-check-key"
-  in-house-key: "payscrow-in-house-key"
-  white-triangle-key: "payscrow-white-triangle-key"
+payscrow-high-check:
+  url: "payscrow-high-check-url"
+  key: "payscrow-high-check-key"
+payscrow-white-triangle:
+  url: "payscrow-white-triangle-url"
+  key: "payscrow-white-triangle-key"
+payscrow-sim:
+  url: "payscrow-sim-url"
+  key: "payscrow-sim-key"
 lucky-pay:
   url: "lucky-pay-url"
   key: "lucky-pay-key"
