@@ -20,7 +20,8 @@ public enum Method implements MerchantMethod {
     ALFA("df920cd2-321a-4da0-b1b5-832e32c4da0b", "Альфа-альфа"),
     PSB("70c73aa1-163b-4721-856a-6e1ed8c5e4cb", "ПСБ-ПСБ"),
     GAZ_PROM("9469a889-f5cc-4d86-970f-45cfe30a8f13","Газпром-газпром"),
-    OZON("e556810d-86fd-40fd-bbb4-d67cc59cbcc5", "Озон-озон")
+    OZON("e556810d-86fd-40fd-bbb4-d67cc59cbcc5", "Озон-озон"),
+    SIM("94eb8ffc-f900-47e1-89dd-ed8974780595", "SIM")
     ;
 
     private final String value;
