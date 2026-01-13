@@ -139,6 +139,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paylee.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paylee.Method.values()
     ),
+    NEURAL_PAY(
+            tgb.cryptoexchange.merchantdetails.details.neuralpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.neuralpay.Method.values()
+    ),
     ;
 
     private final MerchantOrderStatus[] statuses;
