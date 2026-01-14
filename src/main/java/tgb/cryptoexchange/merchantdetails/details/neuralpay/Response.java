@@ -65,7 +65,7 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(requisite)) {
             result.notNull("requisite");
         }
-        if (Objects.isNull(requisite.getCurrency())) {
+        if (Objects.nonNull(requisite) && Objects.isNull(requisite.getCurrency())) {
             result.notNull("requisite.currency");
         }
         return result;
