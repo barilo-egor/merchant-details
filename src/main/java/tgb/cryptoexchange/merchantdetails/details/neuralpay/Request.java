@@ -24,7 +24,7 @@ public class Request {
     @JsonProperty("paymentMethods")
     private List<String> method;
 
-    private Requisite requisite;
+    private Requisite requisite = new Requisite();
 
     private String target;
 
