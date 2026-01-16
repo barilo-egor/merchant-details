@@ -1,7 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.neuralpay;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,16 +8,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,8 @@ class NeuralPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api-merchant.neuralpay.space/v1/core/transactions/charge", service.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/v1/core/transactions/charge",
+                service.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -79,12 +80,14 @@ class NeuralPayOrderCreationServiceTest {
     @DisplayName("Создание тела запроса с проверкой реквизитов")
     @CsvSource(textBlock = """
             5000, P2P_CARD
-            10500, P2P_PHONE_MONOBANK
+            10500, NATIONAL_PAYMENT_SYSTEM
             """)
     void body(String amount, Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NEURAL_PAY).method(method.name()).build()));
+        detailsRequest.setMethods(
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NEURAL_PAY).method(method.name())
+                        .build()));
 
         Request actual = service.body(detailsRequest);
         Request.Requisite requisite = new Request.Requisite();
@@ -106,8 +109,8 @@ class NeuralPayOrderCreationServiceTest {
             500, ID-555, CHARGED, Альфа-Банк, alfabank, 'Петр П.', 4444555566667777
             """)
     void buildResponseShouldBuildResponseObject(String amount, String id, Status status,
-                                                String bankName, String bankCode,
-                                                String recipient, String requisiteValue) {
+            String bankName, String bankCode,
+            String recipient, String requisiteValue) {
         Response response = new Response();
         response.setAmount(amount);
         response.setId(id);
@@ -147,7 +150,7 @@ class NeuralPayOrderCreationServiceTest {
         service.setObjectMapper(objectMapper);
         CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
         cancelOrderRequest.setOrderId(orderId);
-        
+
         String expectedBody = objectMapper.writeValueAsString(Map.of("transaction_id", orderId));
 
         service.makeCancelRequest(cancelOrderRequest);
@@ -163,7 +166,7 @@ class NeuralPayOrderCreationServiceTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         URI resultUri = uriBuilderCaptor.getValue().apply(uriBuilder);
 
-        assertEquals("/api-merchant.neuralpay.space/v1/core/transactions/cancel", resultUri.getPath());
+        assertEquals("/v1/core/transactions/cancel", resultUri.getPath());
     }
 
     @Test
