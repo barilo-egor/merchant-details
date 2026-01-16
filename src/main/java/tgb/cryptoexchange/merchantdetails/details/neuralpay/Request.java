@@ -17,29 +17,16 @@ public class Request {
 
     private Integer amount;
 
-    private Integer currencyRate = 0;
-
-    private String referenceId;
-
     @JsonProperty("paymentMethods")
     private List<String> method;
 
     private Requisite requisite = new Requisite();
-
-    private String target;
-
-    private String identifier;
 
     @Data
     public static class Requisite {
 
         private final String currency = Currency.getInstance("RUB").getCurrencyCode();
 
-        private RequisiteType requisiteType = RequisiteType.PAY_IN;
-
-        private String bankCode;
-
-        private List<GeoType> geocodes;
     }
 
 }

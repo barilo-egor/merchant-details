@@ -34,7 +34,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/api-merchant.neuralpay.space/v1/core/transactions/charge").build();
+        return uriBuilder -> uriBuilder.path("/v1/core/transactions/charge").build();
     }
 
     private void addHeaders(HttpHeaders httpHeaders) {
@@ -82,7 +82,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
             throw new RuntimeException(e);
         }
         requestService.request(webClient, HttpMethod.POST,
-                uriBuilder -> uriBuilder.path("/api-merchant.neuralpay.space/v1/core/transactions/cancel").build(),
+                uriBuilder -> uriBuilder.path("/v1/core/transactions/cancel").build(),
                 this::addHeaders, bodyJson
         );
     }
@@ -92,19 +92,4 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
         return Merchant.NEURAL_PAY;
     }
 
-//    @Override
-//    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
-//        return e -> {
-//            if (e instanceof WebClientResponseException.Conflict conflict) {
-//                try {
-//                    JsonNode response = objectMapper.readTree(conflict.getResponseBodyAsString());
-//                    return response.has("error")
-//                            && response.get("error").asText().equals("NO_REQUISITE");
-//                } catch (JsonProcessingException ex) {
-//                    return false;
-//                }
-//            }
-//            return false;
-//        };
-//    }
 }
