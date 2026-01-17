@@ -126,7 +126,10 @@ pay-lee-qr:
   token: "pay-lee-qr-token"
   secret: "pay-lee-qr-secret"
   client-id-salt: "pay-lee-qr-client-id-salt"
-#Конфиг приложения
+neural-pay:
+  url: "neural-pay-url"
+  token: "neural-pay-key"
+#Конфиг приложния
 server:
   servlet:
     context-path: "/merchant-details"
