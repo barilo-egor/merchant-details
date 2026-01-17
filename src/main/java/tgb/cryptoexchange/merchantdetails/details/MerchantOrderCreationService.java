@@ -111,7 +111,14 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
-        Optional<DetailsResponse> maybeResponse = buildResponse(response);
+        Optional<DetailsResponse> maybeResponse;
+        try {
+             maybeResponse= buildResponse(response);
+        } catch (Exception e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при формировании ответа: {}", currentTime, e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while forming response: " + currentTime + ".", e);
+        }
         if (maybeResponse.isPresent()) {
             log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
         } else {
