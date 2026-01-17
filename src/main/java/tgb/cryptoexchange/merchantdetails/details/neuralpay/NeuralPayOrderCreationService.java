@@ -65,8 +65,8 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
-        Response.Requisite requisite = response.getRequisite();
-        detailsResponse.setDetails(requisite.getBankName() + " " + requisite.getBankCode() + " " + requisite.getRecipient() + " " + requisite.getRequisite());
+        Response.ResponseRequisite requisite = response.getRequisite();
+        detailsResponse.setDetails(requisite.getBankName() + " " + requisite.getRequisite());
         return Optional.of(detailsResponse);
     }
 

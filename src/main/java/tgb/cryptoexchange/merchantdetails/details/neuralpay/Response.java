@@ -1,13 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.neuralpay;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -16,41 +13,18 @@ public class Response implements MerchantDetailsResponse {
 
     private String amount;
 
-    private Integer currencyRate;
-
-    private String referenceId;
-
     private String id;
 
-    private Requisite requisite;
+    private ResponseRequisite requisite;
 
     private Status status;
 
-    private OffsetDateTime createdAt;
-
-    private OffsetDateTime updatedAt;
-
     @Data
-    public static class Requisite {
-
-        private String currency;
-
-        private RequisiteType requisiteType;
-
-        private String bankCode;
-
-        private List<GeoType> geocodes;
+    public static class ResponseRequisite {
 
         private String requisite;
 
-        private String recipient;
-
-        @JsonProperty("bik")
-        private String bancCode;
-
         private String bankName;
-
-        private String paymentUrl;
     }
 
     @Override
@@ -64,9 +38,6 @@ public class Response implements MerchantDetailsResponse {
         }
         if (Objects.isNull(requisite)) {
             result.notNull("requisite");
-        }
-        if (Objects.nonNull(requisite) && Objects.isNull(requisite.getCurrency())) {
-            result.notNull("requisite.currency");
         }
         return result;
     }

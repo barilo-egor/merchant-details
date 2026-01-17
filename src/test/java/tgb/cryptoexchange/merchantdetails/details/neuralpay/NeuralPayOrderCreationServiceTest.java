@@ -105,21 +105,18 @@ class NeuralPayOrderCreationServiceTest {
     @ParameterizedTest
     @DisplayName("Создание тела ответа с проверкой реквизитов")
     @CsvSource(textBlock = """
-            1000, ID-444, PENDING, Сбербанк, sberbank, 'Иван И.', 2200111122223333
-            500, ID-555, CHARGED, Альфа-Банк, alfabank, 'Петр П.', 4444555566667777
+            1000, ID-444, PENDING, Сбербанк, 2200111122223333
+            500, ID-555, CHARGED, Альфа-Банк, 4444555566667777
             """)
     void buildResponseShouldBuildResponseObject(String amount, String id, Status status,
-            String bankName, String bankCode,
-            String recipient, String requisiteValue) {
+            String bankName, String requisiteValue) {
         Response response = new Response();
         response.setAmount(amount);
         response.setId(id);
         response.setStatus(status);
 
-        Response.Requisite requisite = new Response.Requisite();
+        Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         requisite.setBankName(bankName);
-        requisite.setBankCode(bankCode);
-        requisite.setRecipient(recipient);
         requisite.setRequisite(requisiteValue);
         response.setRequisite(requisite);
 
@@ -128,7 +125,7 @@ class NeuralPayOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent(), "Ответ должен присутствовать");
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s %s %s", bankName, bankCode, recipient, requisiteValue);
+        String expectedDetails = String.format("%s %s", bankName, requisiteValue);
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
