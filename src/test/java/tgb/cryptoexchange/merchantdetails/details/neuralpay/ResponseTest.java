@@ -17,8 +17,7 @@ class ResponseTest {
         Response response = new Response();
         response.setId("id");
         response.setAmount("0");
-        Response.Requisite requisite = new Response.Requisite();
-        requisite.setCurrency("RUB");
+        Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
         assertTrue(response.validate().errorsToString().isEmpty());
     }
@@ -28,8 +27,7 @@ class ResponseTest {
     void validateShouldReturnErrorIfIdIsNull() {
         Response response = new Response();
         response.setAmount("0");
-        Response.Requisite requisite = new Response.Requisite();
-        requisite.setCurrency("RUB");
+        Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
         assertEquals("field \"id\" must not be null", response.validate().errorsToString());
     }
@@ -39,8 +37,7 @@ class ResponseTest {
     void validateShouldReturnErrorIfAmountIsNull() {
         Response response = new Response();
         response.setId("id");
-        Response.Requisite requisite = new Response.Requisite();
-        requisite.setCurrency("RUB");
+        Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
         assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
     }
@@ -52,17 +49,6 @@ class ResponseTest {
         response.setId("id");
         response.setAmount("0");
         assertEquals("field \"requisite\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    @DisplayName("Ошибка, если в реквизитах не указана валюта")
-    void validateShouldReturnErrorIfCurrencyIsNull() {
-        Response response = new Response();
-        response.setId("id");
-        response.setAmount("0");
-        Response.Requisite requisite = new Response.Requisite();
-        response.setRequisite(requisite);
-        assertEquals("field \"requisite.currency\" must not be null", response.validate().errorsToString());
     }
 
     @Test
