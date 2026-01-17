@@ -12,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.NeuralPayProperties;
 
 import java.net.URI;
@@ -74,12 +75,11 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String bodyJson;
         try {
-            Map<String, String> body = Map.of(
+            bodyJson = objectMapper.writeValueAsString(Map.of(
                     "transaction_id", cancelOrderRequest.getOrderId()
-            );
-            bodyJson = objectMapper.writeValueAsString(body);
+            ));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new BodyMappingException("Ошибка при преобразовании тела для отмены ордера.", e);
         }
         requestService.request(webClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/v1/core/transactions/cancel").build(),
