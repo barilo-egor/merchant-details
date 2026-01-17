@@ -61,7 +61,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setAmount(Integer.valueOf(response.getAmount()));
+        detailsResponse.setAmount(Double.valueOf(response.getAmount()).intValue());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
