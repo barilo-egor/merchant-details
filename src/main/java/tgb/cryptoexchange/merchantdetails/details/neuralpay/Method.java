@@ -7,8 +7,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-
-    NATIONAL_PAYMENT_SYSTEM("СБП"),
+    P2P_PHONE("СБП"),
     P2P_CARD("Карта"),
     ;
 
