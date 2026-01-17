@@ -173,4 +173,9 @@ public class WebClientsConfig {
     public WebClient payLeeQRWebClient(PayLeePropertiesImpl payLeeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
+
+    @Bean
+    public WebClient neuralPayWebClient(NeuralPayProperties neuralPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(neuralPayProperties.url()).build();
+    }
 }
