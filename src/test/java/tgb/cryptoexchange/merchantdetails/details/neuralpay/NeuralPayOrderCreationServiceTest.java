@@ -80,7 +80,7 @@ class NeuralPayOrderCreationServiceTest {
     @DisplayName("Создание тела запроса с проверкой реквизитов")
     @CsvSource(textBlock = """
             5000, P2P_CARD
-            10500, NATIONAL_PAYMENT_SYSTEM
+            10500, P2P_PHONE
             """)
     void body(String amount, Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
