@@ -170,6 +170,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient plata18WebClient(Plata18Properties properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(properties.url()).build();
+    }
+
+    @Bean
     public WebClient payLeeQRWebClient(PayLeePropertiesImpl payLeeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
