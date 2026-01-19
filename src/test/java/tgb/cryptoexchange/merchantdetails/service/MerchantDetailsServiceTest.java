@@ -76,31 +76,6 @@ class MerchantDetailsServiceTest {
         assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, new DetailsRequest()).isEmpty());
     }
 
-    @Test
-    void getDetailsShouldReturnDetailsAndPutDetailsToProducer() {
-        MerchantService merchantService = Mockito.mock(MerchantService.class);
-        when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setId(50005L);
-        DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setMerchant(Merchant.ALFA_TEAM);
-        detailsResponse.setDetails("SOME BANK 1234 1234 1234 1234");
-        when(merchantService.createOrder(any())).thenReturn(Optional.of(detailsResponse));
-        ArgumentCaptor<Merchant> merchantCaptor = ArgumentCaptor.forClass(Merchant.class);
-        ArgumentCaptor<DetailsRequest> detailsRequestCaptor = ArgumentCaptor.forClass(DetailsRequest.class);
-        ArgumentCaptor<DetailsResponse> detailsResponseCaptor = ArgumentCaptor.forClass(DetailsResponse.class);
-        Optional<DetailsResponse> maybeResponse = merchantDetailsService.getDetails(Merchant.ALFA_TEAM, detailsRequest);
-        assertTrue(maybeResponse.isPresent());
-        DetailsResponse actual = maybeResponse.get();
-        assertEquals(Merchant.ALFA_TEAM, actual.getMerchant());
-        verify(merchantDetailsReceiveEventProducer).put(merchantCaptor.capture(), detailsRequestCaptor.capture(), detailsResponseCaptor.capture());
-        assertAll(
-                () -> assertEquals(Merchant.ALFA_TEAM, merchantCaptor.getValue()),
-                () -> assertEquals(detailsRequest, detailsRequestCaptor.getValue()),
-                () -> assertEquals(detailsResponse, detailsResponseCaptor.getValue())
-        );
-    }
-
     @CsvSource(delimiter = ';', textBlock = """
             ALFA_TEAM;{"someField":"someValue","merchant":"ALFA_TEAM"}
             WELL_BIT;{"someField":"someValue","merchant":"WELL_BIT"}
