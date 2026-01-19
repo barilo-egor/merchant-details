@@ -121,6 +121,10 @@ plata-payment:
   url: "plata-payment-url"
   token: "plata-payment-token"
   merchant-id: "plata-payment-merchant-id"
+plata18:
+  url: "plata18-url"
+  token: "plata18-token"
+  merchant-id: "plata18-merchant-id"
 pay-lee-qr:
   url: "pay-lee-qr-url"
   token: "pay-lee-qr-token"

@@ -128,9 +128,13 @@ plata-payment:
   url: ""
   token: ""
   merchant-id: ""
+plata18:
+  url: ""
+  token: ""
+  merchant-id: ""
 neural-pay:
-  url:
-  token:
+  url: ""
+  token: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:

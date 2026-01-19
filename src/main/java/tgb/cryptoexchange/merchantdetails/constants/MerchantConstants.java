@@ -135,6 +135,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
+    PLATA_18(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
     PAY_LEE_QR(
             tgb.cryptoexchange.merchantdetails.details.paylee.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paylee.Method.values()
