@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -8,8 +9,10 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,10 +28,14 @@ public class MerchantDetailsService {
 
     private final SleepService sleepService;
 
+    private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
+
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
+                                  @Autowired(required = false) MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
                                   MerchantConfigService merchantConfigService, VariableService variableService,
                                   SleepService sleepService) {
         this.merchantServiceRegistry = merchantServiceRegistry;
+        this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
         this.sleepService = sleepService;
@@ -37,7 +44,13 @@ public class MerchantDetailsService {
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isPresent()) {
-            return maybeCreationService.get().createOrder(request);
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
+            if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
+                maybeDetailsResponse.ifPresent(
+                        detailsResponse -> merchantDetailsReceiveEventProducer.put(merchant, request, detailsResponse)
+                );
+            }
+            return maybeDetailsResponse;
         }
         log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
         return Optional.empty();
