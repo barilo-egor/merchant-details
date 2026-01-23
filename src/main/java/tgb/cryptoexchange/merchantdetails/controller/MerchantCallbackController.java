@@ -42,7 +42,7 @@ public class MerchantCallbackController extends ApiController {
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping
+    @RequestMapping
     public ResponseEntity<Void> callback(@RequestParam Merchant merchant, @RequestParam String secret,
                                          @RequestBody String callbackBody) {
         if (!this.secret.equals(secret)) {
