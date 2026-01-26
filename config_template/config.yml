@@ -135,6 +135,9 @@ plata18:
 neural-pay:
   url: ""
   token: ""
+studio:
+  url: ""
+  key: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
