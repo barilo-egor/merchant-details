@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ResponseTest {
@@ -15,9 +14,7 @@ class ResponseTest {
     @DisplayName("Успешный результат при заполнении всех обязательных полей")
     void validateShouldReturnNoErrorsIfAllFieldsPresent() {
         Response response = new Response();
-        response.setAmount(0);
         response.setInternalId("internalId");
-        response.setClientOrderId("clientOrderId");
         assertTrue(response.validate().errorsToString().isEmpty());
     }
 
@@ -25,32 +22,21 @@ class ResponseTest {
     @DisplayName("Ошибка, если отсутствует internalId")
     void validateShouldReturnErrorIfInternalIdIsNull() {
         Response response = new Response();
-        response.setAmount(0);
-        response.setClientOrderId("clientOrderId");
         assertEquals("field \"internalId\" must not be null", response.validate().errorsToString());
     }
 
     @Test
-    @DisplayName("Ошибка, если отсутствует clientOrderId")
-    void validateShouldReturnErrorIfClientOrderIdIsNull() {
+    @DisplayName("Ошибка, если отсутствует requisites")
+    void validateShouldReturnErrorIfRequisitesIsNull() {
         Response response = new Response();
-        response.setAmount(0);
-        response.setInternalId("internalId");
-        assertEquals("field \"clientOrderId\" must not be null", response.validate().errorsToString());
+        response.setInternalId("2332");
+        response.setRequisites(new Response.Requisites());
+        assertEquals("field \"bankName or bik\" must not be null", response.validate().errorsToString());
     }
 
     @Test
-    @DisplayName("Ошибка, если не указана сумма (amount)")
-    void validateShouldReturnErrorIfAmountIsNull() {
-        Response response = new Response();
-        response.setInternalId("internalId");
-        response.setClientOrderId("clientOrderId");
-        assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void hasDetailsShouldReturnTrue() {
-        assertTrue(new Response().hasDetails());
+    void hasDetailsShouldReturnFalse() {
+        assertFalse(new Response().hasDetails());
     }
 
 }
