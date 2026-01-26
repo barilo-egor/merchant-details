@@ -132,7 +132,10 @@ pay-lee-qr:
   client-id-salt: "pay-lee-qr-client-id-salt"
 neural-pay:
   url: "neural-pay-url"
-  token: "neural-pay-key"
+  token: "neural-pay-token"
+studio:
+  url: "studio-url"
+  key: "studio-key"
 #Конфиг приложния
 server:
   servlet:

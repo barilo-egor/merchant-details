@@ -183,4 +183,9 @@ public class WebClientsConfig {
     public WebClient neuralPayWebClient(NeuralPayProperties neuralPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(neuralPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient studioWebClient(StudioProperties studioProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(studioProperties.url()).build();
+    }
 }
