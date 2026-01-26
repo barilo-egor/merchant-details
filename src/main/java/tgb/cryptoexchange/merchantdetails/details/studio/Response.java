@@ -6,7 +6,6 @@ import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 
-import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @Data
@@ -39,21 +38,20 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (Objects.isNull(amount)) {
-            result.notNull("amount");
-        }
         if (Objects.isNull(internalId)) {
             result.notNull("internalId");
         }
-        if (Objects.isNull(clientOrderId)) {
-            result.notNull("clientOrderId");
+        if (hasDetails()) {
+            if (Objects.isNull(requisites.getBankName()) && Objects.isNull(requisites.getBik())) {
+                result.notNull("bankName", "bik");
+            }
         }
         return result;
     }
 
     @Override
     public boolean hasDetails() {
-        return true;
+        return Objects.nonNull(requisites);
     }
 
 }
