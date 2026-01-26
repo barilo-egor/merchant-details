@@ -89,9 +89,9 @@ public class StudioOrderCreationServiceTest {
     @DisplayName("Создание тела ответа с проверкой реквизитов")
     @CsvSource(textBlock = """
             1000, ID-444, PENDING, id234, Сбербанк, 2200111122223333
-            500, ID-555, CHARGED, id4444, Альфа-Банк, 4444555566667777
+            500, ID-555, AWAITING_REQUISITES, id4444, Альфа-Банк, 4444555566667777
             """)
-    void buildResponseShouldBuildResponseObject(Integer amount, String clientOrderId, String status, String internalId,
+    void buildResponseShouldBuildResponseObject(Integer amount, String clientOrderId, Status status, String internalId,
             String bankName, String bik) {
         Response response = new Response();
         response.setAmount(amount);
@@ -114,7 +114,7 @@ public class StudioOrderCreationServiceTest {
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> assertEquals(internalId, actual.getMerchantOrderId()),
                 () -> assertEquals(clientOrderId, actual.getRequestId()),
-                () -> assertEquals(status, actual.getMerchantOrderStatus()),
+                () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
                 () -> assertEquals(expectedDetails, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );

@@ -12,7 +12,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response implements MerchantDetailsResponse {
 
-    private String status;
+    private Status status;
 
     @JsonProperty("internal_id")
     private String internalId;
