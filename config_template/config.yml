@@ -137,7 +137,8 @@ neural-pay:
   token: ""
 studio:
   url: ""
-  key: ""
+  key-card: ""
+  key-sbp: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:

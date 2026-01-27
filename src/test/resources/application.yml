@@ -135,7 +135,8 @@ neural-pay:
   token: "neural-pay-token"
 studio:
   url: "studio-url"
-  key: "studio-key"
+  key-card: "studio-key-card"
+  key-sbp: "studio-key-sbp"
 #Конфиг приложния
 server:
   servlet:

@@ -38,14 +38,19 @@ public class StudioOrderCreationService extends MerchantOrderCreationService<Res
         return uriBuilder -> uriBuilder.path("/api/v1/orders").build();
     }
 
-    private void addHeaders(HttpHeaders httpHeaders) {
+    private void addHeaders(HttpHeaders httpHeaders, Optional<String> method) {
         httpHeaders.add("Content-Type", "application/json");
-        httpHeaders.add("X-API-Key", studioProperties.key());
+        if (method.isPresent()) {
+            String apiKey = Method.CARD.name().equalsIgnoreCase(method.get()) ?
+                    studioProperties.keyCard() :
+                    studioProperties.keySbp();
+            httpHeaders.add("X-API-Key", apiKey);
+        }
     }
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return this::addHeaders;
+        return (httpHeaders) -> addHeaders(httpHeaders, detailsRequest.getMerchantMethod(Merchant.STUDIO));
     }
 
     @Override

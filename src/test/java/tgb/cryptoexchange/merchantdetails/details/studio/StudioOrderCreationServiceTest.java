@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.studio;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -34,6 +36,9 @@ public class StudioOrderCreationServiceTest {
     @Mock
     private StudioProperties studioProperties;
 
+    @Mock
+    private DetailsRequest detailsRequest;
+
     @InjectMocks
     private StudioOrderCreationService service;
 
@@ -44,19 +49,30 @@ public class StudioOrderCreationServiceTest {
                 service.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
-    @ValueSource(strings = {
-            "JQX1BI3Vs36UnMB", "y701U9erXYfOAdX", "k531JZgj6dsh7uT"
-    })
-    @DisplayName("Проверка добавления заголовков")
-    @ParameterizedTest
-    void headersShouldAddRequiredHeaders(String key) {
-        when(studioProperties.key()).thenReturn(key);
+    @Test
+    @DisplayName("Проверка заголовков для Card")
+    void shouldAddCardHeaderWhenMethodIsCard() {
+        when(studioProperties.keyCard()).thenReturn("key-for-card");
+        when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("CARD"));
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
-        assertAll(
-                () -> assertEquals(key, Objects.requireNonNull(headers.get("X-API-Key")).getFirst()),
-                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
-        );
+
+        Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "some body");
+        consumer.accept(headers);
+
+        assertEquals("application/json", headers.getFirst("Content-Type"));
+        assertEquals("key-for-card", headers.getFirst("X-API-Key"));
+    }
+
+    @Test
+    @DisplayName("Проверка заголовков для SBP")
+    void shouldAddSbpHeaderWhenMethodIsSbp() {
+        when(studioProperties.keySbp()).thenReturn("key-for-sbp");
+        when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("SBP"));
+        HttpHeaders headers = new HttpHeaders();
+
+        service.headers(detailsRequest, "some body").accept(headers);
+
+        assertEquals("key-for-sbp", headers.getFirst("X-API-Key"));
     }
 
     @ParameterizedTest
