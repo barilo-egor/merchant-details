@@ -148,9 +148,13 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.neuralpay.Method.values()
     ),
     STUDIO(
-            tgb.cryptoexchange.merchantdetails.details.neuralpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.neuralpay.Method.values()
+            tgb.cryptoexchange.merchantdetails.details.studio.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.studio.Method.values()
     ),
+    STUDIO_SIM(
+            tgb.cryptoexchange.merchantdetails.details.studio.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.studio.Method.values()
+    )
     ;
 
     private final MerchantOrderStatus[] statuses;
