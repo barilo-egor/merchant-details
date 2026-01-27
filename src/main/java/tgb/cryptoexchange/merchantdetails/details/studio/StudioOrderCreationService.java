@@ -11,7 +11,7 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
+import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
 import java.net.URI;
 import java.util.Optional;
@@ -22,14 +22,15 @@ import java.util.function.Function;
 @Slf4j
 public class StudioOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
-    private final StudioProperties studioProperties;
+    protected final StudioConfig studioConfig;
 
     private final CallbackConfig callbackConfig;
 
     protected StudioOrderCreationService(@Qualifier("studioWebClient") WebClient webClient,
-            StudioProperties studioProperties, CallbackConfig callbackConfig) {
+            @Qualifier("studio-tgb.cryptoexchange.merchantdetails.properties.StudioProperties") StudioConfig studioConfig,
+            CallbackConfig callbackConfig) {
         super(webClient, Response.class, Callback.class);
-        this.studioProperties = studioProperties;
+        this.studioConfig = studioConfig;
         this.callbackConfig = callbackConfig;
     }
 
@@ -40,17 +41,12 @@ public class StudioOrderCreationService extends MerchantOrderCreationService<Res
 
     private void addHeaders(HttpHeaders httpHeaders, Optional<String> method) {
         httpHeaders.add("Content-Type", "application/json");
-        if (method.isPresent()) {
-            String apiKey = Method.CARD.name().equalsIgnoreCase(method.get()) ?
-                    studioProperties.keyCard() :
-                    studioProperties.keySbp();
-            httpHeaders.add("X-API-Key", apiKey);
-        }
+        method.ifPresent(s -> httpHeaders.add("X-API-Key", studioConfig.getKey(s)));
     }
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return (httpHeaders) -> addHeaders(httpHeaders, detailsRequest.getMerchantMethod(Merchant.STUDIO));
+        return (httpHeaders) -> addHeaders(httpHeaders, detailsRequest.getMerchantMethod(getMerchant()));
     }
 
     @Override

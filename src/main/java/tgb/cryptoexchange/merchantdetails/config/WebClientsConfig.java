@@ -188,4 +188,9 @@ public class WebClientsConfig {
     public WebClient studioWebClient(StudioProperties studioProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(studioProperties.url()).build();
     }
+
+    @Bean
+    public WebClient studioSimWebClient(StudioSimProperties studioSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(studioSimProperties.url()).build();
+    }
 }

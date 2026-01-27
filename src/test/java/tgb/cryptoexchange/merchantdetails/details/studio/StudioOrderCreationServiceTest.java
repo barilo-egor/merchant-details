@@ -1,12 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.studio;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,10 +15,9 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
+import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -34,7 +31,7 @@ public class StudioOrderCreationServiceTest {
     private CallbackConfig callbackConfig;
 
     @Mock
-    private StudioProperties studioProperties;
+    private StudioConfig studioConfig;
 
     @Mock
     private DetailsRequest detailsRequest;
@@ -52,7 +49,7 @@ public class StudioOrderCreationServiceTest {
     @Test
     @DisplayName("Проверка заголовков для Card")
     void shouldAddCardHeaderWhenMethodIsCard() {
-        when(studioProperties.keyCard()).thenReturn("key-for-card");
+        when(studioConfig.getKey("CARD")).thenReturn("key-for-card");
         when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("CARD"));
         HttpHeaders headers = new HttpHeaders();
 
@@ -66,7 +63,7 @@ public class StudioOrderCreationServiceTest {
     @Test
     @DisplayName("Проверка заголовков для SBP")
     void shouldAddSbpHeaderWhenMethodIsSbp() {
-        when(studioProperties.keySbp()).thenReturn("key-for-sbp");
+        when(studioConfig.getKey("SBP")).thenReturn("key-for-sbp");
         when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("SBP"));
         HttpHeaders headers = new HttpHeaders();
 
