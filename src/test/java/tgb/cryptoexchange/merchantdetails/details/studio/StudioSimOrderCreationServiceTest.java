@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class StudioSimOrderCreationServiceTest {
 
     @Mock
-    private StudioConfig properties;
+    private StudioSimProperties properties;
 
     @Mock
     private DetailsRequest detailsRequest;

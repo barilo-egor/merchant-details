@@ -6,15 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
+import tgb.cryptoexchange.merchantdetails.properties.StudioSimProperties;
 
 @Service
 @Slf4j
-public class StudioSimOrderCreationService extends StudioOrderCreationService {
+public class StudioSimOrderCreationService extends StudioService {
 
-    protected StudioSimOrderCreationService(@Qualifier("studioSimWebClient") WebClient webClient,
-            @Qualifier("studio-sim-tgb.cryptoexchange.merchantdetails.properties.StudioSimProperties") StudioConfig studioConfig,
-            CallbackConfig callbackConfig) {
+    protected StudioSimOrderCreationService(@Qualifier("studioWebClient") WebClient webClient,
+            StudioSimProperties studioConfig, CallbackConfig callbackConfig) {
         super(webClient, studioConfig, callbackConfig);
     }
 
