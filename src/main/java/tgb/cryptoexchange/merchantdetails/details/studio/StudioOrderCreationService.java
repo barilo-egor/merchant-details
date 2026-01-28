@@ -2,78 +2,19 @@ package tgb.cryptoexchange.merchantdetails.details.studio;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
-
-import java.net.URI;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
 @Service
 @Slf4j
-public class StudioOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
-
-    protected final StudioConfig studioConfig;
-
-    private final CallbackConfig callbackConfig;
+public class StudioOrderCreationService extends StudioService {
 
     protected StudioOrderCreationService(@Qualifier("studioWebClient") WebClient webClient,
-            @Qualifier("studio-tgb.cryptoexchange.merchantdetails.properties.StudioProperties") StudioConfig studioConfig,
-            CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
-        this.studioConfig = studioConfig;
-        this.callbackConfig = callbackConfig;
-    }
-
-    @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/api/v1/orders").build();
-    }
-
-    private void addHeaders(HttpHeaders httpHeaders, Optional<String> method) {
-        httpHeaders.add("Content-Type", "application/json");
-        method.ifPresent(s -> httpHeaders.add("X-API-Key", studioConfig.getKey(s)));
-    }
-
-    @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return (httpHeaders) -> addHeaders(httpHeaders, detailsRequest.getMerchantMethod(getMerchant()));
-    }
-
-    @Override
-    protected Request body(DetailsRequest detailsRequest) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest, Method.class);
-        request.setMainMethod(method.name());
-        request.setClientOrderId(detailsRequest.getRequestId());
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
-                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
-        return request;
-    }
-
-    @Override
-    protected Optional<DetailsResponse> buildResponse(Response response) {
-        DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setAmount(Double.valueOf(response.getAmount()).intValue());
-        detailsResponse.setMerchantOrderId(response.getInternalId());
-        detailsResponse.setRequestId(response.getClientOrderId());
-        detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        detailsResponse.setMerchant(getMerchant());
-        Response.Requisites requisites = response.getRequisites();
-        if (requisites != null) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getBik());
-        }
-        return Optional.of(detailsResponse);
+            StudioProperties studioConfig, CallbackConfig callbackConfig) {
+        super(webClient, studioConfig, callbackConfig);
     }
 
     @Override

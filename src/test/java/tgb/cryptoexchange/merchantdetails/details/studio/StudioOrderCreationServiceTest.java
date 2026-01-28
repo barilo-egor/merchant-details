@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
+import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class StudioOrderCreationServiceTest {
     private CallbackConfig callbackConfig;
 
     @Mock
-    private StudioConfig studioConfig;
+    private StudioProperties studioConfig;
 
     @Mock
     private DetailsRequest detailsRequest;
