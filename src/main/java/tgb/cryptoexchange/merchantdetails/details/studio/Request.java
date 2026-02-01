@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.studio;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 @Data
@@ -13,8 +14,9 @@ public class Request {
 
     private Integer amount;
 
+    @JsonSerialize(using = Method.Serializer.class)
     @JsonProperty("main_method")
-    private String mainMethod;
+    private Method mainMethod;
 
     @JsonProperty("callback_url")
     private String callbackUrl;
