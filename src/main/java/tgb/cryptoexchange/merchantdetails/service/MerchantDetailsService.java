@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
@@ -130,6 +131,9 @@ public class MerchantDetailsService {
                 merchantAttempt.error();
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
+                if (e instanceof WebClientResponseException responseException) {
+                    log.debug("Тело ответа ошибки для сделки №{}: {}", request.getId(), responseException.getResponseBodyAsString());
+                }
             }
             index++;
         }
