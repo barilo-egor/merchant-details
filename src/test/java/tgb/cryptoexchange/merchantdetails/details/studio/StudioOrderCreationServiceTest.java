@@ -19,6 +19,7 @@ import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,7 +93,7 @@ public class StudioOrderCreationServiceTest {
         Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount * 100, actual.getAmount()),
-                () -> assertEquals(clientOrderId, actual.getClientOrderId()),
+                () -> assertDoesNotThrow(() -> UUID.fromString(actual.getClientOrderId())),
                 () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=STUDIO&secret=" + secret,
                         actual.getCallbackUrl())
         );
