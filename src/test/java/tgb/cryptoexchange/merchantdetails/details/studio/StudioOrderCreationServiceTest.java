@@ -15,7 +15,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
 import java.util.List;
@@ -92,7 +91,7 @@ public class StudioOrderCreationServiceTest {
 
         Request actual = service.body(detailsRequest);
         assertAll(
-                () -> assertEquals(amount, actual.getAmount()),
+                () -> assertEquals(amount * 100, actual.getAmount()),
                 () -> assertEquals(clientOrderId, actual.getClientOrderId()),
                 () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=STUDIO&secret=" + secret,
                         actual.getCallbackUrl())
