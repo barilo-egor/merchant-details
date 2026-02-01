@@ -13,6 +13,7 @@ import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -53,7 +54,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         request.setAmount(detailsRequest.getAmount() * 100);
         Method method = parseMethod(detailsRequest, Method.class);
         request.setMainMethod(method);
-        request.setClientOrderId(detailsRequest.getRequestId());
+        request.setClientOrderId(UUID.randomUUID().toString());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
