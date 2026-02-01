@@ -3,7 +3,6 @@ package tgb.cryptoexchange.merchantdetails.details.studio;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -12,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -62,7 +62,9 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setAmount(Double.valueOf(response.getAmount()).intValue());
+        if (Objects.nonNull(response.getAmount())) {
+            detailsResponse.setAmount(Double.valueOf(response.getAmount()).intValue());
+        }
         detailsResponse.setMerchantOrderId(response.getInternalId());
         detailsResponse.setRequestId(response.getClientOrderId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
@@ -73,7 +75,4 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         }
         return Optional.of(detailsResponse);
     }
-
-    public abstract Merchant getMerchant();
-
 }
