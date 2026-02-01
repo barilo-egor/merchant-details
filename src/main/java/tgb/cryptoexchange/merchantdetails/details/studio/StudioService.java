@@ -50,7 +50,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
 
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
+        request.setAmount(detailsRequest.getAmount() * 100);
         Method method = parseMethod(detailsRequest, Method.class);
         request.setMainMethod(method);
         request.setClientOrderId(detailsRequest.getRequestId());
