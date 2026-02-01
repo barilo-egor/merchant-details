@@ -52,7 +52,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         Method method = parseMethod(detailsRequest, Method.class);
-        request.setMainMethod(method.name());
+        request.setMainMethod(method);
         request.setClientOrderId(detailsRequest.getRequestId());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
