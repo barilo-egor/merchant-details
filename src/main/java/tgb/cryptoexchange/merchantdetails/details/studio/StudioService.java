@@ -63,7 +63,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         if (Objects.nonNull(response.getAmount())) {
-            detailsResponse.setAmount(Double.valueOf(response.getAmount()).intValue());
+            detailsResponse.setAmount(response.getAmount());
         }
         detailsResponse.setMerchantOrderId(response.getInternalId());
         detailsResponse.setRequestId(response.getClientOrderId());
