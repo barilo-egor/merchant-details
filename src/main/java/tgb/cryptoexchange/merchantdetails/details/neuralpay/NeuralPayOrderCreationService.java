@@ -1,11 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.details.neuralpay;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -21,11 +23,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class NeuralPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final NeuralPayProperties neuralPayProperties;
+
+    public static String DETAIL = "detail";
 
     protected NeuralPayOrderCreationService(@Qualifier("neuralPayWebClient") WebClient webClient,
                                             NeuralPayProperties neuralPayProperties) {
@@ -85,6 +90,26 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
                 uriBuilder -> uriBuilder.path("/v1/core/transactions/cancel").build(),
                 this::addHeaders, bodyJson
         );
+    }
+
+    @Override
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> {
+            try {
+                if (e instanceof WebClientResponseException.BadRequest ex) {
+                    JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
+                    return response.has(DETAIL)
+                            && isNoDetailsMessage(response.get(DETAIL).asText());
+                }
+            } catch (JsonProcessingException jsonProcessingException) {
+                return false;
+            }
+            return false;
+        };
+    }
+
+    private boolean isNoDetailsMessage(String message) {
+        return message.equals("400: Payment details not found");
     }
 
     @Override
