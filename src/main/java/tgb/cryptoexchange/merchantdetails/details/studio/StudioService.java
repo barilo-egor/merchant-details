@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.studio;
 
+import lombok.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -32,7 +33,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/api/v1/orders").build();
+        return uriBuilder -> uriBuilder.path("/orders").build();
     }
 
     private void addHeaders(HttpHeaders httpHeaders, String method) {
