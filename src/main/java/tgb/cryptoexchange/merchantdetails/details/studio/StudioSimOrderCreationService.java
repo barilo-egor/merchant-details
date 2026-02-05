@@ -12,7 +12,7 @@ import tgb.cryptoexchange.merchantdetails.properties.StudioSimProperties;
 @Slf4j
 public class StudioSimOrderCreationService extends StudioService {
 
-    protected StudioSimOrderCreationService(@Qualifier("studioWebClient") WebClient webClient,
+    protected StudioSimOrderCreationService(@Qualifier("studioSimWebClient") WebClient webClient,
             StudioSimProperties studioConfig, CallbackConfig callbackConfig) {
         super(webClient, studioConfig, callbackConfig);
     }
