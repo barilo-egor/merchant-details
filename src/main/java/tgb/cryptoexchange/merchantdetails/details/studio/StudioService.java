@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.studio;
 
-import lombok.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -49,7 +48,6 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         return (httpHeaders) -> addHeaders(httpHeaders, method);
     }
 
-
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount() * 100);
@@ -77,4 +75,5 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         }
         return Optional.of(detailsResponse);
     }
+
 }
