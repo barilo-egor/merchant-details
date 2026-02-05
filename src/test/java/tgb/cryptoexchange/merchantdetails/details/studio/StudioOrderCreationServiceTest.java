@@ -125,7 +125,7 @@ public class StudioOrderCreationServiceTest {
 
         String expectedDetails = String.format("%s %s", bankName, bik);
         assertAll(
-                () -> assertEquals(amount, actual.getAmount()),
+                () -> assertEquals(amount/100, actual.getAmount()),
                 () -> assertEquals(internalId, actual.getMerchantOrderId()),
                 () -> assertEquals(clientOrderId, actual.getRequestId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
