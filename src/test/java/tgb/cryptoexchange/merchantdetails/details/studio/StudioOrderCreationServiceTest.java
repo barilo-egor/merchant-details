@@ -43,7 +43,7 @@ public class StudioOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v1/orders",
+        assertEquals("/orders",
                 service.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
