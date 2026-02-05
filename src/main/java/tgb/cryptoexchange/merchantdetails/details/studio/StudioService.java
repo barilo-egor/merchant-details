@@ -32,7 +32,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/api/v1/orders").build();
+        return uriBuilder -> uriBuilder.path("/orders").build();
     }
 
     private void addHeaders(HttpHeaders httpHeaders, String method) {
@@ -47,7 +47,6 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
                         "Method for merchant " + getMerchant().name() + " not found."));
         return (httpHeaders) -> addHeaders(httpHeaders, method);
     }
-
 
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
@@ -76,4 +75,5 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         }
         return Optional.of(detailsResponse);
     }
+
 }
