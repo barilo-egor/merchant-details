@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.studio;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
@@ -12,6 +13,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response implements MerchantDetailsResponse {
 
+    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     @JsonProperty("internal_id")
