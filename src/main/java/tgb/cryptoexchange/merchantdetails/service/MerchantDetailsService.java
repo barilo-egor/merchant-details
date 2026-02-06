@@ -9,7 +9,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
-import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.List;
@@ -88,14 +87,13 @@ public class MerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
-        DetailsReceiveMonitor detailsReceiveMonitor = new DetailsReceiveMonitor(request.getId(), request.getAmount());
         for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
             if (Thread.currentThread().isInterrupted()) {
                 log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
                 return Optional.empty();
             }
             long t1 = System.currentTimeMillis();
-            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber, detailsReceiveMonitor);
+            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
             long t2 = System.currentTimeMillis();
             if (attemptNumber < attemptsCount && maybeDetailsResponse.isEmpty()) {
                 long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
@@ -106,7 +104,6 @@ public class MerchantDetailsService {
             if (maybeDetailsResponse.isPresent()) break;
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
-        detailsReceiveMonitor.stop(hasDetails);
         if (!hasDetails) {
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         }
@@ -114,21 +111,15 @@ public class MerchantDetailsService {
     }
 
     private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest request,
-                                                    int attemptNumber, DetailsReceiveMonitor detailsReceiveMonitor) {
+                                                    int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
-            String method = request.getMerchantMethod(merchant).orElseThrow(
-                    () -> new MerchantMethodNotFoundException("Method for merchant " + merchant.name() + " not found.")
-            );
-            var merchantAttempt = detailsReceiveMonitor.start(merchant, method);
             try {
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
-                merchantAttempt.stop(maybeDetailsResponse.isPresent());
             } catch (Exception e) {
-                merchantAttempt.error();
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
                 if (e instanceof WebClientResponseException responseException) {

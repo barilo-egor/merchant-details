@@ -167,7 +167,6 @@ kafka:
   topic:
     merchant-details:
       receive: ""
-      monitor: ""
       callback: ""
       request: ""
       response: ""
