@@ -3,3 +3,11 @@ spring:
     name: "merchant-requisite"
   config:
     import: "file:config/config.yml"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info,prometheus'
+  endpoint:
+    health:
+      show-details: always
