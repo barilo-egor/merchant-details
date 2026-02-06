@@ -12,21 +12,35 @@ import java.io.IOException;
 @AllArgsConstructor
 @Getter
 public enum Status implements MerchantOrderStatus {
-    PENDING("Ордер создан, ожидает обработки"),
-    WAITING_PAYMENT("Ожидает оплаты"),
-    AWAITING_REQUISITES("Ожидает получения реквизитов"),
-    SUCCESS("Оплачен успешно"),
-    ERROR("Ошибка при обработке"),
-    FAILED("Отказ в обработке"),
-    NO_REQUISITES("Не удалось получить реквизиты"),
-    EXPIRED("Просрочен");
+    PENDING("pending", "Ордер создан, ожидает обработки"),
+    WAITING_PAYMENT("waiting_payment", "Ожидает оплаты"),
+    AWAITING_REQUISITES("awaiting_requisites", "Ожидает получения реквизитов"),
+    SUCCESS("success", "Оплачен успешно"),
+    ERROR("error", "Ошибка при обработке"),
+    FAILED("failed", "Отказ в обработке"),
+    NO_REQUISITES("no_requisites", "Не удалось получить реквизиты"),
+    EXPIRED("expired", "Просрочен");
+
+    private final String value;
 
     private final String description;
 
-    public static class Deserializer extends JsonDeserializer<Status> {
-        @Override
-        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return Status.valueOf(jsonParser.getText());
+    public static Status getByValue(String value) {
+        for (Status status : Status.values()) {
+            if (status.getValue().equals(value)) {
+                return status;
+            }
         }
+        return null;
+    }
+
+    public static class Deserializer extends JsonDeserializer<Status> {
+
+        @Override
+        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
+                throws IOException {
+            return Status.getByValue(jsonParser.getValueAsString());
+        }
+
     }
 }
