@@ -1,6 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,15 +34,18 @@ public class MerchantDetailsService {
 
     private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
 
+    private final MeterRegistry meterRegistry;
+
     public MerchantDetailsService(MerchantServiceRegistry merchantServiceRegistry,
                                   @Autowired(required = false) MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer,
                                   MerchantConfigService merchantConfigService, VariableService variableService,
-                                  SleepService sleepService) {
+                                  SleepService sleepService, MeterRegistry meterRegistry) {
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
         this.sleepService = sleepService;
+        this.meterRegistry = meterRegistry;
     }
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
@@ -108,7 +113,10 @@ public class MerchantDetailsService {
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
         if (!hasDetails) {
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "empty").increment();
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
+        } else {
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "success").increment();
         }
         return maybeDetailsResponse;
     }
@@ -119,12 +127,20 @@ public class MerchantDetailsService {
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
+            Timer.Sample sample = Timer.start(meterRegistry);
             try {
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
+                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, "merchant", merchant.name()));
+                if (maybeDetailsResponse.isPresent()) {
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "success").increment();
+                } else {
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "empty").increment();
+                }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
+                meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для сделки №{}: {}", request.getId(), responseException.getResponseBodyAsString());
                 }
