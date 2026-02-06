@@ -49,7 +49,7 @@ class MerchantDetailsServiceTest {
     @Mock
     private SleepService sleepService;
 
-    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     private MerchantDetailsService merchantDetailsService;
 
