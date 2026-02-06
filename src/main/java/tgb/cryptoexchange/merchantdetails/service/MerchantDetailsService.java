@@ -113,10 +113,10 @@ public class MerchantDetailsService {
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
         if (!hasDetails) {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "empty").increment();
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "status", "empty").increment();
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         } else {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "success").increment();
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "status", "success").increment();
         }
         return maybeDetailsResponse;
     }
