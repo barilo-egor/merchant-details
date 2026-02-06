@@ -4,5 +4,5 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Metrics {
-    public static final String DETAILS_REQUESTS = "details_requests";
+    public static final String GET_DETAILS = "merchant_details_get_details";
 }
