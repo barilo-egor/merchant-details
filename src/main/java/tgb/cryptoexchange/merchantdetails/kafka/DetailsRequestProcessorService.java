@@ -1,10 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
@@ -39,6 +41,7 @@ public class DetailsRequestProcessorService {
         this.activeSearchMap = activeSearchMap;
     }
 
+    @Timed(value = Metrics.DETAILS_REQUESTS, description = "Подсчет запросов на получение реквизитов.")
     public void process(DetailsRequest detailsRequest) {
         Future<Void> future = detailsRequestSearchExecutor.submit(() -> {
             DetailsResponse result;
