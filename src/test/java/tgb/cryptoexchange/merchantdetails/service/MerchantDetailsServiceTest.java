@@ -1,12 +1,14 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,8 +49,15 @@ class MerchantDetailsServiceTest {
     @Mock
     private SleepService sleepService;
 
-    @InjectMocks
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
+
     private MerchantDetailsService merchantDetailsService;
+
+    @BeforeEach
+    void setUp() {
+        merchantDetailsService = new MerchantDetailsService(merchantServiceRegistry, merchantDetailsReceiveEventProducer,
+                merchantConfigService, variableService, sleepService, meterRegistry);
+    }
 
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantServiceNotImplemented() {
