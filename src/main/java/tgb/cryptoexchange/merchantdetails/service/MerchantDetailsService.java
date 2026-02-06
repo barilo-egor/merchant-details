@@ -1,11 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
@@ -77,6 +79,7 @@ public class MerchantDetailsService {
         }
     }
 
+    @Timed(value = Metrics.GET_DETAILS, description = "Метрики запросов на получение реквизитов.")
     public Optional<DetailsResponse> getDetails(DetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
