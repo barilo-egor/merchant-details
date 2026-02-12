@@ -14,7 +14,7 @@ public abstract class UnwrappedCallback implements MerchantCallback {
     @Override
     @JsonIgnore
     public Optional<String> getMerchantOrderId() {
-        return Optional.of(getId());
+        return Optional.ofNullable(getId());
     }
 
     @Override
@@ -24,7 +24,7 @@ public abstract class UnwrappedCallback implements MerchantCallback {
         if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(status.name());
+        return Optional.ofNullable(status.name());
     }
 
     @Override
@@ -34,6 +34,6 @@ public abstract class UnwrappedCallback implements MerchantCallback {
         if (Objects.isNull(status)) {
             return Optional.empty();
         }
-        return Optional.of(status.getDescription());
+        return Optional.ofNullable(status.getDescription());
     }
 }
