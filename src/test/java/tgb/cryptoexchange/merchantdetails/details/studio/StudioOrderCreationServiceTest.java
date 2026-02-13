@@ -106,7 +106,7 @@ public class StudioOrderCreationServiceTest {
             500, ID-555, AWAITING_REQUISITES, id4444, Альфа-Банк, 4444555566667777
             """)
     void buildResponseShouldBuildResponseObject(Integer amount, String clientOrderId, Status status, String internalId,
-            String bankName, String bik) {
+            String bankName, String cardNumber) {
         Response response = new Response();
         response.setAmount(amount);
         response.setClientOrderId(clientOrderId);
@@ -115,7 +115,7 @@ public class StudioOrderCreationServiceTest {
 
         Response.Requisites requisite = new Response.Requisites();
         requisite.setBankName(bankName);
-        requisite.setBik(bik);
+        requisite.setCardNumber(cardNumber);
         response.setRequisites(requisite);
 
         Optional<DetailsResponse> maybeResponse = service.buildResponse(response);
@@ -123,7 +123,7 @@ public class StudioOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent(), "Ответ должен присутствовать");
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s", bankName, bik);
+        String expectedDetails = String.format("%s %s", bankName, cardNumber);
         assertAll(
                 () -> assertEquals(amount/100, actual.getAmount()),
                 () -> assertEquals(internalId, actual.getMerchantOrderId()),
