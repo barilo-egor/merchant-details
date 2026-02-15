@@ -71,7 +71,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         detailsResponse.setMerchant(getMerchant());
         Response.Requisites requisites = response.getRequisites();
         if (requisites != null) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getBik());
+            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getCardNumber());
         }
         return Optional.of(detailsResponse);
     }
