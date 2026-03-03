@@ -15,11 +15,6 @@ public class PayscrowHighCheckOrderCreationService extends PayscrowOrderCreation
     }
 
     @Override
-    protected Boolean getUniqueAmount() {
-        return true;
-    }
-
-    @Override
     public Merchant getMerchant() {
         return Merchant.PAYSCROW_HIGH_CHECK;
     }

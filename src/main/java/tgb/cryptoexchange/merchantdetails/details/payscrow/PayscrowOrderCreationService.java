@@ -58,8 +58,6 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
         return request;
     }
 
-    protected abstract Boolean getUniqueAmount();
-
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
