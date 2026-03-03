@@ -320,9 +320,4 @@ class PayscrowOrderCreationServiceImplTest {
         detailsRequest.setAmount(amount);
         assertFalse(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
     }
-
-    @Test
-    void getUniqueAmountShouldReturnTrue() {
-        assertTrue(payscrowOrderCreationService.getUniqueAmount());
-    }
 }

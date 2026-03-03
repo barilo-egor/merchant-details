@@ -15,11 +15,6 @@ public class PayscrowSimOrderCreationService extends PayscrowOrderCreationServic
     }
 
     @Override
-    protected Boolean getUniqueAmount() {
-        return true;
-    }
-
-    @Override
     public Merchant getMerchant() {
         return Merchant.PAYSCROW_SIM;
     }

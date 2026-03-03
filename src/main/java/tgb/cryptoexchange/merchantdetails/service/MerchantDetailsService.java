@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MerchantDetailsService {
 
+    public static final String STATUS = "status";
+    public static final String MERCHANT = "merchant";
+
     private final MerchantServiceRegistry merchantServiceRegistry;
 
     private final MerchantConfigService merchantConfigService;
@@ -113,10 +116,10 @@ public class MerchantDetailsService {
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
         if (!hasDetails) {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "status", "empty").increment();
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "empty").increment();
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         } else {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, "status", "success").increment();
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "success").increment();
         }
         return maybeDetailsResponse;
     }
@@ -131,16 +134,16 @@ public class MerchantDetailsService {
             try {
                 log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
-                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, "merchant", merchant.name()));
+                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "success").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "success").increment();
                 } else {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "empty").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "empty").increment();
                 }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
-                meterRegistry.counter(Metrics.MERCHANT_RESULT, "merchant", merchant.name(), "status", "error").increment();
+                meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для сделки №{}: {}", request.getId(), responseException.getResponseBodyAsString());
                 }

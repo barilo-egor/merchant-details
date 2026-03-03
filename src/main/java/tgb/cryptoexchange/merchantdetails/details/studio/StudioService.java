@@ -45,7 +45,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         String method = detailsRequest.getMerchantMethod(getMerchant()).orElseThrow(
                 () -> new MerchantMethodNotFoundException(
                         "Method for merchant " + getMerchant().name() + " not found."));
-        return (httpHeaders) -> addHeaders(httpHeaders, method);
+        return httpHeaders -> addHeaders(httpHeaders, method);
     }
 
     protected Request body(DetailsRequest detailsRequest) {

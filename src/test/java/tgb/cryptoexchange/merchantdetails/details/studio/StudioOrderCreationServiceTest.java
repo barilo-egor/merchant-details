@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class StudioOrderCreationServiceTest {
+class StudioOrderCreationServiceTest {
 
     @Mock
     private CallbackConfig callbackConfig;
@@ -81,16 +81,16 @@ public class StudioOrderCreationServiceTest {
             2, SIM, orderId3,https://gateway.paysendmmm.online/, 47XeXew1Qnx2qD
             """)
     void body(Integer amount, Method mainMethod, String clientOrderId, String gatewayUrl, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setAmount(amount);
-        detailsRequest.setRequestId(clientOrderId);
-        detailsRequest.setMethods(
+        DetailsRequest request = new DetailsRequest();
+        request.setAmount(amount);
+        request.setRequestId(clientOrderId);
+        request.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(mainMethod.name())
                         .build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(request);
         assertAll(
                 () -> assertEquals(amount * 100, actual.getAmount()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getClientOrderId())),

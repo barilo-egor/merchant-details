@@ -15,11 +15,6 @@ public class PayscrowWTOrderCreationService extends PayscrowOrderCreationService
     }
 
     @Override
-    protected Boolean getUniqueAmount() {
-        return true;
-    }
-
-    @Override
     public Merchant getMerchant() {
         return Merchant.PAYSCROW_WHITE_TRIANGLE;
     }
