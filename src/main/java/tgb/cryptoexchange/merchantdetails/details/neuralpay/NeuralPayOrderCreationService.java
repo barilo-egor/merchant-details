@@ -30,7 +30,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
 
     private final NeuralPayProperties neuralPayProperties;
 
-    public static String DETAIL = "detail";
+    protected static final String DETAIL = "detail";
 
     protected NeuralPayOrderCreationService(@Qualifier("neuralPayWebClient") WebClient webClient,
                                             NeuralPayProperties neuralPayProperties) {

@@ -2,12 +2,8 @@ package tgb.cryptoexchange.merchantdetails.details.neuralpay;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
-import lombok.Getter;
-import tgb.cryptoexchange.merchantdetails.serialize.DateSerializer;
 
-import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
 

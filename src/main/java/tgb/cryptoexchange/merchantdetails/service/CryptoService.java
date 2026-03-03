@@ -6,14 +6,14 @@ import com.macasaet.fernet.Token;
 import com.macasaet.fernet.Validator;
 import org.springframework.stereotype.Service;
 
-import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
 @Service
 public class CryptoService {
 
-    public String decrypt(String keyB64, String tokenB64) throws GeneralSecurityException {
+    @SuppressWarnings("java:S1604")
+    public String decrypt(String keyB64, String tokenB64) {
         final Key key = new Key(keyB64);
         final Token token = Token.fromString(tokenB64);
         final Validator<String> validator = new StringValidator() {
