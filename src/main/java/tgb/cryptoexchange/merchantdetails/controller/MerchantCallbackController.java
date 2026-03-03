@@ -15,8 +15,6 @@ import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.CryptoService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
-import java.security.GeneralSecurityException;
-
 @RestController
 @RequestMapping("/merchant-details/callback")
 @Slf4j
@@ -49,13 +47,7 @@ public class MerchantCallbackController extends ApiController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         if (Merchant.PAY_LEE.equals(merchant)) {
-            try {
-                log.debug("Callback мерчанта PAY_LEE до дешифровки: {}", callbackBody);
-                callbackBody = cryptoService.decrypt(payLeeProperties.secret(), callbackBody);
-            } catch (GeneralSecurityException e) {
-                log.error("Ошибка преобразования токена PayLee: {} ", e.getMessage(), e);
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+            callbackBody = cryptoService.decrypt(payLeeProperties.secret(), callbackBody);
         }
         merchantDetailsService.updateStatus(merchant, callbackBody);
         return new ResponseEntity<>(HttpStatus.OK);

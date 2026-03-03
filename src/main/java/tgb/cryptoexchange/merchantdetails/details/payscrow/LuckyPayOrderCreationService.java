@@ -18,9 +18,4 @@ public class LuckyPayOrderCreationService extends PayscrowOrderCreationService {
     public Merchant getMerchant() {
         return Merchant.LUCKY_PAY;
     }
-
-    @Override
-    protected Boolean getUniqueAmount() {
-        return null;
-    }
 }

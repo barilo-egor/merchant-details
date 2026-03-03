@@ -33,9 +33,4 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
     public Merchant getMerchant() {
         return Merchant.PAYSCROW;
     }
-
-    @Override
-    protected Boolean getUniqueAmount() {
-        return true;
-    }
 }
