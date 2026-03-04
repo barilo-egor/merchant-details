@@ -22,6 +22,7 @@ import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +75,7 @@ class YoloOrderCreationServiceTest {
         String fakeToken = "mock_token_123";
         Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
         ReflectionTestUtils.setField(jwtDataObj, "accessToken", fakeToken);
-        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().minusMinutes(10));
+        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().plusMinutes(10));
 
         when(yoloProperties.storeKey()).thenReturn(storeKey);
 
@@ -90,6 +91,36 @@ class YoloOrderCreationServiceTest {
 
         verify(requestService, never()).request(any(), any(), any(), any(), any());
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "iXyHJsfsffWW2zMDavNqGI", "nDqwHgf5OggggQX0hr5baF"
+    })
+    void headersShouldRefreshStoreTokenIfExpired(String storeKey) {
+        String oldToken = "old_expired_token";
+        String newToken = "new_fresh_token";
+        LocalDateTime newExpiry = LocalDateTime.now().plusHours(1);
+        String formattedDate = newExpiry.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String jsonResponse = String.format("{\"accessToken\":\"%s\", \"expiresAt\":\"%s\"}",
+                newToken, formattedDate);
+
+        Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
+        ReflectionTestUtils.setField(jwtDataObj, "accessToken", oldToken);
+        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().minusMinutes(10));
+
+        when(yoloProperties.storeKey()).thenReturn(storeKey);
+        when(requestService.request(any(), any(), any(), any(), any())).thenReturn(jsonResponse);
+        HttpHeaders headers = new HttpHeaders();
+        yoloService.headers(null, null).accept(headers);
+
+        assertAll(
+                () -> assertEquals("application/json", headers.getFirst("Content-Type")),
+                () -> assertEquals(storeKey, headers.getFirst("X-Store-Key")),
+                () -> assertEquals("Bearer " + newToken, headers.getFirst("Authorization"))
+        );
+        verify(requestService, times(1)).request(any(), any(), any(), any(), any());
+    }
+
 
     @Test
     void headers_ShouldRefreshToken_WhenTokenIsNull() {
