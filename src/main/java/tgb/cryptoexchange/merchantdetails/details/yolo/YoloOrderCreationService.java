@@ -17,7 +17,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,11 +49,10 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        if (jwtData.getAccessToken() == null || LocalDateTime.now().plusMinutes(5).isAfter(jwtData.getExpiresAt())) {
+        if (jwtData.getAccessToken() == null || Instant.now().plus(5, ChronoUnit.MINUTES).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(), h -> {
-                        h.add("Content-Type", "application/json");
-                    }, mapBody()));
+                    webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
+                    h -> h.add("Content-Type", "application/json"), mapBody()));
             if (jwtResponse.isEmpty()) {
                 log.debug("Yolo jwt ответ пуст!");
                 throw new EmptyResponseBodyException("Error jwt response is empty: " + System.currentTimeMillis());
