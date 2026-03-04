@@ -72,7 +72,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
 
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("X-Secret-Key", yoloProperties.secretKey());
+            httpHeaders.add("X-Store-Key", yoloProperties.storeKey());
             httpHeaders.add("Authorization", "Bearer " + jwtData.getAccessToken());
         };
     }
