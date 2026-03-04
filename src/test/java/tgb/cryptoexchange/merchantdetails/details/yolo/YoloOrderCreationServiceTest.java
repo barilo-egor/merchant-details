@@ -1,7 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +36,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class YoloOrderCreationServiceTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Mock
     private WebClient webClient;
     @Mock
@@ -50,6 +49,7 @@ class YoloOrderCreationServiceTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         yoloService = new YoloOrderCreationService(webClient, yoloProperties, callbackConfig);
         ReflectionTestUtils.setField(yoloService, "requestService", requestService);
         ReflectionTestUtils.setField(yoloService, "objectMapper", objectMapper);
