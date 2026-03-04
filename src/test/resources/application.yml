@@ -140,6 +140,14 @@ studio:
 studio-sim:
   url: "studio-sim-url"
   key-sim: "studio-sim-key-sim"
+yolo:
+  account-id: "yolo-account-id"
+  url: "yolo-url"
+  secret-key: "yolo-secret-key"
+  credentials:
+    login: "yolo-jwt-login"
+    verification-code: "yolo-jwt-verification-code"
+    passphrase: "yolo-jwt-passphrase"
 #Конфиг приложния
 server:
   servlet:
