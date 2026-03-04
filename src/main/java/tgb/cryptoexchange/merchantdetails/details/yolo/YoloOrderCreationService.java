@@ -44,7 +44,8 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/api/client/orders/deposit?accountId=" + yoloProperties.accountId()).build();
+        return uriBuilder -> uriBuilder.path("/api/client/orders/deposit")
+                .queryParam("accountId", yoloProperties.accountId()).build();
     }
 
     @Override
