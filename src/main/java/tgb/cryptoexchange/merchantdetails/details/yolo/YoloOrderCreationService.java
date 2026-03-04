@@ -51,6 +51,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
         if (jwtData.getAccessToken() == null || LocalDateTime.now().plusMinutes(5).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
                     webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(), h -> {
+                        h.add("Content-Type", "application/json");
                     }, mapBody()));
             if (jwtResponse.isEmpty()) {
                 log.debug("Yolo jwt ответ пуст!");
