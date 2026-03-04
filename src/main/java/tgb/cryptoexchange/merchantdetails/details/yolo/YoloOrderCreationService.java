@@ -48,7 +48,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        if (jwtData.getAccessToken() == null || LocalDateTime.now().plusMinutes(5).isBefore(jwtData.getExpiresAt())) {
+        if (jwtData.getAccessToken() == null || LocalDateTime.now().plusMinutes(5).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
                     webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(), h -> {
                     }, mapBody()));
