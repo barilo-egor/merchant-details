@@ -142,6 +142,13 @@ studio:
 studio-sim:
   url: ""
   key-sim: ""
+yolo:
+  account-id: ""
+  url: ""
+  store-key: ""
+  credentials:
+    login: ""
+    passphrase: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
