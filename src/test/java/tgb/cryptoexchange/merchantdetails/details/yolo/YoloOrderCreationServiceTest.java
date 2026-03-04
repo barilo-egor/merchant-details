@@ -21,8 +21,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +75,7 @@ class YoloOrderCreationServiceTest {
         String fakeToken = "mock_token_123";
         Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
         ReflectionTestUtils.setField(jwtDataObj, "accessToken", fakeToken);
-        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().plusMinutes(10));
+        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", Instant.now().plus(10, ChronoUnit.MINUTES));
 
         when(yoloProperties.storeKey()).thenReturn(storeKey);
 
@@ -99,14 +99,13 @@ class YoloOrderCreationServiceTest {
     void headersShouldRefreshStoreTokenIfExpired(String storeKey) {
         String oldToken = "old_expired_token";
         String newToken = "new_fresh_token";
-        LocalDateTime newExpiry = LocalDateTime.now().plusHours(1);
-        String formattedDate = newExpiry.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String formattedDate = Instant.now().plus(1, ChronoUnit.HOURS).toString();
         String jsonResponse = String.format("{\"accessToken\":\"%s\", \"expiresAt\":\"%s\"}",
                 newToken, formattedDate);
 
         Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
         ReflectionTestUtils.setField(jwtDataObj, "accessToken", oldToken);
-        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().minusMinutes(10));
+        ReflectionTestUtils.setField(jwtDataObj, "expiresAt", Instant.now().minus(10, ChronoUnit.MINUTES));
 
         when(yoloProperties.storeKey()).thenReturn(storeKey);
         when(requestService.request(any(), any(), any(), any(), any())).thenReturn(jsonResponse);
@@ -124,7 +123,7 @@ class YoloOrderCreationServiceTest {
 
     @Test
     void headers_ShouldRefreshToken_WhenTokenIsNull() {
-        String mockJwtJson = "{\"accessToken\":\"new_token\",\"expiresAt\":\"2025-12-31 23:59:59\"}";
+        String mockJwtJson = "{\"accessToken\":\"new_token\",\"expiresAt\":\"2025-12-31T23:59:59Z\"}";
 
         when(requestService.request(any(), any(), any(), any(), any()))
                 .thenReturn(mockJwtJson);
