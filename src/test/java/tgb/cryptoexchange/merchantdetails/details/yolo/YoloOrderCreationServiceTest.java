@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,6 @@ class YoloOrderCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         yoloService = new YoloOrderCreationService(webClient, yoloProperties, callbackConfig);
         ReflectionTestUtils.setField(yoloService, "requestService", requestService);
         ReflectionTestUtils.setField(yoloService, "objectMapper", objectMapper);
