@@ -98,10 +98,9 @@ class YoloOrderCreationServiceTest {
     })
     void headersShouldRefreshStoreTokenIfExpired(String storeKey) {
         String oldToken = "old_expired_token";
-        String newToken = "new_fresh_token";
+        String newToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidGMyNG1vbmV5QHNlY3JldHQubmV0IiwiaWF0IjoxNzcyNjI4ODUyLCJleHAiOjE3NzI3MTUyNTJ9.RF_EYOCCK6kL0zQnQcJQWP_cBDXx6GOxN_PPJxsp_S0";
         String formattedDate = Instant.now().plus(1, ChronoUnit.HOURS).toString();
-        String jsonResponse = String.format("{\"accessToken\":\"%s\", \"expiresAt\":\"%s\"}",
-                newToken, formattedDate);
+        String jsonResponse = String.format("{\"twoFaType\":\"DISABLED\",\"permissions\":[],\"accessToken\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidGMyNG1vbmV5QHNlY3JldHQubmV0IiwiaWF0IjoxNzcyNjI4ODUyLCJleHAiOjE3NzI3MTUyNTJ9.RF_EYOCCK6kL0zQnQcJQWP_cBDXx6GOxN_PPJxsp_S0\",\"secretKey\":\"r2XQ8jAYVSb00VzgkgmH5wXwXRTnPoOKYK89FOCj+LbmSXR/lR1aq88aoWkb7ohvk3qDoJouyNBxIRA9hWpQ1Sc0o0xhFfwpsJ8XTRbGaShlaW+LAcxd3g==\",\"expiresAt\":\"%s\"}", formattedDate);
 
         Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
         ReflectionTestUtils.setField(jwtDataObj, "accessToken", oldToken);
