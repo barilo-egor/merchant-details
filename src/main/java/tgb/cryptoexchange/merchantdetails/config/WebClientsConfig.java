@@ -194,4 +194,9 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(studioSimProperties.url()).build();
     }
 
+    @Bean
+    public WebClient yoloWebClient(YoloProperties yoloProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(yoloProperties.url()).build();
+    }
+
 }

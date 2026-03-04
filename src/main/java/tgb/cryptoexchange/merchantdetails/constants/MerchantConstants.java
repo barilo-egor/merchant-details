@@ -154,8 +154,11 @@ public enum MerchantConstants {
     STUDIO_SIM(
             tgb.cryptoexchange.merchantdetails.details.studio.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.studio.Method.values()
-    )
-    ;
+    ),
+    YOLO(
+            tgb.cryptoexchange.merchantdetails.details.yolo.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.yolo.Method.values()
+    );
 
     private final MerchantOrderStatus[] statuses;
 
