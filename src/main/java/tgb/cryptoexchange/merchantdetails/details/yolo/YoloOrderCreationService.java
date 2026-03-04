@@ -102,6 +102,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
         detailsResponse.setMerchantOrderId(response.getOrderId());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(response.getValue().intValue());
+        detailsResponse.setMerchantOrderStatus(Status.CREATED.name());
         return Optional.of(detailsResponse);
     }
 
