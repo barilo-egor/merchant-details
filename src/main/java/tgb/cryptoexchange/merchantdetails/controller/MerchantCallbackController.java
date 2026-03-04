@@ -9,11 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.controller.ApiController;
+import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
-import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
-import tgb.cryptoexchange.merchantdetails.service.CryptoService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/merchant-details/callback")
@@ -24,19 +25,16 @@ public class MerchantCallbackController extends ApiController {
 
     private final String secret;
 
-    private final CryptoService cryptoService;
-
-    private final PayLeePropertiesImpl payLeeProperties;
+    private final Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap;
 
     private final ObjectMapper objectMapper;
 
     public MerchantCallbackController(MerchantDetailsService merchantDetailsService,
                                       @Value("${callback-secret}") String secret, ObjectMapper objectMapper,
-                                      CryptoService cryptoService, PayLeePropertiesImpl payLeeProperties) {
+                                      Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap) {
         this.merchantDetailsService = merchantDetailsService;
         this.secret = secret;
-        this.cryptoService = cryptoService;
-        this.payLeeProperties = payLeeProperties;
+        this.callbackDecryptServiceMap = callbackDecryptServiceMap;
         this.objectMapper = objectMapper;
     }
 
@@ -47,9 +45,11 @@ public class MerchantCallbackController extends ApiController {
         if (!this.secret.equals(secret)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        if (Merchant.PAY_LEE.equals(merchant)) {
-            callbackBody = cryptoService.decrypt(payLeeProperties.secret(), callbackBody);
+
+        if (callbackDecryptServiceMap.containsKey(merchant)) {
+            callbackBody = callbackDecryptServiceMap.get(merchant).decrypt(callbackBody);
         }
+
         merchantDetailsService.updateStatus(merchant, callbackBody);
         return new ResponseEntity<>(HttpStatus.OK);
     }
