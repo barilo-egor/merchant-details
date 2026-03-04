@@ -20,6 +20,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -59,10 +60,14 @@ class YoloOrderCreationServiceTest {
     }
 
     @Test
-    void uriBuilderShouldAddPath() {
+    void uriBuilderShouldAddPathAndQuery() {
         when(yoloProperties.accountId()).thenReturn("testId");
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/client/orders/deposit?accountId=testId", yoloService.uriBuilder(null).apply(uriBuilder).getPath());
+        URI resultUri = yoloService.uriBuilder(null).apply(uriBuilder);
+
+        assertEquals("/api/client/orders/deposit", resultUri.getPath());
+        assertEquals("accountId=testId", resultUri.getQuery());
+        assertEquals("/api/client/orders/deposit?accountId=testId", resultUri.toString());
     }
 
     @ValueSource(strings = {
