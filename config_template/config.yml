@@ -145,10 +145,9 @@ studio-sim:
 yolo:
   account-id: ""
   url: ""
-  secret-key: ""
+  store-key: ""
   credentials:
     login: ""
-    verification-code: ""
     passphrase: ""
 # Конфиг приложение
 springdoc:

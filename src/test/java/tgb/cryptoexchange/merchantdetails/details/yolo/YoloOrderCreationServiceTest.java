@@ -70,13 +70,13 @@ class YoloOrderCreationServiceTest {
             "iXyHJsfsffWW2zMDavNqGI", "nDqwHgf5OggggQX0hr5baF"
     })
     @ParameterizedTest
-    void headersShouldAddRequiredHeaders(String secretKey) {
+    void headersShouldAddRequiredHeaders(String storeKey) {
         String fakeToken = "mock_token_123";
         Object jwtDataObj = ReflectionTestUtils.getField(yoloService, "jwtData");
         ReflectionTestUtils.setField(jwtDataObj, "accessToken", fakeToken);
         ReflectionTestUtils.setField(jwtDataObj, "expiresAt", LocalDateTime.now().minusMinutes(10));
 
-        when(yoloProperties.secretKey()).thenReturn(secretKey);
+        when(yoloProperties.storeKey()).thenReturn(storeKey);
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -84,7 +84,7 @@ class YoloOrderCreationServiceTest {
 
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
-                () -> assertEquals(secretKey, headers.getFirst("X-Secret-Key")),
+                () -> assertEquals(storeKey, headers.getFirst("X-Store-Key")),
                 () -> assertEquals("Bearer " + fakeToken, headers.getFirst("Authorization"))
         );
 

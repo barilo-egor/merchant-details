@@ -143,10 +143,9 @@ studio-sim:
 yolo:
   account-id: "yolo-account-id"
   url: "yolo-url"
-  secret-key: "yolo-secret-key"
+  store-key: "yolo-store-key"
   credentials:
     login: "yolo-jwt-login"
-    verification-code: "yolo-jwt-verification-code"
     passphrase: "yolo-jwt-passphrase"
 #Конфиг приложния
 server:
