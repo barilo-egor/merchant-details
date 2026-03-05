@@ -95,6 +95,20 @@ class ResponseTest {
     }
 
     @Test
+    void validateShouldReturnErrorIfDealPaymentOptionIsQRAndQRLinkIsNull() {
+        Response response = new Response();
+        response.setId("id");
+        List<DealDTO> deals = new ArrayList<>();
+        DealDTO deal = new DealDTO();
+        deals.add(deal);
+        deal.setPaymentMethod(Bank.ABR);
+        deal.setPaymentOption(Method.SBP_QR);
+        response.setDeals(deals);
+        ValidationResult validationResult = response.validate();
+        assertEquals("field \"deal.qrCodeLink\" must not be null", validationResult.errorsToString());
+    }
+
+    @Test
     void hasDetailsShouldReturnFalseIfDealsIsNull() {
         Response response = new Response();
         assertFalse(response.hasDetails());

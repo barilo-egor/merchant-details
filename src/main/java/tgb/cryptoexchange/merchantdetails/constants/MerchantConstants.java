@@ -23,6 +23,10 @@ public enum MerchantConstants {
             Status.values(),
             Method.values()
     ),
+    ALFA_TEAM_QR(
+            Status.values(),
+            Method.values()
+    ),
     ONLY_PAYS(
             tgb.cryptoexchange.merchantdetails.details.onlypays.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.onlypays.Method.values()
