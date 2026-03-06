@@ -20,14 +20,18 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableAsync
@@ -176,5 +180,14 @@ public class CommonConfig {
         factory.setConsumerFactory(stopSearchRequestConsumerFactory(kafkaProperties));
         factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
         return factory;
+    }
+
+    @Bean
+    public Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap(List<CallbackDecryptService> services) {
+        return services.stream()
+                .collect(Collectors.toMap(
+                        CallbackDecryptService::getMerchant,
+                        service -> service
+                ));
     }
 }

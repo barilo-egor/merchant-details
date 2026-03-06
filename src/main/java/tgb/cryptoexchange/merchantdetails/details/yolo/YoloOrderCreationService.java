@@ -75,6 +75,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("X-Store-Key", yoloProperties.storeKey());
+            httpHeaders.add("X-Secret-CB", callbackConfig.getCallbackSecret());
             httpHeaders.add("Authorization", "Bearer " + jwtData.getAccessToken());
         };
     }
@@ -102,6 +103,7 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
         detailsResponse.setMerchantOrderId(response.getOrderId());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(response.getValue().intValue());
+        detailsResponse.setMerchantOrderStatus(Status.CREATED.name());
         return Optional.of(detailsResponse);
     }
 
