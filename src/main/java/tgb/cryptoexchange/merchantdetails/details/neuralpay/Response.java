@@ -39,6 +39,9 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(requisite)) {
             result.notNull("requisite");
         }
+        if (Objects.nonNull(requisite) && Objects.isNull(requisite.getBankName())) {
+            result.notNull("requisite.bankName");
+        }
         return result;
     }
 
