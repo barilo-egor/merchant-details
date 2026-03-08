@@ -19,6 +19,7 @@ class ResponseTest {
         response.setAmount("0");
         Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
+        response.getRequisite().setBankName("bankName");
         assertTrue(response.validate().errorsToString().isEmpty());
     }
 
@@ -29,6 +30,7 @@ class ResponseTest {
         response.setAmount("0");
         Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
+        response.getRequisite().setBankName("bankName");
         assertEquals("field \"id\" must not be null", response.validate().errorsToString());
     }
 
@@ -39,6 +41,7 @@ class ResponseTest {
         response.setId("id");
         Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         response.setRequisite(requisite);
+        response.getRequisite().setBankName("bankName");
         assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
     }
 
@@ -49,6 +52,16 @@ class ResponseTest {
         response.setId("id");
         response.setAmount("0");
         assertEquals("field \"requisite\" must not be null", response.validate().errorsToString());
+    }
+
+    @Test
+    @DisplayName("Ошибка, если отсутствует bankName")
+    void validateShouldReturnErrorIfBankNameIsNull() {
+        Response response = new Response();
+        response.setId("id");
+        response.setAmount("0");
+        response.setRequisite(new Response.ResponseRequisite());
+        assertEquals("field \"requisite.bankName\" must not be null", response.validate().errorsToString());
     }
 
     @Test
