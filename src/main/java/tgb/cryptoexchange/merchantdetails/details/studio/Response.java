@@ -33,8 +33,8 @@ public class Response implements MerchantDetailsResponse {
         @JsonProperty("bank_name")
         private String bankName;
 
-        @JsonProperty("card_number")
-        private String cardNumber;
+        @JsonProperty("account")
+        private String account;
 
     }
 
@@ -48,8 +48,8 @@ public class Response implements MerchantDetailsResponse {
             if (Objects.isNull(requisites.getBankName())) {
                 result.notNull("bankName");
             }
-            if (Objects.isNull(requisites.getCardNumber())) {
-                result.notNull("cardNumber");
+            if (Objects.isNull(requisites.getAccount())) {
+                result.notNull("account");
             }
         }
         return result;
