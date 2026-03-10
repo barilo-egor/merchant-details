@@ -31,7 +31,7 @@ class ResponseTest {
         Response response = new Response();
         response.setInternalId("2332");
         response.setRequisites(new Response.Requisites());
-        assertEquals("field \"bankName\" must not be null;field \"cardNumber\" must not be null", response.validate().errorsToString());
+        assertEquals("field \"bankName\" must not be null;field \"account\" must not be null", response.validate().errorsToString());
     }
 
     @Test
