@@ -97,13 +97,18 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderId(invoiceId);
         requisiteVO.setMerchantOrderStatus(Status.NEW.name());
-        requisiteVO.setDetails(buildRequisite(response));
+        fillRequisites(requisiteVO, response);
         return Optional.of(requisiteVO);
     }
 
-    private String buildRequisite(Response response) {
+    private void fillRequisites(DetailsResponse requisiteVO, Response response) {
         DealDTO dealDTO = response.getDeals().getFirst();
-        return dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
+        if (Method.SBP_QR.equals(dealDTO.getPaymentOption())) {
+            requisiteVO.setQr(dealDTO.getQrCodeLink());
+        } else {
+            String details = dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
+            requisiteVO.setDetails(details);
+        }
     }
 
     @Override
