@@ -9,6 +9,11 @@ alfa-team-white-triangle:
   token: ""
   key: ""
   secret: ""
+alfa-team-qr:
+  url: ""
+  token: ""
+  key: ""
+  secret: ""
 only-pays:
   url: ""
   secret: ""

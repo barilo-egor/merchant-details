@@ -37,6 +37,10 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(deal.getPaymentMethod())) {
             result.notNull("deal.paymentMethod");
         }
+        if (Method.SBP_QR.equals(deal.getPaymentOption()) && Objects.isNull(deal.getQrCodeLink())) {
+            result.notNull("deal.qrCodeLink");
+            return;
+        }
         if (Objects.isNull(deal.getRequisites())) {
             result.notNull("deal.requisites");
         } else {
