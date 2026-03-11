@@ -9,7 +9,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 public enum Method implements MerchantMethod {
     CARD("Карта", "/card"),
     SBP("СБП", "/sbp"),
-    TRANSGRAN_SBP("Трансгран СБП", "transgran-sbp");
+    TRANSGRAN_SBP("Трансгран СБП", "transgran-sbp"),
+    QR("QR", "/qr");
 
     final String description;
 
