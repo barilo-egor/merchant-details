@@ -11,13 +11,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.exception.CryptoException;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,16 +19,8 @@ import static org.mockito.Mockito.lenient;
 @ExtendWith(MockitoExtension.class)
 class YoloCallbackDecryptServiceTest {
 
-    private final String secret = "test-secret-key-123";
-    private final String inputJson = """
-            {
-              "orderId": "123e4567-e89b-12d3-a456-426655440000",
-              "iternalId": "external-deal-id",
-              "status": "COMPLETED",
-              "reconciliationSum": 1000.00000000,
-              "reconciliationAmount": 10.56462035,
-              "reconciliationRate": 85.11
-            }""";
+    private final String secret = "cqqLQyeFkmGfVPU42ezMHz2EkVdpDhmA";
+
     @Mock
     private CallbackConfig callbackConfig;
     @InjectMocks
@@ -50,30 +35,10 @@ class YoloCallbackDecryptServiceTest {
 
     @Test
     @DisplayName("Успешная расшифровка JSON с данными заказа")
-    void shouldDecryptOrderJsonSuccessfully() throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] keyBytes = Arrays.copyOf(digest.digest(secret.getBytes(StandardCharsets.UTF_8)), 16);
-        SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
-
-        byte[] nonce = new byte[12];
-        new SecureRandom().nextBytes(nonce);
-        GCMParameterSpec gcmSpec = new GCMParameterSpec(128, nonce);
-
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec);
-        byte[] encryptedBytes = cipher.doFinal(inputJson.getBytes(StandardCharsets.UTF_8));
-
-        byte[] combined = new byte[nonce.length + encryptedBytes.length];
-        System.arraycopy(nonce, 0, combined, 0, nonce.length);
-        System.arraycopy(encryptedBytes, 0, combined, nonce.length, encryptedBytes.length);
-        String base64Data = Base64.getEncoder().encodeToString(combined);
-
+    void shouldDecryptOrderJsonSuccessfully() {
+        String base64Data = "{\"data\":\"jgdVlgGPZIiEpQfJqw2967Wm+4UMkAfQ3n7IRqKi/Wdj2D7l5hC0gNg+6fREQaU8zyv9D1B7AJQqv0+iUqOLFpqfJTn9GRjEsmzaeIWQTrnenFAXTyyPyG/v4xEGZZe4rZQlxpLravSQj/OfkhyjPWZFKV1sj7v3yEMX5tXFoAELPVJRIjQUrTy15zBRqsd+ccmgxjfqCVQ1iVXQKQXzRciC5BOa6EmHkZ5a3Ng82VNlXHvKMPurmvcamOXaPMklT8mY/W2W587uyTkk+ohOs8hzlQVQm03rcBAqd5ip0rabShNh+gWRzSt42GAgQuY0RRto\"}";
         String decryptedResult = decryptService.decrypt(base64Data);
-
-        assertNotNull(decryptedResult);
-        assertTrue(decryptedResult.contains("123e4567-e89b-12d3-a456-426655440000"));
-        assertTrue(decryptedResult.contains("COMPLETED"));
-        assertEquals(inputJson, decryptedResult);
+        assertEquals("{\"iternalId\":\"a35a297d-9e3e-4634-9e83-3c8bd196890c\",\"orderId\":\"e1d29d1a-d39f-45d0-bb77-75ca05b01645\",\"status\":\"CANCELED\",\"reconciliationSum\":null,\"reconciliationAmount\":null,\"reconciliationRate\":null,\"fileUrl\":null}", decryptedResult);
     }
 
     @Test

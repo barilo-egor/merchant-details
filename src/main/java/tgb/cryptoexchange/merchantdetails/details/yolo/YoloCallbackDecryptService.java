@@ -1,5 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -31,10 +34,14 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
         return Merchant.YOLO;
     }
 
-    public String decrypt(String base64Data) {
-        final String secret = callbackConfig.getCallbackSecret();
+    public String decrypt(String jsonString) {
+        String secret = callbackConfig.getCallbackSecret();
 
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonString);
+
+            String base64Data = root.get("data").asText();
             byte[] combined = Base64.getDecoder().decode(base64Data);
 
             byte[] nonce = Arrays.copyOfRange(combined, 0, 12);
@@ -54,9 +61,9 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
             byte[] decrypted = cipher.doFinal(encryptedData);
 
             return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (GeneralSecurityException | IllegalArgumentException e) {
+        } catch (GeneralSecurityException | IllegalArgumentException | JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при парсинге YOLO callback {}: {}", currentTime, base64Data, e.getMessage(), e);
+            log.error("{} Ошибка при парсинге YOLO callback {}: {}", currentTime, jsonString, e.getMessage(), e);
             throw new CryptoException("Error occurred while parsing YOLO callback: " + currentTime + ".", e);
         }
     }
