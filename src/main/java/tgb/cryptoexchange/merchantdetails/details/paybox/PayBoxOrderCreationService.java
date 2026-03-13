@@ -27,7 +27,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     private static final String MESSAGE_FIELD = "message";
 
-    private final PayBoxProperties payBoxProperties;
+    protected final PayBoxProperties payBoxProperties;
 
     protected PayBoxOrderCreationService(WebClient webClient, PayBoxProperties payBoxProperties) {
         super(webClient, Response.class, Callback.class);
@@ -63,7 +63,9 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
-        if (Objects.nonNull(response.getPhoneNumber())) {
+        if (Objects.nonNull(response.getPaymentUrl())) {
+            detailsResponse.setQr(response.getPaymentUrl());
+        } else if (Objects.nonNull(response.getPhoneNumber())) {
             detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
         } else {
             detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
