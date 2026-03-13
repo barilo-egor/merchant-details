@@ -52,6 +52,12 @@ onyx-pay:
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
+extasy-pay-qr:
+  url: "extasy-pay-qr-url"
+  token: "extasy-pay-qr-token"
+extasy-pay-receipt:
+  url: "extasy-pay-receipt-url"
+  token: "extasy-pay-receipt-token"
 pay-lee:
   url: "pay-lee-url"
   token: "pay-lee-token"

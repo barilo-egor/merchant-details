@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.paybox;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Response implements MerchantDetailsResponse {
 
     /**
@@ -43,17 +45,8 @@ public class Response implements MerchantDetailsResponse {
         return result;
     }
 
-    private void validateDetails(ValidationResult result) {
-        if (Objects.isNull(id)) {
-            result.notNull("id");
-        }
-        if (Objects.isNull(bankName)) {
-            result.notNull("bankName");
-        }
-        if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
-            result.notNull("phoneNumber", "cardNumber");
-        }
-    }
+    @JsonProperty("payment_url")
+    private String paymentUrl;
 
     @Override
     public boolean hasDetails() {
@@ -81,4 +74,23 @@ public class Response implements MerchantDetailsResponse {
 
     @JsonProperty("card_number")
     private String cardNumber;
+
+    private void validateDetails(ValidationResult result) {
+        if (Objects.isNull(id)) {
+            result.notNull("id");
+        }
+
+        if (Objects.isNull(paymentUrl)
+                && (Objects.isNull(bankName) || (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)))) {
+            result.notNull("paymentUrl");
+            return;
+        }
+
+        if (Objects.isNull(bankName)) {
+            result.notNull("bankName");
+        }
+        if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
+            result.notNull("phoneNumber", "cardNumber");
+        }
+    }
 }
