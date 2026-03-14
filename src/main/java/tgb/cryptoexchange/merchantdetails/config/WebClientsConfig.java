@@ -95,11 +95,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient mobiusWebClient(MobiusProperties mobiusProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mobiusProperties.url()).build();
-    }
-
-    @Bean
     public WebClient foxPaysWebClient(FoxPaysProperties foxPaysProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(foxPaysProperties.url()).build();
     }
