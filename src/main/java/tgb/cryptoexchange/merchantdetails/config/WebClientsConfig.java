@@ -45,11 +45,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient appexbitWebClient(AppexbitProperties appexbitProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(appexbitProperties.url()).build();
-    }
-
-    @Bean
     public WebClient bitZoneWebClient(BitZoneProperties bitZoneProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bitZoneProperties.url()).build();
     }

@@ -99,10 +99,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
-    APPEXBIT(
-            tgb.cryptoexchange.merchantdetails.details.appexbit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.appexbit.Method.values()
-    ),
     YA_PAY(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
