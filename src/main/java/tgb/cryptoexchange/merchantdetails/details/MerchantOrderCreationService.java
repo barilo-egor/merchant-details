@@ -18,7 +18,6 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
-import tgb.cryptoexchange.merchantdetails.util.StringDecodeUtils;
 
 import java.net.URI;
 import java.util.Objects;
@@ -158,11 +157,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     private void handleRequestException(Exception e, long currentTime, DetailsRequest detailsRequest, String body) {
 
         if (e instanceof WebClientResponseException webClientResponseException) {
-            String errorBody = switch (getMerchant()) {
-                case FOX_PAYS, MOBIUS ->
-                        StringDecodeUtils.decodeUnicode(webClientResponseException.getResponseBodyAsString());
-                default -> webClientResponseException.getResponseBodyAsString();
-            };
+            String errorBody = webClientResponseException.getResponseBodyAsString();
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}, responseBody = {}",
                     currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(),
                     errorBody, e);

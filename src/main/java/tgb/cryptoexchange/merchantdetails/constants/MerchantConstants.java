@@ -103,10 +103,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.appexbit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.appexbit.Method.values()
     ),
-    MOBIUS(
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
-    ),
     YA_PAY(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
