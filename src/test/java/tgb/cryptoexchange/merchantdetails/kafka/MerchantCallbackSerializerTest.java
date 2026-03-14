@@ -21,8 +21,8 @@ class MerchantCallbackSerializerTest {
     @CsvSource(delimiter = ';', textBlock = """
             {"merchantOrderId":"99f0213a-3828-4dc9-8417-2e22fa140f13","status":"COMPLETED","statusDescription":"Завершен","merchant":"ALFA_TEAM"};\
             99f0213a-3828-4dc9-8417-2e22fa140f13;COMPLETED;Завершен;ALFA_TEAM
-            {"merchantOrderId":"a0af4b95-c0be-426d-8a26-94e13562527f","status":"ERROR","statusDescription":"Ошибка","merchant":"WELL_BIT"};\
-            a0af4b95-c0be-426d-8a26-94e13562527f;ERROR;Ошибка;WELL_BIT
+            {"merchantOrderId":"a0af4b95-c0be-426d-8a26-94e13562527f","status":"ERROR","statusDescription":"Ошибка","merchant":"SETTLE_X"};\
+            a0af4b95-c0be-426d-8a26-94e13562527f;ERROR;Ошибка;SETTLE_X
             """)
     @ParameterizedTest
     void serializerShouldSerialize(String expected, String orderId, String status, String statusDescription, Merchant merchant) {

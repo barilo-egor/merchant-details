@@ -160,11 +160,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient wellBitWebClient(WellBitProperties wellBitProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(wellBitProperties.url()).build();
-    }
-
-    @Bean
     public WebClient stormTradeWebClient(StormTradeProperties stormTradeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(stormTradeProperties.url()).build();
     }

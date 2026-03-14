@@ -53,7 +53,7 @@ class MerchantCallbackControllerTest {
 
     @CsvSource(delimiter = ';', textBlock = """
             ALFA_TEAM;{"someField":"someValue"}
-            WELL_BIT;{"someField2":"someValue2"}
+            SETTLE_X;{"someField2":"someValue2"}
             """)
     @ParameterizedTest
     void callbackShouldReturn200IfSecretAccessed(Merchant merchant, String body) throws Exception {

@@ -102,7 +102,7 @@ class MerchantDetailsControllerTest {
                 .build()));
         configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
                 .id(152346L)
-                .merchant(Merchant.WELL_BIT)
+                .merchant(Merchant.SETTLE_X)
                 .isOn(false)
                 .minAmount(150)
                 .maxAmount(5000)
@@ -134,7 +134,7 @@ class MerchantDetailsControllerTest {
                 .build()));
         configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
                 .id(152346L)
-                .merchant(Merchant.WELL_BIT)
+                .merchant(Merchant.SETTLE_X)
                 .isOn(false)
                 .minAmount(150)
                 .maxAmount(5000)
