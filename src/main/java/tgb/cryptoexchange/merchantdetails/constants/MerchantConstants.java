@@ -35,10 +35,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.evopay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.evopay.Method.values()
     ),
-    NICE_PAY(
-            tgb.cryptoexchange.merchantdetails.details.nicepay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.nicepay.Method.values()
-    ),
     HONEY_MONEY(
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Method.values()
@@ -126,10 +122,6 @@ public enum MerchantConstants {
     SETTLE_X(
             tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
-    ),
-    AURORA_PAY(
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
     PLATA_PAYMENT(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),

@@ -125,11 +125,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient nicePayWebClient(NicePayProperties nicePayProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(nicePayProperties.url()).build();
-    }
-
-    @Bean
     public WebClient onlyPaysWebClient(OnlyPaysProperties onlyPaysProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(onlyPaysProperties.url()).build();
     }
@@ -157,11 +152,6 @@ public class WebClientsConfig {
     @Bean
     public WebClient settleXWebClient(SettleXProperties settleXProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(settleXProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient auroraWebClient(AuroraPayProperties auroraPayProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(auroraPayProperties.url()).build();
     }
 
     @Bean
