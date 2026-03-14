@@ -100,7 +100,7 @@ class MerchantDetailsServiceTest {
 
     @CsvSource(delimiter = ';', textBlock = """
             ALFA_TEAM;{"someField":"someValue","merchant":"ALFA_TEAM"}
-            WELL_BIT;{"someField":"someValue","merchant":"WELL_BIT"}
+            SETTLE_X;{"someField":"someValue","merchant":"SETTLE_X"}
             """)
     @ParameterizedTest
     void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String body) {
@@ -112,7 +112,7 @@ class MerchantDetailsServiceTest {
 
     @CsvSource(textBlock = """
             ALFA_TEAM,20fb47cc-bbb2-4e39-84db-9f67c0b2900e,CARD
-            WELL_BIT,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP
+            SETTLE_X,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP
             """)
     @ParameterizedTest
     void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String orderId, String method) {

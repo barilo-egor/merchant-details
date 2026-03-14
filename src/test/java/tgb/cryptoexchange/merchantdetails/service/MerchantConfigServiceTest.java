@@ -263,7 +263,7 @@ class MerchantConfigServiceTest {
         MerchantConfig merchantConfig1 = MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).minAmount(1000).maxAmount(10000).build();
         MerchantConfig merchantConfig2 = MerchantConfig.builder().merchant(Merchant.EVO_PAY).minAmount(1000).maxAmount(2000).build();
         MerchantConfig merchantConfig3 = MerchantConfig.builder().merchant(Merchant.BIT_ZONE).minAmount(400).maxAmount(10000).build();
-        MerchantConfig merchantConfig4 = MerchantConfig.builder().merchant(Merchant.WELL_BIT).minAmount(500).maxAmount(10000).build();
+        MerchantConfig merchantConfig4 = MerchantConfig.builder().merchant(Merchant.SETTLE_X).minAmount(500).maxAmount(10000).build();
         MerchantConfig merchantConfig5 = MerchantConfig.builder().merchant(Merchant.ONLY_PAYS).minAmount(1).maxAmount(10000).build();
         merchantConfigs.add(merchantConfig1);
         merchantConfigs.add(merchantConfig2);
@@ -274,7 +274,7 @@ class MerchantConfigServiceTest {
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
         methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build());
         methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(method).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.WELL_BIT).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(method).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 1500);
         assertAll(
                 () -> assertEquals(3, actual.size()),

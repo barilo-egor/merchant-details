@@ -43,10 +43,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Method.values()
     ),
-    WELL_BIT(
-            tgb.cryptoexchange.merchantdetails.details.wellbit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.wellbit.Method.values()
-    ),
     CROCO_PAY(
             tgb.cryptoexchange.merchantdetails.details.crocopay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.crocopay.Method.values()
