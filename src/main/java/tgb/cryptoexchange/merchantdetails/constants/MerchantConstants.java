@@ -115,6 +115,10 @@ public enum MerchantConstants {
             Status.values(),
             Method.values()
     ),
+    STORM_TRADE_13(
+            Status.values(),
+            Method.values()
+    ),
     SETTLE_X(
             tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
