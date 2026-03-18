@@ -125,6 +125,11 @@ storm-trade:
   key: ""
   secret: ""
   url: ""
+storm-trade13:
+  token: ""
+  key: ""
+  secret: ""
+  url: ""
 settle-x:
   url: ""
   key: ""

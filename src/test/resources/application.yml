@@ -119,6 +119,11 @@ storm-trade:
   token: "storm-trade-token"
   key: "storm-trade-key"
   secret: "storm-trade-secret"
+storm-trade13:
+  url: "storm-trade13-url"
+  token: "storm-trade13-token"
+  key: "storm-trade13-key"
+  secret: "storm-trade13-secret"
 settle-x:
   url: "settle-x-url"
   key: "settle-x-key"

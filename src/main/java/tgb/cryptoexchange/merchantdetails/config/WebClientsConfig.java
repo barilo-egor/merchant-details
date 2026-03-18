@@ -145,6 +145,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient stormTrade13WebClient(StormTrade13Properties stormTrade13Properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(stormTrade13Properties.url()).build();
+    }
+
+    @Bean
     public WebClient stormTradeWebClient(StormTradeProperties stormTradeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(stormTradeProperties.url()).build();
     }
