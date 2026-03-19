@@ -146,6 +146,14 @@ public enum MerchantConstants {
     YOLO(
             tgb.cryptoexchange.merchantdetails.details.yolo.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.yolo.Method.values()
+    ),
+    NOROS(
+            tgb.cryptoexchange.merchantdetails.details.noros.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.noros.Method.values()
+    ),
+    NOROS_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.noros.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.noros.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

@@ -158,6 +158,12 @@ yolo:
   credentials:
     login: "yolo-jwt-login"
     passphrase: "yolo-jwt-passphrase"
+noros:
+  url: "noros-url"
+  key: "noros-key"
+noros-high-check:
+  url: "noros-high-check-url"
+  key: "noros-high-check-key"
 #Конфиг приложния
 server:
   servlet:
