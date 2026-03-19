@@ -189,4 +189,14 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(yoloProperties.url()).build();
     }
 
+    @Bean
+    public WebClient norosWebClient(NorosPropertiesImpl norosProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(norosProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient norosHighCheckWebClient(NorosHighCheckProperties norosHighCheckProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(norosHighCheckProperties.url()).build();
+    }
+
 }

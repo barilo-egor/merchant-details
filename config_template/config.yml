@@ -160,6 +160,12 @@ yolo:
   credentials:
     login: ""
     passphrase: ""
+noros:
+  url:
+  key:
+noros-high-check:
+  url:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
