@@ -30,12 +30,15 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(status)) {
             result.notNull("status");
         }
-        if (Objects.isNull(bankReceiver)) {
-            result.notNull("bankReceiver");
+        if (!hasDetails()) {
+            if (Objects.isNull(bankReceiver)) {
+                result.notNull("bankReceiver");
+            }
+            if (Objects.isNull(card)) {
+                result.notNull("card");
+            }
         }
-        if (Objects.isNull(card)) {
-            result.notNull("card");
-        }
+
         if (Objects.isNull(amount)) {
             result.notNull("amount");
         }
@@ -44,6 +47,6 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return true;
+        return Objects.nonNull(bankReceiver) && Objects.nonNull(card);
     }
 }
