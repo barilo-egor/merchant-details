@@ -20,7 +20,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.SettleXPropertiesImpl;
+import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,16 +32,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SettleXOrderCreationServiceTest {
+class SettleX15OrderCreationServiceTest {
 
     @Mock
     private CallbackConfig callbackConfig;
 
     @Mock
-    private SettleXPropertiesImpl settleXProperties;
+    private SettleX15Properties settleXProperties;
 
     @InjectMocks
-    private SettleXOrderCreationServiceImpl service;
+    private SettleX15OrderCreationService service;
 
     @Test
     void uriBuilderShouldAddPath() {
@@ -58,8 +58,8 @@ class SettleXOrderCreationServiceTest {
         HttpHeaders headers = new HttpHeaders();
         service.headers(null, null).accept(headers);
         assertAll(
-            () -> assertEquals(key, headers.getFirst("x-merchant-api-key")),
-            () -> assertEquals("application/json", headers.getFirst("Content-Type"))
+                () -> assertEquals(key, headers.getFirst("x-merchant-api-key")),
+                () -> assertEquals("application/json", headers.getFirst("Content-Type"))
         );
     }
 
@@ -71,7 +71,7 @@ class SettleXOrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(method.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).method(method.name()).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         if (Method.SBP.equals(method)) {
@@ -89,7 +89,7 @@ class SettleXOrderCreationServiceTest {
                         assertEquals(c2cId, actual.getMethod());
                     }
                 },
-                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=SETTLE_X&secret="
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=SETTLE_X_15&secret="
                         + secret, actual.getCallbackUri()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getOrderId())),
                 () -> assertTrue(actual.getExpiredAt().isBefore(LocalDateTime.now().plusMinutes(20)))
@@ -118,13 +118,13 @@ class SettleXOrderCreationServiceTest {
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(orderId, actual.getMerchantCustomId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(Merchant.SETTLE_X, actual.getMerchant())
+                () -> assertEquals(Merchant.SETTLE_X_15, actual.getMerchant())
         );
     }
 
     @Test
     void getMerchantShouldReturnSettleX() {
-        assertEquals(Merchant.SETTLE_X, service.getMerchant());
+        assertEquals(Merchant.SETTLE_X_15, service.getMerchant());
     }
 
     @Test
