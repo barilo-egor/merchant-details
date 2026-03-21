@@ -35,17 +35,9 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.evopay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.evopay.Method.values()
     ),
-    NICE_PAY(
-            tgb.cryptoexchange.merchantdetails.details.nicepay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.nicepay.Method.values()
-    ),
     HONEY_MONEY(
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.honeymoney.Method.values()
-    ),
-    WELL_BIT(
-            tgb.cryptoexchange.merchantdetails.details.wellbit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.wellbit.Method.values()
     ),
     CROCO_PAY(
             tgb.cryptoexchange.merchantdetails.details.crocopay.Status.values(),
@@ -103,14 +95,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
-    APPEXBIT(
-            tgb.cryptoexchange.merchantdetails.details.appexbit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.appexbit.Method.values()
-    ),
-    MOBIUS(
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
-    ),
     YA_PAY(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
@@ -138,10 +122,6 @@ public enum MerchantConstants {
     SETTLE_X(
             tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
-    ),
-    AURORA_PAY(
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
     PLATA_PAYMENT(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),

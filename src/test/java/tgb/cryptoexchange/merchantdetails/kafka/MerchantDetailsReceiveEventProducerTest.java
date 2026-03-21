@@ -27,7 +27,7 @@ class MerchantDetailsReceiveEventProducerTest {
 
     @CsvSource("""
             merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,ALFA 79879878787
-            merchant-details-receive-v2,17551564636,8050468384,money,WELL_BIT,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,Банк развития 1234123412341234
+            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,Банк развития 1234123412341234
             """)
     @ParameterizedTest
     void putShouldSendEventToTopic(String topic, Long dealId, Long userId, String appId, Merchant merchant, String orderId,

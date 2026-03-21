@@ -45,11 +45,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient appexbitWebClient(AppexbitProperties appexbitProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(appexbitProperties.url()).build();
-    }
-
-    @Bean
     public WebClient bitZoneWebClient(BitZoneProperties bitZoneProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bitZoneProperties.url()).build();
     }
@@ -95,11 +90,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient mobiusWebClient(MobiusProperties mobiusProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mobiusProperties.url()).build();
-    }
-
-    @Bean
     public WebClient foxPaysWebClient(FoxPaysProperties foxPaysProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(foxPaysProperties.url()).build();
     }
@@ -135,11 +125,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient nicePayWebClient(NicePayProperties nicePayProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(nicePayProperties.url()).build();
-    }
-
-    @Bean
     public WebClient onlyPaysWebClient(OnlyPaysProperties onlyPaysProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(onlyPaysProperties.url()).build();
     }
@@ -160,11 +145,6 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient wellBitWebClient(WellBitProperties wellBitProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(wellBitProperties.url()).build();
-    }
-
-    @Bean
     public WebClient stormTradeWebClient(StormTradeProperties stormTradeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(stormTradeProperties.url()).build();
     }
@@ -172,11 +152,6 @@ public class WebClientsConfig {
     @Bean
     public WebClient settleXWebClient(SettleXProperties settleXProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(settleXProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient auroraWebClient(AuroraPayProperties auroraPayProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(auroraPayProperties.url()).build();
     }
 
     @Bean
