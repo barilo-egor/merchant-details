@@ -16,4 +16,6 @@ public class Request {
     private Method paymentMethod;
 
     private Integer amount;
+
+    private String clientId;
 }
