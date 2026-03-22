@@ -162,6 +162,10 @@ public enum MerchantConstants {
     NOROS_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.noros.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.noros.Method.values()
+    ),
+    FIAT_CUT(
+            tgb.cryptoexchange.merchantdetails.details.fiatcut.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.fiatcut.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
