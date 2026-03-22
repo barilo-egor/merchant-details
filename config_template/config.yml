@@ -169,6 +169,13 @@ yolo:
   credentials:
     login: ""
     passphrase: ""
+yolo-sim:
+  account-id: ""
+  url: ""
+  store-key: ""
+  credentials:
+    login: ""
+    passphrase: ""
 noros:
   url:
   key:

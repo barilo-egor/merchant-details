@@ -195,8 +195,13 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient yoloWebClient(YoloProperties yoloProperties) {
+    public WebClient yoloWebClient(YoloPropertiesImpl yoloProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(yoloProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient yoloSimWebClient(YoloSimProperties yoloSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(yoloSimProperties.url()).build();
     }
 
     @Bean
