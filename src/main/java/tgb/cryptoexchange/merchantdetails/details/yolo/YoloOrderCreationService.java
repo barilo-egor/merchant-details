@@ -4,10 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.EmptyResponseBodyException;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
@@ -25,15 +23,15 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Service
+
 @Slf4j
-public class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public abstract class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
-    private final YoloProperties yoloProperties;
+    protected final YoloProperties yoloProperties;
 
-    private final CallbackConfig callbackConfig;
+    protected final CallbackConfig callbackConfig;
 
-    private final JwtData jwtData = new JwtData();
+    protected final JwtData jwtData = new JwtData();
 
     protected YoloOrderCreationService(@Qualifier("yoloWebClient") WebClient webClient,
                                        YoloProperties yoloProperties, CallbackConfig callbackConfig) {
@@ -115,11 +113,6 @@ public class YoloOrderCreationService extends MerchantOrderCreationService<Respo
             log.error("{} Ошибка при маппинге тела запроса(credentials = {}): {}", currentTime, yoloProperties.credentials(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
         }
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.YOLO;
     }
 
 }
