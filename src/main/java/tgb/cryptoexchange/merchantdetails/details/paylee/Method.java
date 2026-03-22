@@ -21,6 +21,12 @@ public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
     SBP("sbp", "СБП"),
     ANY_QR("any-qr", "QR"),
+    NSPK("nspk", "НСПК"),
+    SBER_QR("sber-qr", "Сбербанк QR"),
+    OZON_QR("ozon-qr", " Ozon Банк QR"),
+    ALFA_QR("alfa-qr", " Альфа-банк QR"),
+    GAZPROM_QR("gazprom-qr", "Газпромбанк QR"),
+    PSBPAY("psbpay", "ПСБ (форма)"),
     ;
 
     private final String value;
