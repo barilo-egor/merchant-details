@@ -119,10 +119,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
     ),
-    SETTLE_X_15(
-            tgb.cryptoexchange.merchantdetails.details.settlex.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.settlex.Method.values()
-    ),
     PLATA_PAYMENT(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
