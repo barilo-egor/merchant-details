@@ -63,6 +63,13 @@ extasy-pay-receipt:
 pay-lee:
   url: ""
   token: ""
+  secret: ""
+  client-id-salt:
+pay-lee-qr:
+  url: ""
+  token: ""
+  secret: ""
+  client-id-salt:
 psp-ware:
   url: ""
   token: ""
@@ -169,12 +176,21 @@ yolo:
   credentials:
     login: ""
     passphrase: ""
+yolo-sim:
+  account-id: ""
+  url: ""
+  store-key: ""
+  credentials:
+    login: ""
+    passphrase: ""
 noros:
   url:
   key:
+  client-id-salt:
 noros-high-check:
   url:
   key:
+  client-id-salt:
 # Конфиг приложение
 springdoc:
   swagger-ui:

@@ -13,7 +13,8 @@ import java.io.IOException;
 @AllArgsConstructor
 public enum Method implements MerchantMethod {
     SBP("SBP", "СБП"),
-    TO_CARD("TO_CARD", "Перевод на карту");
+    TO_CARD("TO_CARD", "Перевод на карту"),
+    SIM("SIM", "SIM");
 
     private final String value;
 

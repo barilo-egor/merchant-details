@@ -17,7 +17,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
+import tgb.cryptoexchange.merchantdetails.properties.YoloPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
@@ -40,16 +40,17 @@ class YoloOrderCreationServiceTest {
     @Mock
     private WebClient webClient;
     @Mock
-    private YoloProperties yoloProperties;
+    private YoloPropertiesImpl yoloProperties;
     @Mock
     private CallbackConfig callbackConfig;
-    private YoloOrderCreationService yoloService;
+
+    private YoloOrderCreationServiceImpl yoloService;
     @Mock
     private RequestService requestService;
 
     @BeforeEach
     void setUp() {
-        yoloService = new YoloOrderCreationService(webClient, yoloProperties, callbackConfig);
+        yoloService = new YoloOrderCreationServiceImpl(webClient, yoloProperties, callbackConfig);
         ReflectionTestUtils.setField(yoloService, "requestService", requestService);
         ReflectionTestUtils.setField(yoloService, "objectMapper", objectMapper);
     }

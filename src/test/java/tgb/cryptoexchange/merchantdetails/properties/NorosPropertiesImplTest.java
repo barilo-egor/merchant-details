@@ -17,7 +17,8 @@ class NorosPropertiesImplTest {
     void shouldLoadProperties() {
         assertAll(
                 () -> assertEquals("noros-url", norosPropertiesImpl.url()),
-                () -> assertEquals("noros-key", norosPropertiesImpl.key())
+                () -> assertEquals("noros-key", norosPropertiesImpl.key()),
+                () -> assertEquals("noros-client-id-salt", norosPropertiesImpl.clientIdSalt())
         );
     }
 
