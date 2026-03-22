@@ -1,7 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface SettleXProperties {
 
-@ConfigurationProperties("settle-x")
-public record SettleXProperties(String url, String key, String sbpId, String c2cId) {
+    String url();
+
+    String key();
+
+    String sbpId();
+
+    String c2cId();
 }
