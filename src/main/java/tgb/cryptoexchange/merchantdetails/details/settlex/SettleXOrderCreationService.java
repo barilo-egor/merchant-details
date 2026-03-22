@@ -2,11 +2,13 @@ package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -21,14 +23,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Slf4j
-public abstract class SettleXOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+@Service
+public class SettleXOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
-    protected final SettleXProperties settleXProperties;
+    private final SettleXProperties settleXProperties;
 
-    protected final CallbackConfig callbackConfig;
+    private final CallbackConfig callbackConfig;
 
-    protected SettleXOrderCreationService(WebClient webClient,
+    protected SettleXOrderCreationService(@Qualifier("settleXWebClient") WebClient webClient,
                                           SettleXProperties settleXProperties, CallbackConfig callbackConfig) {
         super(webClient, Response.class, Callback.class);
         this.settleXProperties = settleXProperties;
@@ -74,6 +76,11 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return Merchant.SETTLE_X;
     }
 
     @Override
