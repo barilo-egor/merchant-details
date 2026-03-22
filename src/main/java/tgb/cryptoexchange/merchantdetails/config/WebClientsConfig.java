@@ -209,4 +209,8 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(norosHighCheckProperties.url()).build();
     }
 
+    @Bean
+    public WebClient fiatCutWebClient(FiatCutProperties fiatCutProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(fiatCutProperties.url()).build();
+    }
 }
