@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.noros;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hashids.Hashids;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -9,10 +10,10 @@ import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
-import tgb.cryptoexchange.merchantdetails.details.payscrow.Callback;
 import tgb.cryptoexchange.merchantdetails.properties.NorosProperties;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -24,9 +25,12 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
 
     private final NorosProperties norosProperties;
 
+    private final Hashids hashids;
+
     protected NorosOrderCreationService(WebClient webClient, NorosProperties norosProperties) {
         super(webClient, Response.class, Callback.class);
         this.norosProperties = norosProperties;
+        this.hashids = new Hashids(norosProperties.clientIdSalt(), 8);
     }
 
     @Override
@@ -50,6 +54,9 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
         request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
+        if (Objects.nonNull(detailsRequest.getChatId())) {
+            request.setClientId(hashids.encode(detailsRequest.getChatId()));
+        }
         return request;
     }
 
