@@ -23,7 +23,7 @@ import java.util.Base64;
 @Slf4j
 public class YoloCallbackDecryptService implements CallbackDecryptService {
 
-    private final CallbackConfig callbackConfig;
+    protected final CallbackConfig callbackConfig;
 
     public YoloCallbackDecryptService(CallbackConfig callbackConfig) {
         this.callbackConfig = callbackConfig;
@@ -63,7 +63,7 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException | IllegalArgumentException | JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при парсинге YOLO callback {}: {}", currentTime, jsonString, e.getMessage(), e);
+            log.error("{} Ошибка при парсинге {} callback {}: {}", currentTime, getMerchant(), jsonString, e.getMessage(), e);
             throw new CryptoException("Error occurred while parsing YOLO callback: " + currentTime + ".", e);
         }
     }

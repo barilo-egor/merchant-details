@@ -168,6 +168,13 @@ yolo:
   credentials:
     login: "yolo-jwt-login"
     passphrase: "yolo-jwt-passphrase"
+yolo-sim:
+  account-id: "yolo-sim-account-id"
+  url: "yolo-sim-url"
+  store-key: "yolo-sim-store-key"
+  credentials:
+    login: "yolo-sim-jwt-login"
+    passphrase: "yolo-sim-jwt-passphrase"
 noros:
   url: "noros-url"
   key: "noros-key"
