@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class SettleXPropertiesImplTest {
+class SettleXPropertiesTest {
 
     @Autowired
-    private SettleXPropertiesImpl settleXProperties;
+    private SettleXProperties settleXProperties;
 
     @Test
     void shouldLoadProperties() {
