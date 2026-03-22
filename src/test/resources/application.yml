@@ -178,9 +178,11 @@ yolo-sim:
 noros:
   url: "noros-url"
   key: "noros-key"
+  client-id-salt: "noros-client-id-salt"
 noros-high-check:
   url: "noros-high-check-url"
   key: "noros-high-check-key"
+  client-id-salt: "noros-client-id-salt"
 #Конфиг приложния
 server:
   servlet:
