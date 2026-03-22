@@ -150,13 +150,8 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient settleXWebClient(SettleXPropertiesImpl settleXProperties) {
+    public WebClient settleXWebClient(SettleXProperties settleXProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(settleXProperties.url()).build();
-    }
-
-    @Bean
-    public WebClient settleX15WebClient(SettleX15Properties settleX15Properties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(settleX15Properties.url()).build();
     }
 
     @Bean

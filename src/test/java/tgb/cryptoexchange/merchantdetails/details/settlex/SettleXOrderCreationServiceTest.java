@@ -20,7 +20,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.SettleXPropertiesImpl;
+import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,10 +38,10 @@ class SettleXOrderCreationServiceTest {
     private CallbackConfig callbackConfig;
 
     @Mock
-    private SettleXPropertiesImpl settleXProperties;
+    private SettleXProperties settleXProperties;
 
     @InjectMocks
-    private SettleXOrderCreationServiceImpl service;
+    private SettleXOrderCreationService service;
 
     @Test
     void uriBuilderShouldAddPath() {
