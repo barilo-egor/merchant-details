@@ -218,4 +218,9 @@ public class WebClientsConfig {
     public WebClient fiatCutWebClient(FiatCutProperties fiatCutProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(fiatCutProperties.url()).build();
     }
+
+    @Bean
+    public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
+    }
 }
