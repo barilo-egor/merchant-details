@@ -175,7 +175,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient payLeeQRWebClient(PayLeePropertiesImpl payLeeProperties) {
+    public WebClient payLeeQRWebClient(PayLeeQRProperties payLeeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
 
