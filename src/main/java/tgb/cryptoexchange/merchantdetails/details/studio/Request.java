@@ -18,6 +18,9 @@ public class Request {
     @JsonProperty("main_method")
     private Method mainMethod;
 
+    @JsonProperty("sub_method")
+    private String subMethod;
+
     @JsonProperty("callback_url")
     private String callbackUrl;
 
