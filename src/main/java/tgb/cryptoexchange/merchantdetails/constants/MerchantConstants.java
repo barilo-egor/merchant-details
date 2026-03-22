@@ -155,6 +155,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.yolo.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.yolo.Method.values()
     ),
+    YOLO_SIM(
+            tgb.cryptoexchange.merchantdetails.details.yolo.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.yolo.Method.values()
+    ),
     NOROS(
             tgb.cryptoexchange.merchantdetails.details.noros.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.noros.Method.values()
