@@ -37,9 +37,6 @@ public class Response implements MerchantDetailsResponse {
             if (Objects.isNull(data.status)) {
                 result.notNull("data.status");
             }
-            if (Objects.isNull(data.bank)) {
-                result.notNull("data.bank");
-            }
             if (Objects.isNull(data.receiver)) {
                 result.notNull("data.receiver");
             }
