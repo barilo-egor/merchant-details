@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.viatrum;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
@@ -21,5 +22,6 @@ public class Request {
     private String externalID;
 
     @JsonSerialize(using = Method.Serializer.class)
+    @JsonDeserialize(using = Method.Deserializer.class)
     private Method method;
 }
