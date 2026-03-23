@@ -33,8 +33,6 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
 
     private final ViatrumProperties viatrumProperties;
 
-    private final ObjectMapper objectMapper;
-
     private final SignatureService signatureService;
 
     private final CallbackConfig callbackConfig;
@@ -105,7 +103,11 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getId());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
-        detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getReceiver());
+        if (response.getData().getReceiver().startsWith("https")) {
+            detailsResponse.setQr(response.getData().getReceiver());
+        } else {
+            detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getReceiver());
+        }
         return Optional.of(detailsResponse);
     }
 }

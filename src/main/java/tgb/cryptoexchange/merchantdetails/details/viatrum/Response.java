@@ -48,7 +48,8 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return false;
+        return Objects.nonNull(data) && Objects.nonNull(data.receiver) && (data.receiver.startsWith("https") ||
+                Objects.nonNull(data.bank));
     }
 
     @lombok.Data
