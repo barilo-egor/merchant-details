@@ -89,7 +89,7 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
         Method method = parseMethod(detailsRequest, Method.class);
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
-        request.setBankId(Method.CARD.equals(method) ? 1 : 2);
+        request.setBankId(method.getId());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setMethod(method);
