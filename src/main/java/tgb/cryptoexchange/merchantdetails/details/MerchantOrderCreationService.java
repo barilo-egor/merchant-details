@@ -105,7 +105,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             return Optional.empty();
         }
         T response = mapResponse(rawResponse);
-        validateResponse(response);
+        validateResponse(response, rawResponse);
         if (!response.hasDetails()) {
             logNoDetails(detailsRequest.getId());
             return Optional.empty();
@@ -179,11 +179,12 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    private void validateResponse(T response) {
+    private void validateResponse(T response, String rawResponse) {
         ValidationResult validationResult = response.validate();
         if (!validationResult.isValid()) {
             long currentTime = System.currentTimeMillis();
             log.error("Ответ мерчанта {} невалиден: {}", getMerchant().name(), validationResult.errorsToString());
+            log.error("Тело ответа: {}", rawResponse);
             throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
         }
     }
