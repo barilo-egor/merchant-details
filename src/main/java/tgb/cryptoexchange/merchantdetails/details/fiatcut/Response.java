@@ -12,34 +12,47 @@ import java.util.Objects;
 @Data
 public class Response implements MerchantDetailsResponse {
 
-    @JsonProperty("order_id")
-    private String orderId;
+    private Boolean success;
 
-    private String amount;
+    private Data data;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
-    private Status status;
+    @lombok.Data
+    public static class Data {
+        @JsonProperty("order_id")
+        private String orderId;
 
-    @JsonProperty("payment_gateway_name")
-    private String bankName;
+        private String amount;
 
-    @JsonProperty("payment_detail")
-    private PaymentDetail paymentDetail;
+        @JsonDeserialize(using = Status.Deserializer.class)
+        private Status status;
+
+        @JsonProperty("payment_gateway_name")
+        private String bankName;
+
+        @JsonProperty("payment_detail")
+        private PaymentDetail paymentDetail;
+
+        @lombok.Data
+        public static class PaymentDetail {
+
+            private String detail;
+        }
+    }
 
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
         if (hasDetails()) {
-            if (Objects.isNull(orderId)) {
+            if (Objects.isNull(data.getOrderId())) {
                 result.notNull("orderId");
             }
-            if (Objects.isNull(status)) {
+            if (Objects.isNull(data.getStatus())) {
                 result.notNull("status");
             }
-            if (Objects.isNull(bankName)) {
+            if (Objects.isNull(data.getBankName())) {
                 result.notNull("bankName");
             }
-            if (StringUtils.isBlank(paymentDetail.getDetail())) {
+            if (StringUtils.isBlank(data.getPaymentDetail().getDetail())) {
                 result.addError("paymentDetail.detail", "must be not blank");
             }
         } else {
@@ -50,12 +63,8 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(paymentDetail) && Objects.nonNull(paymentDetail.getDetail());
+        return Objects.nonNull(data.getPaymentDetail()) && Objects.nonNull(data.getPaymentDetail().getDetail());
     }
 
-    @Data
-    public static class PaymentDetail {
 
-        private String detail;
-    }
 }
