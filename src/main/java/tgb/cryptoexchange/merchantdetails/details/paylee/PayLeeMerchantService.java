@@ -17,6 +17,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -65,7 +67,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse vo = new DetailsResponse();
-        if (Objects.nonNull(response.getRequisitesType()) && response.getRequisitesType().contains(Method.ANY_QR)) {
+        if (Objects.nonNull(response.getRequisitesType()) && isNeedQR(response.getRequisitesType())) {
             vo.setQr(response.getRequisites());
         } else {
             vo.setDetails(response.getBankName() + " " + response.getRequisites());
@@ -75,6 +77,11 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
         vo.setMerchantOrderStatus(response.getStatus().name());
         vo.setAmount(response.getPrice().intValue());
         return Optional.of(vo);
+    }
+
+    private boolean isNeedQR(List<Method> methods) {
+        List<Method> merchants = Arrays.asList(Method.ANY_QR, Method.SBER_QR, Method.OZON_QR, Method.ALFA_QR, Method.GAZPROM_QR);
+        return methods.stream().anyMatch(merchants::contains);
     }
 
     @Override
