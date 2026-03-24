@@ -175,7 +175,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient payLeeQRWebClient(PayLeePropertiesImpl payLeeProperties) {
+    public WebClient payLeeQRWebClient(PayLeeQRProperties payLeeProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
 
@@ -217,5 +217,10 @@ public class WebClientsConfig {
     @Bean
     public WebClient fiatCutWebClient(FiatCutProperties fiatCutProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(fiatCutProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
     }
 }

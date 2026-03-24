@@ -183,6 +183,11 @@ noros-high-check:
   url: "noros-high-check-url"
   key: "noros-high-check-key"
   client-id-salt: "noros-client-id-salt"
+viatrum:
+  url: "viatrum-url"
+  pub: "viatrum-pub"
+  secret: "viatrum-secret"
+  environment: "viatrum-environment"
 #Конфиг приложния
 server:
   servlet:
