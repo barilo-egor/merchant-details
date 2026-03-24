@@ -191,6 +191,11 @@ noros-high-check:
   url:
   key:
   client-id-salt:
+viatrum:
+  url:
+  pub:
+  secret:
+  environment:
 # Конфиг приложение
 springdoc:
   swagger-ui:

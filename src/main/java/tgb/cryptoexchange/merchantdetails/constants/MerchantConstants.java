@@ -170,6 +170,10 @@ public enum MerchantConstants {
     FIAT_CUT(
             tgb.cryptoexchange.merchantdetails.details.fiatcut.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.fiatcut.Method.values()
+    ),
+    VIATRUM(
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
