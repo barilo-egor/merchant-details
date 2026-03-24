@@ -92,14 +92,17 @@ class FiatCutOrderCreationServiceTest {
     })
     @ParameterizedTest
     void buildResponseShouldBuildRequisiteResponse(String id, Status status, String requisiteString, Integer amount, String bank) {
-        Response response = new Response();
-        response.setOrderId(id);
-        response.setStatus(status);
-        response.setAmount(amount.toString());
-        Response.PaymentDetail paymentDetail = new Response.PaymentDetail();
-        response.setBankName(bank);
+        Response.Data data = new Response.Data();
+        data.setOrderId(id);
+        data.setStatus(status);
+        data.setAmount(amount.toString());
+        Response.Data.PaymentDetail paymentDetail = new Response.Data.PaymentDetail();
+        data.setBankName(bank);
         paymentDetail.setDetail(requisiteString);
-        response.setPaymentDetail(paymentDetail);
+        data.setPaymentDetail(paymentDetail);
+        Response response = new Response();
+        response.setData(data);
+        response.setSuccess(true);
 
         Optional<DetailsResponse> maybeRequisiteResponse = fiatCutOrderCreationService.buildResponse(response);
         assertTrue(maybeRequisiteResponse.isPresent());

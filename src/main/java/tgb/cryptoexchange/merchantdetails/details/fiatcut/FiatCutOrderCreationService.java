@@ -42,6 +42,7 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
         return httpHeaders -> {
             httpHeaders.add("Accept", "application/json");
             httpHeaders.add("Access-Token", fiatCutProperties.token());
+            httpHeaders.add("Content-Type", "application/json");
         };
     }
 
@@ -60,10 +61,10 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setMerchantOrderId(response.getOrderId());
-        detailsResponse.setDetails(response.getBankName() + " " + response.getPaymentDetail().getDetail());
+        detailsResponse.setMerchantOrderId(response.getData().getOrderId());
+        detailsResponse.setDetails(response.getData().getBankName() + " " + response.getData().getPaymentDetail().getDetail());
         detailsResponse.setMerchant(getMerchant());
-        detailsResponse.setMerchantOrderStatus(response.getStatus().name());
+        detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         return Optional.of(detailsResponse);
     }
 
