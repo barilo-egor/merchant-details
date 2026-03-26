@@ -90,7 +90,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
             if (e instanceof WebClientResponseException.BadRequest ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    return isNoTrader(response) || isAmountError(response);
+                    return isNoTrader(response) || isAmountError(response) || isNoDetails(response);
                 } catch (JsonProcessingException jsonProcessingException) {
                     return false;
                 }
@@ -113,6 +113,14 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                 && response.get(NON_FIELD_ERRORS).size() == 1
                 && response.get(NON_FIELD_ERRORS).get(0).asText()
                 .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
+    }
+
+    private boolean isNoDetails(JsonNode response) {
+        return response.has(NON_FIELD_ERRORS)
+                && response.get(NON_FIELD_ERRORS).isArray()
+                && response.get(NON_FIELD_ERRORS).size() == 1
+                && response.get(NON_FIELD_ERRORS).get(0).asText()
+                .equals("Нет доступных реквизитов. Попробуйте повторить позже.");
     }
 
     @Override
