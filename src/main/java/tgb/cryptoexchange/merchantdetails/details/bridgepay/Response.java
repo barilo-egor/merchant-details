@@ -56,8 +56,10 @@ public class Response implements MerchantDetailsResponse {
     }
 
     private boolean hasQrCodeLinkIfSPBQR(DealDTO dealDTO) {
-        if (Method.SBP_QR.equals(dealDTO.getPaymentOption())) {
-            return !(dealDTO.getQrCodeLink().endsWith("qript.ru") || dealDTO.getQrCodeLink().startsWith("https://"));
+        if (Objects.nonNull(dealDTO)) {
+            if (Method.SBP_QR.equals(dealDTO.getPaymentOption()) && Objects.nonNull(dealDTO.getQrCodeLink())) {
+                return !dealDTO.getQrCodeLink().endsWith("qript.ru") && dealDTO.getQrCodeLink().startsWith("https://");
+            }
         }
         return true;
     }
