@@ -52,12 +52,23 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(deals) && !deals.isEmpty();
+        return Objects.nonNull(deals) && !deals.isEmpty() && hasQrCodeLinkIfSPBQR(deals.getFirst());
+    }
+
+    private boolean hasQrCodeLinkIfSPBQR(DealDTO dealDTO) {
+        if (Objects.nonNull(dealDTO)) {
+            if (Method.SBP_QR.equals(dealDTO.getPaymentOption()) && Objects.nonNull(dealDTO.getQrCodeLink())) {
+                return !dealDTO.getQrCodeLink().endsWith("qript.ru") && dealDTO.getQrCodeLink().startsWith("https://");
+            }
+        }
+        return true;
     }
 
     @Data
     public static class Sum {
 
         private String amount;
+
     }
+
 }
