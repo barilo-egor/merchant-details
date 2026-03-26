@@ -10,7 +10,7 @@ import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
 @Data
 public class Callback extends UnwrappedCallback {
 
-    @JsonProperty("externalID")
+    @JsonProperty("trackerId")
     private String id;
 
     @JsonDeserialize(using = Status.Deserializer.class)
