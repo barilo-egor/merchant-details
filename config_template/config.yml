@@ -196,6 +196,9 @@ viatrum:
   pub:
   secret:
   environment:
+cashout:
+  url:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
