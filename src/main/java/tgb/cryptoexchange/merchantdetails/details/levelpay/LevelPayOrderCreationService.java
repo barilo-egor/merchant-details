@@ -58,7 +58,7 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
         Request request = new Request();
         request.setMerchantId(levelPayProperties.merchantId());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest, Method.class);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setPaymentDetailType(method);
         if (Method.ALFA_ALFA.equals(method)) {
             request.setPaymentGateway("alfa-alfa");
