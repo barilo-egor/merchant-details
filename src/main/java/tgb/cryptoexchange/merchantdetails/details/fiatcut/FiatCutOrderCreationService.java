@@ -50,7 +50,7 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest, Method.class));
+        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setExternalId(UUID.randomUUID().toString());

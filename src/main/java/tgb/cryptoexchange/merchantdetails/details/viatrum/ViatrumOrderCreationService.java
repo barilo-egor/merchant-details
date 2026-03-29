@@ -84,7 +84,7 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
 
     @Override
     protected Request body(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest, Method.class);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
         request.setBankId(method.getId());

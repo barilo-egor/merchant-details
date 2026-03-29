@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.YoloPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -24,6 +25,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -153,13 +155,13 @@ class YoloOrderCreationServiceTest {
         DetailsRequest request = new DetailsRequest();
         request.setAmount(1000);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method("SBP").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method(Collections.singletonList("SBP")).build());
         request.setMethods(methods);
 
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");
 
-        Request result = yoloService.body(request);
+        Request result = yoloService.body(new DetailsRequestWithMethod(request, "SBP"));
 
         assertNotNull(result.getExternalId());
         assertEquals("1000", result.getValue());
