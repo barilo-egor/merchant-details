@@ -130,8 +130,6 @@ class MerchantDetailsServiceTest {
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
         when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
-                .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(new ArrayList<>());
         detailsRequest.setAmount(1000);

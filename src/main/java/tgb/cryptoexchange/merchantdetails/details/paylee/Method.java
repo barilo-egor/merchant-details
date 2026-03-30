@@ -27,6 +27,7 @@ public enum Method implements MerchantMethod {
     ALFA_QR("alfa-qr", " Альфа-банк QR"),
     GAZPROM_QR("gazprom-qr", "Газпромбанк QR"),
     PSBPAY("psbpay", "ПСБ (форма)"),
+    YANDEX_TIPS("tips", "Яндекс чаевые"),
     ;
 
     private final String value;
