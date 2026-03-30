@@ -40,6 +40,11 @@ public class DetailsRequestProcessorService {
     }
 
     public void process(DetailsRequest detailsRequest) {
+        if (activeSearchMap.containsKey(detailsRequest.getId())) {
+            log.info("Отправлен запрос {} на поиск реквизитов для сделки {} при уже действующем поиске. Запрос будет проигнорирован.",
+                    detailsRequest.getRequestId(), detailsRequest.getId());
+            return;
+        }
         Future<Void> future = detailsRequestSearchExecutor.submit(() -> {
             DetailsResponse result;
             try {
