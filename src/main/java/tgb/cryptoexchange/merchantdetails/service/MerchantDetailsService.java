@@ -98,7 +98,7 @@ public class MerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
         int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
-        for (int attemptNumber = 1; attemptNumber <= attemptsCount; attemptNumber++) {
+        for (int attemptNumber = 1; attemptNumber <= attemptsCount && !merchantConfigList.isEmpty(); attemptNumber++) {
             if (Thread.currentThread().isInterrupted()) {
                 log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
                 return Optional.empty();
