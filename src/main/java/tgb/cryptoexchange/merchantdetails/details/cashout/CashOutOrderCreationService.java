@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -30,15 +29,11 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
 
     private final CashOutProperties cashOutProperties;
 
-    private final CallbackConfig callbackConfig;
-
     protected CashOutOrderCreationService(@Qualifier("cashOutWebClient") WebClient webClient,
-                                          CashOutProperties cashOutProperties, ObjectMapper objectMapper,
-                                          CallbackConfig callbackConfig) {
+            CashOutProperties cashOutProperties, ObjectMapper objectMapper) {
         super(webClient, Response.class, Callback.class);
         this.cashOutProperties = cashOutProperties;
         this.objectMapper = objectMapper;
-        this.callbackConfig = callbackConfig;
     }
 
     @Override
@@ -87,11 +82,11 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         requestService.request(webClient, HttpMethod.POST,
-                uriBuilder -> uriBuilder.path("/merchants/transactions/{id}/cancel").build(cancelOrderRequest.getOrderId()),
+                uriBuilder -> uriBuilder.path("/merchants/transactions/{id}/cancel")
+                        .build(cancelOrderRequest.getOrderId()),
                 this::addHeaders,
                 null
         );
     }
-
 
 }
