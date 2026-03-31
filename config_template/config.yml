@@ -196,6 +196,9 @@ viatrum:
   pub:
   secret:
   environment:
+pw-pay:
+  url: ""
+  token: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
