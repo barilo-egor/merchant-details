@@ -12,14 +12,14 @@ import java.io.IOException;
 @AllArgsConstructor
 @Getter
 public enum Status implements MerchantOrderStatus {
-    PENDING("PENDING", "Создано"),
-    PROCESSING("PROCESSING", "Платеж обрабатывается."),
-    COMPLETED("COMPLETED", "Подтверждено"),
-    FAILED("FAILED", "Платеж не удался"),
-    CANCELLED("CANCELLED", "Отменено"),
-    DISPUTE("DISPUTE", "Начался спор"),
-    COMPLETED_AFTER_DISPUTE("COMPLETED_AFTER_DISPUTE", "Подтверждено после спора"),
-    FAILED_AFTER_DISPUTE("FAILED_AFTER_DISPUTE", "Неудача после спора");
+    PENDING("pending", "Создано"),
+    PROCESSING("processing", "Платеж обрабатывается."),
+    COMPLETED("completed", "Подтверждено"),
+    FAILED("failed", "Платеж не удался"),
+    CANCELLED("cancelled", "Отменено"),
+    DISPUTE("dispute", "Начался спор"),
+    COMPLETED_AFTER_DISPUTE("completed_after_dispute", "Подтверждено после спора"),
+    FAILED_AFTER_DISPUTE("failed_after_dispute", "Неудача после спора");
 
     private final String value;
 
