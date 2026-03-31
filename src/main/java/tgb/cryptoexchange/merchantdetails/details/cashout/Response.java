@@ -26,6 +26,9 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.nonNull(data) && Objects.isNull(data.getAmount())) {
             result.notNull("data.amount");
         }
+        if (Objects.nonNull(data) && Objects.isNull(data.getStatus())) {
+            result.notNull("data.status");
+        }
 
         return result;
     }

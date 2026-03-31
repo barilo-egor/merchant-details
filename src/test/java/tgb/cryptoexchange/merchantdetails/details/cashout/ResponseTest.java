@@ -37,6 +37,7 @@ class ResponseTest {
         Response.ResponseRequisite requisite = new Response.ResponseRequisite();
         requisite.setTransactionId("TX-123");
         requisite.setAmount("1000");
+        requisite.setStatus(Status.CANCELLED);
         response.setData(requisite);
 
         ValidationResult result = response.validate();
