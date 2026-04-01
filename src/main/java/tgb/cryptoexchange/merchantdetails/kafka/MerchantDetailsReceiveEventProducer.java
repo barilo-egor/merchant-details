@@ -40,6 +40,7 @@ public class MerchantDetailsReceiveEventProducer {
             event.setMethod(detailsRequest.getCurrentMerchantMethod());
         }
         event.setDetails(detailsResponse.getDetails());
+        event.setPaymentLink(detailsResponse.getQr());
         kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);
     }
 }
