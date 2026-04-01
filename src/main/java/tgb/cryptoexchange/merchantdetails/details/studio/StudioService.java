@@ -7,6 +7,7 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
 import java.net.URI;
@@ -41,13 +42,16 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> addHeaders(httpHeaders, detailsRequest.getCurrentMerchantMethod());
+        String method = detailsRequest.getMerchantMethod(getMerchant()).orElseThrow(
+                () -> new MerchantMethodNotFoundException(
+                        "Method for merchant " + getMerchant().name() + " not found."));
+        return httpHeaders -> addHeaders(httpHeaders, method);
     }
 
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount() * 100);
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         request.setMainMethod(method);
         if (Method.SIM.equals(method)) {
             request.setSubMethod("sim_sim");

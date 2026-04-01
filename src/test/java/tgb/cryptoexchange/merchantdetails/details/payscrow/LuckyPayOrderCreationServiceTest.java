@@ -11,7 +11,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.LuckyPayProperties;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,7 +37,7 @@ class LuckyPayOrderCreationServiceTest {
             """)
     void keyFunctionShouldAlwaysReturnKey(String method, Integer amount, Long id, Long chatId, String key) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(method).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         detailsRequest.setChatId(chatId);

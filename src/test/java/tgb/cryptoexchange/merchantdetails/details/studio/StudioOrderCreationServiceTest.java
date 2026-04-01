@@ -14,11 +14,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,7 +51,7 @@ class StudioOrderCreationServiceTest {
     @DisplayName("Проверка заголовков для Card")
     void shouldAddCardHeaderWhenMethodIsCard() {
         when(studioConfig.getKey("CARD")).thenReturn("key-for-card");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("CARD");
+        when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("CARD"));
         HttpHeaders headers = new HttpHeaders();
 
         Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "some body");
@@ -67,7 +65,7 @@ class StudioOrderCreationServiceTest {
     @DisplayName("Проверка заголовков для SBP")
     void shouldAddSbpHeaderWhenMethodIsSbp() {
         when(studioConfig.getKey("SBP")).thenReturn("key-for-sbp");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("SBP");
+        when(detailsRequest.getMerchantMethod(Merchant.STUDIO)).thenReturn(Optional.of("SBP"));
         HttpHeaders headers = new HttpHeaders();
 
         service.headers(detailsRequest, "some body").accept(headers);
@@ -87,12 +85,12 @@ class StudioOrderCreationServiceTest {
         request.setAmount(amount);
         request.setRequestId(clientOrderId);
         request.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(mainMethod.name())
                         .build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request actual = service.body(new DetailsRequestWithMethod(request, mainMethod.name()));
+        Request actual = service.body(request);
         assertAll(
                 () -> assertEquals(amount * 100, actual.getAmount()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getClientOrderId())),
