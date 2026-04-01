@@ -196,6 +196,9 @@ viatrum:
   pub:
   secret:
   environment:
+cashout:
+  url:
+  key:
 pw-pay:
   url: ""
   token: ""
