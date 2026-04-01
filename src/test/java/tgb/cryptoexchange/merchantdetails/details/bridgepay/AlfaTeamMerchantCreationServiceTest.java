@@ -21,7 +21,6 @@ import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
@@ -31,7 +30,10 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -92,7 +94,7 @@ class AlfaTeamMerchantCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
         DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
+        when(request.getMerchantMethod(Merchant.ALFA_TEAM)).thenReturn(Optional.of(Method.TO_CARD.name()));
         alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -105,7 +107,7 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
         DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
+        when(request.getMerchantMethod(Merchant.ALFA_TEAM)).thenReturn(Optional.of(Method.TO_CARD.name()));
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
@@ -122,13 +124,13 @@ class AlfaTeamMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
 
-        Request actual = alfaTeamMerchantCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        Request actual = alfaTeamMerchantCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),

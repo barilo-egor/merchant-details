@@ -53,7 +53,7 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
         if (Objects.nonNull(detailsRequest.getChatId())) {
             request.setClientId(hashids.encode(detailsRequest.getChatId()));
         }
