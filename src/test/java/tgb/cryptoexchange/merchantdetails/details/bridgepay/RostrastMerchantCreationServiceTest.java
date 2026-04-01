@@ -10,8 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.properties.RostrastProperties;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,13 +44,13 @@ class RostrastMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ROSTRAST).method("SBP").build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ROSTRAST).method(Collections.singletonList("SBP")).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(rostrastProperties.token()).thenReturn("token");
 
-        Request actual = rostrastMerchantCreationService.body(detailsRequest);
+        Request actual = rostrastMerchantCreationService.body(new DetailsRequestWithMethod(detailsRequest, "SBP"));
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ROSTRAST&secret=" + secret,
                 actual.getNotificationUrl());
     }

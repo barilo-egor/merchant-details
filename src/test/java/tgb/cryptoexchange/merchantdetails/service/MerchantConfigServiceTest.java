@@ -183,7 +183,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -198,7 +198,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method("SBP").build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -221,7 +221,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(merchant).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(merchant).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -244,7 +244,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5501);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -272,9 +272,9 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig5);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(method).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(method).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 1500);
         assertAll(
                 () -> assertEquals(3, actual.size()),

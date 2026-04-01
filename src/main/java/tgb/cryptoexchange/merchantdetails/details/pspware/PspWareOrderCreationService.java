@@ -50,7 +50,7 @@ public class PspWareOrderCreationService extends MerchantOrderCreationService<Re
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setSum(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest, Method.class);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setPayTypes(List.of(method));
         if (Method.TRANSGRAN_PHONE.equals(method)) {
             request.setGeos(List.of("TJK"));

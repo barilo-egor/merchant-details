@@ -18,9 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -79,10 +81,10 @@ class CrocoPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setId(dealId);
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).method(method).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).method(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = crocoPayOrderCreationService.body(detailsRequest);
+        Request request = crocoPayOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
