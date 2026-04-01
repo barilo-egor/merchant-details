@@ -20,13 +20,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,9 +62,9 @@ class PwPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequestWithMethod(new DetailsRequest(), method.name());
+        DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(method.name())
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
