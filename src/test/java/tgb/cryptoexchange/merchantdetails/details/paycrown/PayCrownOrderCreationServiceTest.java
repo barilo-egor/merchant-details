@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
@@ -26,6 +27,7 @@ import tgb.cryptoexchange.merchantdetails.properties.PayCrownProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,9 +88,9 @@ class PayCrownOrderCreationServiceTest {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         objectNode.put("created_at", System.currentTimeMillis());
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Method.CARD.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setAmount(1000);
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, "");
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(new DetailsRequestWithMethod(detailsRequest, Method.CARD.name()), "");
         HttpHeaders headers = new HttpHeaders();
         when(objectMapper.readTree(anyString())).thenReturn(objectNode);
         when(payCrownProperties.merchantId()).thenReturn("merchantId");
@@ -118,11 +120,11 @@ class PayCrownOrderCreationServiceTest {
         when(signatureService.getMD5Hash(anyString())).thenReturn(signature);
 
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(method.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
 
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, body);
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(new DetailsRequestWithMethod(detailsRequest, method.name()), body);
         headersConsumer.accept(headers);
         verify(objectMapper).readTree(body);
         verify(signatureService).getMD5Hash(amount + unixTimestamp + "rub" + merchantId + method.getValue() + secret);
@@ -139,13 +141,13 @@ class PayCrownOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(method.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
 
-        Request actual = payCrownOrderCreationService.body(detailsRequest);
+        Request actual = payCrownOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
