@@ -62,7 +62,7 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
 
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         request.setMethod(method);
         return request;
     }
