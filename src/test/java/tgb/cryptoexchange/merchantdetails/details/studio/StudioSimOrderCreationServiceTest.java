@@ -11,6 +11,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.StudioSimProperties;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +33,7 @@ class StudioSimOrderCreationServiceTest {
     @DisplayName("Проверка заголовков для Sim")
     void shouldAddSimHeaderWhenMethodIsSim() {
         when(properties.getKey("SIM")).thenReturn("key-for-sim");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("SIM");
+        when(detailsRequest.getMerchantMethod(Merchant.STUDIO_SIM)).thenReturn(Optional.of("SIM"));
         HttpHeaders headers = new HttpHeaders();
 
         Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "some body");

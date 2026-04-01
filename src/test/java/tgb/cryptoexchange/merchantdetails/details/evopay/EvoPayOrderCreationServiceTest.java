@@ -22,14 +22,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,8 +116,8 @@ class EvoPayOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(method)).build()));
-        Request request = evoPayOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(method).build()));
+        Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),

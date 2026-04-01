@@ -174,14 +174,6 @@ public enum MerchantConstants {
     VIATRUM(
             tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
-    ),
-    CASH_OUT(
-            tgb.cryptoexchange.merchantdetails.details.cashout.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.cashout.Method.values()
-    ),
-    PW_PAY(
-            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
