@@ -25,6 +25,8 @@ public class DetailsResponse {
 
     private Integer amount;
 
+    private String paymentMethod;
+
     private String qr;
 
     @Slf4j

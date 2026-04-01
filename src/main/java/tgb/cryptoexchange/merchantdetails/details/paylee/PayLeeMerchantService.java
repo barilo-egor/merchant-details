@@ -57,7 +57,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setPrice(detailsRequest.getAmount());
-        request.setRequisitesType(parseMethod(detailsRequest, Method.class));
+        request.setRequisitesType(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
         if (Objects.nonNull(detailsRequest.getChatId())) {
             request.setClientId(hashids.encode(detailsRequest.getChatId()));
         }
