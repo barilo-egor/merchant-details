@@ -199,6 +199,9 @@ viatrum:
 cashout:
   url:
   key:
+pw-pay:
+  url: ""
+  token: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
