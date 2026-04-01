@@ -58,7 +58,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest, Method.class);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setMethod(Collections.singletonList(method.name()));
         return request;
     }

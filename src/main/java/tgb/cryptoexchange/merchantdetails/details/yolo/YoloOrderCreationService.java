@@ -83,7 +83,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
         Request request = new Request();
         request.setExternalId(UUID.randomUUID().toString());
         request.setValue(String.valueOf(detailsRequest.getAmount()));
-        Method method = parseMethod(detailsRequest, Method.class);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setUseFastPayment(Method.SBP.equals(method));
         request.setWebhookUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
