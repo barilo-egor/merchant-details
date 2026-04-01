@@ -228,4 +228,9 @@ public class WebClientsConfig {
     public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
     }
+
+    @Bean
+    public WebClient cashOutWebClient(CashOutProperties cashOutProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cashOutProperties.url()).build();
+    }
 }
