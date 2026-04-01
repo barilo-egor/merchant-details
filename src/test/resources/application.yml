@@ -191,6 +191,9 @@ viatrum:
 cashout:
   url: "cashout-url"
   key: "cashout-key"
+pw-pay:
+  url: "pw-pay-url"
+  token: "pw-pay-token"
 #Конфиг приложния
 server:
   servlet:
