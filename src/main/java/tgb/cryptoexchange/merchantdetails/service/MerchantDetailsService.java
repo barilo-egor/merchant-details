@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -13,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.List;
@@ -53,16 +55,25 @@ public class MerchantDetailsService {
 
     public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
-        if (maybeCreationService.isPresent()) {
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
-            if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
-                maybeDetailsResponse.ifPresent(
-                        detailsResponse -> merchantDetailsReceiveEventProducer.put(merchant, request, detailsResponse)
-                );
-            }
-            return maybeDetailsResponse;
+        if (maybeCreationService.isEmpty()) {
+            log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
+            return Optional.empty();
         }
-        log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
+        List<String> merchantMethods = request.getMerchantMethod(merchant);
+        if (CollectionUtils.isEmpty(merchantMethods)) {
+            throw new MerchantMethodNotFoundException("Methods for merchant " + merchant.name() + " not found.");
+        }
+
+        for (String merchantMethod : merchantMethods) {
+            DetailsRequestWithMethod detailsRequest = new DetailsRequestWithMethod(request, merchantMethod);
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(detailsRequest);
+            if (maybeDetailsResponse.isPresent()) {
+                if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
+                    merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, maybeDetailsResponse.get());
+                }
+                return maybeDetailsResponse;
+            }
+        }
         return Optional.empty();
     }
 
@@ -124,7 +135,8 @@ public class MerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest request,
+    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest
+                                                            request,
                                                     int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;

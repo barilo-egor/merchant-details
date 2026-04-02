@@ -13,13 +13,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -71,12 +69,12 @@ class FiatCutOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret, String merchantId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).method(method).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).method(Collections.singletonList(method)).build()));
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(fiatCutProperties.merchantId()).thenReturn(merchantId);
-        Request request = fiatCutOrderCreationService.body(detailsRequest);
+        Request request = fiatCutOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExternalId())),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),

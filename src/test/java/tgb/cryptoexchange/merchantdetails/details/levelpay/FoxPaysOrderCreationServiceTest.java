@@ -20,15 +20,13 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.FoxPaysProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,12 +89,12 @@ class FoxPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(method.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(method.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request request = foxPaysOrderCreationService.body(detailsRequest);
+        Request request = foxPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method, request.getPaymentDetailType()),
@@ -112,10 +110,10 @@ class FoxPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObjectWithAlfaAlfaPaymentGateway() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Method.ALFA_ALFA.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn("merchantId");
 
-        Request request = foxPaysOrderCreationService.body(detailsRequest);
+        Request request = foxPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.ALFA_ALFA.name()));
         assertAll(
                 () -> assertEquals(Method.ALFA_ALFA, request.getPaymentDetailType()),
                 () -> assertEquals("alfa-alfa", request.getPaymentGateway())
@@ -143,7 +141,7 @@ class FoxPaysOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertAll(
-            () -> assertEquals(paymentGatewayName + " " + detail, actual.getDetails()),
+                () -> assertEquals(paymentGatewayName + " " + detail, actual.getDetails()),
                 () -> assertEquals(Merchant.FOX_PAYS, actual.getMerchant()),
                 () -> assertEquals(orderId, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
