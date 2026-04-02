@@ -19,13 +19,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -79,11 +77,11 @@ class DaoPaymentsOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.DAO_PAYMENTS).method(method).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.DAO_PAYMENTS).method(Collections.singletonList(method)).build()));
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = daoPaymentsOrderCreationService.body(detailsRequest);
+        Request request = daoPaymentsOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getMerchantOrderId())),
                 () -> assertEquals(Method.valueOf(method), request.getRequisiteType()),

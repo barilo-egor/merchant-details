@@ -10,8 +10,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +37,7 @@ class MerchantDetailsReceiveEventProducerTest {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setId(dealId);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(method).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(requestedAmount);
         detailsRequest.setChatId(userId);
         detailsRequest.setInitiatorApp(appId);
@@ -47,7 +49,7 @@ class MerchantDetailsReceiveEventProducerTest {
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MerchantDetailsReceiveEvent> eventCaptor = ArgumentCaptor.forClass(MerchantDetailsReceiveEvent.class);
-        merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, detailsResponse);
+        merchantDetailsReceiveEventProducer.put(merchant, new DetailsRequestWithMethod(detailsRequest, method), detailsResponse);
         verify(kafkaTemplate).send(topicCaptor.capture(), keyCaptor.capture(), eventCaptor.capture());
         MerchantDetailsReceiveEvent event = eventCaptor.getValue();
         assertAll(
