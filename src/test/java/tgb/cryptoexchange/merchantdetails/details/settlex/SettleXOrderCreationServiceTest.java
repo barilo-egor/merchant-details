@@ -19,10 +19,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXPropertiesImpl;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,7 +73,7 @@ class SettleXOrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(method.name()).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         if (Method.SBP.equals(method)) {
@@ -79,7 +81,7 @@ class SettleXOrderCreationServiceTest {
         } else {
             when(settleXProperties.c2cId()).thenReturn(c2cId);
         }
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> {
