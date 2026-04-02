@@ -77,9 +77,9 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
-        log.debug("Запрос на создание ордера мерчанта {} метода {}: {}", getMerchant().name(), detailsRequest.getCurrentMerchantMethod(), detailsRequest);
+        log.debug("Запрос на создание ордера мерчанта {}: {}", getMerchant().name(), detailsRequest.toString());
         if (!isValidRequestPredicate().test(detailsRequest)) {
-            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", detailsRequest, detailsRequest.getCurrentMerchantMethod());
+            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}", detailsRequest);
             return Optional.empty();
         }
         String body = mapBody(detailsRequest);
@@ -88,7 +88,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             maybeRawResponse = makeRequest(detailsRequest, body);
         } catch (Exception e) {
             if (isNoDetailsExceptionPredicate().test(e)) {
-                logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+                logNoDetails(detailsRequest.getId());
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
@@ -96,23 +96,23 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
         if (maybeRawResponse.isEmpty()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
         String rawResponse = maybeRawResponse.get();
         if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
         T response = mapResponse(rawResponse);
         validateResponse(response, rawResponse);
         if (!response.hasDetails()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getId());
             return Optional.empty();
         }
         Optional<DetailsResponse> maybeResponse;
         try {
-            maybeResponse = buildResponse(response);
+             maybeResponse= buildResponse(response);
         } catch (Exception e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при формировании ответа: {}", currentTime, e.getMessage(), e);
@@ -121,13 +121,13 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeResponse.isPresent()) {
             log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
         } else {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getId());
         }
         return maybeResponse;
     }
 
-    private void logNoDetails(Long id, String method) {
-        log.debug("Реквизиты для запроса id={} у мерчанта {}, метод {} получены не были.", id, getMerchant().name(), method);
+    private void logNoDetails(Long id) {
+        log.debug("Реквизиты для запроса id={} у мерчанта {} получены не были.", id, getMerchant().name());
     }
 
     private String mapBody(DetailsRequest detailsRequest) {
@@ -213,6 +213,13 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return s -> false;
     }
 
+    protected <E extends Enum<E>> E parseMethod(DetailsRequest detailsRequest, Class<E> methodType) {
+        String value = detailsRequest.getMerchantMethod(getMerchant()).orElseThrow(
+                () -> new MerchantMethodNotFoundException("Method for merchant " + getMerchant().name() + " not found.")
+        );
+        return parseMethod(value, methodType);
+    }
+
     protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
@@ -240,7 +247,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeMerchantOrderId.isEmpty() || maybeStatus.isEmpty() || maybeStatusDescription.isEmpty()) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Невалидный объект callback мерчанта {}: id is present {}, status is present {}, " +
-                            "status description is present {}, body {}", currentTime, getMerchant().name(), maybeMerchantOrderId.isPresent(),
+                    "status description is present {}, body {}", currentTime, getMerchant().name(), maybeMerchantOrderId.isPresent(),
                     maybeStatus.isPresent(), maybeStatusDescription.isPresent(), callbackBody);
             throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
         }

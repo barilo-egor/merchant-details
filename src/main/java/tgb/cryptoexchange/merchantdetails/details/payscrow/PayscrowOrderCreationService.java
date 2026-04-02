@@ -52,7 +52,7 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest, Method.class));
         request.setClientOrderId(UUID.randomUUID().toString());
         request.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
         return request;

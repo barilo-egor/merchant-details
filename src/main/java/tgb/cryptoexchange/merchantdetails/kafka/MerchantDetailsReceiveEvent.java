@@ -61,10 +61,4 @@ public class MerchantDetailsReceiveEvent {
      * Реквизиты
      */
     private String details;
-
-    /**
-     * ссылка на qr/платежку
-     */
-    private String paymentLink;
-
 }
