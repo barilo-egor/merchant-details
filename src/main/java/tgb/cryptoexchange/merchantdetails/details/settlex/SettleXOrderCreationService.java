@@ -53,7 +53,7 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest, Method.class);
         if (Method.SBP.equals(method)) {
             request.setMethod(settleXProperties.sbpId());
         } else {

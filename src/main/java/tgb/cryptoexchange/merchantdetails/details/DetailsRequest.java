@@ -15,39 +15,35 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DetailsRequest {
 
-    protected String requestId;
+    private String requestId;
 
-    protected Long id;
+    private Long id;
 
     @NotNull
     @Min(1)
-    protected Integer amount;
+    private Integer amount;
 
-    protected Long chatId;
+    private Long chatId;
 
-    protected String initiatorApp;
+    private String initiatorApp;
 
-    protected List<MerchantMethod> methods;
-
-    public String getCurrentMerchantMethod() {
-        throw new UnsupportedOperationException("CurrentMerchantMethod is not implemented yet");
-    }
+    private List<MerchantMethod> methods;
 
     @JsonIgnore
-    public List<String> getMerchantMethod(Merchant merchant) {
+    public Optional<String> getMerchantMethod(Merchant merchant) {
         for (MerchantMethod merchantMethod : methods) {
             if (merchantMethod.getMerchant().equals(merchant)) {
-                return merchantMethod.getMethod();
+                return Optional.of(merchantMethod.getMethod());
             }
         }
-        return Collections.emptyList();
+        return Optional.empty();
     }
 
     @Data
@@ -58,8 +54,7 @@ public class DetailsRequest {
 
         private Merchant merchant;
 
-        private List<String> method;
-
+        private String method;
     }
 
     public static class KafkaDeserializer implements Deserializer<DetailsRequest> {
