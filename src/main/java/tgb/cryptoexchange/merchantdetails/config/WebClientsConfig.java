@@ -85,6 +85,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient pwPayWebClient(PwPayProperties pwPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(pwPayProperties.url()).build();
+    }
+
+    @Bean
     public WebClient yaPayWebClient(YaPayProperties yaPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(yaPayProperties.url()).build();
     }
@@ -222,5 +227,10 @@ public class WebClientsConfig {
     @Bean
     public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient cashOutWebClient(CashOutProperties cashOutProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cashOutProperties.url()).build();
     }
 }

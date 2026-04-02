@@ -188,6 +188,12 @@ viatrum:
   pub: "viatrum-pub"
   secret: "viatrum-secret"
   environment: "viatrum-environment"
+cashout:
+  url: "cashout-url"
+  key: "cashout-key"
+pw-pay:
+  url: "pw-pay-url"
+  token: "pw-pay-token"
 #Конфиг приложния
 server:
   servlet:
