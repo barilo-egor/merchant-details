@@ -98,6 +98,10 @@ public class MerchantConfigService {
         return repository.findAllByIsOnOrderByMerchantOrder(isOn);
     }
 
+    public List<Long> findAllGroupChatIds() {
+        return repository.findDistinctGroupChatIdByGroupChatIdNotNull();
+    }
+
     public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
