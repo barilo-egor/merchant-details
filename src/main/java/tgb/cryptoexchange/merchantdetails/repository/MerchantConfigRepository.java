@@ -17,6 +17,7 @@ public interface MerchantConfigRepository extends JpaRepository<MerchantConfig, 
     @Query("select max(merchantOrder) from MerchantConfig")
     Integer findMaxMerchantOrder();
 
+    @Query("SELECT DISTINCT m.groupChatId FROM MerchantConfig m WHERE m.groupChatId IS NOT NULL")
     List<Long> findDistinctGroupChatIdByGroupChatIdNotNull();
 
     @Modifying
