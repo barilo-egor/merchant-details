@@ -17,6 +17,8 @@ public interface MerchantConfigRepository extends JpaRepository<MerchantConfig, 
     @Query("select max(merchantOrder) from MerchantConfig")
     Integer findMaxMerchantOrder();
 
+    List<Long> findDistinctGroupChatIdByGroupChatIdNotNull();
+
     @Modifying
     @Query("update MerchantConfig mc set mc.merchantOrder = mc.merchantOrder + :delta " +
             "where mc.merchantOrder >= :start and mc.merchantOrder <= :end")
