@@ -108,10 +108,10 @@ class DetailsRequestProcessorServiceTest {
         request.setRequestId(id);
         request.setId(12352963876L);
         DetailsResponse response = new DetailsResponse();
-        response.setDetails("ALFA 1234 1234 1234 1234");
-        response.setMerchant(Merchant.ALFA_TEAM);
-        response.setMerchantOrderStatus("PENDING");
-        response.setAmount(5000);
+        response.setDetails(details);
+        response.setMerchant(merchant);
+        response.setMerchantOrderStatus(status);
+        response.setAmount(amount);
         doAnswer(invocation -> {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
