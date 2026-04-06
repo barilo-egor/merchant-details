@@ -60,7 +60,6 @@ public class MerchantDetailsController extends ApiController {
     @GetMapping("/config/all-group")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<List<Long>>> getGroupChatIds() {
-        merchantConfigService.findAllGroupChatIds();
         return new ResponseEntity<>(ApiResponse.success(
                 merchantConfigService.findAllGroupChatIds()),
                 HttpStatus.OK);
