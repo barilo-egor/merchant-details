@@ -12,7 +12,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -364,8 +363,9 @@ class PayLeeMerchantServiceTest {
     void sendReceiptShouldCallRequestServiceMethod(String orderId) {
         RequestService requestService = Mockito.mock(RequestService.class);
         payLeeMerchantService.setRequestService(requestService);
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        payLeeMerchantService.sendReceipt(orderId, multipartFile);
+        byte[] fileContent = "test content".getBytes();
+        String fileName = "receipt.jpg";
+        payLeeMerchantService.sendReceipt(orderId, fileContent, fileName);
         when(payLeeProperties.token()).thenReturn("token");
         verify(requestService).request(
                 eq(webClient),

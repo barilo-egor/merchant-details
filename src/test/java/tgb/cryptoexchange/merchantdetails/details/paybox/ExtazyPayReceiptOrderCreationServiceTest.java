@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -59,14 +58,8 @@ class ExtazyPayReceiptOrderCreationServiceTest {
     void sendReceiptShouldCallRequestServiceMethod(String orderId) {
         extasyPayReceiptOrderCreationService.setRequestService(requestService);
         when(extasyPayReceiptProperties.token()).thenReturn("token");
-        MockMultipartFile multipartFile = new MockMultipartFile(
-                "receipts",
-                "receipt.pdf",
-                "application/pdf",
-                "pdf-content".getBytes()
-        );
 
-        extasyPayReceiptOrderCreationService.sendReceipt(orderId, multipartFile);
+        extasyPayReceiptOrderCreationService.sendReceipt(orderId, "pdf-content".getBytes(), "receipt.pdf");
 
         verify(requestService).request(
                 eq(webClient),
