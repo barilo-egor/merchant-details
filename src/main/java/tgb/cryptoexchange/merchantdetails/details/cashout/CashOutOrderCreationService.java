@@ -72,7 +72,7 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getTransactionId());
-        detailsResponse.setMerchantOrderStatus(response.getData().getStatus().getValue());
+        detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         Response.PaymentDetails paymentDetails = response.getData().getPaymentDetails();
         detailsResponse.setDetails(paymentDetails.getBankName() + " " + paymentDetails.getCardNumber());
         detailsResponse.setAmount(new BigDecimal(response.getData().getAmount()).intValue());
