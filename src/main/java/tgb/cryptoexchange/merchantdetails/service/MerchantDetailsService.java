@@ -186,4 +186,5 @@ public class MerchantDetailsService {
             log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
         }
     }
+
 }

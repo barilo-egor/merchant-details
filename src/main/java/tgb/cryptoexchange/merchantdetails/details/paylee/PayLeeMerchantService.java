@@ -158,4 +158,5 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                 t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
         );
     }
+
 }
