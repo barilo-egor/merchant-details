@@ -17,6 +17,8 @@ import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 import tgb.cryptoexchange.web.ApiResponse;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/merchant-details")
 public class MerchantDetailsController extends ApiController {
@@ -28,7 +30,7 @@ public class MerchantDetailsController extends ApiController {
     private final VariableService variableService;
 
     public MerchantDetailsController(MerchantDetailsService merchantDetailsService,
-            MerchantConfigService merchantConfigService, VariableService variableService) {
+                                     MerchantConfigService merchantConfigService, VariableService variableService) {
         this.merchantDetailsService = merchantDetailsService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
@@ -42,7 +44,7 @@ public class MerchantDetailsController extends ApiController {
 
     @GetMapping("/config")
     public ResponseEntity<MerchantConfigResponse> getConfig(@PageableDefault(size = 20) Pageable pageable,
-            @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
+                                                            @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
         Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, merchantConfigRequest);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
@@ -55,6 +57,14 @@ public class MerchantDetailsController extends ApiController {
         merchantConfigService.update(dto);
     }
 
+    @GetMapping("/config/all-group")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ApiResponse<List<Long>>> getGroupChatIds() {
+        return new ResponseEntity<>(ApiResponse.success(
+                merchantConfigService.findAllGroupChatIds()),
+                HttpStatus.OK);
+    }
+
     @DeleteMapping("/config/{id}/{fieldName}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteConfigField(@PathVariable Long id, @PathVariable String fieldName) {
@@ -64,7 +74,7 @@ public class MerchantDetailsController extends ApiController {
     @PatchMapping("/config/order")
     @ResponseStatus(HttpStatus.OK)
     public void updateOrder(@RequestParam Merchant merchant, @RequestParam(required = false) Boolean isUp,
-            @RequestParam(required = false) Integer newOrder) {
+                            @RequestParam(required = false) Integer newOrder) {
         if (isUp != null) {
             merchantConfigService.changeOrder(merchant, isUp);
         } else if (newOrder != null) {
@@ -90,7 +100,7 @@ public class MerchantDetailsController extends ApiController {
     @PostMapping("/receipt/{merchant}/{orderId}")
     @ResponseStatus(HttpStatus.OK)
     public void receipt(@PathVariable Merchant merchant, @PathVariable String orderId,
-            @RequestParam MultipartFile receipt) {
+                        @RequestParam MultipartFile receipt) {
         merchantDetailsService.sendReceipt(merchant, orderId, receipt);
     }
 
