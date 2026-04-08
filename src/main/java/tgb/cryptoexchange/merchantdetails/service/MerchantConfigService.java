@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +40,8 @@ public class MerchantConfigService {
     private final AutoConfirmConfigRepository autoConfirmConfigRepository;
 
     public MerchantConfigService(MerchantConfigRepository repository,
-                                 MerchantSuccessStatusRepository merchantSuccessStatusRepository,
-                                 AutoConfirmConfigRepository autoConfirmConfigRepository) {
+            MerchantSuccessStatusRepository merchantSuccessStatusRepository,
+            AutoConfirmConfigRepository autoConfirmConfigRepository) {
         this.repository = repository;
         this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
         this.autoConfirmConfigRepository = autoConfirmConfigRepository;
@@ -97,6 +98,10 @@ public class MerchantConfigService {
         return repository.findAllByIsOnOrderByMerchantOrder(isOn);
     }
 
+    public List<Long> findAllGroupChatIds() {
+        return repository.findDistinctGroupChatIdByGroupChatIdNotNull();
+    }
+
     public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
@@ -111,7 +116,7 @@ public class MerchantConfigService {
     }
 
     @Transactional
-    public void changeOrder(Merchant merchant, Integer newOrder){
+    public void changeOrder(Merchant merchant, Integer newOrder) {
         MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
@@ -182,7 +187,8 @@ public class MerchantConfigService {
     @Transactional
     public void update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())
-                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + dto.getId() + NOT_FOUND));
+                .orElseThrow(() -> new MerchantConfigNotFoundException(
+                        "Configuration for merchant with id" + dto.getId() + NOT_FOUND));
         if (Objects.nonNull(dto.getIsOn())) {
             merchantConfig.setIsOn(dto.getIsOn());
         }
@@ -225,7 +231,8 @@ public class MerchantConfigService {
 
     public void deleteField(Long id, String field) {
         MerchantConfig merchantConfig = repository.findById(id)
-                .orElseThrow(() -> new MerchantConfigNotFoundException("Configuration for merchant with id" + id + NOT_FOUND));
+                .orElseThrow(() -> new MerchantConfigNotFoundException(
+                        "Configuration for merchant with id" + id + NOT_FOUND));
         if ("groupChatId".equals(field)) {
             merchantConfig.setGroupChatId(null);
         } else {
@@ -233,4 +240,26 @@ public class MerchantConfigService {
         }
         repository.save(merchantConfig);
     }
+
+    @Transactional
+    public void deleteAllByMerchantNotExist() {
+        repository.deleteAllByMerchantNotIn(List.of(Merchant.values()));
+    }
+
+    @Transactional
+    public void resetMerchantOrder() {
+        List<MerchantConfig> configs = repository.findAll(Sort.by("merchantOrder"));
+        if (configs.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < configs.size(); i++) {
+            configs.get(i).setMerchantOrder(-(i + 1));
+        }
+        repository.saveAllAndFlush(configs);
+        for (int i = 0; i < configs.size(); i++) {
+            configs.get(i).setMerchantOrder(i + 1);
+        }
+        repository.saveAll(configs);
+    }
+
 }
