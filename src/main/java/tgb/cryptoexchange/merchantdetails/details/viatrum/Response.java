@@ -20,7 +20,7 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(success)) {
             result.notNull("success");
         } else if (Boolean.FALSE.equals(success)) {
-            result.addError("success", "expected false but was false");
+            result.addError("success", "expected true but was false");
         } else {
             validateData(result);
         }
