@@ -528,19 +528,15 @@ class MerchantDetailsServiceTest {
 
 
     @CsvSource("""
-        ALFA_TEAM, c2b38482-3901-44e4-a2ee-ef706bdea3e6
-        BIT_ZONE, 54907906-cb06-471f-8a10-7506803f3354
-        """)
+            ALFA_TEAM,c2b38482-3901-44e4-a2ee-ef706bdea3e6
+            BIT_ZONE,54907906-cb06-471f-8a10-7506803f3354
+            """)
     @ParameterizedTest
     void sendReceiptShouldCallMerchantServiceMethod(Merchant merchant, String orderId) {
         MerchantService merchantService = mock(MerchantService.class);
-        byte[] fileContent = "test content".getBytes();
-        String fileName = "receipt.jpg";
-
+        MultipartFile file = mock(MultipartFile.class);
         when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
-
-        merchantDetailsService.sendReceipt(merchant, orderId, fileContent, fileName);
-
-        verify(merchantService).sendReceipt(eq(orderId), eq(fileContent), eq(fileName));
+        merchantDetailsService.sendReceipt(merchant, orderId, file);
+        verify(merchantService).sendReceipt(orderId, file);
     }
 }

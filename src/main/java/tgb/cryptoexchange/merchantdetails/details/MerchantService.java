@@ -16,6 +16,4 @@ public interface MerchantService {
     void cancelOrder(CancelOrderRequest cancelOrderRequest);
 
     void sendReceipt(String orderId, MultipartFile multipartFile);
-
-    void sendReceipt(String orderId, byte[] fileContent, String fileName);
 }
