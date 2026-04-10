@@ -126,6 +126,21 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
+    public void sendReceipt(String orderId, MultipartFile multipartFile) {
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
+                uriBuilder -> uriBuilder.pathSegment("partners", "purchases", "{id}", "receipt").build(orderId),
+                headers -> {
+                    headers.add("Authorization", "Token " + payLeeProperties.token());
+                    headers.add("Content-Type", "multipart/form-data");
+                },
+                BodyInserters.fromMultipartData("attachment", multipartFile),
+                t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
+        );
+    }
+
+    @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("attachment", new ByteArrayResource(fileContent))
