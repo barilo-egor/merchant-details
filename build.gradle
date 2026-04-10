@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'tgb.cryptoexchange'
-version = '0.16'
+version = '0.17.0'
 description = 'merchant-details'
 
 java {
