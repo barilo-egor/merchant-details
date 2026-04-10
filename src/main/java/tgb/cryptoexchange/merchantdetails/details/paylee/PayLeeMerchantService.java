@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -124,7 +126,11 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    public void sendReceipt(String orderId, MultipartFile multipartFile) {
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("attachment", new ByteArrayResource(fileContent))
+                .filename(fileName);
+
         requestService.request(
                 webClient,
                 HttpMethod.POST,
@@ -133,7 +139,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                     headers.add("Authorization", "Token " + payLeeProperties.token());
                     headers.add("Content-Type", "multipart/form-data");
                 },
-                BodyInserters.fromMultipartData("attachment", multipartFile),
+                BodyInserters.fromMultipartData(builder.build()),
                 t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
         );
     }
