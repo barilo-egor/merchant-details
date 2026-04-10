@@ -281,9 +281,4 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         log.trace("Реализация отправки чека мерчанту {} отсутствует. Чек для ордера {} не будет отправлен.",
                 getMerchant().name(), orderId);
     }
-
-    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        log.trace("Реализация отправки чека мерчанту {} отсутствует. Чек для ордера {} не будет отправлен.",
-                getMerchant().name(), orderId);
-    }
 }
