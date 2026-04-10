@@ -364,9 +364,8 @@ class PayLeeMerchantServiceTest {
     void sendReceiptShouldCallRequestServiceMethod(String orderId) {
         RequestService requestService = Mockito.mock(RequestService.class);
         payLeeMerchantService.setRequestService(requestService);
-        byte[] fileContent = "test content".getBytes();
-        String fileName = "receipt.jpg";
-        payLeeMerchantService.sendReceipt(orderId, fileContent, fileName);
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        payLeeMerchantService.sendReceipt(orderId, multipartFile);
         when(payLeeProperties.token()).thenReturn("token");
         verify(requestService).request(
                 eq(webClient),
