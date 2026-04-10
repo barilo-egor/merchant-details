@@ -169,10 +169,10 @@ public class MerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    public void sendReceipt(Merchant merchant, String orderId, MultipartFile file) {
+    public void sendReceipt(Merchant merchant, String orderId, byte[] fileContent, String fileName) {
         Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
         if (maybeMerchantService.isPresent()) {
-            maybeMerchantService.get().sendReceipt(orderId, file);
+            maybeMerchantService.get().sendReceipt(orderId, fileContent, fileName);
         } else {
             log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
         }

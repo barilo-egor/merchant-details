@@ -1,23 +1,28 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
+import com.google.protobuf.*;
+import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.enums.CryptoCurrency;
+import tgb.cryptoexchange.enums.DeliveryType;
+import tgb.cryptoexchange.grpc.generated.*;
+import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
@@ -31,15 +36,13 @@ import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest(controllers = MerchantDetailsController.class)
 @ExtendWith(MockitoExtension.class)
@@ -54,176 +57,281 @@ class MerchantDetailsControllerTest {
     @MockitoBean
     private VariableService variableService;
 
+    @InjectMocks
+    private MerchantDetailsControllerGrpc grpcController;
+
     @Autowired
     private MockMvc mockMvc;
 
     @CsvSource("""
-            ALFA_TEAM,f669eb83-a6c2-4456-8416-c2b1fd514c99,CARD
-            ONLY_PAYS,3b8cd3a8-28dc-49a9-a522-91c582c83b5f,SBP
-            """)
+        ALFA_TEAM, f669eb83-a6c2-4456-8416-c2b1fd514c99, CARD
+        ONLY_PAYS, 3b8cd3a8-28dc-49a9-a522-91c582c83b5f, SBP
+        """)
     @ParameterizedTest
-    void cancelShouldCallCancelOrderMethod(Merchant merchant, String orderId, String method) throws Exception {
-        mockMvc.perform(patch("/merchant-details/" + merchant.name())
-                .queryParam("orderId", orderId)
-                .queryParam("method", method)
-        ).andExpect(status().isOk());
+    void cancelShouldCallCancelOrderMethod(Merchant merchant, String orderId, String method) {
+        CancelOrderRequestGrpc grpcRequest = CancelOrderRequestGrpc.newBuilder()
+                .setMerchant(merchant.name())
+                .setOrderId(orderId)
+                .setMethod(method)
+                .build();
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+
+        grpcController.cancelOrder(grpcRequest, responseObserver);
+
         ArgumentCaptor<CancelOrderRequest> cancelOrderRequestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
         verify(merchantDetailsService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
+
         CancelOrderRequest actual = cancelOrderRequestCaptor.getValue();
+
         assertAll(
                 () -> assertEquals(orderId, actual.getOrderId()),
-                () -> assertEquals(method, actual.getMethod())
+                () -> assertEquals(method, actual.getMethod()),
+                () -> verify(responseObserver).onNext(any(Empty.class)),
+                () -> verify(responseObserver).onCompleted()
         );
     }
 
     @Test
-    void getConfigShouldReturnEmptyArrayIfConfigNotFound() throws Exception {
+    void getConfigShouldReturnEmptyArrayIfConfigNotFound() {
         Page<MerchantConfigDTO> page = Page.empty();
         when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
-        mockMvc.perform(get("/merchant-details/config"))
-                .andExpect(header().string("X-Total-Count", "0"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("success").value(true))
-                .andExpect(jsonPath("data").isArray())
-                .andExpect(jsonPath("data").isEmpty());
-    }
+        MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
+                .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
+                .build();
+        ArgumentCaptor<MerchantConfigResponseGrpc> responseCaptor =
+                ArgumentCaptor.forClass(MerchantConfigResponseGrpc.class);
+        StreamObserver<MerchantConfigResponseGrpc> responseObserver = mock(StreamObserver.class);
+        grpcController.getConfig(grpcRequest, responseObserver);
+        verify(responseObserver).onNext(responseCaptor.capture());
+        verify(responseObserver).onCompleted();
 
-    @Test
-    void getConfigShouldReturnConfigArray() throws Exception {
-        List<MerchantConfigDTO> configs = new ArrayList<>();
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
-                .id(150L)
-                .merchant(Merchant.ALFA_TEAM)
-                .isOn(true)
-                .minAmount(100)
-                .maxAmount(200)
-                .merchantOrder(5)
-                .isAutoWithdrawalOn(true)
-                .build()));
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
-                .id(152346L)
-                .merchant(Merchant.SETTLE_X)
-                .isOn(false)
-                .minAmount(150)
-                .maxAmount(5000)
-                .merchantOrder(2)
-                .isAutoWithdrawalOn(true)
-                .build()));
-        Page<MerchantConfigDTO> page = new PageImpl<>(configs, Mockito.mock(Pageable.class), 2);
-        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
-        mockMvc.perform(get("/merchant-details/config"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("success").value(true))
-                .andExpect(jsonPath("data").isArray())
-                .andExpect(jsonPath("data[0]").exists())
-                .andExpect(jsonPath("data[1]").exists())
-                .andExpect(jsonPath("data[2]").doesNotExist());
-    }
+        MerchantConfigResponseGrpc actualResponse = responseCaptor.getValue();
 
-    @Test
-    void getDetailsShouldAddMerchantsByApiVersion091IfNoHeader() throws Exception {
-        List<MerchantConfigDTO> configs = new ArrayList<>();
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
-                .id(150L)
-                .merchant(Merchant.ALFA_TEAM)
-                .isOn(true)
-                .minAmount(100)
-                .maxAmount(200)
-                .merchantOrder(5)
-                .isAutoWithdrawalOn(true)
-                .build()));
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
-                .id(152346L)
-                .merchant(Merchant.SETTLE_X)
-                .isOn(false)
-                .minAmount(150)
-                .maxAmount(5000)
-                .merchantOrder(2)
-                .isAutoWithdrawalOn(true)
-                .build()));
-        Page<MerchantConfigDTO> page = new PageImpl<>(configs, Mockito.mock(Pageable.class), 2);
-        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
-        mockMvc.perform(get("/merchant-details/config"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("success").value(true))
-                .andExpect(jsonPath("data").isArray())
-                .andExpect(jsonPath("data[0]").exists())
-                .andExpect(jsonPath("data[1]").exists())
-                .andExpect(jsonPath("data[2]").doesNotExist());
-        ArgumentCaptor<MerchantConfigRequest> requestCaptor = ArgumentCaptor.forClass(MerchantConfigRequest.class);
-        verify(merchantConfigService).findAll(any(Pageable.class), requestCaptor.capture());
-    }
-
-
-    @Test
-    void updateConfigShouldCallServiceUpdateMethod() throws Exception {
-        mockMvc.perform(patch("/merchant-details/config")
-                        .header("Content-Type", "application/json")
-                        .content("""
-                                {
-                                    "id": 25552,
-                                    "isOn": true
-                                }
-                                """))
-                .andExpect(status().isOk());
-        ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
-        verify(merchantConfigService).update(dtoCaptor.capture());
-        var actual = dtoCaptor.getValue();
         assertAll(
-                () -> assertEquals(25552, actual.getId()),
-                () -> assertTrue(actual.getIsOn())
+                () -> assertTrue(actualResponse.getSuccess()),
+                () -> assertEquals(0, actualResponse.getTotalCount()),
+                () -> assertTrue(actualResponse.getDataList().isEmpty()),
+                () -> assertEquals(0, actualResponse.getDataCount())
         );
     }
 
     @Test
-    void updateOrderShouldPCallServiceChangeOrderMethod() throws Exception {
-        mockMvc.perform(patch("/merchant-details/config/order")
-                        .param("merchant", "ALFA_TEAM")
-                        .param("isUp", "true"))
-                .andExpect(status().isOk());
-        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
+    void getConfigShouldReturnConfigArray() {
+        List<MerchantConfigDTO> configs = new ArrayList<>();
+        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+                .id(150L).merchant(Merchant.ALFA_TEAM).isOn(true)
+                .minAmount(100).maxAmount(200).merchantOrder(5).isAutoWithdrawalOn(true).build()));
+        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+                .id(152346L).merchant(Merchant.SETTLE_X).isOn(false)
+                .minAmount(150).maxAmount(5000).merchantOrder(2).isAutoWithdrawalOn(true).build()));
+
+        Page<MerchantConfigDTO> page = new PageImpl<>(configs, PageRequest.of(0, 20), 2);
+        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+
+        MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
+                .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
+                .build();
+
+        ArgumentCaptor<MerchantConfigResponseGrpc> responseCaptor = ArgumentCaptor.forClass(MerchantConfigResponseGrpc.class);
+        StreamObserver<MerchantConfigResponseGrpc> responseObserver = mock(StreamObserver.class);
+
+        grpcController.getConfig(grpcRequest, responseObserver);
+        verify(responseObserver).onNext(responseCaptor.capture());
+        verify(responseObserver).onCompleted();
+
+        MerchantConfigResponseGrpc actualResponse = responseCaptor.getValue();
+
+        assertAll(
+                () -> assertTrue(actualResponse.getSuccess()),
+                () -> assertEquals(2, actualResponse.getTotalCount()),
+                () -> assertEquals(2, actualResponse.getDataCount()), // Проверка размера списка
+                () -> assertEquals(150L, actualResponse.getData(0).getId()),
+                () -> assertEquals(Merchant.ALFA_TEAM.name(), actualResponse.getData(0).getMerchant()),
+                () -> assertTrue(actualResponse.getData(0).getIsOn()),
+                () -> assertEquals(152346L, actualResponse.getData(1).getId()),
+                () -> assertEquals(Merchant.SETTLE_X.name(), actualResponse.getData(1).getMerchant()),
+                () -> assertFalse(actualResponse.getData(1).getIsOn())
+        );
     }
 
     @Test
-    void deleteFieldShouldCallServiceMethod() throws Exception {
-        mockMvc.perform(delete("/merchant-details/config/1/groupChatId"))
-                .andExpect(status().isOk());
+    void getConfigShouldCallServiceWithCorrectRequest() {
+        Page<MerchantConfigDTO> page = Page.empty();
+        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+
+        MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
+                .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
+                .build();
+
+        StreamObserver<MerchantConfigResponseGrpc> responseObserver = mock(StreamObserver.class);
+
+        grpcController.getConfig(grpcRequest, responseObserver);
+        ArgumentCaptor<MerchantConfigRequest> requestCaptor = ArgumentCaptor.forClass(MerchantConfigRequest.class);
+        verify(merchantConfigService).findAll(any(Pageable.class), requestCaptor.capture());
+
+        MerchantConfigRequest actualRequest = requestCaptor.getValue();
+        assertAll(
+                () -> assertNotNull(actualRequest),
+                () -> verify(responseObserver).onNext(any(MerchantConfigResponseGrpc.class)),
+                () -> verify(responseObserver).onCompleted()
+        );
+    }
+
+
+    @Test
+    void updateConfig_ShouldMapRequestAndCallService() {
+        UpdateMerchantConfigRequestGrpc request = UpdateMerchantConfigRequestGrpc.newBuilder()
+                .setId(25552)
+                .setIsOn(BoolValue.of(true))
+                .setUpdateMask(FieldMask.newBuilder().addPaths("is_on").build())
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.updateConfig(request, responseObserver);
+
+        ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
+        verify(merchantConfigService).update(dtoCaptor.capture());
+
+        UpdateMerchantConfigDTO actual = dtoCaptor.getValue();
+        assertAll(
+                () -> assertEquals(25552, actual.getId()),
+                () -> assertTrue(actual.getIsOn()),
+                () -> verify(responseObserver).onNext(any(Empty.class)),
+                () -> verify(responseObserver).onCompleted()
+        );
+    }
+
+    @Test
+    void updateConfig_ShouldMapEnumFieldsCorrectly() {
+        AutoConfirmConfigDTOGrpc configGrpc = AutoConfirmConfigDTOGrpc.newBuilder()
+                .setCryptoCurrency(CryptoCurrency.BITCOIN.name())
+                .setAutoConfirmType(AutoConfirmType.AUTO_WITHDRAWAL.name())
+                .setDeliveryType(DeliveryType.VIP.name())
+                .build();
+
+        UpdateMerchantConfigRequestGrpc request = UpdateMerchantConfigRequestGrpc.newBuilder()
+                .setId(1001)
+                .addConfirmConfigs(configGrpc)
+                .setUpdateMask(FieldMask.newBuilder().addPaths("confirm_configs").build())
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.updateConfig(request, responseObserver);
+
+        ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
+        verify(merchantConfigService).update(dtoCaptor.capture());
+
+        var actualConfig = dtoCaptor.getValue().getConfirmConfigs().getFirst();
+        assertAll(
+                () -> assertEquals(1001, dtoCaptor.getValue().getId()),
+                () -> assertEquals("BITCOIN", actualConfig.getCryptoCurrency().name()),
+                () -> assertEquals("AUTO_WITHDRAWAL", actualConfig.getAutoConfirmType().name()),
+                () -> verify(responseObserver).onCompleted()
+        );
+    }
+
+    @Test
+    void updateOrder_ShouldCallChangeOrderWithIsUp() {
+        UpdateOrderRequestGrpc request = UpdateOrderRequestGrpc.newBuilder()
+                .setMerchant(Merchant.ALFA_TEAM.name())
+                .setIsUp(BoolValue.of(true))
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.updateOrder(request, responseObserver);
+
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
+
+        verify(responseObserver).onNext(any(Empty.class));
+        verify(responseObserver).onCompleted();
+    }
+
+    @Test
+    void updateOrder_ShouldCallChangeOrderWithNewOrderValue() {
+        UpdateOrderRequestGrpc request = UpdateOrderRequestGrpc.newBuilder()
+                .setMerchant(Merchant.ALFA_TEAM.name())
+                .setNewOrder(Int32Value.of(10))
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.updateOrder(request, responseObserver);
+
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, 10);
+        verify(responseObserver).onCompleted();
+    }
+
+    @Test
+    void deleteConfigField_ShouldCallServiceDeleteFieldMethod() {
+        DeleteConfigFieldRequestGrpc request = DeleteConfigFieldRequestGrpc.newBuilder()
+                .setId(1L)
+                .setFieldName("groupChatId")
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.deleteConfigField(request, responseObserver);
+
         verify(merchantConfigService).deleteField(1L, "groupChatId");
+        verify(responseObserver).onNext(any(Empty.class));
+        verify(responseObserver).onCompleted();
     }
 
+    @ParameterizedTest
     @EnumSource(VariableType.class)
-    @ParameterizedTest
-    void getVariableShouldCallServiceMethod(VariableType variableType) throws Exception {
-        when(variableService.findByType(variableType)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue()).build());
-        mockMvc.perform(get("/merchant-details/variable/" + variableType.name()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("success").value(true))
-                .andExpect(jsonPath("data").exists())
-                .andExpect(jsonPath("data.type").value(variableType.name()))
-                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue()));
+    void getVariable_ShouldCallServiceAndReturnMappedResponse(VariableType variableType) {
+        Variable mockVariable = Variable.builder()
+                .id(1L)
+                .type(variableType)
+                .value(variableType.getDefaultValue())
+                .build();
+
+        when(variableService.findByType(variableType)).thenReturn(mockVariable);
+
+        GetVariableRequestGrpc request = GetVariableRequestGrpc.newBuilder()
+                .setVariableType(VariableTypeGrpc.valueOf(variableType.name()))
+                .build();
+
+        StreamObserver<VariableDTOGrpc> responseObserver = mock(StreamObserver.class);
+        grpcController.getVariable(request, responseObserver);
+
+        ArgumentCaptor<VariableDTOGrpc> responseCaptor = ArgumentCaptor.forClass(VariableDTOGrpc.class);
+        verify(responseObserver).onNext(responseCaptor.capture());
+        VariableDTOGrpc actualResponse = responseCaptor.getValue();
+        assertAll(
+                () -> assertEquals(variableType.name(), actualResponse.getType().name()),
+                () -> assertEquals(variableType.getDefaultValue(), actualResponse.getValue()),
+                () -> verify(responseObserver).onCompleted()
+        );
     }
 
-    @CsvSource("""
-            ATTEMPTS_COUNT,8
-            ATTEMPTS_COUNT,1
-            MIN_ATTEMPT_TIME,25
-            MIN_ATTEMPT_TIME,10
-            """)
     @ParameterizedTest
-    void updateVariableShouldCallServiceMethod(VariableType variableType, String value) throws Exception {
-        mockMvc.perform(patch("/merchant-details/variable/" + variableType.name())
-                        .queryParam("value", value))
-                .andExpect(status().isOk());
-        verify(variableService).update(variableType, value);
+    @CsvSource({
+            "ATTEMPTS_COUNT, 8",
+            "ATTEMPTS_COUNT, 1",
+            "MIN_ATTEMPT_TIME, 25",
+            "MIN_ATTEMPT_TIME, 10"
+    })
+    void updateVariable_ShouldCallServiceUpdateMethod(VariableType variableType, String newValue) {
+        UpdateVariableRequestGrpc request = UpdateVariableRequestGrpc.newBuilder()
+                .setVariableType(VariableTypeGrpc.valueOf(variableType.name()))
+                .setValue(newValue)
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.updateVariable(request, responseObserver);
+
+        verify(variableService).update(variableType, newValue);
+        verify(responseObserver).onNext(any(Empty.class));
+        verify(responseObserver).onCompleted();
     }
 
-    @CsvSource("""
-            ALFA_TEAM,2ba66f30-fd38-4688-b7d1-f8fc592b537a
-            BIT_ZONE,f7f3ff42-8e0f-4682-9434-4ea3577af076
-            """)
     @ParameterizedTest
-    void receiptShouldCallServiceMethod(Merchant merchant, String orderId) throws Exception {
-        String pdfContent = """
+    @CsvSource({
+            "ALFA_TEAM, 2ba66f30-fd38-4688-b7d1-f8fc592b537a",
+            "BIT_ZONE, f7f3ff42-8e0f-4682-9434-4ea3577af076"
+    })
+    void sendReceipt_ShouldCallServiceWithCorrectData(Merchant merchant, String orderId) {
+
+        byte[] pdfBytes = """
                 %PDF-1.7
                 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
                 2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
@@ -250,11 +358,26 @@ class MerchantDetailsControllerTest {
                 startxref
                 426
                 %%EOF
-               \s""";
-        MockMultipartFile multipartFile = new MockMultipartFile("receipt", pdfContent.getBytes(StandardCharsets.UTF_8));
-        mockMvc.perform(multipart("/merchant-details/receipt/" + merchant.name() + "/" + orderId)
-                        .file(multipartFile))
-                .andExpect(status().isOk());
-        verify(merchantDetailsService).sendReceipt(eq(merchant), eq(orderId), any(MultipartFile.class));
+               \s""".getBytes(StandardCharsets.UTF_8);
+        String fileName = "receipt.pdf";
+
+        SendReceiptRequestGrpc request = SendReceiptRequestGrpc.newBuilder()
+                .setMerchant(merchant.name())
+                .setOrderId(orderId)
+                .setReceiptData(ByteString.copyFrom(pdfBytes))
+                .setFileName(fileName)
+                .build();
+
+        StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
+        grpcController.sendReceipt(request, responseObserver);
+
+        verify(merchantDetailsService).sendReceipt(
+                eq(merchant),
+                eq(orderId),
+                argThat(bytes -> Arrays.equals(pdfBytes, bytes)),
+                eq(fileName)
+        );
+        verify(responseObserver).onNext(any(Empty.class));
+        verify(responseObserver).onCompleted();
     }
 }
