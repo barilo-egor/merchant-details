@@ -60,6 +60,9 @@ extasy-pay-qr:
 extasy-pay-receipt:
   url: ""
   token: ""
+extasy-pay-receipt-triple-plus:
+  url: ""
+  token: ""
 pay-lee:
   url: ""
   token: ""
