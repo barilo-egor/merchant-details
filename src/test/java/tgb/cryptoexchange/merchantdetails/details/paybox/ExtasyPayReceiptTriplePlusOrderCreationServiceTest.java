@@ -11,12 +11,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayReceiptProperties;
+import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayReceiptTriplePlusProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
@@ -30,13 +31,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ExtazyPayReceiptOrderCreationServiceTest {
+class ExtasyPayReceiptTriplePlusOrderCreationServiceTest {
 
     @InjectMocks
-    private ExtasyPayReceiptOrderCreationService extasyPayReceiptOrderCreationService;
+    private ExtasyPayReceiptTriplePlusOrderCreationService service;
 
     @Mock
-    private ExtasyPayReceiptProperties extasyPayReceiptProperties;
+    private ExtasyPayReceiptTriplePlusProperties triplePlusProperties;
 
     @Mock
     private WebClient webClient;
@@ -56,10 +57,16 @@ class ExtazyPayReceiptOrderCreationServiceTest {
     @ValueSource(strings = {"123456", "9876543"})
     @ParameterizedTest
     void sendReceiptShouldCallRequestServiceMethod(String orderId) {
-        extasyPayReceiptOrderCreationService.setRequestService(requestService);
-        when(extasyPayReceiptProperties.token()).thenReturn("token");
+        service.setRequestService(requestService);
+        when(triplePlusProperties.token()).thenReturn("token");
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "receipts",
+                "receipt.pdf",
+                "application/pdf",
+                "pdf-content".getBytes()
+        );
 
-        extasyPayReceiptOrderCreationService.sendReceipt(orderId, "pdf-content".getBytes(), "receipt.pdf");
+        service.sendReceipt(orderId, multipartFile);
 
         verify(requestService).request(
                 eq(webClient),
@@ -82,7 +89,7 @@ class ExtazyPayReceiptOrderCreationServiceTest {
     }
 
     @Test
-    void getMerchantShouldReturnExtazyPayReceipt() {
-        assertEquals(Merchant.EXTASY_PAY_RECEIPT, extasyPayReceiptOrderCreationService.getMerchant());
+    void getMerchantShouldReturnExtasyPayReceiptTriplePlus() {
+        assertEquals(Merchant.EXTASY_PAY_RECEIPT_3, service.getMerchant());
     }
 }
