@@ -36,9 +36,7 @@ public class DetailsRequest {
 
     protected List<MerchantMethod> methods;
 
-    public String getCurrentMerchantMethod() {
-        throw new UnsupportedOperationException("CurrentMerchantMethod is not implemented yet");
-    }
+    protected String currentMerchantMethod;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {

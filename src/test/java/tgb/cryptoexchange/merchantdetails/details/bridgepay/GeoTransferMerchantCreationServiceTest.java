@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.properties.GeoTransferProperties;
 
 import java.util.Collections;
@@ -45,12 +44,13 @@ class GeoTransferMerchantCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GEO_TRANSFER).method(Collections.singletonList("SBP")).build()));
+        detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(geoTransferProperties.token()).thenReturn("token");
 
-        Request actual = geoTransferMerchantCreationService.body(new DetailsRequestWithMethod(detailsRequest, "SBP"));
+        Request actual = geoTransferMerchantCreationService.body(detailsRequest);
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=GEO_TRANSFER&secret=" + secret,
                 actual.getNotificationUrl());
     }

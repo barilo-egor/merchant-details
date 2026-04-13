@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.NorosPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -88,7 +87,8 @@ class NorosOrderCreationServiceImplTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS).method(
                         Collections.singletonList(Method.CARD.name())).build()));
-        Request resultBody = norosOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.CARD.name()));
+        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        Request resultBody = norosOrderCreationService.body(detailsRequest);
 
         assertNotNull(resultBody.getOrderId());
         assertEquals(1000, resultBody.getAmount());

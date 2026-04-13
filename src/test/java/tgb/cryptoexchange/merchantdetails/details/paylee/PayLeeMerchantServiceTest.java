@@ -19,7 +19,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -82,8 +81,8 @@ class PayLeeMerchantServiceTest {
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setChatId(1231231231L);
-
-        Request actual = payLeeMerchantService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        detailsRequest.setCurrentMerchantMethod(method.name());
+        Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
                 () -> assertEquals(method, actual.getRequisitesType()),

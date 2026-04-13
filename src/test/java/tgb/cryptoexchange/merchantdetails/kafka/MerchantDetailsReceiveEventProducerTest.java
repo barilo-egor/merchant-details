@@ -10,7 +10,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 
 import java.util.Collections;
@@ -41,6 +40,7 @@ class MerchantDetailsReceiveEventProducerTest {
         detailsRequest.setAmount(requestedAmount);
         detailsRequest.setChatId(userId);
         detailsRequest.setInitiatorApp(appId);
+        detailsRequest.setCurrentMerchantMethod(method);
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(merchant);
         detailsResponse.setDetails(details);
@@ -49,7 +49,7 @@ class MerchantDetailsReceiveEventProducerTest {
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MerchantDetailsReceiveEvent> eventCaptor = ArgumentCaptor.forClass(MerchantDetailsReceiveEvent.class);
-        merchantDetailsReceiveEventProducer.put(merchant, new DetailsRequestWithMethod(detailsRequest, method), detailsResponse);
+        merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, detailsResponse);
         verify(kafkaTemplate).send(topicCaptor.capture(), keyCaptor.capture(), eventCaptor.capture());
         MerchantDetailsReceiveEvent event = eventCaptor.getValue();
         assertAll(

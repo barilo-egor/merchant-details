@@ -65,11 +65,11 @@ public class MerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            DetailsRequestWithMethod detailsRequest = new DetailsRequestWithMethod(request, merchantMethod);
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(detailsRequest);
+            request.setCurrentMerchantMethod(merchantMethod);
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
-                    merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, maybeDetailsResponse.get());
+                    merchantDetailsReceiveEventProducer.put(merchant, request, maybeDetailsResponse.get());
                 }
                 return maybeDetailsResponse;
             }

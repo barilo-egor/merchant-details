@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -60,7 +59,8 @@ class PwPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequestWithMethod(new DetailsRequest(), method.name());
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
                         .build()));
