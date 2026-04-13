@@ -22,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -115,7 +114,8 @@ class EvoPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(method)).build()));
-        Request request = evoPayOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        detailsRequest.setCurrentMerchantMethod(method);
+        Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),

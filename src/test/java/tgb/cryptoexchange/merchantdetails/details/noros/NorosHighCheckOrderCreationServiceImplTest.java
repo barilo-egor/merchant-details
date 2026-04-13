@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.NorosHighCheckProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -88,7 +87,8 @@ class NorosHighCheckOrderCreationServiceImplTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS_HIGH_CHECK).method(
                         Collections.singletonList(Method.SBP.name())).build()));
-        Request resultBody = norosHighCheckOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.SBP.name()));
+        detailsRequest.setCurrentMerchantMethod(Method.SBP.name());
+        Request resultBody = norosHighCheckOrderCreationService.body(detailsRequest);
 
         assertNotNull(resultBody.getOrderId());
         assertEquals(1000, resultBody.getAmount());

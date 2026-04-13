@@ -250,7 +250,7 @@ class MerchantDetailsControllerTest {
                 startxref
                 426
                 %%EOF
-               \s""";
+                \s""";
         MockMultipartFile multipartFile = new MockMultipartFile("receipt", pdfContent.getBytes(StandardCharsets.UTF_8));
         mockMvc.perform(multipart("/merchant-details/receipt/" + merchant.name() + "/" + orderId)
                         .file(multipartFile))

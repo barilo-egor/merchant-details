@@ -39,7 +39,7 @@ public class ExtasyPayReceiptOrderCreationService extends PayBoxOrderCreationSer
             String fileName = multipartFile.getOriginalFilename();
             bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
                     .filename(fileName)
-                    .contentType(MediaType.parseMediaType(multipartFile.getContentType()));
+                    .contentType(MediaType.APPLICATION_PDF);
             requestService.request(
                     webClient,
                     HttpMethod.POST,
@@ -53,6 +53,24 @@ public class ExtasyPayReceiptOrderCreationService extends PayBoxOrderCreationSer
         } catch (IOException e) {
             log.error("Непредвиденная ошибка при подготовке чека мерчанта {} для ордера {}: {}", getMerchant().getDisplayName(), orderId, e.getMessage());
         }
+    }
+
+
+    @Override
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
+        bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
+                .filename(fileName)
+                .contentType(MediaType.APPLICATION_PDF);
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
+                uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build(),
+                headers -> headers.add("Authorization", "Bearer " + payBoxProperties.token()),
+                BodyInserters.fromMultipartData(bodyBuilder.build()),
+                t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
+        );
     }
 
 

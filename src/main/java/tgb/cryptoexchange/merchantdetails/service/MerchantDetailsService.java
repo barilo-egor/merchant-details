@@ -65,11 +65,11 @@ public class MerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            DetailsRequestWithMethod detailsRequest = new DetailsRequestWithMethod(request, merchantMethod);
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(detailsRequest);
+            request.setCurrentMerchantMethod(merchantMethod);
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
-                    merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, maybeDetailsResponse.get());
+                    merchantDetailsReceiveEventProducer.put(merchant, request, maybeDetailsResponse.get());
                 }
                 return maybeDetailsResponse;
             }
@@ -177,4 +177,14 @@ public class MerchantDetailsService {
             log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
         }
     }
+
+    public void sendReceipt(Merchant merchant, String orderId, byte[] fileContent, String fileName) {
+        Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
+        if (maybeMerchantService.isPresent()) {
+            maybeMerchantService.get().sendReceipt(orderId, fileContent, fileName);
+        } else {
+            log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
+        }
+    }
+
 }

@@ -12,7 +12,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -20,7 +19,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -83,8 +81,8 @@ class PayLeeMerchantServiceTest {
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setChatId(1231231231L);
-
-        Request actual = payLeeMerchantService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        detailsRequest.setCurrentMerchantMethod(method.name());
+        Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
                 () -> assertEquals(method, actual.getRequisitesType()),
@@ -364,8 +362,9 @@ class PayLeeMerchantServiceTest {
     void sendReceiptShouldCallRequestServiceMethod(String orderId) {
         RequestService requestService = Mockito.mock(RequestService.class);
         payLeeMerchantService.setRequestService(requestService);
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        payLeeMerchantService.sendReceipt(orderId, multipartFile);
+        byte[] fileContent = "test content".getBytes();
+        String fileName = "receipt.jpg";
+        payLeeMerchantService.sendReceipt(orderId, fileContent, fileName);
         when(payLeeProperties.token()).thenReturn("token");
         verify(requestService).request(
                 eq(webClient),
