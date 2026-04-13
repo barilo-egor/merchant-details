@@ -58,6 +58,9 @@ extasy-pay-qr:
 extasy-pay-receipt:
   url: "extasy-pay-receipt-url"
   token: "extasy-pay-receipt-token"
+extasy-pay-receipt-triple-plus:
+  url: "extasy-pay-receipt-triple-plus-url"
+  token: "extasy-pay-receipt-triple-plus-token"
 pay-lee:
   url: "pay-lee-url"
   token: "pay-lee-token"
@@ -194,6 +197,12 @@ cashout:
 pw-pay:
   url: "pw-pay-url"
   token: "pw-pay-token"
+goatx:
+  url: "goatx-url"
+  api-key: "goatx-api-key"
+  merchant-id: "goatx-merchant-id"
+  merchant-contract-id: "goatx-merchant-contract-id"
+  login: "goatx-login"
 #Конфиг приложния
 server:
   servlet:
