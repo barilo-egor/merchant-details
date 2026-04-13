@@ -19,7 +19,7 @@ public class ExtasyPayReceiptTriplePlusOrderCreationService extends ReceiptOrder
 
     @Override
     public Merchant getMerchant() {
-        return Merchant.EXTASY_PAY_RECEIPT_TRIPLE_PLUS;
+        return Merchant.EXTASY_PAY_RECEIPT_3;
     }
 
 

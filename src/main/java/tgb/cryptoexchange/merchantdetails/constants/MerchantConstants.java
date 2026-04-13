@@ -63,7 +63,7 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     ),
-    EXTASY_PAY_RECEIPT_TRIPLE_PLUS(
+    EXTASY_PAY_RECEIPT_3(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     ),
