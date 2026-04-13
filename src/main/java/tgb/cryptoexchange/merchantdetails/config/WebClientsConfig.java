@@ -80,6 +80,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient extasyPayReceiptTriplePlusWebClient(ExtasyPayReceiptTriplePlusProperties extasyPayReceiptTriplePlusProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(extasyPayReceiptTriplePlusProperties.url()).build();
+    }
+
+    @Bean
     public WebClient extasyPayQRWebClient(ExtasyPayQRProperties extasyPayQRProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(extasyPayQRProperties.url()).build();
     }
