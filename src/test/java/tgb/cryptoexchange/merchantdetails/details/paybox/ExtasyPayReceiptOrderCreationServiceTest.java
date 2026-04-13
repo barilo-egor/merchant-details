@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ExtazyPayReceiptOrderCreationServiceTest {
+class ExtasyPayReceiptOrderCreationServiceTest {
 
     @InjectMocks
     private ExtasyPayReceiptOrderCreationService extasyPayReceiptOrderCreationService;
@@ -82,7 +82,7 @@ class ExtazyPayReceiptOrderCreationServiceTest {
     }
 
     @Test
-    void getMerchantShouldReturnExtazyPayReceipt() {
+    void getMerchantShouldReturnExtasyPayReceipt() {
         assertEquals(Merchant.EXTASY_PAY_RECEIPT, extasyPayReceiptOrderCreationService.getMerchant());
     }
 }
