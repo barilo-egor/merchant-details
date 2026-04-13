@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
@@ -90,7 +89,8 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setAmount(1000);
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(new DetailsRequestWithMethod(detailsRequest, Method.CARD.name()), "");
+        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, "");
         HttpHeaders headers = new HttpHeaders();
         when(objectMapper.readTree(anyString())).thenReturn(objectNode);
         when(payCrownProperties.merchantId()).thenReturn("merchantId");
@@ -122,9 +122,9 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
-
+        detailsRequest.setCurrentMerchantMethod(method.name());
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(new DetailsRequestWithMethod(detailsRequest, method.name()), body);
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, body);
         headersConsumer.accept(headers);
         verify(objectMapper).readTree(body);
         verify(signatureService).getMD5Hash(amount + unixTimestamp + "rub" + merchantId + method.getValue() + secret);
@@ -143,11 +143,12 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
+        detailsRequest.setCurrentMerchantMethod(method.name());
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
 
-        Request actual = payCrownOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        Request actual = payCrownOrderCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),

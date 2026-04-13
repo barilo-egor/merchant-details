@@ -14,7 +14,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
@@ -89,10 +88,11 @@ class StudioOrderCreationServiceTest {
         request.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
                         .build()));
+        request.setCurrentMerchantMethod(mainMethod.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request actual = service.body(new DetailsRequestWithMethod(request, mainMethod.name()));
+        Request actual = service.body(request);
         assertAll(
                 () -> assertEquals(amount * 100, actual.getAmount()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getClientOrderId())),

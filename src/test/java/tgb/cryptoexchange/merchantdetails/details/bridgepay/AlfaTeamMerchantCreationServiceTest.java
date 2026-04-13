@@ -21,7 +21,6 @@ import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
@@ -127,8 +126,8 @@ class AlfaTeamMerchantCreationServiceTest {
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
-
-        Request actual = alfaTeamMerchantCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        detailsRequest.setCurrentMerchantMethod(method);
+        Request actual = alfaTeamMerchantCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),

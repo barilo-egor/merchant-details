@@ -12,7 +12,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.OnlyPaysProperties;
 
@@ -56,10 +55,11 @@ class OnlyPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String id, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
+        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(method.name())).build()));
         when(onlyPaysProperties.id()).thenReturn(id);
         when(onlyPaysProperties.secret()).thenReturn(secret);
-        Request actual = onlyPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(id, actual.getApiId()),
                 () -> assertEquals(amount, actual.getAmount()),
@@ -76,9 +76,10 @@ class OnlyPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.SIM.name())).build()));
         detailsRequest.setAmount(1000);
+        detailsRequest.setCurrentMerchantMethod(Method.SIM.name());
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.SIM.name()));
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.SIM, actual.getMethod()),
                 () -> assertTrue(actual.getSim())
@@ -90,9 +91,10 @@ class OnlyPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         detailsRequest.setAmount(1000);
+        detailsRequest.setCurrentMerchantMethod(Method.ALFA_ALFA.name());
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.ALFA_ALFA.name()));
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.ALFA_ALFA, actual.getMethod()),
                 () -> assertNull(actual.getSim()),
@@ -105,9 +107,10 @@ class OnlyPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.OZON_OZON.name())).build()));
         detailsRequest.setAmount(1000);
+        detailsRequest.setCurrentMerchantMethod(Method.OZON_OZON.name());
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, Method.OZON_OZON.name()));
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.OZON_OZON, actual.getMethod()),
                 () -> assertNull(actual.getSim()),
