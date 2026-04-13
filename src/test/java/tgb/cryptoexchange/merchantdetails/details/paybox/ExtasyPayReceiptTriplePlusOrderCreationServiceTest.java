@@ -90,6 +90,6 @@ class ExtasyPayReceiptTriplePlusOrderCreationServiceTest {
 
     @Test
     void getMerchantShouldReturnExtasyPayReceiptTriplePlus() {
-        assertEquals(Merchant.EXTASY_PAY_RECEIPT_TRIPLE_PLUS, service.getMerchant());
+        assertEquals(Merchant.EXTASY_PAY_RECEIPT_3, service.getMerchant());
     }
 }
