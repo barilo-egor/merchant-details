@@ -54,28 +54,10 @@ class ResponseTest {
     }
 
     @Test
-    void validateShouldReturnErrorIfPaymentUrlIsNull() {
+    void validateShouldReturnErrorIfRequisitesIsNull() {
         Response response = new Response();
         response.setId(123L);
-        assertEquals("field \"paymentUrl\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void validateShouldReturnErrorIfBankNameIsNull() {
-        Response response = new Response();
-        response.setId(123L);
-        response.setPaymentUrl("paymentUrl");
-        response.setPhoneNumber("phoneNumber");
-        assertEquals("field \"bankName\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void validateShouldReturnErrorIfPhoneAndCardNumbersIsNull() {
-        Response response = new Response();
-        response.setId(123L);
-        response.setPaymentUrl("paymentUrl");
-        response.setBankName("bankName");
-        assertEquals("field \"phoneNumber or cardNumber\" must not be null", response.validate().errorsToString());
+        assertEquals("field \"bankName\" must not be null;field \"phoneNumber or cardNumber\" must not be null;field \"paymentUrl\" must not be null", response.validate().errorsToString());
     }
 
     @Test

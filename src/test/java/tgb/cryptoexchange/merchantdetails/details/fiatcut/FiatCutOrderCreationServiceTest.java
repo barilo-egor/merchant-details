@@ -13,7 +13,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
@@ -70,11 +69,12 @@ class FiatCutOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).method(Collections.singletonList(method)).build()));
+        detailsRequest.setCurrentMerchantMethod(method);
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(fiatCutProperties.merchantId()).thenReturn(merchantId);
-        Request request = fiatCutOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        Request request = fiatCutOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExternalId())),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
