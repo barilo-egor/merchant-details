@@ -63,6 +63,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     ),
+    EXTASY_PAY_RECEIPT_3(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
     PAY_LEE(
             tgb.cryptoexchange.merchantdetails.details.paylee.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paylee.Method.values()
@@ -186,6 +190,10 @@ public enum MerchantConstants {
     PW_PAY(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    GOAT_X(
+            tgb.cryptoexchange.merchantdetails.details.goatx.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.goatx.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
