@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
@@ -81,7 +80,8 @@ class DaoPaymentsOrderCreationServiceTest {
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = daoPaymentsOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        detailsRequest.setCurrentMerchantMethod(method);
+        Request request = daoPaymentsOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getMerchantOrderId())),
                 () -> assertEquals(Method.valueOf(method), request.getRequisiteType()),

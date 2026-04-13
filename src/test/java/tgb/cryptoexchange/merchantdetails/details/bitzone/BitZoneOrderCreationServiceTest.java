@@ -20,7 +20,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
@@ -79,7 +78,8 @@ class BitZoneOrderCreationServiceTest {
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = bitZoneOrderCreationService.body(new DetailsRequestWithMethod(detailsRequest, method));
+        detailsRequest.setCurrentMerchantMethod(method);
+        Request request = bitZoneOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),

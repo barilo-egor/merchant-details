@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXPropertiesImpl;
 
@@ -73,6 +72,7 @@ class SettleXOrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
+        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
@@ -81,7 +81,7 @@ class SettleXOrderCreationServiceTest {
         } else {
             when(settleXProperties.c2cId()).thenReturn(c2cId);
         }
-        Request actual = service.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> {

@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestWithMethod;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.NeuralPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -88,8 +87,8 @@ class NeuralPayOrderCreationServiceTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NEURAL_PAY).method(Collections.singletonList(method.name()))
                         .build()));
-
-        Request actual = service.body(new DetailsRequestWithMethod(detailsRequest, method.name()));
+        detailsRequest.setCurrentMerchantMethod(method.name());
+        Request actual = service.body(detailsRequest);
         Request.Requisite requisite = new Request.Requisite();
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), actual.getAmount()),
