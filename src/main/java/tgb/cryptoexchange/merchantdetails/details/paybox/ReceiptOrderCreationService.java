@@ -46,5 +46,22 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
         }
     }
 
+    @Override
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
+        bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
+                .filename(fileName)
+                .contentType(MediaType.APPLICATION_PDF);
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
+                uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build(),
+                headers -> headers.add("Authorization", "Bearer " + payBoxProperties.token()),
+                BodyInserters.fromMultipartData(bodyBuilder.build()),
+                t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
+        );
+    }
+
 
 }
