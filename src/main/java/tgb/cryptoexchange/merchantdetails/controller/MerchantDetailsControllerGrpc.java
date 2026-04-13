@@ -63,7 +63,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
         int pageNum = request.getPagination().getPage() > 0 ? request.getPagination().getPage() : 0;
         int pageSize = request.getPagination().getSize() > 0 ? request.getPagination().getSize() : 20;
         Sort sort = Sort.unsorted();
-        String sortString = request.getSort();
+        String sortString = request.getPagination().getSort();
         if (StringUtils.isNotBlank(sortString)) {
             String[] parts = sortString.split(",");
             String property = parts[0].trim();
