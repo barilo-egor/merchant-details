@@ -80,17 +80,16 @@ public class Response implements MerchantDetailsResponse {
             result.notNull("id");
         }
 
-        if (Objects.isNull(paymentUrl)
-                && (Objects.isNull(bankName) || (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)))) {
-            result.notNull("paymentUrl");
-            return;
-        }
-
-        if (Objects.isNull(bankName)) {
-            result.notNull("bankName");
-        }
-        if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
-            result.notNull("phoneNumber", "cardNumber");
+        if (Objects.isNull(paymentUrl)) {
+            if (Objects.isNull(bankName)) {
+                result.notNull("bankName");
+            }
+            if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
+                result.notNull("phoneNumber", "cardNumber");
+            }
+            if ((Objects.isNull(bankName) || (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)))) {
+                result.notNull("paymentUrl");
+            }
         }
     }
 }
