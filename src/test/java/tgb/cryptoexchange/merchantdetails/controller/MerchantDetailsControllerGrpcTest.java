@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
 import com.google.protobuf.*;
+import io.grpc.internal.testing.StreamRecorder;
 import io.grpc.stub.StreamObserver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,10 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -38,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -378,5 +377,34 @@ class MerchantDetailsControllerGrpcTest {
         );
         verify(responseObserver).onNext(any(Empty.class));
         verify(responseObserver).onCompleted();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "id,asc, ASC",
+            "id,desc, DESC",
+            "createdAt,asc, ASC"
+    })
+    void getConfig_ShouldCorrectlyParseSortingParameters(String sortField, String sortDir, Sort.Direction expectedDir) {
+        PaginationGrpc pagination = PaginationGrpc.newBuilder()
+                .setPage(0)
+                .setSize(10)
+                .setSort(sortField + "," + sortDir)
+                .build();
+
+        MerchantConfigRequestGrpc request = MerchantConfigRequestGrpc.newBuilder()
+                .setPagination(pagination)
+                .build();
+        when(merchantConfigService.findAll(any(Pageable.class), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        StreamRecorder<MerchantConfigResponseGrpc> responseObserver = StreamRecorder.create();
+        grpcController.getConfig(request, responseObserver);
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(merchantConfigService).findAll(pageableCaptor.capture(), any());
+
+        Pageable captured = pageableCaptor.getValue();
+        assertThat(captured.getSort().getOrderFor(sortField)).isNotNull();
+        assertThat(captured.getSort().getOrderFor(sortField).getDirection()).isEqualTo(expectedDir);
     }
 }
