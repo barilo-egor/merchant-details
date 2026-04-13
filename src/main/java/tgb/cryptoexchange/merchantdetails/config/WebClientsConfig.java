@@ -233,4 +233,9 @@ public class WebClientsConfig {
     public WebClient cashOutWebClient(CashOutProperties cashOutProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cashOutProperties.url()).build();
     }
+
+    @Bean
+    public WebClient goatxWebClient(GoatxProperties goatxProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(goatxProperties.url()).build();
+    }
 }
