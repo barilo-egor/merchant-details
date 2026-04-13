@@ -9,7 +9,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
-class ExtazyPayQROrderCreationServiceTest {
+class ExtasyPayQROrderCreationServiceTest {
 
     @InjectMocks
     private ExtasyPayQROrderCreationService extasyPayQROrderCreationService;
