@@ -198,6 +198,10 @@ public enum MerchantConstants {
     GOAT_X_SIM(
             tgb.cryptoexchange.merchantdetails.details.goatx.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.goatx.Method.values()
+    ),
+    LOTRIEN(
+            tgb.cryptoexchange.merchantdetails.details.lotrien.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.lotrien.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

@@ -205,6 +205,9 @@ cashout:
 pw-pay:
   url: ""
   token: ""
+lotrien:
+  url:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
