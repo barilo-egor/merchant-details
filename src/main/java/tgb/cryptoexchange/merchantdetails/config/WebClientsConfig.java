@@ -240,7 +240,12 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient goatxWebClient(GoatxProperties goatxProperties) {
+    public WebClient goatxWebClient(GoatxPropertiesImpl goatxProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(goatxProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient goatxSimWebClient(GoatxSimProperties goatxSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(goatxSimProperties.url()).build();
     }
 }
