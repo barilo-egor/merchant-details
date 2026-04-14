@@ -203,6 +203,12 @@ goatx:
   merchant-id: "goatx-merchant-id"
   merchant-contract-id: "goatx-merchant-contract-id"
   login: "goatx-login"
+goatx-sim:
+  url: "goatx-sim-url"
+  api-key: "goatx-sim-api-key"
+  merchant-id: "goatx-sim-merchant-id"
+  merchant-contract-id: "goatx-sim-merchant-contract-id"
+  login: "goatx-sim-login"
 #Конфиг приложния
 server:
   servlet:
