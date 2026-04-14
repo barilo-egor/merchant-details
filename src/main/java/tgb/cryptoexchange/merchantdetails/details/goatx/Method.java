@@ -16,7 +16,8 @@ import java.io.IOException;
 @Getter
 public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
-    SBP("sbp", "СБП");
+    SBP("sbp", "СБП"),
+    MOBILE("mobile", "Сим");
 
     private final String value;
 

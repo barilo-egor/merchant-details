@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.GoatxProperties;
+import tgb.cryptoexchange.merchantdetails.properties.GoatxPropertiesImpl;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,10 +27,10 @@ import static org.mockito.Mockito.when;
 class GoatxMerchantOrderCreationServiceTest {
 
     @Mock
-    private GoatxProperties goatxProperties;
+    private GoatxPropertiesImpl goatxProperties;
 
     @InjectMocks
-    private GoatxMerchantOrderCreationService goatxMerchantOrderCreationService;
+    private GoatxMerchantOrderCreationServiceImpl goatxMerchantOrderCreationService;
 
     @Test
     void getMerchantShouldReturnFiatCut() {

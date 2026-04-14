@@ -194,6 +194,10 @@ public enum MerchantConstants {
     GOAT_X(
             tgb.cryptoexchange.merchantdetails.details.goatx.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.goatx.Method.values()
+    ),
+    GOAT_X_SIM(
+            tgb.cryptoexchange.merchantdetails.details.goatx.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.goatx.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class GoatxPropertiesTest {
+class GoatxPropertiesImplTest {
 
     @Autowired
-    private GoatxProperties goatxProperties;
+    private GoatxPropertiesImpl goatxProperties;
 
     @Test
     void shouldLoadProperties() {
