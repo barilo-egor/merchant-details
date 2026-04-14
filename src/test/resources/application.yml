@@ -209,6 +209,9 @@ goatx-sim:
   merchant-id: "goatx-sim-merchant-id"
   merchant-contract-id: "goatx-sim-merchant-contract-id"
   login: "goatx-sim-login"
+lotrien:
+  url: "lotrien-url"
+  key: "lotrien-key"
 #Конфиг приложния
 server:
   servlet:
