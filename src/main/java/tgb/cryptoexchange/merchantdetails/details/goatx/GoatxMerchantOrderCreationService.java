@@ -1,12 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.details.goatx;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -22,13 +19,12 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Service
 @Slf4j
-public class GoatxMerchantOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final GoatxProperties goatxProperties;
 
-    protected GoatxMerchantOrderCreationService(@Qualifier("goatxWebClient") WebClient webClient,
+    protected GoatxMerchantOrderCreationService(WebClient webClient,
                                                 GoatxProperties goatxProperties) {
         super(webClient, Response.class, Callback.class);
         this.goatxProperties = goatxProperties;
@@ -86,10 +82,5 @@ public class GoatxMerchantOrderCreationService extends MerchantOrderCreationServ
         }
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         return Optional.of(detailsResponse);
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.GOAT_X;
     }
 }
