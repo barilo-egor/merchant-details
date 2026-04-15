@@ -248,4 +248,9 @@ public class WebClientsConfig {
     public WebClient goatxSimWebClient(GoatxSimProperties goatxSimProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(goatxSimProperties.url()).build();
     }
+
+    @Bean
+    public WebClient lotrienWebClient(LotrienProperties lotrienProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(lotrienProperties.url()).build();
+    }
 }
