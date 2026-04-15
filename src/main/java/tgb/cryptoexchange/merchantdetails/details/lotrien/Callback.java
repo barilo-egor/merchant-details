@@ -3,7 +3,6 @@ package tgb.cryptoexchange.merchantdetails.details.lotrien;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
-import tgb.cryptoexchange.merchantdetails.details.evopay.Status;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
