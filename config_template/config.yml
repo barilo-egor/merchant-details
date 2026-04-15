@@ -208,6 +208,14 @@ pw-pay:
 lotrien:
   url:
   key:
+gambit:
+  url:
+  key:
+  terminal:
+gambit-sim:
+  url:
+  key:
+  terminal:
 # Конфиг приложение
 springdoc:
   swagger-ui:

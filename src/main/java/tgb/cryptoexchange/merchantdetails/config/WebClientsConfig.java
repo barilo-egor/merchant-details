@@ -253,4 +253,14 @@ public class WebClientsConfig {
     public WebClient lotrienWebClient(LotrienProperties lotrienProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(lotrienProperties.url()).build();
     }
+
+    @Bean
+    public WebClient gambitWebClient(GambitImplProperties gambitProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(gambitProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient gambitSimWebClient(GambitSimProperties gambitSimProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(gambitSimProperties.url()).build();
+    }
 }
