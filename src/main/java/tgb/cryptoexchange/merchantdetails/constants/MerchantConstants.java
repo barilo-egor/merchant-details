@@ -202,6 +202,14 @@ public enum MerchantConstants {
     LOTRIEN(
             tgb.cryptoexchange.merchantdetails.details.lotrien.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.lotrien.Method.values()
+    ),
+    GAMBIT(
+            tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
+    ),
+    GAMBIT_SIM(
+            tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

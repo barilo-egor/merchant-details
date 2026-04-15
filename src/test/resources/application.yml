@@ -212,6 +212,14 @@ goatx-sim:
 lotrien:
   url: "lotrien-url"
   key: "lotrien-key"
+gambit:
+  url: "gambit-url"
+  key: "gambit-key"
+  terminal: "gambit-terminal"
+gambit-sim:
+  url: "gambit-sim-url"
+  key: "gambit-sim-key"
+  terminal: "gambit-sim-terminal"
 #Конфиг приложния
 server:
   servlet:
