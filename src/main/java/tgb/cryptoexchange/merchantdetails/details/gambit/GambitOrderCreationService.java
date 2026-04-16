@@ -51,7 +51,7 @@ public class GambitOrderCreationService extends MerchantOrderCreationService<Res
         Request request = new Request();
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setMethod(method);
-        request.setOrderId(UUID.randomUUID().toString());
+        request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
         request.setAmount(detailsRequest.getAmount());
         request.setTerminalUid(gambitProperties.terminal());
         return request;
