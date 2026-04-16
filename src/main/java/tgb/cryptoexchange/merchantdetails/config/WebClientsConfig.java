@@ -263,4 +263,23 @@ public class WebClientsConfig {
     public WebClient gambitSimWebClient(GambitSimProperties gambitSimProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(gambitSimProperties.url()).build();
     }
+    @Bean
+    public WebClient asgardWebClient(AsgardImplProperties asgardProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient asgardWTWebClient(AsgardWTProperties asgardProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient asgardSimWebClient(AsgardSimProperties asgardProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient asgardHighCheckWebClient(AsgardHighCheckProperties asgardProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
+    }
 }
