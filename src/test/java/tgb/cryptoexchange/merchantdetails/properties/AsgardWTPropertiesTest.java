@@ -8,17 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class GambitPropertiesTest {
+class AsgardWTPropertiesTest {
 
     @Autowired
-    private GambitProperties gambitProperties;
+    private AsgardWTProperties asgardWTProperties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("gambit-url", gambitProperties.url()),
-                () -> assertEquals("gambit-key", gambitProperties.key()),
-                () -> assertEquals("gambit-terminal", gambitProperties.terminal())
+                () -> assertEquals("asgard-wt-url", asgardWTProperties.url()),
+                () -> assertEquals("asgard-wt-token", asgardWTProperties.token()),
+                () -> assertEquals("asgard-wt-secret", asgardWTProperties.secret()),
+                () -> assertEquals("asgard-wt-merchant-id", asgardWTProperties.merchantId())
         );
     }
 }

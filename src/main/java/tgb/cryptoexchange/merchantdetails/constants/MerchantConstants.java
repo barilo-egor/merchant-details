@@ -210,6 +210,22 @@ public enum MerchantConstants {
     GAMBIT_SIM(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
+    ),
+    ASGARD(
+            tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
+    ),
+    ASGARD_WT(
+            tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
+    ),
+    ASGARD_SIM(
+            tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
+    ),
+    ASGARD_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

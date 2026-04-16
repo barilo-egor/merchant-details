@@ -216,6 +216,26 @@ gambit-sim:
   url:
   key:
   terminal:
+asgard:
+  url:
+  token:
+  secret:
+  merchant-id:
+asgard-wt:
+  url:
+  token:
+  secret:
+  merchant-id:
+asgard-sim:
+  url:
+  token:
+  secret:
+  merchant-id:
+asgard-high-check:
+  url:
+  token:
+  secret:
+  merchant-id:
 # Конфиг приложение
 springdoc:
   swagger-ui:
