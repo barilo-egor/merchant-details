@@ -212,6 +212,34 @@ goatx-sim:
 lotrien:
   url: "lotrien-url"
   key: "lotrien-key"
+gambit:
+  url: "gambit-url"
+  key: "gambit-key"
+  terminal: "gambit-terminal"
+gambit-sim:
+  url: "gambit-sim-url"
+  key: "gambit-sim-key"
+  terminal: "gambit-sim-terminal"
+asgard:
+  url: "asgard-url"
+  token: "asgard-token"
+  secret: "asgard-secret"
+  merchant-id: "asgard-merchant-id"
+asgard-wt:
+  url: "asgard-wt-url"
+  token: "asgard-wt-token"
+  secret: "asgard-wt-secret"
+  merchant-id: "asgard-wt-merchant-id"
+asgard-sim:
+  url: "asgard-sim-url"
+  token: "asgard-sim-token"
+  secret: "asgard-sim-secret"
+  merchant-id: "asgard-sim-merchant-id"
+asgard-high-check:
+  url: "asgard-high-check-url"
+  token: "asgard-high-check-token"
+  secret: "asgard-high-check-secret"
+  merchant-id: "asgard-high-check-merchant-id"
 #Конфиг приложния
 server:
   servlet:
