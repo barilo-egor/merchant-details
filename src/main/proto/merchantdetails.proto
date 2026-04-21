@@ -17,6 +17,7 @@ service MerchantDetailsService {
   rpc GetVariable (GetVariableRequestGrpc) returns (VariableDTOGrpc);
   rpc UpdateVariable (UpdateVariableRequestGrpc) returns (google.protobuf.Empty);
   rpc SendReceipt (SendReceiptRequestGrpc) returns (google.protobuf.Empty);
+  rpc RequisiteIssuanceFailure (RequisiteIssuanceFailureGrpc) returns (RequisiteFailureResponseGrpc);
 }
 
 message CancelOrderRequestGrpc {
@@ -127,4 +128,13 @@ message SendReceiptRequestGrpc {
 
 message GroupChatIdsResponseGrpc {
   repeated int64 group_chat_ids = 1;
+}
+
+message RequisiteIssuanceFailureGrpc {
+  string initiatorApp = 1;
+  string date = 2;
+}
+
+message RequisiteFailureResponseGrpc {
+  int32 count = 1;
 }

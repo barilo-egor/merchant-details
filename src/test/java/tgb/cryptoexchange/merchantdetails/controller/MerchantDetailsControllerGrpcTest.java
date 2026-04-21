@@ -3,6 +3,7 @@ package tgb.cryptoexchange.merchantdetails.controller;
 import com.google.protobuf.*;
 import io.grpc.internal.testing.StreamRecorder;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,6 +55,9 @@ class MerchantDetailsControllerGrpcTest {
 
     @MockitoBean
     private VariableService variableService;
+
+    @MockitoBean
+    private MeterRegistry meterRegistry;
 
     @Autowired
     private MerchantDetailsControllerGrpc grpcController;
