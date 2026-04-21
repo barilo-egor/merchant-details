@@ -5,6 +5,8 @@ import com.google.protobuf.Int32Value;
 import com.google.protobuf.Int64Value;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.grpc.generated.*;
+import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
@@ -25,6 +28,7 @@ import tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils;
 
 import java.util.List;
 
+import static tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService.STATUS;
 import static tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
 @Service
@@ -37,11 +41,15 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     private final VariableService variableService;
 
+    private final MeterRegistry meterRegistry;
+
     public MerchantDetailsControllerGrpc(MerchantDetailsService merchantDetailsService,
-                                         MerchantConfigService merchantConfigService, VariableService variableService) {
+                                         MerchantConfigService merchantConfigService, VariableService variableService,
+                                         MeterRegistry meterRegistry) {
         this.merchantDetailsService = merchantDetailsService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -263,6 +271,23 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                     .withDescription("Ошибка обработки чека: " + e.getMessage())
                     .asRuntimeException());
         }
+    }
+
+    @Override
+    public void requisiteIssuanceFailure(RequisiteIssuanceFailureGrpc request,
+                                         StreamObserver<RequisiteFailureResponseGrpc> responseObserver) {
+        Counter counter = meterRegistry.find(Metrics.GET_DETAILS_RESULT)
+                .tag(STATUS, "empty")
+                .tag("initiatorApp", request.getInitiatorApp())
+                .tag("date", request.getDate())
+                .counter();
+        int count = counter == null ? 0 : (int) counter.count();
+        RequisiteFailureResponseGrpc response = RequisiteFailureResponseGrpc.newBuilder()
+                .setCount(count)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
 }
