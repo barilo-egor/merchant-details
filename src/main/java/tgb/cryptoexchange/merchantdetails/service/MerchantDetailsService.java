@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -126,11 +127,19 @@ public class MerchantDetailsService {
             if (maybeDetailsResponse.isPresent()) break;
         }
         boolean hasDetails = maybeDetailsResponse.isPresent();
+        String today = LocalDate.now().toString();
         if (!hasDetails) {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "empty").increment();
+            meterRegistry.counter(
+                    Metrics.GET_DETAILS_RESULT,
+                    STATUS, "empty",
+                    "initiatorApp", request.getInitiatorApp(),
+                    "date", today
+            ).increment();
             log.debug("Реквизиты для сделки {} у мерчантов получены не были.", request.getId());
         } else {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "success").increment();
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "success",
+                    "initiatorApp", request.getInitiatorApp(),
+                    "date", today).increment();
         }
         return maybeDetailsResponse;
     }
