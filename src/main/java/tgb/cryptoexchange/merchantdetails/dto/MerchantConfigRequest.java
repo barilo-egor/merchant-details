@@ -5,7 +5,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class MerchantConfigRequest {
 
     private String sort;
 
-    public List<Predicate> toPredicates(Root<MerchantConfig> root, CriteriaBuilder cb) {
+    public <T> List<Predicate> toPredicates(Root<T> root, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
         if (Objects.nonNull(merchantOrder)) {
             predicates.add(cb.equal(root.get("merchantOrder"), merchantOrder));

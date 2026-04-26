@@ -9,11 +9,11 @@ public enum VariableType {
     /**
      * Количество раз, которое будет выполнен поиск реквизитов среди всех мерчантов
      */
-    ATTEMPTS_COUNT("3"),
+    ATTEMPTS_COUNT("1"),
     /**
      * Минимальное время, которое отводится под попытку получения реквизитов у всех мерчантов
      */
-    MIN_ATTEMPT_TIME("15");
+    MIN_ATTEMPT_TIME("10");
 
     private final String defaultValue;
 }

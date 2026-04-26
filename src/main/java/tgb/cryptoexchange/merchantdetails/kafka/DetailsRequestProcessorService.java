@@ -23,19 +23,19 @@ public class DetailsRequestProcessorService {
 
     private final String detailsResponseFoundTopic;
 
-    private final ThreadPoolTaskExecutor detailsRequestSearchExecutor;
+    private final ThreadPoolTaskExecutor detailsRequestSearchExecutorBot;
 
     private final Map<Long, Future<Void>> activeSearchMap;
 
     public DetailsRequestProcessorService(MerchantDetailsService merchantDetailsService,
                                           KafkaTemplate<String, DetailsResponse> detailsResponseKafkaTemplate,
                                           @Value("${kafka.topic.merchant-details.response}") String detailsResponseFoundTopic,
-                                          ThreadPoolTaskExecutor detailsRequestSearchExecutor,
+                                          ThreadPoolTaskExecutor detailsRequestSearchExecutorBot,
                                           Map<Long, Future<Void>> activeSearchMap) {
         this.merchantDetailsService = merchantDetailsService;
         this.detailsResponseKafkaTemplate = detailsResponseKafkaTemplate;
         this.detailsResponseFoundTopic = detailsResponseFoundTopic;
-        this.detailsRequestSearchExecutor = detailsRequestSearchExecutor;
+        this.detailsRequestSearchExecutorBot = detailsRequestSearchExecutorBot;
         this.activeSearchMap = activeSearchMap;
     }
 
@@ -45,7 +45,7 @@ public class DetailsRequestProcessorService {
                     detailsRequest.getRequestId(), detailsRequest.getId());
             return;
         }
-        Future<Void> future = detailsRequestSearchExecutor.submit(() -> {
+        Future<Void> future = detailsRequestSearchExecutorBot.submit(() -> {
             DetailsResponse result;
             try {
                 Optional<DetailsResponse> detailsResponse = merchantDetailsService.getDetails(detailsRequest);

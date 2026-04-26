@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.kafka.common.serialization.Deserializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
 
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,8 @@ public class DetailsRequest {
     protected List<MerchantMethod> methods;
 
     protected String currentMerchantMethod;
+
+    protected ConfigType configType;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {

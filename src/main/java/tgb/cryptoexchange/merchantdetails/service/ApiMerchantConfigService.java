@@ -10,47 +10,36 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.exception.BadRequestException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
-import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
-import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
-import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
+import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
-import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
-import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
-import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
+import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
 @Service
-public class MerchantConfigService {
+public class ApiMerchantConfigService {
 
     private static final String NOT_FOUND = " not found";
 
-    private final MerchantConfigRepository repository;
+    private final ApiMerchantConfigRepository repository;
 
-    private final MerchantSuccessStatusRepository merchantSuccessStatusRepository;
-
-    private final AutoConfirmConfigRepository autoConfirmConfigRepository;
-
-    public MerchantConfigService(MerchantConfigRepository repository,
-                                 MerchantSuccessStatusRepository merchantSuccessStatusRepository,
-                                 AutoConfirmConfigRepository autoConfirmConfigRepository) {
+    public ApiMerchantConfigService(ApiMerchantConfigRepository repository) {
         this.repository = repository;
-        this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
-        this.autoConfirmConfigRepository = autoConfirmConfigRepository;
     }
 
     @PostConstruct
     public void init() {
         for (Merchant merchant : Merchant.values()) {
-            Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
+            Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(merchant);
             if (merchantConfig.isEmpty()) {
                 create(merchant);
             }
@@ -60,10 +49,9 @@ public class MerchantConfigService {
     private void create(Merchant merchant) {
         Integer maxValue = repository.findMaxMerchantOrder();
         repository.save(
-                MerchantConfig.builder()
+                ApiMerchantConfig.builder()
                         .isOn(false)
                         .merchant(merchant)
-                        .isAutoWithdrawalOn(false)
                         .maxAmount(5000)
                         .minAmount(1)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
@@ -71,38 +59,34 @@ public class MerchantConfigService {
         );
     }
 
-    public Optional<MerchantConfig> getMerchantConfig(Merchant merchant) {
+    public Optional<ApiMerchantConfig> getMerchantConfig(Merchant merchant) {
         return repository.findBy(
-                Example.of(MerchantConfig.builder().merchant(merchant).build()),
+                Example.of(ApiMerchantConfig.builder().merchant(merchant).build()),
                 FluentQuery.FetchableFluentQuery::one
         );
     }
 
-    public Optional<MerchantConfig> getByMerchantOrder(Integer order) {
+    public Optional<ApiMerchantConfig> getByMerchantOrder(Integer order) {
         return repository.findBy(
-                Example.of(MerchantConfig.builder().merchantOrder(order).build()),
+                Example.of(ApiMerchantConfig.builder().merchantOrder(order).build()),
                 FluentQuery.FetchableFluentQuery::one
         );
     }
 
-    public Page<MerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
+    public Page<ApiMerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
         return repository.findAll(
                 ((root, query, criteriaBuilder) -> criteriaBuilder.and(
                         request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
                 )),
                 pageable
-        ).map(MerchantConfigDTO::fromEntity);
+        ).map(ApiMerchantConfigDTO::fromEntity);
     }
 
-    public List<MerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
+    public List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
         return repository.findAllByIsOnOrderByMerchantOrder(isOn);
     }
 
-    public List<Long> findAllGroupChatIds() {
-        return repository.findDistinctGroupChatIdByGroupChatIdNotNull();
-    }
-
-    public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
+    public List<ApiMerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
         Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
@@ -111,13 +95,13 @@ public class MerchantConfigService {
                 .toList();
     }
 
-    public void delete(MerchantConfig config) {
+    public void delete(ApiMerchantConfig config) {
         repository.delete(config);
     }
 
     @Transactional
     public void changeOrder(Merchant merchant, Integer newOrder) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
+        ApiMerchantConfig config = getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
         int currentOrder = config.getMerchantOrder();
@@ -147,7 +131,7 @@ public class MerchantConfigService {
     }
 
     public void changeOrder(Merchant merchant, boolean isUp) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
+        ApiMerchantConfig config = getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
         int currentOrder = config.getMerchantOrder();
@@ -159,7 +143,7 @@ public class MerchantConfigService {
 
         IntUnaryOperator operation = order -> isUp ? order - 1 : order + 1;
         int newOrder = operation.applyAsInt(currentOrder);
-        MerchantConfig otherConfig = null;
+        ApiMerchantConfig otherConfig = null;
         while (otherConfig == null && newOrder > -1 && newOrder <= Merchant.values().length) {
             otherConfig = getByMerchantOrder(newOrder).orElse(null);
             if (Objects.isNull(otherConfig)) {
@@ -181,58 +165,18 @@ public class MerchantConfigService {
     }
 
     @Transactional
-    public void update(UpdateMerchantConfigDTO dto) {
-        MerchantConfig merchantConfig = repository.findById(dto.getId())
+    public void update(UpdateApiMerchantConfigDTO dto) {
+        ApiMerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id" + dto.getId() + NOT_FOUND));
         if (Objects.nonNull(dto.getIsOn())) {
             merchantConfig.setIsOn(dto.getIsOn());
-        }
-        if (Objects.nonNull(dto.getIsAutoWithdrawalOn())) {
-            merchantConfig.setIsAutoWithdrawalOn(dto.getIsAutoWithdrawalOn());
-        }
-        if (Objects.nonNull(dto.getSuccessStatuses())) {
-            List<MerchantSuccessStatus> oldStatuses = merchantConfig.getSuccessStatuses();
-            merchantConfig.setSuccessStatuses(new ArrayList<>());
-            merchantSuccessStatusRepository.deleteAll(oldStatuses);
-            for (String successStatus : dto.getSuccessStatuses()) {
-                MerchantSuccessStatus newSuccessStatus = new MerchantSuccessStatus();
-                newSuccessStatus.setStatus(successStatus);
-                merchantConfig.getSuccessStatuses().add(merchantSuccessStatusRepository.save(newSuccessStatus));
-            }
         }
         if (Objects.nonNull(dto.getMaxAmount())) {
             merchantConfig.setMaxAmount(dto.getMaxAmount());
         }
         if (Objects.nonNull(dto.getMinAmount())) {
             merchantConfig.setMinAmount(dto.getMinAmount());
-        }
-        if (Objects.nonNull(dto.getGroupChatId())) {
-            merchantConfig.setGroupChatId(dto.getGroupChatId());
-        }
-        if (Objects.nonNull(dto.getConfirmConfigs())) {
-            List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();
-            merchantConfig.setConfirmConfigs(new ArrayList<>());
-            autoConfirmConfigRepository.deleteAll(confirmConfigs);
-            for (AutoConfirmConfigDTO confirmConfigDTO : dto.getConfirmConfigs()) {
-                AutoConfirmConfig autoConfirmConfig = new AutoConfirmConfig();
-                autoConfirmConfig.setAutoConfirmType(confirmConfigDTO.getAutoConfirmType());
-                autoConfirmConfig.setDeliveryType(confirmConfigDTO.getDeliveryType());
-                autoConfirmConfig.setCryptoCurrency(confirmConfigDTO.getCryptoCurrency());
-                merchantConfig.getConfirmConfigs().add(autoConfirmConfigRepository.save(autoConfirmConfig));
-            }
-        }
-        repository.save(merchantConfig);
-    }
-
-    public void deleteField(Long id, String field) {
-        MerchantConfig merchantConfig = repository.findById(id)
-                .orElseThrow(() -> new MerchantConfigNotFoundException(
-                        "Configuration for merchant with id" + id + NOT_FOUND));
-        if ("groupChatId".equals(field)) {
-            merchantConfig.setGroupChatId(null);
-        } else {
-            throw new BadRequestException("Deleting field \"" + field + "\" unsupported.");
         }
         repository.save(merchantConfig);
     }
@@ -244,7 +188,7 @@ public class MerchantConfigService {
 
     @Transactional
     public void resetMerchantOrder() {
-        List<MerchantConfig> configs = repository.findAll(Sort.by("merchantOrder"));
+        List<ApiMerchantConfig> configs = repository.findAll(Sort.by("merchantOrder"));
         if (configs.isEmpty()) {
             return;
         }

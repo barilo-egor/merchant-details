@@ -109,7 +109,7 @@ public class MerchantDetailsService {
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
                         .collect(Collectors.joining(","))
         );
-        int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
+        int attemptsCount = variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, request.getConfigType()).getInt();
         for (int attemptNumber = 1; attemptNumber <= attemptsCount && !merchantConfigList.isEmpty(); attemptNumber++) {
             if (Thread.currentThread().isInterrupted()) {
                 log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
@@ -119,7 +119,7 @@ public class MerchantDetailsService {
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
             long t2 = System.currentTimeMillis();
             if (attemptNumber < attemptsCount && maybeDetailsResponse.isEmpty()) {
-                long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
+                long leftTime = (variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, request.getConfigType()).getInt() * 1000) - (t2 - t1);
                 if (leftTime > 0) {
                     sleepService.sleep(leftTime);
                 }

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 
 /**
  * Динамическая переменная
@@ -37,4 +38,7 @@ public class Variable {
     public Integer getInt() {
         return Integer.parseInt(value);
     }
+
+    @Enumerated(EnumType.STRING)
+    public ConfigType configType;
 }

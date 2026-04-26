@@ -38,7 +38,7 @@ class DetailsRequestProcessorServiceTest {
     private KafkaTemplate<String, DetailsResponse> kafkaTemplate;
 
     @Mock
-    private ThreadPoolTaskExecutor detailsRequestSearchExecutor;
+    private ThreadPoolTaskExecutor detailsRequestSearchExecutorBot;
 
     @Mock
     private Map<Long, Future<Void>> activeSearchMap;
@@ -51,7 +51,7 @@ class DetailsRequestProcessorServiceTest {
     @BeforeEach
     void setUp() {
         service = new DetailsRequestProcessorService(merchantDetailsService, kafkaTemplate,
-                "merchant-details-request-topic", detailsRequestSearchExecutor,
+                "merchant-details-request-topic", detailsRequestSearchExecutorBot,
                 activeSearchMap);
     }
 
@@ -65,7 +65,7 @@ class DetailsRequestProcessorServiceTest {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
-        }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
+        }).when(detailsRequestSearchExecutorBot).submit((Callable<?>) any());
         when(merchantDetailsService.getDetails(request)).thenReturn(Optional.empty());
         service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
@@ -86,7 +86,7 @@ class DetailsRequestProcessorServiceTest {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
-        }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
+        }).when(detailsRequestSearchExecutorBot).submit((Callable<?>) any());
         when(merchantDetailsService.getDetails(request)).thenThrow(RuntimeException.class);
         service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
@@ -116,7 +116,7 @@ class DetailsRequestProcessorServiceTest {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
             return CompletableFuture.completedFuture(result);
-        }).when(detailsRequestSearchExecutor).submit((Callable<?>) any());
+        }).when(detailsRequestSearchExecutorBot).submit((Callable<?>) any());
         when(merchantDetailsService.getDetails(request)).thenReturn(Optional.of(response));
         service.process(request);
         ArgumentCaptor<DetailsResponse> captor = ArgumentCaptor.forClass(DetailsResponse.class);
