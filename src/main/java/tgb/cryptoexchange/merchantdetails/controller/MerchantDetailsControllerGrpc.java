@@ -31,8 +31,8 @@ import java.util.List;
 import static tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService.STATUS;
 import static tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
-@GrpcService
 @Slf4j
+@GrpcService
 public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.MerchantDetailsServiceImplBase {
 
     private final MerchantDetailsService merchantDetailsService;
@@ -68,82 +68,11 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     @Override
     public void getConfig(MerchantConfigRequestGrpc request,
                           StreamObserver<MerchantConfigResponseGrpc> responseObserver) {
-        int pageNum = request.getPagination().getPage() > 0 ? request.getPagination().getPage() : 0;
-        int pageSize = request.getPagination().getSize() > 0 ? request.getPagination().getSize() : 20;
-        Sort sort = Sort.unsorted();
-        String sortString = request.getPagination().getSort();
-        if (StringUtils.isNotBlank(sortString)) {
-            String[] parts = sortString.split(",");
-            String property = parts[0].trim();
-            Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
-                    ? Sort.Direction.DESC
-                    : Sort.Direction.ASC;
-
-            sort = Sort.by(direction, property);
-        }
-        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Pageable pageable = createPageable(request.getPagination());
         Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, mapToMerchantConfigRequest(request));
 
         List<MerchantConfigDTOGrpc> grpcData = page.getContent().stream()
-                .map(dto -> {
-                    MerchantConfigDTOGrpc.Builder builder = MerchantConfigDTOGrpc.newBuilder()
-                            .setId(dto.getId())
-                            .setIsOn(dto.getIsOn() != null && dto.getIsOn())
-                            .setIsAutoWithdrawalOn(dto.getIsAutoWithdrawalOn() != null && dto.getIsAutoWithdrawalOn());
-
-                    if (dto.getMerchant() != null) {
-                        builder.setMerchant(dto.getMerchant().name());
-                    }
-
-                    if (dto.getMaxAmount() != null) {
-                        builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
-                    }
-                    if (dto.getMinAmount() != null) {
-                        builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
-                    }
-                    if (dto.getMerchantOrder() != null) {
-                        builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
-                    }
-                    if (dto.getGroupChatId() != null) {
-                        builder.setGroupChatId(Int64Value.of(dto.getGroupChatId()));
-                    }
-
-                    if (dto.getStatuses() != null) {
-                        builder.addAllStatuses(dto.getStatuses().stream()
-                                .map(s -> MerchantOrderStatusGrpc.newBuilder()
-                                        .setName(s.name())
-                                        .setDescription(s.getDescription())
-                                        .build())
-                                .toList());
-                    }
-
-                    if (dto.getSuccessStatuses() != null) {
-                        builder.addAllSuccessStatuses(dto.getSuccessStatuses());
-                    }
-
-                    if (dto.getMethods() != null) {
-                        builder.addAllMethods(dto.getMethods().stream()
-                                .map(m -> MerchantMethodGrpc.newBuilder()
-                                        .setName(m.name())
-                                        .setDescription(m.getDescription())
-                                        .build())
-                                .toList());
-                    }
-
-                    if (dto.getConfirmConfigs() != null) {
-                        builder.addAllConfirmConfigs(dto.getConfirmConfigs().stream()
-                                .map(c -> AutoConfirmConfigDTOGrpc.newBuilder()
-                                        .setCryptoCurrency(c.getCryptoCurrency().name())
-                                        .setAutoConfirmType(c.getAutoConfirmType().name())
-                                        .setDeliveryType(c.getDeliveryType().name())
-                                        .build())
-                                .toList());
-                    }
-                    if (dto.getMinDealsCount() != null) {
-                        builder.setMinDealsCount(dto.getMinDealsCount());
-                    }
-                    return builder.build();
-                })
+                .map(this::mapToGrpcDto)
                 .toList();
 
         MerchantConfigResponseGrpc response = MerchantConfigResponseGrpc.newBuilder()
@@ -154,6 +83,79 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+    }
+
+    private MerchantConfigDTOGrpc mapToGrpcDto(MerchantConfigDTO dto) {
+        MerchantConfigDTOGrpc.Builder builder = MerchantConfigDTOGrpc.newBuilder()
+                .setId(dto.getId())
+                .setIsOn(dto.getIsOn() != null && dto.getIsOn())
+                .setIsAutoWithdrawalOn(dto.getIsAutoWithdrawalOn() != null && dto.getIsAutoWithdrawalOn());
+
+        if (dto.getMerchant() != null) {
+            builder.setMerchant(dto.getMerchant().name());
+        }
+        if (dto.getMaxAmount() != null) {
+            builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
+        }
+        if (dto.getMinAmount() != null) {
+            builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
+        }
+        if (dto.getMerchantOrder() != null) {
+            builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
+        }
+        if (dto.getGroupChatId() != null) {
+            builder.setGroupChatId(Int64Value.of(dto.getGroupChatId()));
+        }
+        if (dto.getStatuses() != null) {
+            builder.addAllStatuses(dto.getStatuses().stream()
+                    .map(s -> MerchantOrderStatusGrpc.newBuilder()
+                            .setName(s.name())
+                            .setDescription(s.getDescription())
+                            .build())
+                    .toList());
+        }
+        if (dto.getSuccessStatuses() != null) {
+            builder.addAllSuccessStatuses(dto.getSuccessStatuses());
+        }
+        if (dto.getMethods() != null) {
+            builder.addAllMethods(dto.getMethods().stream()
+                    .map(m -> MerchantMethodGrpc.newBuilder()
+                            .setName(m.name())
+                            .setDescription(m.getDescription())
+                            .build())
+                    .toList());
+        }
+        if (dto.getConfirmConfigs() != null) {
+            builder.addAllConfirmConfigs(dto.getConfirmConfigs().stream()
+                    .map(c -> AutoConfirmConfigDTOGrpc.newBuilder()
+                            .setCryptoCurrency(c.getCryptoCurrency().name())
+                            .setAutoConfirmType(c.getAutoConfirmType().name())
+                            .setDeliveryType(c.getDeliveryType().name())
+                            .build())
+                    .toList());
+        }
+        if (dto.getMinDealsCount() != null) {
+            builder.setMinDealsCount(dto.getMinDealsCount());
+        }
+        return builder.build();
+    }
+
+    private Pageable createPageable(PaginationGrpc pagination) {
+        int page = Math.max(pagination.getPage(), 0);
+        int size = pagination.getSize() > 0 ? pagination.getSize() : 20;
+        return PageRequest.of(page, size, parseSort(pagination.getSort()));
+    }
+
+    private Sort parseSort(String sortString) {
+        if (StringUtils.isBlank(sortString)) {
+            return Sort.unsorted();
+        }
+        String[] parts = sortString.split(",");
+        String property = parts[0].trim();
+        Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        return Sort.by(direction, property);
     }
 
     @Override
@@ -244,8 +246,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     @Override
     public void getVariable(GetVariableRequestGrpc request, StreamObserver<VariableDTOGrpc> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
-
-        var entity = variableService.findByType(type);
+        var entity = variableService.findByTypeAndConfigType(type, ConfigType.BOT);
 
         VariableDTOGrpc response = VariableDTOGrpc.newBuilder()
                 .setType(VariableTypeGrpc.valueOf(type.name()))
@@ -260,8 +261,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void updateVariable(UpdateVariableRequestGrpc request, StreamObserver<Empty> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
         String newValue = request.getValue();
-
-        variableService.update(type, newValue);
+        variableService.update(type, ConfigType.BOT, newValue);
 
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();

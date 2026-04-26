@@ -12,6 +12,7 @@ import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.*;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -95,7 +96,7 @@ public class MerchantDetailsController extends ApiController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType) {
         return new ResponseEntity<>(ApiResponse.success(
-                VariableDTO.fromEntity(variableService.findByType(variableType))),
+                VariableDTO.fromEntity(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT))),
                 HttpStatus.OK
         );
     }
@@ -103,7 +104,7 @@ public class MerchantDetailsController extends ApiController {
     @PatchMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
     public void updateVariable(@PathVariable VariableType variableType, @RequestParam String value) {
-        variableService.update(variableType, value);
+        variableService.update(variableType, ConfigType.BOT, value);
     }
 
     @PostMapping("/receipt/{merchant}/{orderId}")

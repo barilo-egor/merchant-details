@@ -27,15 +27,29 @@
         </rollingPolicy>
     </appender>
 
-    <!-- 3. APPLICATION ФАЙЛ -->
-    <appender name="APPLICATION_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/application.log</file>
+    <!-- 3. APPLICATION ФАЙЛЫ -->
+    <appender name="APPLICATION_BOT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application-bot.log</file>
         <encoder>
             <pattern>${FILE_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/application-bot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>30MB</maxFileSize>
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="APPLICATION_API_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application-api.log</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/application-api.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>30MB</maxFileSize>
             <maxHistory>3</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
@@ -60,7 +74,8 @@
 
     <!-- Application логи идут в application.log и консоль -->
     <logger name="tgb.cryptoexchange" additivity="false" level="DEBUG">
-        <appender-ref ref="APPLICATION_FILE"/>
+        <appender-ref ref="APPLICATION_BOT_FILE"/>
+        <appender-ref ref="APPLICATION_API_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 

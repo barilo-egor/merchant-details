@@ -143,8 +143,8 @@ public class CommonConfig {
         return kafkaTemplate;
     }
 
-    @Bean(name = "detailsRequestSearchExecutor")
-    public ThreadPoolTaskExecutor detailsRequestSearchExecutor(
+    @Bean(name = "detailsRequestSearchExecutorBot")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorBot(
             @Value("${details.executor.core-pool-size}") Integer corePoolSize,
             @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
             @Value("${details.executor.queue-capacity}") Integer queueCapacity
@@ -153,7 +153,22 @@ public class CommonConfig {
         executor.setCorePoolSize(corePoolSize);
         executor.setMaxPoolSize(maxPoolSize);
         executor.setQueueCapacity(queueCapacity);
-        executor.setThreadNamePrefix("DetailsRequestSearch-");
+        executor.setThreadNamePrefix("DetailsRequestSearchBot-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "detailsRequestSearchExecutorApi")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorApi(
+            @Value("${details.executor.core-pool-size}") Integer corePoolSize,
+            @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
+            @Value("${details.executor.queue-capacity}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("DetailsRequestSearchApi-");
         executor.initialize();
         return executor;
     }

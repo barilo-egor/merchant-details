@@ -40,8 +40,8 @@ public class MerchantConfigService {
     private final AutoConfirmConfigRepository autoConfirmConfigRepository;
 
     public MerchantConfigService(MerchantConfigRepository repository,
-            MerchantSuccessStatusRepository merchantSuccessStatusRepository,
-            AutoConfirmConfigRepository autoConfirmConfigRepository) {
+                                 MerchantSuccessStatusRepository merchantSuccessStatusRepository,
+                                 AutoConfirmConfigRepository autoConfirmConfigRepository) {
         this.repository = repository;
         this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
         this.autoConfirmConfigRepository = autoConfirmConfigRepository;
@@ -196,10 +196,6 @@ public class MerchantConfigService {
         repository.saveAndFlush(otherConfig);
     }
 
-    public void save(MerchantConfig config) {
-        repository.save(config);
-    }
-
     @Transactional
     public void update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())
@@ -280,5 +276,6 @@ public class MerchantConfigService {
         }
         repository.saveAll(configs);
     }
+
 
 }

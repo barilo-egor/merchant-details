@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(exclude = "successStatuses")
 @EqualsAndHashCode(exclude = "successStatuses")
-public class MerchantConfig {
+public class MerchantConfig implements BaseConfig {
 
     @Id
     @GeneratedValue
