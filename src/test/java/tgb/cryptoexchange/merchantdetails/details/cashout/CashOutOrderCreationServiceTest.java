@@ -41,7 +41,7 @@ class CashOutOrderCreationServiceTest {
     @Test
     void uriBuilder_ShouldBuildCorrectUri() {
         UriBuilder builder = UriComponentsBuilder.newInstance();
-        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(DetailsRequest.class));
+        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(DetailsRequest.class), null);
 
         URI result = uriFunction.apply(builder);
 
@@ -53,7 +53,7 @@ class CashOutOrderCreationServiceTest {
         when(cashOutProperties.key()).thenReturn("cashout-key");
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(null, null);
+        Consumer<HttpHeaders> headersConsumer = service.headers(null, null, null);
         headersConsumer.accept(headers);
 
         assertThat(headers.getFirst("Content-Type")).isEqualTo("application/json");

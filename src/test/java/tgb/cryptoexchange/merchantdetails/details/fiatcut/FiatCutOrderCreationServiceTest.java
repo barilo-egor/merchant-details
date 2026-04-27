@@ -41,7 +41,7 @@ class FiatCutOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/h2h/order", fiatCutOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/h2h/order", fiatCutOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -53,7 +53,7 @@ class FiatCutOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         when(fiatCutProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        fiatCutOrderCreationService.headers(null, null).accept(headers);
+        fiatCutOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Accept")).getFirst()),
                 () -> assertEquals(token, Objects.requireNonNull(headers.get("Access-Token")).getFirst())
@@ -69,12 +69,11 @@ class FiatCutOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).method(Collections.singletonList(method)).build()));
-        detailsRequest.setCurrentMerchantMethod(method);
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(fiatCutProperties.merchantId()).thenReturn(merchantId);
-        Request request = fiatCutOrderCreationService.body(detailsRequest);
+        Request request = fiatCutOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExternalId())),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),

@@ -50,7 +50,7 @@ class BitZoneOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/payment/trading/pay-in", bitZoneOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/payment/trading/pay-in", bitZoneOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -60,7 +60,7 @@ class BitZoneOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(bitZoneProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        bitZoneOrderCreationService.headers(null, "").accept(headers);
+        bitZoneOrderCreationService.headers(null, null, "").accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -78,8 +78,7 @@ class BitZoneOrderCreationServiceTest {
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        detailsRequest.setCurrentMerchantMethod(method);
-        Request request = bitZoneOrderCreationService.body(detailsRequest);
+        Request request = bitZoneOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),

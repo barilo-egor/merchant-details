@@ -180,6 +180,10 @@ public class MerchantConfigService {
         repository.saveAndFlush(otherConfig);
     }
 
+    public void save(MerchantConfig config) {
+        repository.save(config);
+    }
+
     @Transactional
     public void update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())

@@ -67,14 +67,14 @@ class NorosOrderCreationServiceImplTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(
                 "/transaction",
-                norosOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
+                norosOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath()
         );
     }
 
     @Test
     void shouldAddCorrectHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        norosOrderCreationService.headers(new DetailsRequest(), "").accept(headers);
+        norosOrderCreationService.headers(new DetailsRequest(), null, "").accept(headers);
 
         assertEquals("application/json", headers.getFirst(HttpHeaders.CONTENT_TYPE));
         assertEquals("test-api-key", headers.getFirst("api_key"));
@@ -87,8 +87,7 @@ class NorosOrderCreationServiceImplTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS).method(
                         Collections.singletonList(Method.CARD.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
-        Request resultBody = norosOrderCreationService.body(detailsRequest);
+        Request resultBody = norosOrderCreationService.body(detailsRequest, Method.CARD.name());
 
         assertNotNull(resultBody.getOrderId());
         assertEquals(1000, resultBody.getAmount());

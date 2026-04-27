@@ -54,7 +54,7 @@ class PayLeeMerchantServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/partners/purchases/", payLeeMerchantService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/partners/purchases/", payLeeMerchantService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -64,7 +64,7 @@ class PayLeeMerchantServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         when(payLeeProperties.token()).thenReturn(token);
-        payLeeMerchantService.headers(null, null).accept(headers);
+        payLeeMerchantService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Token " + token, headers.getFirst(HttpHeaders.AUTHORIZATION)),
                 () -> assertEquals("application/json", headers.getFirst(HttpHeaders.CONTENT_TYPE))
@@ -80,9 +80,8 @@ class PayLeeMerchantServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
-        detailsRequest.setChatId(1231231231L);
-        detailsRequest.setCurrentMerchantMethod(method.name());
-        Request actual = payLeeMerchantService.body(detailsRequest);
+        detailsRequest.setUserId(String.valueOf(1231231231L));
+        Request actual = payLeeMerchantService.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
                 () -> assertEquals(method, actual.getRequisitesType()),

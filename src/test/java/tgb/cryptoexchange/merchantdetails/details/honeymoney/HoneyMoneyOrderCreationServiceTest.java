@@ -60,9 +60,8 @@ class HoneyMoneyOrderCreationServiceTest {
     void uriBuilderShouldAddPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals(method.getUri(), honeyMoneyOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
+        assertEquals(method.getUri(), honeyMoneyOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -75,10 +74,9 @@ class HoneyMoneyOrderCreationServiceTest {
         when(signatureService.hmacSHA256(any(), any(), any())).thenReturn(signature);
 
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.CARD.name())).build()));
         HttpHeaders headers = new HttpHeaders();
-        honeyMoneyOrderCreationService.headers(detailsRequest, "body").accept(headers);
+        honeyMoneyOrderCreationService.headers(detailsRequest, Method.CARD.name(), "body").accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + authToken, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -94,11 +92,10 @@ class HoneyMoneyOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
-        Request request = honeyMoneyOrderCreationService.body(detailsRequest);
+        Request request = honeyMoneyOrderCreationService.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method.getBank(), request.getBank()),

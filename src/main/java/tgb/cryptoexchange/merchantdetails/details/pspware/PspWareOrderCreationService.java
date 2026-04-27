@@ -5,8 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
@@ -37,20 +37,20 @@ public class PspWareOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/merchant/v2/orders").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> httpHeaders.add("X-API-KEY", pspWareProperties.token());
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setSum(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setPayTypes(List.of(method));
         if (Method.TRANSGRAN_PHONE.equals(method)) {
             request.setGeos(List.of("TJK"));
@@ -65,7 +65,8 @@ public class PspWareOrderCreationService extends MerchantOrderCreationService<Re
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setDetails(response.getBankName() + " " + response.getCard());
+        detailsResponse.setBank(response.getBankName());
+        detailsResponse.setDetails(response.getCard());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());

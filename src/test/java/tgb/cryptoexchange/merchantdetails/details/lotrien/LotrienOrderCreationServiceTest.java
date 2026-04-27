@@ -39,7 +39,7 @@ class LotrienOrderCreationServiceTest {
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/order/payin",
-                service.uriBuilder(null).apply(uriBuilder).getPath());
+                service.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -49,7 +49,7 @@ class LotrienOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(lotrienProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
+        service.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals(lotrienProperties.key(), Objects.requireNonNull(headers.get("X-API-Key")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()));
@@ -66,8 +66,7 @@ class LotrienOrderCreationServiceTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LOTRIEN).method(Collections.singletonList(method.name()))
                         .build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), new BigDecimal(actual.getFiatSum()).intValue()),
                 () -> assertEquals(method, actual.getPaymentMethod())

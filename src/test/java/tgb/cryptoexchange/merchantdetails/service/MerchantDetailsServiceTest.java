@@ -18,6 +18,7 @@ import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.*;
@@ -58,16 +59,16 @@ class MerchantDetailsServiceTest {
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantServiceNotImplemented() {
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.empty());
-        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, new DetailsRequest()).isEmpty());
+        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, new DetailsRequestBot()).isEmpty());
     }
 
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantReturnNoDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        detailsRequest.setMethods(List.of(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
-        when(merchantService.createOrder(any())).thenReturn(Optional.empty());
+        when(merchantService.createOrder(any(), any())).thenReturn(Optional.empty());
         assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, detailsRequest).isEmpty());
     }
 
@@ -75,21 +76,21 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsAndPutDetailsToProducer() {
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setId(50005L);
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        detailsRequest.setId(String.valueOf(50005L));
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(Merchant.ALFA_TEAM);
         detailsResponse.setDetails("SOME BANK 1234 1234 1234 1234");
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
-        when(merchantService.createOrder(any())).thenReturn(Optional.of(detailsResponse));
+        detailsRequest.setMethods(List.of(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
+        when(merchantService.createOrder(any(), any())).thenReturn(Optional.of(detailsResponse));
         ArgumentCaptor<Merchant> merchantCaptor = ArgumentCaptor.forClass(Merchant.class);
-        ArgumentCaptor<DetailsRequest> detailsRequestCaptor = ArgumentCaptor.forClass(DetailsRequest.class);
+        ArgumentCaptor<DetailsRequestBot> detailsRequestCaptor = ArgumentCaptor.forClass(DetailsRequestBot.class);
         ArgumentCaptor<DetailsResponse> detailsResponseCaptor = ArgumentCaptor.forClass(DetailsResponse.class);
         Optional<DetailsResponse> maybeResponse = merchantDetailsService.getDetails(Merchant.ALFA_TEAM, detailsRequest);
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertEquals(Merchant.ALFA_TEAM, actual.getMerchant());
-        verify(merchantDetailsReceiveEventProducer).put(merchantCaptor.capture(), detailsRequestCaptor.capture(), detailsResponseCaptor.capture());
+        verify(merchantDetailsReceiveEventProducer).put(merchantCaptor.capture(), "CARD", detailsRequestCaptor.capture(), detailsResponseCaptor.capture());
         assertAll(
                 () -> assertEquals(Merchant.ALFA_TEAM, merchantCaptor.getValue()),
                 () -> assertEquals(detailsRequest, detailsRequestCaptor.getValue()),
@@ -127,9 +128,9 @@ class MerchantDetailsServiceTest {
     @Test
     void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        DetailsRequest detailsRequest = new DetailsRequest();
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
         detailsRequest.setMethods(new ArrayList<>());
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -138,9 +139,9 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnEmptyOptionalIfOneMerchantHasNoDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -151,23 +152,23 @@ class MerchantDetailsServiceTest {
                 .build()
         );
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+        when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
-        when(merchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(merchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
 
         assertTrue(merchantDetailsService.getDetails(detailsRequest).isEmpty());
     }
 
     @Test
     void getDetailsShouldReturnDetailsIfOneMerchantHasDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -178,7 +179,7 @@ class MerchantDetailsServiceTest {
                 .build()
         );
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
@@ -187,7 +188,7 @@ class MerchantDetailsServiceTest {
         String expectedId = UUID.randomUUID().toString();
         detailsResponse.setMerchantOrderId(expectedId);
         detailsResponse.setMerchant(Merchant.ALFA_TEAM);
-        when(merchantService.createOrder(detailsRequest)).thenReturn(Optional.of(detailsResponse));
+        when(merchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.of(detailsResponse));
 
         Optional<DetailsResponse> maybeDetailsResponse = merchantDetailsService.getDetails(detailsRequest);
         assertTrue(maybeDetailsResponse.isPresent());
@@ -197,12 +198,12 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnDetailsIfFirstHasDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -213,7 +214,7 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
         MerchantService merchantService = Mockito.mock(MerchantService.class);
@@ -222,7 +223,7 @@ class MerchantDetailsServiceTest {
         String expectedId = UUID.randomUUID().toString();
         detailsResponse.setMerchantOrderId(expectedId);
         detailsResponse.setMerchant(Merchant.ALFA_TEAM);
-        when(merchantService.createOrder(detailsRequest)).thenReturn(Optional.of(detailsResponse));
+        when(merchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.of(detailsResponse));
 
         Optional<DetailsResponse> maybeDetailsResponse = merchantDetailsService.getDetails(detailsRequest);
         assertTrue(maybeDetailsResponse.isPresent());
@@ -231,12 +232,12 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnDetailsIfLastHasDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -247,18 +248,18 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.EVO_PAY)).thenReturn(Optional.of(evoPayMerchantService));
 
         DetailsResponse detailsResponse = new DetailsResponse();
@@ -267,7 +268,7 @@ class MerchantDetailsServiceTest {
         detailsResponse.setMerchant(Merchant.HONEY_MONEY);
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenReturn(Optional.of(detailsResponse));
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.of(detailsResponse));
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         Optional<DetailsResponse> maybeDetailsResponse = merchantDetailsService.getDetails(detailsRequest);
@@ -278,12 +279,12 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnDetailsIfNoOneHasDetails() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -294,25 +295,25 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+        when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(alfaMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.EVO_PAY)).thenReturn(Optional.of(evoPayMerchantService));
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         Optional<DetailsResponse> maybeDetailsResponse = merchantDetailsService.getDetails(detailsRequest);
@@ -321,12 +322,12 @@ class MerchantDetailsServiceTest {
 
     @Test
     void getDetailsShouldReturnDetailsIfFirstHasDetailsOnSecondIteration() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -337,9 +338,9 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+        when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
@@ -348,20 +349,20 @@ class MerchantDetailsServiceTest {
         detailsResponse.setMerchant(Merchant.ALFA_TEAM);
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty()).thenReturn(Optional.of(detailsResponse));
+        when(alfaMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty()).thenReturn(Optional.of(detailsResponse));
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.EVO_PAY)).thenReturn(Optional.of(evoPayMerchantService));
 
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         Optional<DetailsResponse> maybeDetailsResponse = merchantDetailsService.getDetails(detailsRequest);
@@ -373,12 +374,12 @@ class MerchantDetailsServiceTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 5, 10})
     void getDetailsShouldTryAttemptsCountTimes(Integer times) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -389,45 +390,45 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value(String.valueOf(times)).build());
         if (times > 1) {
-            when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+            when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                     .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
         }
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(alfaMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.EVO_PAY)).thenReturn(Optional.of(evoPayMerchantService));
 
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         merchantDetailsService.getDetails(detailsRequest);
-        verify(alfaMerchantService, times(times)).createOrder(detailsRequest);
-        verify(onlyPaysMerchantService, times(times)).createOrder(detailsRequest);
-        verify(evoPayMerchantService, times(times)).createOrder(detailsRequest);
-        verify(honeyMoneyMerchantService, times(times)).createOrder(detailsRequest);
+        verify(alfaMerchantService, times(times)).createOrder(detailsRequest, "CARD");
+        verify(onlyPaysMerchantService, times(times)).createOrder(detailsRequest, "CARD");
+        verify(evoPayMerchantService, times(times)).createOrder(detailsRequest, "CARD");
+        verify(honeyMoneyMerchantService, times(times)).createOrder(detailsRequest, "CARD");
     }
 
     @Test
     void getDetailsShouldStopTryIfDetailsFounded() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -438,9 +439,9 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+        when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
@@ -449,40 +450,40 @@ class MerchantDetailsServiceTest {
         detailsResponse.setMerchant(Merchant.HONEY_MONEY);
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest))
+        when(alfaMerchantService.createOrder(detailsRequest, "CARD"))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(detailsResponse));
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.EVO_PAY)).thenReturn(Optional.of(evoPayMerchantService));
 
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenReturn(Optional.empty());
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         merchantDetailsService.getDetails(detailsRequest);
-        verify(alfaMerchantService, times(3)).createOrder(detailsRequest);
-        verify(onlyPaysMerchantService, times(2)).createOrder(detailsRequest);
-        verify(evoPayMerchantService, times(2)).createOrder(detailsRequest);
-        verify(honeyMoneyMerchantService, times(2)).createOrder(detailsRequest);
+        verify(alfaMerchantService, times(3)).createOrder(detailsRequest, "CARD");
+        verify(onlyPaysMerchantService, times(2)).createOrder(detailsRequest, "CARD");
+        verify(evoPayMerchantService, times(2)).createOrder(detailsRequest, "CARD");
+        verify(honeyMoneyMerchantService, times(2)).createOrder(detailsRequest, "CARD");
     }
 
     @Test
     void getDetailsShouldKeepTryAfterExceptions() {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        List<DetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        List<DetailsRequestBot.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(DetailsRequestBot.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -493,9 +494,9 @@ class MerchantDetailsServiceTest {
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.EVO_PAY).build());
         merchantConfigs.add(MerchantConfig.builder().merchant(Merchant.HONEY_MONEY).build());
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(merchantConfigs);
-        when(variableService.findByType(VariableType.ATTEMPTS_COUNT))
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
-        when(variableService.findByType(VariableType.MIN_ATTEMPT_TIME))
+        when(variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT))
                 .thenReturn(Variable.builder().type(VariableType.MIN_ATTEMPT_TIME).value("15").build());
 
         DetailsResponse detailsResponse = new DetailsResponse();
@@ -504,20 +505,20 @@ class MerchantDetailsServiceTest {
         detailsResponse.setMerchant(Merchant.HONEY_MONEY);
 
         MerchantService alfaMerchantService = Mockito.mock(MerchantService.class);
-        when(alfaMerchantService.createOrder(detailsRequest))
+        when(alfaMerchantService.createOrder(detailsRequest, "CARD"))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(detailsResponse));
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(alfaMerchantService));
 
         MerchantService onlyPaysMerchantService = Mockito.mock(MerchantService.class);
-        when(onlyPaysMerchantService.createOrder(detailsRequest))
+        when(onlyPaysMerchantService.createOrder(detailsRequest, "CARD"))
                 .thenThrow(RuntimeException.class)
                 .thenReturn(Optional.empty());
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPaysMerchantService));
 
         MerchantService evoPayMerchantService = Mockito.mock(MerchantService.class);
-        when(evoPayMerchantService.createOrder(detailsRequest))
+        when(evoPayMerchantService.createOrder(detailsRequest, "CARD"))
                 .thenThrow(RuntimeException.class)
                 .thenThrow(RuntimeException.class)
                 .thenReturn(Optional.empty());
@@ -525,14 +526,14 @@ class MerchantDetailsServiceTest {
 
 
         MerchantService honeyMoneyMerchantService = Mockito.mock(MerchantService.class);
-        when(honeyMoneyMerchantService.createOrder(detailsRequest)).thenThrow(RuntimeException.class);
+        when(honeyMoneyMerchantService.createOrder(detailsRequest, "CARD")).thenThrow(RuntimeException.class);
         when(merchantServiceRegistry.getService(Merchant.HONEY_MONEY)).thenReturn(Optional.of(honeyMoneyMerchantService));
 
         merchantDetailsService.getDetails(detailsRequest);
-        verify(alfaMerchantService, times(3)).createOrder(detailsRequest);
-        verify(onlyPaysMerchantService, times(2)).createOrder(detailsRequest);
-        verify(evoPayMerchantService, times(2)).createOrder(detailsRequest);
-        verify(honeyMoneyMerchantService, times(2)).createOrder(detailsRequest);
+        verify(alfaMerchantService, times(3)).createOrder(detailsRequest, "CARD");
+        verify(onlyPaysMerchantService, times(2)).createOrder(detailsRequest, "CARD");
+        verify(evoPayMerchantService, times(2)).createOrder(detailsRequest, "CARD");
+        verify(honeyMoneyMerchantService, times(2)).createOrder(detailsRequest, "CARD");
     }
 
 

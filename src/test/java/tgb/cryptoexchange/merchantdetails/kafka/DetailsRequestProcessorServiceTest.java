@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -57,10 +57,10 @@ class DetailsRequestProcessorServiceTest {
 
     @Test
     void receiveShouldSendEmptyResponseIfDetailsIsEmpty() {
-        DetailsRequest request = new DetailsRequest();
+        DetailsRequestBot request = new DetailsRequestBot();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
-        request.setId(12352963876L);
+        request.setId(String.valueOf(12352963876L));
         doAnswer(invocation -> {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
@@ -78,10 +78,10 @@ class DetailsRequestProcessorServiceTest {
 
     @Test
     void receiveShouldSendEmptyResponseIfExceptionWasThrown() {
-        DetailsRequest request = new DetailsRequest();
+        DetailsRequestBot request = new DetailsRequestBot();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
-        request.setId(12352963876L);
+        request.setId(String.valueOf(12352963876L));
         doAnswer(invocation -> {
             Callable<?> callable = invocation.getArgument(0);
             Object result = callable.call();
@@ -103,10 +103,10 @@ class DetailsRequestProcessorServiceTest {
             """)
     @ParameterizedTest
     void receiveShouldSendDetailsObjectIfDetailsFound(String details, Merchant merchant, String status, Integer amount) {
-        DetailsRequest request = new DetailsRequest();
+        DetailsRequestBot request = new DetailsRequestBot();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
-        request.setId(12352963876L);
+        request.setId(String.valueOf(12352963876L));
         DetailsResponse response = new DetailsResponse();
         response.setDetails(details);
         response.setMerchant(merchant);

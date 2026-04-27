@@ -61,10 +61,9 @@ class ExtasyPayOrderCreationServiceTest {
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(Collections.singletonList(method.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
+        assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -74,7 +73,7 @@ class ExtasyPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(extasyPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        extasyPayOrderCreationService.headers(null, null).accept(headers);
+        extasyPayOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -89,7 +88,7 @@ class ExtasyPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
 
-        Request actual = extasyPayOrderCreationService.body(detailsRequest);
+        Request actual = extasyPayOrderCreationService.body(detailsRequest, null);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),

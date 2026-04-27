@@ -33,7 +33,7 @@ public class VariableService {
                 .orElseGet(() -> {
                     Variable newVariable = new Variable();
                     newVariable.setType(type);
-                    newVariable.setValue(type.getDefaultValue());
+                    newVariable.setValue(type.getDefaultValue(configType));
                     newVariable.setConfigType(configType);
                     return variableRepository.save(newVariable);
                 });

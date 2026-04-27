@@ -76,19 +76,19 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         this.callbackKafkaTemplate = callbackKafkaTemplate;
     }
 
-    public Optional<DetailsResponse> createOrder(DetailsRequest detailsRequest) {
-        log.debug("Запрос на создание ордера мерчанта {} метода {}: {}", getMerchant().name(), detailsRequest.getCurrentMerchantMethod(), detailsRequest);
-        if (!isValidRequestPredicate().test(detailsRequest)) {
-            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", detailsRequest, detailsRequest.getCurrentMerchantMethod());
+    public Optional<DetailsResponse> createOrder(IDetailsRequest detailsRequest, String merchantMethod) {
+        log.debug("Запрос на создание ордера мерчанта {} метода {}: {}", getMerchant().name(), merchantMethod, detailsRequest);
+        if (!isValidRequestPredicate(merchantMethod).test(detailsRequest)) {
+            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", detailsRequest, merchantMethod);
             return Optional.empty();
         }
-        String body = mapBody(detailsRequest);
+        String body = mapBody(detailsRequest, merchantMethod);
         Optional<String> maybeRawResponse;
         try {
-            maybeRawResponse = makeRequest(detailsRequest, body);
+            maybeRawResponse = makeRequest(detailsRequest, merchantMethod, body);
         } catch (Exception e) {
             if (isNoDetailsExceptionPredicate().test(e)) {
-                logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+                logNoDetails(detailsRequest.getRequestId(), merchantMethod);
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
@@ -96,18 +96,18 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
         if (maybeRawResponse.isEmpty()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getRequestId(), merchantMethod);
             return Optional.empty();
         }
         String rawResponse = maybeRawResponse.get();
         if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getRequestId(), merchantMethod);
             return Optional.empty();
         }
         T response = mapResponse(rawResponse);
         validateResponse(response, rawResponse);
         if (!response.hasDetails()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getRequestId(), merchantMethod);
             return Optional.empty();
         }
         Optional<DetailsResponse> maybeResponse;
@@ -119,20 +119,20 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while forming response: " + currentTime + ".", e);
         }
         if (maybeResponse.isPresent()) {
-            log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
+            log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getRequestId(), maybeResponse.get());
         } else {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getCurrentMerchantMethod());
+            logNoDetails(detailsRequest.getRequestId(), merchantMethod);
         }
         return maybeResponse;
     }
 
-    private void logNoDetails(Long id, String method) {
-        log.debug("Реквизиты для запроса id={} у мерчанта {}, метод {} получены не были.", id, getMerchant().name(), method);
+    private void logNoDetails(String requestId, String method) {
+        log.debug("Реквизиты для запроса requestId={} у мерчанта {}, метод {} получены не были.", requestId, getMerchant().name(), method);
     }
 
-    private String mapBody(DetailsRequest detailsRequest) {
+    private String mapBody(IDetailsRequest detailsRequest, String merchantMethod) {
         try {
-            return objectMapper.writeValueAsString(body(detailsRequest));
+            return objectMapper.writeValueAsString(body(detailsRequest, merchantMethod));
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при маппинге тела запроса(detailsRequest = {}): {}", currentTime, detailsRequest, e.getMessage(), e);
@@ -140,11 +140,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
+    protected Optional<String> makeRequest(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         try {
             return Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder(detailsRequest),
-                    headers(detailsRequest, body), body
+                    webClient, method(), uriBuilder(detailsRequest, merchantMethod),
+                    headers(detailsRequest, merchantMethod, body), body
             ));
         } catch (RuntimeException e) {
             if (e.getCause() instanceof TimeoutException) {
@@ -154,7 +154,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    private void handleRequestException(Exception e, long currentTime, DetailsRequest detailsRequest, String body) {
+    private void handleRequestException(Exception e, long currentTime, IDetailsRequest detailsRequest, String body) {
 
         if (e instanceof WebClientResponseException webClientResponseException) {
             String errorBody = webClientResponseException.getResponseBodyAsString();
@@ -189,7 +189,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    protected Predicate<DetailsRequest> isValidRequestPredicate() {
+    protected Predicate<IDetailsRequest> isValidRequestPredicate(String merchantMethod) {
         return detailsRequest -> true;
     }
 
@@ -197,11 +197,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return HttpMethod.POST;
     }
 
-    protected abstract Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest);
+    protected abstract Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod);
 
-    protected abstract Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body);
+    protected abstract Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body);
 
-    protected abstract Object body(DetailsRequest detailsRequest);
+    protected abstract Object body(IDetailsRequest detailsRequest, String merchantMethod);
 
     protected abstract Optional<DetailsResponse> buildResponse(T response);
 

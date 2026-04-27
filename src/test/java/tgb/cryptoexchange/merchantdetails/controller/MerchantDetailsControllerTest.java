@@ -25,6 +25,7 @@ import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -194,13 +195,13 @@ class MerchantDetailsControllerTest {
     @EnumSource(VariableType.class)
     @ParameterizedTest
     void getVariableShouldCallServiceMethod(VariableType variableType) throws Exception {
-        when(variableService.findByType(variableType)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue()).build());
+        when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue(ConfigType.BOT)).build());
         mockMvc.perform(get("/merchant-details/variable/" + variableType.name()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("success").value(true))
                 .andExpect(jsonPath("data").exists())
                 .andExpect(jsonPath("data.type").value(variableType.name()))
-                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue()));
+                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue(ConfigType.BOT)));
     }
 
     @CsvSource("""
@@ -214,7 +215,7 @@ class MerchantDetailsControllerTest {
         mockMvc.perform(patch("/merchant-details/variable/" + variableType.name())
                         .queryParam("value", value))
                 .andExpect(status().isOk());
-        verify(variableService).update(variableType, value);
+        verify(variableService).update(variableType, ConfigType.BOT, value);
     }
 
     @CsvSource("""

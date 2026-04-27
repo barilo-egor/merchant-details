@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
@@ -53,12 +53,12 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path(CREATE_ORDER_URI).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             String nonce;
             try {
@@ -83,8 +83,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
+        Method method = parseMethod(merchantMethod, Method.class);
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
         request.setBankId(method.getId());
@@ -106,7 +106,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
         if (response.getData().getReceiver().startsWith("https")) {
             detailsResponse.setQr(response.getData().getReceiver());
         } else {
-            detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getReceiver());
+            detailsResponse.setBank(response.getData().getBank());
+            detailsResponse.setDetails(response.getData().getReceiver());
         }
         return Optional.of(detailsResponse);
     }

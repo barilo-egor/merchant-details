@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
@@ -37,12 +37,12 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/api/h2h/order").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             httpHeaders.add("Accept", "application/json");
             httpHeaders.add("Access-Token", fiatCutProperties.token());
@@ -51,10 +51,10 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setMethod(parseMethod(merchantMethod, Method.class));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setExternalId(UUID.randomUUID().toString());
@@ -66,8 +66,8 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchantOrderId(response.getData().getOrderId());
-        detailsResponse.setDetails(
-                response.getData().getBankName() + " " + response.getData().getPaymentDetail().getDetail());
+        detailsResponse.setBank(response.getData().getBankName());
+        detailsResponse.setDetails(response.getData().getPaymentDetail().getDetail());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         return Optional.of(detailsResponse);

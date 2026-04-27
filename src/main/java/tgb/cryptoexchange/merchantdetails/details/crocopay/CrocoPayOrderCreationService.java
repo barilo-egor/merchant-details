@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
@@ -41,12 +41,12 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/api/v2/h2h/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             httpHeaders.add("Client-Id", crocoPayProperties.clientId());
             httpHeaders.add("Client-Secret", crocoPayProperties.clientSecret());
@@ -55,10 +55,10 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setMethod(parseMethod(merchantMethod, Method.class));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/crocoPay?dealId="
                 + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
@@ -67,15 +67,15 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.ResponseData responseData = response.getResponseData();
-        String requisite;
-        if ("any_rub_bank".equals(responseData.getPaymentRequisites().getPaymentMethod())) {
-            requisite = responseData.getPaymentRequisites().getRequisites();
-        } else {
-            requisite = responseData.getPaymentRequisites().getPaymentMethod() + " " + responseData.getPaymentRequisites().getRequisites();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
+        if ("any_rub_bank".equals(responseData.getPaymentRequisites().getPaymentMethod())) {
+            detailsResponse.setDetails(responseData.getPaymentRequisites().getRequisites());
+        } else {
+            detailsResponse.setBank(responseData.getPaymentRequisites().getPaymentMethod());
+            detailsResponse.setDetails(responseData.getPaymentRequisites().getRequisites());
+        }
+
         detailsResponse.setMerchant(getMerchant());
-        detailsResponse.setDetails(requisite);
         detailsResponse.setMerchantOrderId(responseData.getTransaction().getId());
         detailsResponse.setMerchantOrderStatus(responseData.getTransaction().getStatus().name());
         return Optional.of(detailsResponse);

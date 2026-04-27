@@ -5,8 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.AsgardProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -35,12 +35,12 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/payments").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return headers -> addHeaders(headers, body);
     }
 
@@ -51,14 +51,14 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setMerchantId(asgardProperties.merchantId());
         request.setAmount(detailsRequest.getAmount());
         request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setMethod(parseMethod(merchantMethod, Method.class));
         return request;
     }
 
@@ -72,7 +72,8 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
         detailsResponse.setAmount(requisites.getAmount().intValue());
         Method method = requisites.getMethod();
         detailsResponse.setPaymentMethod(method.name());
-        detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getAddress());
+        detailsResponse.setBank(requisites.getBankName());
+        detailsResponse.setDetails(requisites.getAddress());
         return Optional.of(detailsResponse);
     }
 

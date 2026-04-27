@@ -39,7 +39,7 @@ class GambitSimOrderCreationServiceTest {
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/orders/init",
-                service.uriBuilder(null).apply(uriBuilder).getPath());
+                service.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -49,7 +49,7 @@ class GambitSimOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(gambitProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
+        service.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + gambitProperties.key(), Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()));
@@ -66,8 +66,7 @@ class GambitSimOrderCreationServiceTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).method(Collections.singletonList(method.name()))
                         .build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), new BigDecimal(actual.getAmount()).intValue())
         );

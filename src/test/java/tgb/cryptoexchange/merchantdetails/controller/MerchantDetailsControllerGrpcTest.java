@@ -28,6 +28,7 @@ import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -283,10 +284,10 @@ class MerchantDetailsControllerGrpcTest {
         Variable mockVariable = Variable.builder()
                 .id(1L)
                 .type(variableType)
-                .value(variableType.getDefaultValue())
+                .value(variableType.getDefaultValue(ConfigType.BOT))
                 .build();
 
-        when(variableService.findByType(variableType)).thenReturn(mockVariable);
+        when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(mockVariable);
 
         GetVariableRequestGrpc request = GetVariableRequestGrpc.newBuilder()
                 .setVariableType(VariableTypeGrpc.valueOf(variableType.name()))
@@ -300,7 +301,7 @@ class MerchantDetailsControllerGrpcTest {
         VariableDTOGrpc actualResponse = responseCaptor.getValue();
         assertAll(
                 () -> assertEquals(variableType.name(), actualResponse.getType().name()),
-                () -> assertEquals(variableType.getDefaultValue(), actualResponse.getValue()),
+                () -> assertEquals(variableType.getDefaultValue(ConfigType.BOT), actualResponse.getValue()),
                 () -> verify(responseObserver).onCompleted()
         );
     }
@@ -321,7 +322,7 @@ class MerchantDetailsControllerGrpcTest {
         StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
         grpcController.updateVariable(request, responseObserver);
 
-        verify(variableService).update(variableType, newValue);
+        verify(variableService).update(variableType, ConfigType.BOT, newValue);
         verify(responseObserver).onNext(any(Empty.class));
         verify(responseObserver).onCompleted();
     }

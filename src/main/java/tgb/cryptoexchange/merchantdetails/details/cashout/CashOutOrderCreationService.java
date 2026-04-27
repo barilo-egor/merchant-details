@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.CashOutProperties;
 
@@ -42,7 +42,7 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path(CREATE_ORDER_URI).build();
     }
 
@@ -53,16 +53,15 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return this::addHeaders;
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
-
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setMethod(method);
         return request;
     }
@@ -74,7 +73,8 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchantOrderId(response.getData().getTransactionId());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         Response.PaymentDetails paymentDetails = response.getData().getPaymentDetails();
-        detailsResponse.setDetails(paymentDetails.getBankName() + " " + paymentDetails.getCardNumber());
+        detailsResponse.setBank(paymentDetails.getBankName());
+        detailsResponse.setDetails(paymentDetails.getCardNumber());
         detailsResponse.setAmount(new BigDecimal(response.getData().getAmount()).intValue());
         return Optional.of(detailsResponse);
     }

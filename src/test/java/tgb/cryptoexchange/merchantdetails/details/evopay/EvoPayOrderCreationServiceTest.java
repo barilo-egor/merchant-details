@@ -67,7 +67,7 @@ class EvoPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/v1/api/order/payin", evoPayOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/v1/api/order/payin", evoPayOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -81,7 +81,7 @@ class EvoPayOrderCreationServiceTest {
         HttpHeaders headers = new HttpHeaders();
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        evoPayOrderCreationService.headers(detailsRequest, null, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
                 () -> assertEquals("application/json", headers.getFirst("Content-Type"))
@@ -99,7 +99,7 @@ class EvoPayOrderCreationServiceTest {
         HttpHeaders headers = new HttpHeaders();
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        evoPayOrderCreationService.headers(detailsRequest, null, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst())
         );
@@ -114,8 +114,7 @@ class EvoPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(method)).build()));
-        detailsRequest.setCurrentMerchantMethod(method);
-        Request request = evoPayOrderCreationService.body(detailsRequest);
+        Request request = evoPayOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),
@@ -178,7 +177,7 @@ class EvoPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn(null);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
     }
 
     @Test
@@ -187,7 +186,7 @@ class EvoPayOrderCreationServiceTest {
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
     }
 
     @Test
@@ -198,7 +197,7 @@ class EvoPayOrderCreationServiceTest {
         Response response = new Response();
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenReturn(response);
         doThrow(InterruptedException.class).when(sleepingService).sleep(8);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
     }
 
     @ValueSource(strings = {
@@ -217,7 +216,7 @@ class EvoPayOrderCreationServiceTest {
         ArgumentCaptor<Function<UriBuilder, URI>> captor =
                 (ArgumentCaptor<Function<UriBuilder, URI>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(Function.class);
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
         verify(requestService).request(any(), eq(HttpMethod.GET), captor.capture(), any(), anyString());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         URI actual = captor.getValue().apply(uriBuilder);
@@ -233,7 +232,7 @@ class EvoPayOrderCreationServiceTest {
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenReturn(response);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
     }
 
     @Test
@@ -247,7 +246,7 @@ class EvoPayOrderCreationServiceTest {
         JsonNode responseNode = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(responseNode);
         when(responseNode.has("entries")).thenReturn(false);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
     }
 
     @Test
@@ -264,7 +263,7 @@ class EvoPayOrderCreationServiceTest {
         JsonNode entries = Mockito.mock(JsonNode.class);
         when(responseNode.get("entries")).thenReturn(entries);
         when(entries.isArray()).thenReturn(false);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
     }
 
     @Test
@@ -282,7 +281,7 @@ class EvoPayOrderCreationServiceTest {
         when(responseNode.get("entries")).thenReturn(entries);
         when(entries.isArray()).thenReturn(true);
         when(entries.isEmpty()).thenReturn(true);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
     }
 
     @ParameterizedTest
@@ -309,7 +308,7 @@ class EvoPayOrderCreationServiceTest {
         JsonNode order = Mockito.mock(JsonNode.class);
         when(entries.get(0)).thenReturn(order);
         when(order.toPrettyString()).thenReturn(orderBody);
-        Optional<String> maybeResponse = evoPayOrderCreationService.makeRequest(detailsRequest, "");
+        Optional<String> maybeResponse = evoPayOrderCreationService.makeRequest(detailsRequest, null, "");
         assertTrue(maybeResponse.isPresent());
         assertEquals(orderBody, maybeResponse.get());
     }

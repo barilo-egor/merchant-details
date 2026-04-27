@@ -62,7 +62,7 @@ class FoxPaysOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/h2h/order", foxPaysOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/h2h/order", foxPaysOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -72,7 +72,7 @@ class FoxPaysOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         when(foxPaysProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        foxPaysOrderCreationService.headers(null, null).accept(headers);
+        foxPaysOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Accept")).getFirst()),
@@ -88,13 +88,12 @@ class FoxPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(method.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request request = foxPaysOrderCreationService.body(detailsRequest);
+        Request request = foxPaysOrderCreationService.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method, request.getPaymentDetailType()),
@@ -110,11 +109,10 @@ class FoxPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObjectWithAlfaAlfaPaymentGateway() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
-        detailsRequest.setCurrentMerchantMethod(Method.ALFA_ALFA.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn("merchantId");
 
-        Request request = foxPaysOrderCreationService.body(detailsRequest);
+        Request request = foxPaysOrderCreationService.body(detailsRequest, Method.ALFA_ALFA.name());
         assertAll(
                 () -> assertEquals(Method.ALFA_ALFA, request.getPaymentDetailType()),
                 () -> assertEquals("alfa-alfa", request.getPaymentGateway())

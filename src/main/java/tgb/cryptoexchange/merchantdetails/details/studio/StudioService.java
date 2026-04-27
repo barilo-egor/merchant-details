@@ -4,8 +4,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
@@ -30,7 +30,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/orders").build();
     }
 
@@ -40,14 +40,14 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> addHeaders(httpHeaders, detailsRequest.getCurrentMerchantMethod());
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+        return httpHeaders -> addHeaders(httpHeaders, merchantMethod);
     }
 
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount() * 100);
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setMainMethod(method);
         if (Method.SIM.equals(method)) {
             request.setSubMethod("sim_sim");
@@ -70,7 +70,8 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
         detailsResponse.setMerchant(getMerchant());
         Response.Requisites requisites = response.getRequisites();
         if (requisites != null) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getAccount());
+            detailsResponse.setBank(requisites.getBankName());
+            detailsResponse.setDetails(requisites.getAccount());
         }
         return Optional.of(detailsResponse);
     }

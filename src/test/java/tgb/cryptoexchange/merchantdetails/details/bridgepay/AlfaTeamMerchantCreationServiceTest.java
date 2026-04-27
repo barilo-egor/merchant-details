@@ -71,7 +71,7 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void uriBuilderShouldSetPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/merchant/invoices", alfaTeamMerchantCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/merchant/invoices", alfaTeamMerchantCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -91,8 +91,7 @@ class AlfaTeamMerchantCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
         DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
-        alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
+        alfaTeamMerchantCreationService.headers(request, Method.TO_CARD.name(), expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
                 () -> assertEquals(sign, Objects.requireNonNull(headers.get("X-Signature")).getFirst()),
@@ -104,12 +103,11 @@ class AlfaTeamMerchantCreationServiceTest {
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
         DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request, "");
+        Consumer<HttpHeaders> headersConsumer = alfaTeamMerchantCreationService.headers(request, Method.TO_CARD.name(), "");
         assertThrows(SignatureCreationException.class, () -> headersConsumer.accept(headers));
     }
 
@@ -126,8 +124,7 @@ class AlfaTeamMerchantCreationServiceTest {
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
-        detailsRequest.setCurrentMerchantMethod(method);
-        Request actual = alfaTeamMerchantCreationService.body(detailsRequest);
+        Request actual = alfaTeamMerchantCreationService.body(detailsRequest, method);
 
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),

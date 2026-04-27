@@ -40,8 +40,8 @@ class LuckyPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
-        detailsRequest.setId(id);
-        detailsRequest.setChatId(chatId);
+        detailsRequest.setId(String.valueOf(id));
+        detailsRequest.setUserId(String.valueOf(chatId));
         when(luckyPayProperties.key()).thenReturn(key);
         assertEquals(luckyPayProperties.key(), key);
     }

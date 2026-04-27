@@ -44,13 +44,12 @@ class StormTradeMerchantCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STORM_TRADE).method(Collections.singletonList("SBP")).build()));
-        detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(stormTradeProperties.token()).thenReturn("token");
 
-        Request actual = stormTradeMerchantCreationService.body(detailsRequest);
+        Request actual = stormTradeMerchantCreationService.body(detailsRequest, "SBP");
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=STORM_TRADE&secret=" + secret,
                 actual.getNotificationUrl());
     }

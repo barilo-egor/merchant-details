@@ -41,7 +41,7 @@ class AsgardImplOrderCreationServiceTest {
         DetailsRequest request = new DetailsRequest();
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        Function<UriBuilder, URI> resultFunc = service.uriBuilder(request);
+        Function<UriBuilder, URI> resultFunc = service.uriBuilder(request, null);
         URI uri = resultFunc.apply(uriBuilder);
 
         assertEquals("/payments", uri.getPath());
@@ -60,7 +60,7 @@ class AsgardImplOrderCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(new DetailsRequest(), body);
+        Consumer<HttpHeaders> headersConsumer = service.headers(new DetailsRequest(), null, body);
         headersConsumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));
@@ -72,13 +72,12 @@ class AsgardImplOrderCreationServiceTest {
     void body_ShouldMapRequestCorrectly() {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(5936);
-        detailsRequest.setCurrentMerchantMethod("CARD");
 
         when(asgardProperties.merchantId()).thenReturn("M-123");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("cb-secret");
 
-        Request result = service.body(detailsRequest);
+        Request result = service.body(detailsRequest, "CARD");
 
         assertNotNull(result.getOrderId());
         assertEquals("M-123", result.getMerchantId());

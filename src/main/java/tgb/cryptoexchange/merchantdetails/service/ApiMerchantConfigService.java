@@ -10,7 +10,9 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
+import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
@@ -18,10 +20,7 @@ import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
@@ -86,13 +85,30 @@ public class ApiMerchantConfigService {
         return repository.findAllByIsOnOrderByMerchantOrder(isOn);
     }
 
-    public List<ApiMerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
-        Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
-                .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
+    public List<ApiMerchantConfig> findAllByMethodsAndAmount(List<RequestMethod> requestMethods, Integer amount) {
+        Set<Merchant> sortedMerchantsByMethod = new HashSet<>();
+        Set<String> requestMethodsSet = requestMethods.stream()
+                .map(RequestMethod::name)
+                .collect(Collectors.toSet());
+        Arrays.stream(Merchant.values()).forEach(merchant -> {
+            List<MerchantMethod> merchantMethods = MerchantConstants.getMethods(merchant);
+            sortMerchantByRequestMethod(merchant, merchantMethods, sortedMerchantsByMethod, requestMethodsSet);
+        });
+
+
         return findAllByIsOnOrderByMerchantOrder(true).stream()
-                .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
+                .filter(config -> sortedMerchantsByMethod.contains(config.getMerchant()))
                 .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
                 .toList();
+    }
+
+    private void sortMerchantByRequestMethod(Merchant merchant, List<MerchantMethod> merchantMethods,
+                                             Set<Merchant> merchantsByMethod, Set<String> requestMethodNames) {
+        merchantMethods.forEach(method -> {
+            if (requestMethodNames.contains(method.name())) {
+                merchantsByMethod.add(merchant);
+            }
+        });
     }
 
     public void delete(ApiMerchantConfig config) {
