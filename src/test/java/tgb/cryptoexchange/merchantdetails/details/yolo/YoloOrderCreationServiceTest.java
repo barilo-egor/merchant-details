@@ -65,7 +65,7 @@ class YoloOrderCreationServiceTest {
     void uriBuilderShouldAddPathAndQuery() {
         when(yoloProperties.accountId()).thenReturn("testId");
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        URI resultUri = yoloService.uriBuilder(null).apply(uriBuilder);
+        URI resultUri = yoloService.uriBuilder(null, null).apply(uriBuilder);
 
         assertEquals("/api/client/orders/deposit", resultUri.getPath());
         assertEquals("accountId=testId", resultUri.getQuery());
@@ -86,7 +86,7 @@ class YoloOrderCreationServiceTest {
 
 
         HttpHeaders headers = new HttpHeaders();
-        yoloService.headers(null, null).accept(headers);
+        yoloService.headers(null, null, null).accept(headers);
 
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
@@ -114,7 +114,7 @@ class YoloOrderCreationServiceTest {
         when(yoloProperties.storeKey()).thenReturn(storeKey);
         when(requestService.request(any(), any(), any(), any(), any())).thenReturn(jsonResponse);
         HttpHeaders headers = new HttpHeaders();
-        yoloService.headers(null, null).accept(headers);
+        yoloService.headers(null, null, null).accept(headers);
 
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
@@ -133,7 +133,7 @@ class YoloOrderCreationServiceTest {
                 .thenReturn(mockJwtJson);
 
 
-        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new DetailsRequest(), "body");
+        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new DetailsRequest(), null, "body");
         headersConsumer.accept(new HttpHeaders());
 
         verify(requestService, times(1)).request(
@@ -156,11 +156,10 @@ class YoloOrderCreationServiceTest {
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
         methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method(Collections.singletonList("SBP")).build());
         request.setMethods(methods);
-        request.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");
 
-        Request result = yoloService.body(request);
+        Request result = yoloService.body(request, "SBP");
 
         assertNotNull(result.getExternalId());
         assertEquals("1000", result.getValue());

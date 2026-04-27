@@ -44,13 +44,12 @@ class GeoTransferMerchantCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GEO_TRANSFER).method(Collections.singletonList("SBP")).build()));
-        detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(geoTransferProperties.token()).thenReturn("token");
 
-        Request actual = geoTransferMerchantCreationService.body(detailsRequest);
+        Request actual = geoTransferMerchantCreationService.body(detailsRequest, "SBP");
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=GEO_TRANSFER&secret=" + secret,
                 actual.getNotificationUrl());
     }

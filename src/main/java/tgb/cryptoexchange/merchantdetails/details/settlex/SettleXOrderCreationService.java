@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
 
@@ -36,12 +36,12 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/api/merchant/transactions/in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("x-merchant-api-key", settleXProperties.key());
@@ -49,11 +49,11 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         if (Method.SBP.equals(method)) {
             request.setMethod(settleXProperties.sbpId());
         } else {
@@ -68,7 +68,8 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setDetails(response.getRequisites().getBankName() + " " + response.getRequisites().getCardNumber());
+        detailsResponse.setBank(response.getRequisites().getBankName());
+        detailsResponse.setDetails(response.getRequisites().getCardNumber());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantCustomId(response.getOrderId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());

@@ -56,7 +56,7 @@ class NeuralPayOrderCreationServiceTest {
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/v1/core/transactions/charge",
-                service.uriBuilder(null).apply(uriBuilder).getPath());
+                service.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -67,7 +67,7 @@ class NeuralPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         when(neuralPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
+        service.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -87,8 +87,7 @@ class NeuralPayOrderCreationServiceTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NEURAL_PAY).method(Collections.singletonList(method.name()))
                         .build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(detailsRequest, method.name());
         Request.Requisite requisite = new Request.Requisite();
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), actual.getAmount()),

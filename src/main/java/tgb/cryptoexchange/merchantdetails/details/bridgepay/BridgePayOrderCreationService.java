@@ -17,8 +17,8 @@ import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
@@ -58,14 +58,13 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/api/merchant/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return headers -> addHeaders(headers, parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class), body,
-                bridgePayProperties.url() + "/api/merchant/invoices");
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+        return headers -> addHeaders(headers, parseMethod(merchantMethod, Method.class), body);
     }
 
     private void addHeaders(HttpHeaders headers, Method method, String body, String url) {
@@ -94,7 +93,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
         request.setCurrency(FiatCurrency.RUB.name());
@@ -102,7 +101,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         request.setNotificationToken(bridgePayProperties.token());
         request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setPaymentOption(parseMethod(merchantMethod, Method.class));
         request.setStartDeal(true);
         return request;
     }
@@ -130,7 +129,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
+    protected Optional<String> makeRequest(IDetailsRequest detailsRequest, String body) {
         Optional<String> createOrderResponse = super.makeRequest(detailsRequest, body);
         if (createOrderResponse.isEmpty()) {
             log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());

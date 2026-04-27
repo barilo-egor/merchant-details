@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 
@@ -32,12 +32,12 @@ public class LotrienOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    public Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/order/payin").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    public Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return this::addHeaders;
     }
 
@@ -47,9 +47,9 @@ public class LotrienOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setPaymentMethod(method);
         request.setFiatSum(String.format(Locale.US, "%.2f", detailsRequest.getAmount().doubleValue()));
         return request;
@@ -63,10 +63,11 @@ public class LotrienOrderCreationService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
         Response.Requisites requisites = response.getRequisites();
+        detailsResponse.setBank(requisites.getBank());
         if (Method.BANK_CARD.equals(response.getPaymentMethod())) {
-            detailsResponse.setDetails(requisites.getBank() + " " + requisites.getCardNumber());
+            detailsResponse.setDetails(requisites.getCardNumber());
         } else {
-            detailsResponse.setDetails(requisites.getBank() + " " + requisites.getPhoneNumber());
+            detailsResponse.setDetails(requisites.getPhoneNumber());
         }
         return Optional.of(detailsResponse);
     }

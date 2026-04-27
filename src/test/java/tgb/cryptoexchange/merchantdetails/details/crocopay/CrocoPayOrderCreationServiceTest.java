@@ -51,7 +51,7 @@ class CrocoPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -64,7 +64,7 @@ class CrocoPayOrderCreationServiceTest {
         when(crocoPayProperties.clientId()).thenReturn(id);
         when(crocoPayProperties.clientSecret()).thenReturn(secret);
         HttpHeaders headers = new HttpHeaders();
-        crocoPayOrderCreationService.headers(null, null).accept(headers);
+        crocoPayOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals(id, Objects.requireNonNull(headers.get("Client-Id")).getFirst()),
                 () -> assertEquals(secret, Objects.requireNonNull(headers.get("Client-Secret")).getFirst())
@@ -78,13 +78,12 @@ class CrocoPayOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret, Long dealId) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setId(dealId);
+        detailsRequest.setId(String.valueOf(dealId));
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).method(Collections.singletonList(method)).build()));
-        detailsRequest.setCurrentMerchantMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = crocoPayOrderCreationService.body(detailsRequest);
+        Request request = crocoPayOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),

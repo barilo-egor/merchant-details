@@ -67,14 +67,14 @@ class NorosHighCheckOrderCreationServiceImplTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(
                 "/transaction",
-                norosHighCheckOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
+                norosHighCheckOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath()
         );
     }
 
     @Test
     void shouldAddCorrectHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        norosHighCheckOrderCreationService.headers(new DetailsRequest(), "").accept(headers);
+        norosHighCheckOrderCreationService.headers(new DetailsRequest(), null, "").accept(headers);
 
         assertEquals("application/json", headers.getFirst(HttpHeaders.CONTENT_TYPE));
         assertEquals("test-api-key", headers.getFirst("api_key"));
@@ -87,8 +87,7 @@ class NorosHighCheckOrderCreationServiceImplTest {
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS_HIGH_CHECK).method(
                         Collections.singletonList(Method.SBP.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(Method.SBP.name());
-        Request resultBody = norosHighCheckOrderCreationService.body(detailsRequest);
+        Request resultBody = norosHighCheckOrderCreationService.body(detailsRequest, Method.SBP.name());
 
         assertNotNull(resultBody.getOrderId());
         assertEquals(1000, resultBody.getAmount());

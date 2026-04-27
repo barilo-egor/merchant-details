@@ -49,7 +49,7 @@ class DaoPaymentsOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v1/deposit", daoPaymentsOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/v1/deposit", daoPaymentsOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -61,7 +61,7 @@ class DaoPaymentsOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(daoPaymentsProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        daoPaymentsOrderCreationService.headers(null, null).accept(headers);
+        daoPaymentsOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("X-API-KEY")).getFirst())
@@ -80,8 +80,7 @@ class DaoPaymentsOrderCreationServiceTest {
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        detailsRequest.setCurrentMerchantMethod(method);
-        Request request = daoPaymentsOrderCreationService.body(detailsRequest);
+        Request request = daoPaymentsOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getMerchantOrderId())),
                 () -> assertEquals(Method.valueOf(method), request.getRequisiteType()),

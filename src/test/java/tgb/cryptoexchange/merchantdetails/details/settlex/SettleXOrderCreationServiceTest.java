@@ -47,7 +47,7 @@ class SettleXOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/merchant/transactions/in", service.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/merchant/transactions/in", service.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -57,7 +57,7 @@ class SettleXOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(settleXProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
+        service.headers(null, null, null).accept(headers);
         assertAll(
             () -> assertEquals(key, headers.getFirst("x-merchant-api-key")),
             () -> assertEquals("application/json", headers.getFirst("Content-Type"))
@@ -72,7 +72,6 @@ class SettleXOrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
@@ -81,7 +80,7 @@ class SettleXOrderCreationServiceTest {
         } else {
             when(settleXProperties.c2cId()).thenReturn(c2cId);
         }
-        Request actual = service.body(detailsRequest);
+        Request actual = service.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> {

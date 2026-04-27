@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.GambitProperties;
 
@@ -27,12 +27,12 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    public Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/orders/init").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    public Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return this::addHeaders;
     }
 
@@ -42,9 +42,9 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setMethod(method);
         request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
         request.setAmount(detailsRequest.getAmount());
@@ -60,10 +60,11 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(response.getAmount().intValue());
         Response.Requisites requisites = response.getPaymentDetails();
+        detailsResponse.setBank(requisites.getBankName());
         if (Objects.nonNull(response.getPaymentDetails().getPhone())) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getPhone());
+            detailsResponse.setDetails(requisites.getPhone());
         } else {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getCardNumber());
+            detailsResponse.setDetails(requisites.getCardNumber());
         }
         return Optional.of(detailsResponse);
     }

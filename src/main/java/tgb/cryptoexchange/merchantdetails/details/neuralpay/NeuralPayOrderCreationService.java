@@ -11,8 +11,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.NeuralPayProperties;
@@ -39,7 +39,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/v1/core/transactions/charge").build();
     }
 
@@ -50,15 +50,15 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return this::addHeaders;
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setMethod(Collections.singletonList(method.name()));
         return request;
     }
@@ -71,7 +71,8 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
         Response.ResponseRequisite requisite = response.getRequisite();
-        detailsResponse.setDetails(requisite.getBankName() + " " + requisite.getRequisite());
+        detailsResponse.setBank(requisite.getBankName());
+        detailsResponse.setDetails(requisite.getRequisite());
         return Optional.of(detailsResponse);
     }
 

@@ -40,13 +40,13 @@ class GoatxMerchantOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/order/", goatxMerchantOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/order/", goatxMerchantOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @Test
     void headersShouldAddRequiredHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        goatxMerchantOrderCreationService.headers(null, null).accept(headers);
+        goatxMerchantOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
         );
@@ -60,10 +60,9 @@ class GoatxMerchantOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String contractId, String method) {
         DetailsRequest detailsRequest = spy(new DetailsRequest());
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method);
         when(goatxProperties.merchantContractId()).thenReturn(contractId);
 
-        Request result = goatxMerchantOrderCreationService.body(detailsRequest);
+        Request result = goatxMerchantOrderCreationService.body(detailsRequest, method);
 
         assertAll(
                 () -> assertEquals(amount.toString(), result.getSum()),

@@ -70,14 +70,14 @@ class PayCrownOrderCreationServiceTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(
                 "/api/order/deposit",
-                payCrownOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
+                payCrownOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath()
         );
     }
 
     @Test
     void headersShouldThrowBodyMappingExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(null, "");
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(null, null, "");
         HttpHeaders headers = new HttpHeaders();
         assertThrows(BodyMappingException.class, () -> headersConsumer.accept(headers));
     }
@@ -89,8 +89,7 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setAmount(1000);
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, "");
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, Method.CARD.name(), "");
         HttpHeaders headers = new HttpHeaders();
         when(objectMapper.readTree(anyString())).thenReturn(objectNode);
         when(payCrownProperties.merchantId()).thenReturn("merchantId");
@@ -122,9 +121,8 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, body);
+        Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, method.name(), body);
         headersConsumer.accept(headers);
         verify(objectMapper).readTree(body);
         verify(signatureService).getMD5Hash(amount + unixTimestamp + "rub" + merchantId + method.getValue() + secret);
@@ -143,12 +141,11 @@ class PayCrownOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
 
-        Request actual = payCrownOrderCreationService.body(detailsRequest);
+        Request actual = payCrownOrderCreationService.body(detailsRequest, method.name());
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),

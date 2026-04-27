@@ -9,8 +9,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
@@ -35,14 +35,14 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+        Method method = parseMethod(merchantMethod, Method.class);
         return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+        Method method = parseMethod(merchantMethod, Method.class);
         return headers -> addHeaders(headers, method);
     }
 
@@ -52,7 +52,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());
@@ -67,9 +67,11 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         if (Objects.nonNull(response.getPaymentUrl())) {
             detailsResponse.setQr(response.getPaymentUrl());
         } else if (Objects.nonNull(response.getPhoneNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
+            detailsResponse.setBank(response.getBankName());
+            detailsResponse.setDetails(response.getPhoneNumber());
         } else {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
+            detailsResponse.setBank(response.getBankName());
+            detailsResponse.setDetails(response.getCardNumber());
         }
         detailsResponse.setMerchantOrderStatus(Status.PROCESS.name());
         return Optional.of(detailsResponse);

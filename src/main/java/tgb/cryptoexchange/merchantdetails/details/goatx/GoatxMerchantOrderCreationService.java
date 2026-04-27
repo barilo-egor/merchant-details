@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxProperties;
@@ -31,21 +31,21 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/api/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setSum(detailsRequest.getAmount().toString());
         request.setContract(goatxProperties.merchantContractId());
-        request.setWay(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setWay(parseMethod(merchantMethod, Method.class));
         request.setInvid(UUID.randomUUID().toString());
         request.setSignature(generateSignature(goatxProperties.login(), request.getSum(), request.getInvid(), goatxProperties.apiKey()));
         return request;
@@ -75,10 +75,11 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
+        detailsResponse.setBank(response.getRequisite().getBank().getName());
         if (Method.CARD.equals(response.getWay())) {
-            detailsResponse.setDetails(response.getRequisite().getBank().getName() + " " + response.getRequisite().getCardNumber());
+            detailsResponse.setDetails(response.getRequisite().getCardNumber());
         } else {
-            detailsResponse.setDetails(response.getRequisite().getBank().getName() + " " + response.getRequisite().getPhoneNumber());
+            detailsResponse.setDetails(response.getRequisite().getPhoneNumber());
         }
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         return Optional.of(detailsResponse);

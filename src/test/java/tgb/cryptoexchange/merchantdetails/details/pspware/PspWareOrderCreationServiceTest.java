@@ -41,7 +41,7 @@ class PspWareOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/merchant/v2/orders", pspWareOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/merchant/v2/orders", pspWareOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -51,7 +51,7 @@ class PspWareOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         when(pspWareProperties.token()).thenReturn(token);
-        Consumer<HttpHeaders> headersConsumer = pspWareOrderCreationService.headers(null, null);
+        Consumer<HttpHeaders> headersConsumer = pspWareOrderCreationService.headers(null, null, null);
         headersConsumer.accept(headers);
         assertEquals(token, headers.getFirst("X-API-KEY"));
     }
@@ -62,8 +62,7 @@ class PspWareOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.TRANSGRAN_PHONE.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(Method.TRANSGRAN_PHONE.name());
-        Request actual = pspWareOrderCreationService.body(detailsRequest);
+        Request actual = pspWareOrderCreationService.body(detailsRequest, Method.TRANSGRAN_PHONE.name());
         assertEquals(1, actual.getGeos().size());
         assertEquals(1, actual.getPayTypes().size());
         assertAll(
@@ -79,8 +78,7 @@ class PspWareOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.SBP.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(Method.SBP.name());
-        Request actual = pspWareOrderCreationService.body(detailsRequest);
+        Request actual = pspWareOrderCreationService.body(detailsRequest, Method.SBP.name());
         assertEquals(2, actual.getGeos().size());
         assertAll(
                 () -> assertEquals("RU", actual.getGeos().getFirst()),
@@ -94,8 +92,7 @@ class PspWareOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.CARD.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
-        Request actual = pspWareOrderCreationService.body(detailsRequest);
+        Request actual = pspWareOrderCreationService.body(detailsRequest, Method.CARD.name());
         assertEquals(1, actual.getGeos().size());
         assertAll(
                 () -> assertEquals("RU", actual.getGeos().getFirst())

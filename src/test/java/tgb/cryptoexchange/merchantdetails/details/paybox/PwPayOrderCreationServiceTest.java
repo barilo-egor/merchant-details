@@ -60,14 +60,13 @@ class PwPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(),
-                pwPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
+                pwPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -77,9 +76,7 @@ class PwPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(pwPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
-        pwPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        pwPayOrderCreationService.headers(null, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -94,7 +91,7 @@ class PwPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
 
-        Request actual = pwPayOrderCreationService.body(detailsRequest);
+        Request actual = pwPayOrderCreationService.body(detailsRequest, null);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),

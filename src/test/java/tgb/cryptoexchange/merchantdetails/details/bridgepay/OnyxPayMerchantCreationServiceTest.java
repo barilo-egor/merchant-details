@@ -64,13 +64,12 @@ class OnyxPayMerchantCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONYX_PAY).method(Collections.singletonList("SBP")).build()));
-        detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(onyxPayProperties.token()).thenReturn("token");
 
-        Request actual = onyxPayMerchantCreationService.body(detailsRequest);
+        Request actual = onyxPayMerchantCreationService.body(detailsRequest, "SBP");
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ONYX_PAY&secret=" + secret,
                 actual.getNotificationUrl());
     }

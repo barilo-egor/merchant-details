@@ -44,13 +44,12 @@ class RostrastMerchantCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ROSTRAST).method(Collections.singletonList("SBP")).build()));
-        detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(rostrastProperties.token()).thenReturn("token");
 
-        Request actual = rostrastMerchantCreationService.body(detailsRequest);
+        Request actual = rostrastMerchantCreationService.body(detailsRequest, "SBP");
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ROSTRAST&secret=" + secret,
                 actual.getNotificationUrl());
     }

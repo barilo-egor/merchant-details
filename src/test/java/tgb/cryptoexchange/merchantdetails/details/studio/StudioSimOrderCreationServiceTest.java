@@ -32,10 +32,9 @@ class StudioSimOrderCreationServiceTest {
     @DisplayName("Проверка заголовков для Sim")
     void shouldAddSimHeaderWhenMethodIsSim() {
         when(properties.getKey("SIM")).thenReturn("key-for-sim");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("SIM");
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "some body");
+        Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "SIM", "some body");
         consumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));

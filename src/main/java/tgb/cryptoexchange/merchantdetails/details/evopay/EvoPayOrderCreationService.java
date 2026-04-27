@@ -12,8 +12,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -47,8 +47,8 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
-        Optional<String> createOrderResponse = super.makeRequest(detailsRequest, body);
+    protected Optional<String> makeRequest(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+        Optional<String> createOrderResponse = super.makeRequest(detailsRequest, merchantMethod, body);
         if (createOrderResponse.isEmpty()) {
             log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());
             return Optional.empty();
@@ -75,7 +75,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
                 evoPayWebClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
-                this.headers(detailsRequest, body),
+                this.headers(detailsRequest, merchantMethod, body),
                 body
         );
         JsonNode listOrderResponse;
@@ -102,12 +102,12 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
         return uriBuilder -> uriBuilder.path("/v1/api/order/payin").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
             httpHeaders.add("Content-Type", "application/json");
@@ -123,11 +123,11 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setCustomId(UUID.randomUUID().toString());
         request.setFiatSum(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(merchantMethod, Method.class);
         request.setPaymentMethod(method);
         return request;
     }
@@ -138,13 +138,11 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         detailsResponse.setMerchant(Merchant.EVO_PAY);
         if (Objects.nonNull(response.getRequisites().getRecipientCardNumber())
                 && !response.getRequisites().getRecipientCardNumber().isBlank()) {
-            detailsResponse.setDetails(
-                    response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientCardNumber()
-            );
+            detailsResponse.setBank(response.getRequisites().getRecipientBank());
+            detailsResponse.setDetails(response.getRequisites().getRecipientCardNumber());
         } else {
-            detailsResponse.setDetails(
-                    response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientPhoneNumber()
-            );
+            detailsResponse.setBank(response.getRequisites().getRecipientBank());
+            detailsResponse.setDetails(response.getRequisites().getRecipientPhoneNumber());
         }
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getOrderStatus().name());

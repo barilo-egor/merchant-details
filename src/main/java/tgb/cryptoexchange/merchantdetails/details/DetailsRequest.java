@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.kafka.common.serialization.Deserializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
 
 import java.nio.charset.StandardCharsets;
@@ -21,25 +20,19 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DetailsRequest {
+public class DetailsRequest implements IDetailsRequest {
 
     protected String requestId;
 
-    protected Long id;
+    protected String id;
 
     @NotNull
     @Min(1)
     protected Integer amount;
 
-    protected Long chatId;
-
-    protected String initiatorApp;
+    protected String userId;
 
     protected List<MerchantMethod> methods;
-
-    protected String currentMerchantMethod;
-
-    protected ConfigType configType;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {

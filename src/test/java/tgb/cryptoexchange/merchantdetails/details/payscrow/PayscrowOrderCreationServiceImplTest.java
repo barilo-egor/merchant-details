@@ -49,7 +49,7 @@ class PayscrowOrderCreationServiceImplTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(
                 "/api/v1/order/",
-                payscrowOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
+                payscrowOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath()
         );
     }
 
@@ -63,7 +63,7 @@ class PayscrowOrderCreationServiceImplTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(9000);
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.SBP.name())).build()));
-        payscrowOrderCreationService.headers(detailsRequest, null).accept(headers);
+        payscrowOrderCreationService.headers(detailsRequest, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
                 () -> assertEquals(key, headers.getFirst("X-API-Key"))
@@ -78,9 +78,8 @@ class PayscrowOrderCreationServiceImplTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
-        Request request = payscrowOrderCreationService.body(detailsRequest);
+        Request request = payscrowOrderCreationService.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(method, request.getPaymentMethod()),
@@ -297,9 +296,8 @@ class PayscrowOrderCreationServiceImplTest {
     @ParameterizedTest
     void isValidRequestPredicateShouldReturnTrueIfMethodIsNotTriangle(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
-        assertTrue(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate(method.name()).test(detailsRequest));
     }
 
     @ValueSource(ints = {
@@ -310,8 +308,7 @@ class PayscrowOrderCreationServiceImplTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(Method.TRIANGLE.name());
-        assertTrue(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
     }
 
     @ValueSource(ints = {
@@ -322,7 +319,6 @@ class PayscrowOrderCreationServiceImplTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(Method.TRIANGLE.name());
-        assertFalse(payscrowOrderCreationService.isValidRequestPredicate().test(detailsRequest));
+        assertFalse(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
     }
 }

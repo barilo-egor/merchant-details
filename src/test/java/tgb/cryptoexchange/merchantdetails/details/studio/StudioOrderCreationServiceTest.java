@@ -45,17 +45,16 @@ class StudioOrderCreationServiceTest {
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/orders",
-                service.uriBuilder(null).apply(uriBuilder).getPath());
+                service.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
     @Test
     @DisplayName("Проверка заголовков для Card")
     void shouldAddCardHeaderWhenMethodIsCard() {
         when(studioConfig.getKey("CARD")).thenReturn("key-for-card");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("CARD");
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "some body");
+        Consumer<HttpHeaders> consumer = service.headers(detailsRequest, "CARD", "some body");
         consumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));
@@ -66,10 +65,9 @@ class StudioOrderCreationServiceTest {
     @DisplayName("Проверка заголовков для SBP")
     void shouldAddSbpHeaderWhenMethodIsSbp() {
         when(studioConfig.getKey("SBP")).thenReturn("key-for-sbp");
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("SBP");
         HttpHeaders headers = new HttpHeaders();
 
-        service.headers(detailsRequest, "some body").accept(headers);
+        service.headers(detailsRequest, "SBP", "some body").accept(headers);
 
         assertEquals("key-for-sbp", headers.getFirst("X-API-Key"));
     }
@@ -88,11 +86,10 @@ class StudioOrderCreationServiceTest {
         request.setMethods(
                 List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
                         .build()));
-        request.setCurrentMerchantMethod(mainMethod.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
-        Request actual = service.body(request);
+        Request actual = service.body(request, mainMethod.name());
         assertAll(
                 () -> assertEquals(amount * 100, actual.getAmount()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(actual.getClientOrderId())),

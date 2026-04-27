@@ -47,7 +47,7 @@ class ViatrumOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v1/pay-in", viatrumOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+        assertEquals("/api/v1/pay-in", viatrumOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
     }
 
 
@@ -70,7 +70,7 @@ class ViatrumOrderCreationServiceTest {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = viatrumOrderCreationService.headers(new DetailsRequest(), body);
+        Consumer<HttpHeaders> headersConsumer = viatrumOrderCreationService.headers(new DetailsRequest(), null, body);
         headersConsumer.accept(httpHeaders);
 
         assertEquals(nonce, httpHeaders.getFirst("nonce"));
@@ -89,7 +89,7 @@ class ViatrumOrderCreationServiceTest {
                 .thenThrow(new JsonProcessingException("error") {
                 });
 
-        Consumer<HttpHeaders> consumer = viatrumOrderCreationService.headers(new DetailsRequest(), body);
+        Consumer<HttpHeaders> consumer = viatrumOrderCreationService.headers(new DetailsRequest(), null, body);
         HttpHeaders headers = new HttpHeaders();
         assertThrows(BodyMappingException.class, () -> consumer.accept(headers));
     }

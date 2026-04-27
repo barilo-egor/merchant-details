@@ -11,8 +11,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -50,27 +50,27 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+        Method method = parseMethod(merchantMethod, Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + honeyMoneyProperties.authToken());
             httpHeaders.add("Content-Type", "application/json");
-            Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+            Method method = parseMethod(merchantMethod, Method.class);
             httpHeaders.add("X-Signature", signatureService.hmacSHA256(body, URI.create(honeyMoneyProperties.url() + method.getUri()), honeyMoneyProperties.signToken()));
         };
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setExtId(UUID.randomUUID().toString());
-        request.setBank(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class).getBank());
+        request.setBank(parseMethod(merchantMethod, Method.class).getBank());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
@@ -80,7 +80,8 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         String requisite = Objects.nonNull(response.getPhoneNumber()) ? response.getPhoneNumber() : response.getCardNumber();
-        detailsResponse.setDetails(response.getBankName() + " " + requisite);
+        detailsResponse.setBank(response.getBankName());
+        detailsResponse.setDetails(requisite);
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
         detailsResponse.setMerchantOrderStatus(Status.PENDING.name());

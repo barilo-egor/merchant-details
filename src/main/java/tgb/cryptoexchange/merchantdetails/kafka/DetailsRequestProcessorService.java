@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -40,8 +40,8 @@ public class DetailsRequestProcessorService {
         this.activeSearchMap = activeSearchMap;
     }
 
-    public void process(DetailsRequest detailsRequest) {
-        if (activeSearchMap.containsKey(detailsRequest.getId())) {
+    public void process(DetailsRequestBot detailsRequest) {
+        if (activeSearchMap.containsKey(Long.parseLong(detailsRequest.getId()))) {
             log.info("Отправлен запрос {} на поиск реквизитов для сделки {} при уже действующем поиске. Запрос будет проигнорирован.",
                     detailsRequest.getRequestId(), detailsRequest.getId());
             return;
@@ -65,11 +65,11 @@ public class DetailsRequestProcessorService {
                 result.setRequestId(detailsRequest.getRequestId());
                 detailsResponseKafkaTemplate.send(detailsResponseFoundTopic, result.getRequestId(), result);
             } finally {
-                activeSearchMap.remove(detailsRequest.getId());
+                activeSearchMap.remove(Long.parseLong(detailsRequest.getId()));
             }
             return null;
         });
-        activeSearchMap.put(detailsRequest.getId(), future);
+        activeSearchMap.put(Long.valueOf(detailsRequest.getId()), future);
     }
 
     public void stop(Long id) {
