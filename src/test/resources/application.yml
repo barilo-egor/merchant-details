@@ -240,6 +240,9 @@ asgard-high-check:
   token: "asgard-high-check-token"
   secret: "asgard-high-check-secret"
   merchant-id: "asgard-high-check-merchant-id"
+z-pay:
+  url: "z-pay-url"
+  token: "z-pay-token"
 #Конфиг приложния
 server:
   servlet:
