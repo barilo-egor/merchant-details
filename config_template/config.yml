@@ -236,6 +236,9 @@ asgard-high-check:
   token:
   secret:
   merchant-id:
+z-pay:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:

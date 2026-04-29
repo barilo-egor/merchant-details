@@ -226,6 +226,10 @@ public enum MerchantConstants {
     ASGARD_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
+    ),
+    Z_PAY(
+            tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

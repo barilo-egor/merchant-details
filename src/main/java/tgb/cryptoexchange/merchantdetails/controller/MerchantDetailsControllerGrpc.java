@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.grpc.server.service.GrpcService;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.grpc.generated.*;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
@@ -31,7 +31,7 @@ import java.util.List;
 import static tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService.STATUS;
 import static tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
-@Service
+@GrpcService
 @Slf4j
 public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.MerchantDetailsServiceImplBase {
 
