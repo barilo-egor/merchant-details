@@ -266,7 +266,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            log.error("Ошибка в gRPC методе sendReceipt: {}", e.getMessage());
+            log.error("Ошибка в gRPC методе sendReceipt: {}", e.getMessage(), e);
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Ошибка обработки чека: " + e.getMessage())
                     .asRuntimeException());
