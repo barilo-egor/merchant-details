@@ -48,6 +48,10 @@ class ResponseTest {
         response.setStatus(Status.APPEAL);
         response.setAmount("322");
         response.setPaymentMethod(Method.BANK_CARD);
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setPhoneNumber("88005553535");
+        requisites.setBank("ALFA Bank");
+        response.setRequisites(requisites);
         assertEquals("field \"id\" must not be null", response.validate().errorsToString());
     }
 
@@ -57,6 +61,10 @@ class ResponseTest {
         response.setId("id");
         response.setAmount("322");
         response.setPaymentMethod(Method.BANK_CARD);
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setPhoneNumber("88005553535");
+        requisites.setBank("ALFA Bank");
+        response.setRequisites(requisites);
         assertEquals("field \"status\" must not be null", response.validate().errorsToString());
     }
 
@@ -65,6 +73,10 @@ class ResponseTest {
         Response response = new Response();
         response.setId("id");
         response.setStatus(Status.APPEAL);
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setPhoneNumber("88005553535");
+        requisites.setBank("ALFA Bank");
+        response.setRequisites(requisites);
         response.setPaymentMethod(Method.BANK_CARD);
         assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
     }
@@ -75,6 +87,10 @@ class ResponseTest {
         response.setId("id");
         response.setStatus(Status.APPEAL);
         response.setAmount("322");
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setPhoneNumber("88005553535");
+        requisites.setBank("ALFA Bank");
+        response.setRequisites(requisites);
         assertEquals("field \"paymentMethod\" must not be null", response.validate().errorsToString());
     }
 
@@ -87,8 +103,7 @@ class ResponseTest {
         response.setAmount("322");
         response.setRequisites(new Response.Requisites());
 
-        ValidationResult result = response.validate();
-        assertFalse(result.isValid());
+        assertFalse(response.hasDetails());
     }
 
     @Test
