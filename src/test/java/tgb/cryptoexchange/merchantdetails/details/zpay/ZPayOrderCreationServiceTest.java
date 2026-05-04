@@ -1,16 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.zpay;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -20,12 +21,12 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.ZPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -100,24 +101,31 @@ class ZPayOrderCreationServiceTest {
     }
 
     @Test
-    void testSendReceipt_ShouldInvokeRequestWithCorrectData() {
-        String orderId = "12345";
-        byte[] content = "hello".getBytes();
-        String fileName = "test.pdf";
+    void testSendReceipt_ShouldInvokeRequestWithCorrectData() throws InterruptedException, IOException {
+        try (MockWebServer mockWebServer = new MockWebServer()) {
+            mockWebServer.start();
+            when(zPayProperties.url()).thenReturn(mockWebServer.url("/api").toString());
+            when(zPayProperties.token()).thenReturn("test-token-123");
+            mockWebServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("{\"status\":\"success\"}"));
 
-        service.sendReceipt(orderId, content, fileName);
+            String orderId = "262768";
+            String fileName = "receipt.pdf";
+            byte[] content = "fake-pdf-content".getBytes();
 
-        ArgumentCaptor<HttpMethod> methodCaptor = ArgumentCaptor.forClass(HttpMethod.class);
+            service.sendReceipt(orderId, content, fileName);
+            RecordedRequest recordedRequest = mockWebServer.takeRequest();
 
-        verify(requestService).request(
-                eq(webClient),
-                methodCaptor.capture(),
-                any(),
-                any(),
-                any(),
-                any()
-        );
-        assertEquals(HttpMethod.POST, methodCaptor.getValue());
+            assertEquals("POST", recordedRequest.getMethod());
+            assertEquals("/api/merchant/disputes", recordedRequest.getPath());
+            assertEquals("Bearer test-token-123", recordedRequest.getHeader("Authorization"));
+
+            String body = recordedRequest.getBody().readUtf8();
+            assertTrue(body.contains("deal_id"));
+            assertTrue(body.contains(orderId));
+            assertTrue(body.contains(fileName));
+        }
     }
 
 }
