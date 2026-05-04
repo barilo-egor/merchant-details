@@ -282,4 +282,9 @@ public class WebClientsConfig {
     public WebClient asgardHighCheckWebClient(AsgardHighCheckProperties asgardProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
     }
+
+    @Bean
+    public WebClient zPayWebClient(ZPayProperties zPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(zPayProperties.url()).build();
+    }
 }
