@@ -1,19 +1,22 @@
 package tgb.cryptoexchange.merchantdetails.details.zpay;
 
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.ZPayProperties;
 
-import java.io.File;
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -43,11 +46,14 @@ public class ZPayOrderCreationService extends MerchantOrderCreationService<Respo
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> {
-            httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("Authorization", "Bearer " + zPayProperties.token());
-        };
+        return this::addHeaders;
     }
+
+    private void addHeaders(HttpHeaders httpHeaders) {
+        httpHeaders.add("Content-Type", "application/json");
+        httpHeaders.add("Authorization", "Bearer " + zPayProperties.token());
+    }
+
 
     @Override
     protected Request body(DetailsRequest detailsRequest) {
@@ -68,25 +74,33 @@ public class ZPayOrderCreationService extends MerchantOrderCreationService<Respo
     }
 
     @Override
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        requestService.request(webClient, HttpMethod.POST,
+                uriBuilder -> uriBuilder.pathSegment("merchant", "deals", "{orderId}", "cancel").pathSegment().build(cancelOrderRequest.getOrderId()),
+                this::addHeaders, null);
+    }
+
+    @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("deal_id",orderId)
-                .addFormDataPart("file","Tovarnyy-chek-blank.pdf",
-                        RequestBody.create(MediaType.parse("application/octet-stream"),
-                                new File("/root/tgb/Tovarnyy-chek-blank.pdf")))
+                .addFormDataPart("deal_id", orderId)
+                .addFormDataPart("file", fileName, RequestBody.create(fileContent))
+
                 .build();
         okhttp3.Request request = new okhttp3.Request.Builder()
-                .url("https://api.zpay-1.xyz/api/merchant/disputes")
+                .url(zPayProperties.url() + "/merchant/disputes")
                 .method("POST", body)
-                .addHeader("Authorization", "Bearer 9012|r9Ga8i8sbDpd7aGuEWxaBEpAvXQKPHHqCd0nEuwA")
+                .addHeader("Authorization", "Bearer " + zPayProperties.token())
                 .build();
-        try (okhttp3.Response response = client.newCall(request).execute()){
-
+        try (okhttp3.Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
+                log.error("{} отклонил запрос: {} - {}", getMerchant(), response.code(), errorBody);
+            }
         } catch (Exception e) {
-            log.error("Ошибка отправки чека z-pay: {}", e.getMessage(), e);
+            log.error("Ошибка отправки чека {}: {}", getMerchant(), e.getMessage(), e);
         }
     }
 }
