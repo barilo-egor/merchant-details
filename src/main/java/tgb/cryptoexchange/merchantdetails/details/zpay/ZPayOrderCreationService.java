@@ -1,14 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.zpay;
 
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -17,6 +13,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.ZPayProperties;
 
+import java.io.File;
 import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -72,18 +69,24 @@ public class ZPayOrderCreationService extends MerchantOrderCreationService<Respo
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-        bodyBuilder.part("deal_id", Integer.parseInt(orderId));
-        bodyBuilder.part("file", new ByteArrayResource(fileContent))
-                .filename(fileName)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM);
-        requestService.request(
-                webClient,
-                HttpMethod.POST,
-                uriBuilder -> uriBuilder.pathSegment("merchant", "disputes").build(),
-                headers -> headers.add("Authorization", "Bearer " + zPayProperties.token()),
-                BodyInserters.fromMultipartData(bodyBuilder.build()),
-                t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
-        );
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("deal_id",orderId)
+                .addFormDataPart("file","Tovarnyy-chek-blank.pdf",
+                        RequestBody.create(MediaType.parse("application/octet-stream"),
+                                new File("/root/tgb/Tovarnyy-chek-blank.pdf")))
+                .build();
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url("https://api.zpay-1.xyz/api/merchant/disputes")
+                .method("POST", body)
+                .addHeader("Authorization", "Bearer 9012|r9Ga8i8sbDpd7aGuEWxaBEpAvXQKPHHqCd0nEuwA")
+                .build();
+        try (okhttp3.Response response = client.newCall(request).execute()){
+
+        } catch (Exception e) {
+            log.error("Ошибка отправки чека z-pay: {}", e.getMessage(), e);
+        }
     }
 }
