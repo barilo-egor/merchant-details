@@ -26,19 +26,19 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (Objects.isNull(id)) {
-            result.notNull("id");
-        }
-        if (Objects.isNull(status)) {
-            result.notNull("status");
-        }
-        if (Objects.isNull(amount)) {
-            result.notNull("amount");
-        }
-        if (Objects.isNull(paymentMethod)) {
-            result.notNull("paymentMethod");
-        }
         if (hasDetails()) {
+            if (Objects.isNull(id)) {
+                result.notNull("id");
+            }
+            if (Objects.isNull(status)) {
+                result.notNull("status");
+            }
+            if (Objects.isNull(amount)) {
+                result.notNull("amount");
+            }
+            if (Objects.isNull(paymentMethod)) {
+                result.notNull("paymentMethod");
+            }
             if (Objects.isNull(requisites.getPhoneNumber()) && Objects.isNull(requisites.getCardNumber())) {
                 result.notNull("phoneNumber", "cardNumber");
             }
@@ -51,7 +51,11 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(requisites);
+        if (Objects.nonNull(requisites)) {
+            return Objects.nonNull(requisites.getBank()) &&
+                    (Objects.nonNull(requisites.getPhoneNumber()) || Objects.nonNull(requisites.getCardNumber()));
+        }
+        return false;
     }
 
     @Data
