@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowPropertiesImpl;
 
@@ -60,9 +60,9 @@ class PayscrowOrderCreationServiceImplTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(payscrowProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(9000);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.SBP.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.SBP.name())).build()));
         payscrowOrderCreationService.headers(detailsRequest, null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
@@ -76,9 +76,9 @@ class PayscrowOrderCreationServiceImplTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
         Request request = payscrowOrderCreationService.body(detailsRequest, method.name());
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
@@ -295,8 +295,8 @@ class PayscrowOrderCreationServiceImplTest {
     })
     @ParameterizedTest
     void isValidRequestPredicateShouldReturnTrueIfMethodIsNotTriangle(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(method.name())).build()));
         assertTrue(payscrowOrderCreationService.isValidRequestPredicate(method.name()).test(detailsRequest));
     }
 
@@ -305,8 +305,8 @@ class PayscrowOrderCreationServiceImplTest {
     })
     @ParameterizedTest
     void isValidRequestPredicateShouldReturnTrueIfMethodIsTriangleAndAmountLessThan10000(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
         detailsRequest.setAmount(amount);
         assertTrue(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
     }
@@ -316,8 +316,8 @@ class PayscrowOrderCreationServiceImplTest {
     })
     @ParameterizedTest
     void isValidRequestPredicateShouldReturnFalseIfMethodIsTriangleAndAmountEqualOrMoreThan10000(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAYSCROW).method(Collections.singletonList(Method.TRIANGLE.name())).build()));
         detailsRequest.setAmount(amount);
         assertFalse(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
     }

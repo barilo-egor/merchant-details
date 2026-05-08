@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -57,7 +56,7 @@ class DetailsRequestProcessorServiceTest {
 
     @Test
     void receiveShouldSendEmptyResponseIfDetailsIsEmpty() {
-        DetailsRequestBot request = new DetailsRequestBot();
+        BotDetailsRequest request = new BotDetailsRequest();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
         request.setId(String.valueOf(12352963876L));
@@ -78,7 +77,7 @@ class DetailsRequestProcessorServiceTest {
 
     @Test
     void receiveShouldSendEmptyResponseIfExceptionWasThrown() {
-        DetailsRequestBot request = new DetailsRequestBot();
+        BotDetailsRequest request = new BotDetailsRequest();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
         request.setId(String.valueOf(12352963876L));
@@ -103,7 +102,7 @@ class DetailsRequestProcessorServiceTest {
             """)
     @ParameterizedTest
     void receiveShouldSendDetailsObjectIfDetailsFound(String details, Merchant merchant, String status, Integer amount) {
-        DetailsRequestBot request = new DetailsRequestBot();
+        BotDetailsRequest request = new BotDetailsRequest();
         String id = UUID.randomUUID().toString();
         request.setRequestId(id);
         request.setId(String.valueOf(12352963876L));

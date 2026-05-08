@@ -11,8 +11,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
 import java.net.URI;
@@ -37,12 +37,12 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/h2h/order").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Accept", "application/json");
             httpHeaders.add("Access-Token", fiatCutProperties.token());
@@ -51,15 +51,15 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(merchantMethod, Method.class));
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        requestBody.setMethod(parseMethod(request.getMethod(), Method.class));
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setExternalId(UUID.randomUUID().toString());
-        request.setMerchantId(fiatCutProperties.merchantId());
-        return request;
+        requestBody.setExternalId(UUID.randomUUID().toString());
+        requestBody.setMerchantId(fiatCutProperties.merchantId());
+        return requestBody;
     }
 
     @Override

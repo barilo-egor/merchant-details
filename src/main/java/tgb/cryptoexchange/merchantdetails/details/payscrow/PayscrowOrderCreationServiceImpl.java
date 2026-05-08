@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowPropertiesImpl;
 
 import java.util.function.Predicate;
@@ -22,7 +22,7 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
     }
 
     @Override
-    protected Predicate<IDetailsRequest> isValidRequestPredicate(String merchantMethod) {
+    protected Predicate<OrderCreationRequest> isValidRequestPredicate(String merchantMethod) {
         return detailsRequest -> {
             Method method = parseMethod(merchantMethod, Method.class);
             return !Method.TRIANGLE.equals(method) || detailsRequest.getAmount() < AMOUNT_BOUND;

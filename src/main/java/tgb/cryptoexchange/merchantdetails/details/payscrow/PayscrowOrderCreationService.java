@@ -9,8 +9,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
 
 import java.net.URI;
@@ -36,12 +36,12 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/v1/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("X-API-Key", payscrowProperties.key());
@@ -49,13 +49,13 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(merchantMethod, Method.class));
-        request.setClientOrderId(UUID.randomUUID().toString());
-        request.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        requestBody.setPaymentMethod(parseMethod(request.getMethod(), Method.class));
+        requestBody.setClientOrderId(UUID.randomUUID().toString());
+        requestBody.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
+        return requestBody;
     }
 
     @Override

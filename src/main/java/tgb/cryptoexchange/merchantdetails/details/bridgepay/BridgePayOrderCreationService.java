@@ -18,8 +18,8 @@ import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -58,13 +58,13 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/merchant/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
-        return headers -> addHeaders(headers, parseMethod(merchantMethod, Method.class), body);
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+        return headers -> addHeaders(headers, parseMethod(request.getMethod(), Method.class), body);
     }
 
     private void addHeaders(HttpHeaders headers, Method method, String body, String url) {
@@ -93,17 +93,17 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount().toString());
-        request.setCurrency(FiatCurrency.RUB.name());
-        request.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount().toString());
+        requestBody.setCurrency(FiatCurrency.RUB.name());
+        requestBody.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setNotificationToken(bridgePayProperties.token());
-        request.setInternalId(UUID.randomUUID().toString());
-        request.setPaymentOption(parseMethod(merchantMethod, Method.class));
-        request.setStartDeal(true);
-        return request;
+        requestBody.setNotificationToken(bridgePayProperties.token());
+        requestBody.setInternalId(UUID.randomUUID().toString());
+        requestBody.setPaymentOption(parseMethod(request.getMethod(), Method.class));
+        requestBody.setStartDeal(true);
+        return requestBody;
     }
 
     @Override

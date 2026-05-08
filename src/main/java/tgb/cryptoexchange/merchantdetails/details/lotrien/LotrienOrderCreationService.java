@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 
 import java.math.BigDecimal;
@@ -32,12 +32,12 @@ public class LotrienOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/order/payin").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return this::addHeaders;
     }
 
@@ -47,12 +47,12 @@ public class LotrienOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setPaymentMethod(method);
-        request.setFiatSum(String.format(Locale.US, "%.2f", detailsRequest.getAmount().doubleValue()));
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setPaymentMethod(method);
+        requestBody.setFiatSum(String.format(Locale.US, "%.2f", request.getAmount().doubleValue()));
+        return requestBody;
     }
 
     @Override

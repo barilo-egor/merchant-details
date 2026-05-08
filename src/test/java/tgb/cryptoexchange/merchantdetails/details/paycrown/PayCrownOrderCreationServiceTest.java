@@ -18,7 +18,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
@@ -86,8 +86,8 @@ class PayCrownOrderCreationServiceTest {
     void headersShouldThrowSignatureCreationExceptionIfNoSuchAlgorithmExceptionWasThrown() throws NoSuchAlgorithmException, JsonProcessingException {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         objectNode.put("created_at", System.currentTimeMillis());
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setAmount(1000);
         Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, Method.CARD.name(), "");
         HttpHeaders headers = new HttpHeaders();
@@ -118,8 +118,8 @@ class PayCrownOrderCreationServiceTest {
 
         when(signatureService.getMD5Hash(anyString())).thenReturn(signature);
 
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
         HttpHeaders headers = new HttpHeaders();
         Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, method.name(), body);
@@ -138,8 +138,8 @@ class PayCrownOrderCreationServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
         when(payCrownProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

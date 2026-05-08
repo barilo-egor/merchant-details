@@ -15,7 +15,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.YoloPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -133,7 +133,7 @@ class YoloOrderCreationServiceTest {
                 .thenReturn(mockJwtJson);
 
 
-        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new DetailsRequest(), null, "body");
+        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new BotDetailsRequest(), null, "body");
         headersConsumer.accept(new HttpHeaders());
 
         verify(requestService, times(1)).request(
@@ -151,10 +151,10 @@ class YoloOrderCreationServiceTest {
 
     @Test
     void body_ShouldMapCorrectly() {
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
         request.setAmount(1000);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method(Collections.singletonList("SBP")).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method(Collections.singletonList("SBP")).build());
         request.setMethods(methods);
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");

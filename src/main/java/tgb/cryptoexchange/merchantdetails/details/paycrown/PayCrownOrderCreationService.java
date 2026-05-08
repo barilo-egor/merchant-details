@@ -11,8 +11,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.PayCrownProperties;
@@ -49,12 +49,12 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/order/deposit").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             Long unixTime;
             try {
@@ -64,9 +64,9 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
                 log.error("Ошибка парсинга тела запроса мерчанта {} : {}", getMerchant().name(), body);
                 throw new BodyMappingException("Ошибка парсинга тела запроса.");
             }
-            Method method = parseMethod(merchantMethod, Method.class);
+            Method method = parseMethod(request.getMethod(), Method.class);
             try {
-                String stringToSign = detailsRequest.getAmount() + unixTime + "rub"
+                String stringToSign = request.getAmount() + unixTime + "rub"
                         + payCrownProperties.merchantId() + method.getValue() + payCrownProperties.secret();
                 String signature = signatureService.getMD5Hash(stringToSign);
                 httpHeaders.add("X-Api-Key", payCrownProperties.key());
@@ -80,17 +80,17 @@ public class PayCrownOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        request.setMerchantId(payCrownProperties.merchantId());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setMethod(method);
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        requestBody.setMerchantId(payCrownProperties.merchantId());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setMethod(method);
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         Long unixTime = System.currentTimeMillis() / 1000L;
-        request.setCreatedAt(unixTime);
-        return request;
+        requestBody.setCreatedAt(unixTime);
+        return requestBody;
     }
 
     @Override

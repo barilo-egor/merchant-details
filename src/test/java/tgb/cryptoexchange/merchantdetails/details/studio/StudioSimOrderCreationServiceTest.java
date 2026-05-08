@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.StudioSimProperties;
 
 import java.util.function.Consumer;
@@ -23,7 +23,7 @@ class StudioSimOrderCreationServiceTest {
     private StudioSimProperties properties;
 
     @Mock
-    private DetailsRequest detailsRequest;
+    private BotDetailsRequest detailsRequest;
 
     @InjectMocks
     private StudioSimOrderCreationService service;

@@ -9,7 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.CashOutProperties;
 
@@ -41,7 +41,7 @@ class CashOutOrderCreationServiceTest {
     @Test
     void uriBuilder_ShouldBuildCorrectUri() {
         UriBuilder builder = UriComponentsBuilder.newInstance();
-        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(DetailsRequest.class), null);
+        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(BotDetailsRequest.class), null);
 
         URI result = uriFunction.apply(builder);
 

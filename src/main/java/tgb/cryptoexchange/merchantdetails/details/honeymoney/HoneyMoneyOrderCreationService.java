@@ -12,8 +12,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -50,30 +50,30 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
-        Method method = parseMethod(merchantMethod, Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+        Method method = parseMethod(request.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + honeyMoneyProperties.authToken());
             httpHeaders.add("Content-Type", "application/json");
-            Method method = parseMethod(merchantMethod, Method.class);
+            Method method = parseMethod(request.getMethod(), Method.class);
             httpHeaders.add("X-Signature", signatureService.hmacSHA256(body, URI.create(honeyMoneyProperties.url() + method.getUri()), honeyMoneyProperties.signToken()));
         };
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        request.setExtId(UUID.randomUUID().toString());
-        request.setBank(parseMethod(merchantMethod, Method.class).getBank());
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        requestBody.setExtId(UUID.randomUUID().toString());
+        requestBody.setBank(parseMethod(request.getMethod(), Method.class).getBank());
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        return request;
+        return requestBody;
     }
 
     @Override

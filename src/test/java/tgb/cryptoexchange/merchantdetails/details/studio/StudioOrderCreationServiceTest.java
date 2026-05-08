@@ -13,7 +13,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.StudioProperties;
 
@@ -36,7 +36,7 @@ class StudioOrderCreationServiceTest {
     private StudioProperties studioConfig;
 
     @Mock
-    private DetailsRequest detailsRequest;
+    private BotDetailsRequest detailsRequest;
 
     @InjectMocks
     private StudioOrderCreationService service;
@@ -80,11 +80,11 @@ class StudioOrderCreationServiceTest {
             2, SIM, orderId3,https://gateway.paysendmmm.online/, 47XeXew1Qnx2qD
             """)
     void body(Integer amount, Method mainMethod, String clientOrderId, String gatewayUrl, String secret) {
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
         request.setAmount(amount);
         request.setRequestId(clientOrderId);
         request.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
                         .build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

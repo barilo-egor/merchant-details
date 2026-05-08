@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -35,8 +35,8 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
-        Method method = parseMethod(merchantMethod, Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+        Method method = parseMethod(request.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 

@@ -5,8 +5,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.StudioConfig;
 
 import java.net.URI;
@@ -30,7 +30,7 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/orders").build();
     }
 
@@ -40,22 +40,22 @@ public abstract class StudioService extends MerchantOrderCreationService<Respons
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
-        return httpHeaders -> addHeaders(httpHeaders, merchantMethod);
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+        return httpHeaders -> addHeaders(httpHeaders, request.getMethod());
     }
 
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount() * 100);
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setMainMethod(method);
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount() * 100);
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setMainMethod(method);
         if (Method.SIM.equals(method)) {
-            request.setSubMethod("sim_sim");
+            requestBody.setSubMethod("sim_sim");
         }
-        request.setClientOrderId(UUID.randomUUID().toString());
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+        requestBody.setClientOrderId(UUID.randomUUID().toString());
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
-        return request;
+        return requestBody;
     }
 
     @Override

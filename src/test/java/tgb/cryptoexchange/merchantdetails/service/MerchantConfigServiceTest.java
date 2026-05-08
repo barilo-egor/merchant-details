@@ -14,7 +14,7 @@ import tgb.cryptoexchange.enums.CryptoCurrency;
 import tgb.cryptoexchange.enums.DeliveryType;
 import tgb.cryptoexchange.exception.BadRequestException;
 import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
@@ -182,8 +182,8 @@ class MerchantConfigServiceTest {
         MerchantConfig merchantConfig = MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).minAmount(100).maxAmount(10000).build();
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -197,8 +197,8 @@ class MerchantConfigServiceTest {
         MerchantConfig merchantConfig = MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).minAmount(7000).maxAmount(10000).build();
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -220,8 +220,8 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig2);
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(merchant).method(Collections.singletonList(method)).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(merchant).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -243,8 +243,8 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig2);
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5501);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -271,10 +271,10 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig4);
         merchantConfigs.add(merchantConfig5);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method)).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 1500);
         assertAll(
                 () -> assertEquals(3, actual.size()),

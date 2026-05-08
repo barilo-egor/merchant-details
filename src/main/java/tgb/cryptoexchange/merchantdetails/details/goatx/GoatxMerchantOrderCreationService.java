@@ -5,8 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxProperties;
 
@@ -31,24 +31,24 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setSum(detailsRequest.getAmount().toString());
-        request.setContract(goatxProperties.merchantContractId());
-        request.setWay(parseMethod(merchantMethod, Method.class));
-        request.setInvid(UUID.randomUUID().toString());
-        request.setSignature(generateSignature(goatxProperties.login(), request.getSum(), request.getInvid(), goatxProperties.apiKey()));
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setSum(request.getAmount().toString());
+        requestBody.setContract(goatxProperties.merchantContractId());
+        requestBody.setWay(parseMethod(request.getMethod(), Method.class));
+        requestBody.setInvid(UUID.randomUUID().toString());
+        requestBody.setSignature(generateSignature(goatxProperties.login(), requestBody.getSum(), requestBody.getInvid(), goatxProperties.apiKey()));
+        return requestBody;
     }
 
     private String generateSignature(String login, String sum, String invid, String apiKey) {

@@ -19,8 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
@@ -90,7 +90,7 @@ class AlfaTeamMerchantCreationServiceTest {
         when(signatureService.hmacSHA1(dataArgumentCaptor.capture(), secretArgumentCaptor.capture())).thenReturn(sign);
 
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest request = Mockito.mock(DetailsRequest.class);
+        BotDetailsRequest request = Mockito.mock(BotDetailsRequest.class);
         alfaTeamMerchantCreationService.headers(request, Method.TO_CARD.name(), expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -102,7 +102,7 @@ class AlfaTeamMerchantCreationServiceTest {
 
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
-        DetailsRequest request = Mockito.mock(DetailsRequest.class);
+        BotDetailsRequest request = Mockito.mock(BotDetailsRequest.class);
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
@@ -117,9 +117,9 @@ class AlfaTeamMerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 

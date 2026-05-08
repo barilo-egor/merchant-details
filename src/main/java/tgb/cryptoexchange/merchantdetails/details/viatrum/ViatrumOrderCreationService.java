@@ -11,8 +11,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.ViatrumProperties;
@@ -53,12 +53,12 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path(CREATE_ORDER_URI).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             String nonce;
             try {
@@ -83,18 +83,18 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Method method = parseMethod(merchantMethod, Method.class);
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount().toString());
-        request.setBankId(method.getId());
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest request) {
+        Method method = parseMethod(request.getMethod(), Method.class);
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount().toString());
+        requestBody.setBankId(method.getId());
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setMethod(method);
-        request.setCurrencyId(1);
+        requestBody.setMethod(method);
+        requestBody.setCurrencyId(1);
         String nonce = System.currentTimeMillis() + "00000";
-        request.setExternalID(nonce);
-        return request;
+        requestBody.setExternalID(nonce);
+        return requestBody;
     }
 
     @Override

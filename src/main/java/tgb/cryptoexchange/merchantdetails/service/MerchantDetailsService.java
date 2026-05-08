@@ -55,7 +55,7 @@ public class MerchantDetailsService {
         this.meterRegistry = meterRegistry;
     }
 
-    public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequestBot request) {
+    public Optional<DetailsResponse> getDetails(Merchant merchant, BotDetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isEmpty()) {
             log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
@@ -67,7 +67,13 @@ public class MerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request, merchantMethod);
+            OrderCreationRequest orderRequest = OrderCreationRequest.builder()
+                    .requestId(request.getRequestId())
+                    .id(request.getId())
+                    .amount(request.getAmount())
+                    .userId(request.getUserId())
+                    .method(merchantMethod).build();
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
                     merchantDetailsReceiveEventProducer.put(merchant, merchantMethod, request, maybeDetailsResponse.get());
@@ -100,7 +106,7 @@ public class MerchantDetailsService {
     }
 
     @Timed(value = Metrics.GET_DETAILS, description = "Метрики запросов на получение реквизитов.")
-    public Optional<DetailsResponse> getDetails(DetailsRequestBot request) {
+    public Optional<DetailsResponse> getDetails(BotDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
@@ -144,7 +150,7 @@ public class MerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequestBot request,
+    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, BotDetailsRequest request,
                                                     int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;

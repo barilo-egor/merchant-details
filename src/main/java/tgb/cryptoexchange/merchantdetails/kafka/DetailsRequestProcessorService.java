@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
@@ -40,7 +40,7 @@ public class DetailsRequestProcessorService {
         this.activeSearchMap = activeSearchMap;
     }
 
-    public void process(DetailsRequestBot detailsRequest) {
+    public void process(BotDetailsRequest detailsRequest) {
         if (activeSearchMap.containsKey(Long.parseLong(detailsRequest.getId()))) {
             log.info("Отправлен запрос {} на поиск реквизитов для сделки {} при уже действующем поиске. Запрос будет проигнорирован.",
                     detailsRequest.getRequestId(), detailsRequest.getId());

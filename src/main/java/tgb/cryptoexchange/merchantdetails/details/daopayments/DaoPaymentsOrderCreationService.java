@@ -11,8 +11,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.DaoPaymentsProperties;
 
 import java.math.BigDecimal;
@@ -49,12 +49,12 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/v1/deposit").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("X-API-KEY", daoPaymentsProperties.key());
@@ -62,16 +62,16 @@ public class DaoPaymentsOrderCreationService extends MerchantOrderCreationServic
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setMerchantOrderId(UUID.randomUUID().toString());
-        request.setRequisiteType(parseMethod(merchantMethod, Method.class));
-        request.setAmount(detailsRequest.getAmount().toString());
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setMerchantOrderId(UUID.randomUUID().toString());
+        requestBody.setRequisiteType(parseMethod(request.getMethod(), Method.class));
+        requestBody.setAmount(request.getAmount().toString());
         String callbackUrl = callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=DAO_PAYMENTS&secret="
                 + callbackConfig.getCallbackSecret();
-        request.setSuccessUrl(callbackUrl);
-        request.setFailUrl(callbackUrl);
-        return request;
+        requestBody.setSuccessUrl(callbackUrl);
+        requestBody.setFailUrl(callbackUrl);
+        return requestBody;
     }
 
     @Override

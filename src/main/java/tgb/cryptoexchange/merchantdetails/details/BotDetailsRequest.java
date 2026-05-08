@@ -20,7 +20,7 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DetailsRequest implements IDetailsRequest {
+public class BotDetailsRequest {
 
     protected String requestId;
 
@@ -33,6 +33,8 @@ public class DetailsRequest implements IDetailsRequest {
     protected String userId;
 
     protected List<MerchantMethod> methods;
+
+    protected String initiatorApp;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {
@@ -56,16 +58,16 @@ public class DetailsRequest implements IDetailsRequest {
 
     }
 
-    public static class KafkaDeserializer implements Deserializer<DetailsRequest> {
+    public static class KafkaDeserializer implements Deserializer<BotDetailsRequest> {
 
         private final ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule());
 
         @Override
-        public DetailsRequest deserialize(String topic, byte[] data) {
+        public BotDetailsRequest deserialize(String topic, byte[] data) {
             try {
                 if (data == null) return null;
-                return objectMapper.readValue(data, DetailsRequest.class);
+                return objectMapper.readValue(data, BotDetailsRequest.class);
             } catch (Exception e) {
                 throw new DeserializeEventException("Error occurred while deserializer value: " + new String(data, StandardCharsets.UTF_8), e);
             }

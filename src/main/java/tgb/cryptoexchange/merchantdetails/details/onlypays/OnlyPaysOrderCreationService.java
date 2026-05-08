@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnlyPaysProperties;
 
 import java.net.URI;
@@ -36,34 +36,34 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/get_requisite").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setApiId(onlyPaysProperties.id());
-        request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setMethod(method);
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setApiId(onlyPaysProperties.id());
+        requestBody.setAmount(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setMethod(method);
         if (Method.SIM.equals(method)) {
-            request.setSim(true);
+            requestBody.setSim(true);
         }
         switch (method) {
-            case SIM -> request.setSim(true);
-            case ALFA_ALFA -> request.setBank("Альфа");
-            case OZON_OZON -> request.setBank("Озон");
+            case SIM -> requestBody.setSim(true);
+            case ALFA_ALFA -> requestBody.setBank("Альфа");
+            case OZON_OZON -> requestBody.setBank("Озон");
             default -> {/* не требует действий */}
         }
-        request.setSecretKey(onlyPaysProperties.secret());
-        request.setPersonalId(UUID.randomUUID().toString());
-        return request;
+        requestBody.setSecretKey(onlyPaysProperties.secret());
+        requestBody.setPersonalId(UUID.randomUUID().toString());
+        return requestBody;
     }
 
     @Override

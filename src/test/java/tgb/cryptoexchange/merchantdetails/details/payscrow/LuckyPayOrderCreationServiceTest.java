@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.LuckyPayProperties;
 
 import java.util.Collections;
@@ -37,8 +37,8 @@ class LuckyPayOrderCreationServiceTest {
             method2,2000,12586,6423525253,some-key-2
             """)
     void keyFunctionShouldAlwaysReturnKey(String method, Integer amount, Long id, Long chatId, String key) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(Collections.singletonList(method)).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(String.valueOf(id));
         detailsRequest.setUserId(String.valueOf(chatId));

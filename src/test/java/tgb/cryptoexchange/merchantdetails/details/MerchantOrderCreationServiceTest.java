@@ -40,7 +40,7 @@ class MerchantOrderCreationServiceTest {
     @Test
     void createOrderShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileWriteBody() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
 
         ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(request, "CARD"));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping body: "));
@@ -71,7 +71,7 @@ class MerchantOrderCreationServiceTest {
     void createOrderShouldThrowUnavailableExceptionIfWebClientExceptionWasThrown() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenThrow(RuntimeException.class);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         ServiceUnavailableException ex = assertThrows(
                 ServiceUnavailableException.class,
                 () -> service.createOrder(detailsRequest, "CARD")
@@ -84,7 +84,7 @@ class MerchantOrderCreationServiceTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenThrow(JsonProcessingException.class);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(detailsRequest, "CARD"));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping merchant response: "));
     }
@@ -99,7 +99,7 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.errorsToString()).thenReturn("");
         when(validationResult.isValid()).thenReturn(false);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         ServiceUnavailableException ex = assertThrows(
                 ServiceUnavailableException.class,
                 () -> service.createOrder(detailsRequest, "CARD")
@@ -118,7 +118,7 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.isValid()).thenReturn(true);
         when(response.hasDetails()).thenReturn(false);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest, "CARD");
         assertTrue(maybeResponse.isEmpty());
     }
@@ -133,7 +133,7 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.isValid()).thenReturn(true);
         when(response.hasDetails()).thenReturn(true);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setId(String.valueOf(5234));
         detailsRequest.setUserId(String.valueOf(3745747545L));
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest, "CARD");
@@ -142,7 +142,7 @@ class MerchantOrderCreationServiceTest {
 
     @Test
     void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethods() {
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
 
         request.setMethods(new ArrayList<>());
         assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
@@ -150,12 +150,12 @@ class MerchantOrderCreationServiceTest {
 
     @Test
     void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethodsOfPassedMerchant() {
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
 
-        List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("method")).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList("method")).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList("method")).build());
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList("method")).build());
         request.setMethods(methods);
         assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
@@ -196,8 +196,8 @@ class MerchantOrderCreationServiceTest {
             method2,2000,12586
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, String id) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate("ALFA").test(detailsRequest));
@@ -215,17 +215,17 @@ class MerchantOrderCreationServiceTest {
         }
 
         @Override
-        protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+        protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
             return uriBuilder -> uriBuilder.path("path").build();
         }
 
         @Override
-        protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+        protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
             return httpHeaders -> httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
         }
 
         @Override
-        protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
+        protected Request body(OrderCreationRequest request) {
             Request request = new Request();
             request.setAmount("1000");
             return request;

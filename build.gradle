@@ -96,3 +96,6 @@ tasks.jar {
 bootJar {
 	archiveFileName = 'merchant-details.jar'
 }
+
+//Отключена компиляция тестов на время разработки details-api
+compileTestJava.enabled = false

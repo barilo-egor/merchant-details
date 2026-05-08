@@ -9,8 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 
 import java.util.Collections;
@@ -35,9 +34,9 @@ class MerchantDetailsReceiveEventProducerTest {
     void putShouldSendEventToTopic(String topic, Long dealId, Long userId, String appId, Merchant merchant, String orderId,
                                    Integer requestedAmount, Integer merchantAmount, String method, String details) {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
-        DetailsRequestBot detailsRequestBot = new DetailsRequestBot();
+        BotDetailsRequest detailsRequestBot = new BotDetailsRequest();
         detailsRequestBot.setId(String.valueOf(dealId));
-        detailsRequestBot.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequestBot.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
         detailsRequestBot.setAmount(requestedAmount);
         detailsRequestBot.setUserId(String.valueOf(userId));
         detailsRequestBot.setInitiatorApp(appId);
