@@ -20,6 +20,8 @@ import tgb.cryptoexchange.web.ApiResponse;
 
 import java.util.List;
 
+import static tgb.cryptoexchange.merchantdetails.enums.ConfigType.DEFAULT_VALUE;
+
 @RestController
 @RequestMapping("/merchant-details")
 public class MerchantDetailsController extends ApiController {
@@ -85,17 +87,19 @@ public class MerchantDetailsController extends ApiController {
 
     @GetMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType) {
+    public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType,
+                                                                @RequestParam(defaultValue = DEFAULT_VALUE) ConfigType configType) {
         return new ResponseEntity<>(ApiResponse.success(
-                VariableDTO.fromEntity(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT))),
+                VariableDTO.fromEntity(variableService.findByTypeAndConfigType(variableType, configType))),
                 HttpStatus.OK
         );
     }
 
     @PatchMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateVariable(@PathVariable VariableType variableType, @RequestParam String value) {
-        variableService.update(variableType, ConfigType.BOT, value);
+    public void updateVariable(@PathVariable VariableType variableType,
+                               @RequestParam String value, @RequestParam(defaultValue = DEFAULT_VALUE) ConfigType configType) {
+        variableService.update(variableType, configType, value);
     }
 
     @PostMapping("/receipt/{merchant}/{orderId}")

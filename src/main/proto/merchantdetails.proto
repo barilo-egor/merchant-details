@@ -105,6 +105,11 @@ enum VariableTypeGrpc {
   MIN_ATTEMPT_TIME = 2;
 }
 
+enum ConfigTypeGrpc {
+  BOT = 0;
+  API = 1;
+}
+
 message VariableDTOGrpc {
   VariableTypeGrpc type = 1;
   string value = 2;
@@ -112,11 +117,13 @@ message VariableDTOGrpc {
 
 message GetVariableRequestGrpc {
   VariableTypeGrpc variable_type = 1;
+  ConfigTypeGrpc config_type = 2;
 }
 
 message UpdateVariableRequestGrpc {
   VariableTypeGrpc variable_type = 1;
   string value = 2;
+  ConfigTypeGrpc config_type = 3;
 }
 
 message SendReceiptRequestGrpc {

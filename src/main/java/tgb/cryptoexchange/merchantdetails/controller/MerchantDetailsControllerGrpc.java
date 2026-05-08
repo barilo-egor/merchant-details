@@ -231,7 +231,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     @Override
     public void getVariable(GetVariableRequestGrpc request, StreamObserver<VariableDTOGrpc> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
-        var entity = variableService.findByTypeAndConfigType(type, ConfigType.BOT);
+        var entity = variableService.findByTypeAndConfigType(type, ConfigType.valueOf(request.getConfigType().name()));
 
         VariableDTOGrpc response = VariableDTOGrpc.newBuilder()
                 .setType(VariableTypeGrpc.valueOf(type.name()))
@@ -246,7 +246,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void updateVariable(UpdateVariableRequestGrpc request, StreamObserver<Empty> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
         String newValue = request.getValue();
-        variableService.update(type, ConfigType.BOT, newValue);
+        variableService.update(type, ConfigType.valueOf(request.getConfigType().name()), newValue);
 
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
