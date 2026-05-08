@@ -9,8 +9,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
 
 import java.net.URI;
@@ -36,12 +36,12 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/merchant/transactions/in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("x-merchant-api-key", settleXProperties.key());
@@ -49,20 +49,20 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setOrderId(UUID.randomUUID().toString());
-        request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setOrderId(UUID.randomUUID().toString());
+        requestBody.setAmount(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
         if (Method.SBP.equals(method)) {
-            request.setMethod(settleXProperties.sbpId());
+            requestBody.setMethod(settleXProperties.sbpId());
         } else {
-            request.setMethod(settleXProperties.c2cId());
+            requestBody.setMethod(settleXProperties.c2cId());
         }
-        request.setExpiredAt(LocalDateTime.now().plusMinutes(15));
-        request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+        requestBody.setExpiredAt(LocalDateTime.now().plusMinutes(15));
+        requestBody.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        return request;
+        return requestBody;
     }
 
     @Override

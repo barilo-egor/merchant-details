@@ -18,8 +18,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -59,9 +59,9 @@ class PwPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
@@ -88,7 +88,7 @@ class PwPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
 
         Request actual = pwPayOrderCreationService.body(detailsRequest, null);

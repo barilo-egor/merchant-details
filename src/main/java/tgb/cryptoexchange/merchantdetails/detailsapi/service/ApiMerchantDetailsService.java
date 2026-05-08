@@ -12,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.Details;
@@ -142,7 +143,13 @@ public class ApiMerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request, merchantMethod);
+            OrderCreationRequest orderRequest = OrderCreationRequest.builder()
+                    .requestId(request.getRequestId())
+                    .id(request.getInternalId())
+                    .amount(request.getAmount())
+                    .userId(request.getUserId())
+                    .method(merchantMethod).build();
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
                 DetailsResponse orderResponse = maybeDetailsResponse.get();
                 ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();

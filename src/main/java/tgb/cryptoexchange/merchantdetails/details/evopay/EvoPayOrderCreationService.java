@@ -13,8 +13,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
@@ -47,8 +47,8 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Optional<String> makeRequest(IDetailsRequest detailsRequest, String merchantMethod, String body) {
-        Optional<String> createOrderResponse = super.makeRequest(detailsRequest, merchantMethod, body);
+    protected Optional<String> makeRequest(OrderCreationRequest request, String body) {
+        Optional<String> createOrderResponse = super.makeRequest(request, body);
         if (createOrderResponse.isEmpty()) {
             log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());
             return Optional.empty();
@@ -75,7 +75,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
                 evoPayWebClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
-                this.headers(detailsRequest, merchantMethod, body),
+                this.headers(request, body),
                 body
         );
         JsonNode listOrderResponse;
@@ -102,14 +102,14 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/v1/api/order/payin").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
-            httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
+            httpHeaders.add("x-api-key", getKey(request.getAmount()));
             httpHeaders.add("Content-Type", "application/json");
         };
     }
@@ -123,13 +123,13 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setCustomId(UUID.randomUUID().toString());
-        request.setFiatSum(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setPaymentMethod(method);
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setCustomId(UUID.randomUUID().toString());
+        requestBody.setFiatSum(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setPaymentMethod(method);
+        return requestBody;
     }
 
     @Override

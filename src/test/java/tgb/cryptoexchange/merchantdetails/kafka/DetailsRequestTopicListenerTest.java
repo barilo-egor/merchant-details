@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
 
 import java.util.UUID;
 
@@ -22,7 +21,7 @@ class DetailsRequestTopicListenerTest {
 
     @Test
     void receiveShouldCallServiceMethodWithAllMerchants() {
-        DetailsRequestBot detailsRequest = new DetailsRequestBot();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setRequestId(UUID.randomUUID().toString());
         detailsRequestTopicListener.receive(detailsRequest);
         verify(detailsRequestProcessorService).process(detailsRequest);

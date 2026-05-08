@@ -9,7 +9,7 @@ public interface MerchantService {
 
     Merchant getMerchant();
 
-    Optional<DetailsResponse> createOrder(IDetailsRequest detailsRequest, String merchantMethod);
+    Optional<DetailsResponse> createOrder(OrderCreationRequest request);
 
     void updateStatus(String callbackBody);
 

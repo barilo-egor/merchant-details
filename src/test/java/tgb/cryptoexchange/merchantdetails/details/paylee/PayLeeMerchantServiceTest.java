@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -77,9 +77,9 @@ class PayLeeMerchantServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
         detailsRequest.setUserId(String.valueOf(1231231231L));
         Request actual = payLeeMerchantService.body(detailsRequest, method.name());
         assertAll(

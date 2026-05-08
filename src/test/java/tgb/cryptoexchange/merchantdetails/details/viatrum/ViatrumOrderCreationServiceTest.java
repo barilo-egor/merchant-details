@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.ViatrumProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -70,7 +70,7 @@ class ViatrumOrderCreationServiceTest {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = viatrumOrderCreationService.headers(new DetailsRequest(), null, body);
+        Consumer<HttpHeaders> headersConsumer = viatrumOrderCreationService.headers(new BotDetailsRequest(), null, body);
         headersConsumer.accept(httpHeaders);
 
         assertEquals(nonce, httpHeaders.getFirst("nonce"));
@@ -89,7 +89,7 @@ class ViatrumOrderCreationServiceTest {
                 .thenThrow(new JsonProcessingException("error") {
                 });
 
-        Consumer<HttpHeaders> consumer = viatrumOrderCreationService.headers(new DetailsRequest(), null, body);
+        Consumer<HttpHeaders> consumer = viatrumOrderCreationService.headers(new BotDetailsRequest(), null, body);
         HttpHeaders headers = new HttpHeaders();
         assertThrows(BodyMappingException.class, () -> consumer.accept(headers));
     }

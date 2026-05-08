@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.GambitSimProperties;
 
@@ -61,10 +61,10 @@ class GambitSimOrderCreationServiceTest {
             10500, SBP
             """)
     void body(String amount, Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).method(Collections.singletonList(method.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).method(Collections.singletonList(method.name()))
                         .build()));
         Request actual = service.body(detailsRequest, method.name());
         assertAll(

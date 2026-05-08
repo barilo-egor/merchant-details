@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
 
@@ -59,9 +59,9 @@ class PspWareOrderCreationServiceTest {
     @ValueSource(ints = {2550, 6340})
     @ParameterizedTest
     void bodyShouldReturnRequestObjectWithTJKGeo(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.TRANSGRAN_PHONE.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.TRANSGRAN_PHONE.name())).build()));
         Request actual = pspWareOrderCreationService.body(detailsRequest, Method.TRANSGRAN_PHONE.name());
         assertEquals(1, actual.getGeos().size());
         assertEquals(1, actual.getPayTypes().size());
@@ -75,9 +75,9 @@ class PspWareOrderCreationServiceTest {
     @ValueSource(ints = {2550, 6340})
     @ParameterizedTest
     void bodyShouldReturnRequestObjectWithRUAndABHGeo(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.SBP.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.SBP.name())).build()));
         Request actual = pspWareOrderCreationService.body(detailsRequest, Method.SBP.name());
         assertEquals(2, actual.getGeos().size());
         assertAll(
@@ -89,9 +89,9 @@ class PspWareOrderCreationServiceTest {
     @ValueSource(ints = {2550, 6340})
     @ParameterizedTest
     void bodyShouldReturnRequestObjectWithRUGeo(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.CARD.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.CARD.name())).build()));
         Request actual = pspWareOrderCreationService.body(detailsRequest, Method.CARD.name());
         assertEquals(1, actual.getGeos().size());
         assertAll(

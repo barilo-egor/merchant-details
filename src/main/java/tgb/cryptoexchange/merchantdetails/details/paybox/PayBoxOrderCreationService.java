@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -35,13 +35,13 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
-        Method method = parseMethod(merchantMethod, Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+        Method method = parseMethod(request.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return this::addHeaders;
     }
 
@@ -51,11 +51,11 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        request.setMerchantTransactionId(UUID.randomUUID().toString());
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        requestBody.setMerchantTransactionId(UUID.randomUUID().toString());
+        return requestBody;
     }
 
     @Override

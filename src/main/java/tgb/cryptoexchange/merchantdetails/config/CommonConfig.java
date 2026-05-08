@@ -21,8 +21,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 
@@ -97,18 +97,18 @@ public class CommonConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, DetailsRequest> consumerFactory(KafkaProperties kafkaProperties) {
+    public ConsumerFactory<String, BotDetailsRequest> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, DetailsRequest.KafkaDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, BotDetailsRequest.KafkaDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DetailsRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
-                                                                                                         DetailsRequestErrorService detailsRequestErrorService) {
-        ConcurrentKafkaListenerContainerFactory<String, DetailsRequest> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                            DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory(kafkaProperties));
         factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));

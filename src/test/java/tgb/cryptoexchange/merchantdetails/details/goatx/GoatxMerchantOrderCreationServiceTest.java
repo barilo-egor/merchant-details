@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxPropertiesImpl;
 
@@ -58,7 +58,7 @@ class GoatxMerchantOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String contractId, String method) {
-        DetailsRequest detailsRequest = spy(new DetailsRequest());
+        BotDetailsRequest detailsRequest = spy(new BotDetailsRequest());
         detailsRequest.setAmount(amount);
         when(goatxProperties.merchantContractId()).thenReturn(contractId);
 

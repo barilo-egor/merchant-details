@@ -12,8 +12,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.NeuralPayProperties;
 
@@ -39,7 +39,7 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/v1/core/transactions/charge").build();
     }
 
@@ -50,17 +50,17 @@ public class NeuralPayOrderCreationService extends MerchantOrderCreationService<
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return this::addHeaders;
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setMethod(Collections.singletonList(method.name()));
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setAmount(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setMethod(Collections.singletonList(method.name()));
+        return requestBody;
     }
 
     @Override

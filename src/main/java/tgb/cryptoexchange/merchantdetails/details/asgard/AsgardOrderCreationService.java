@@ -6,8 +6,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.AsgardProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -35,12 +35,12 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/payments").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return headers -> addHeaders(headers, body);
     }
 
@@ -51,15 +51,15 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setOrderId(UUID.randomUUID().toString());
-        request.setMerchantId(asgardProperties.merchantId());
-        request.setAmount(detailsRequest.getAmount());
-        request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setOrderId(UUID.randomUUID().toString());
+        requestBody.setMerchantId(asgardProperties.merchantId());
+        requestBody.setAmount(request.getAmount());
+        requestBody.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setMethod(parseMethod(merchantMethod, Method.class));
-        return request;
+        requestBody.setMethod(parseMethod(request.getMethod(), Method.class));
+        return requestBody;
     }
 
     @Override

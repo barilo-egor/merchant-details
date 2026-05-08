@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequestBot;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 
 import java.time.Instant;
@@ -25,7 +25,7 @@ public class MerchantDetailsReceiveEventProducer {
         this.receiveEventTopicName = receiveEventTopicName;
     }
 
-    public void put(Merchant merchant, String merchantMethod, DetailsRequestBot detailsRequest, DetailsResponse detailsResponse) {
+    public void put(Merchant merchant, String merchantMethod, BotDetailsRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
         event.setDealId(Long.valueOf(detailsRequest.getId()));
         event.setUserId(Long.valueOf(detailsRequest.getUserId()));

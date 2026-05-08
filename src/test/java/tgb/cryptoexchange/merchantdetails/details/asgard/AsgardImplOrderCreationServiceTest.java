@@ -10,7 +10,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.AsgardImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -38,7 +38,7 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void uriBuilder_ShouldReturnCorrectPath() {
-        DetailsRequest request = new DetailsRequest();
+        BotDetailsRequest request = new BotDetailsRequest();
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         Function<UriBuilder, URI> resultFunc = service.uriBuilder(request, null);
@@ -60,7 +60,7 @@ class AsgardImplOrderCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(new DetailsRequest(), null, body);
+        Consumer<HttpHeaders> headersConsumer = service.headers(new BotDetailsRequest(), null, body);
         headersConsumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));
@@ -70,7 +70,7 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void body_ShouldMapRequestCorrectly() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(5936);
 
         when(asgardProperties.merchantId()).thenReturn("M-123");

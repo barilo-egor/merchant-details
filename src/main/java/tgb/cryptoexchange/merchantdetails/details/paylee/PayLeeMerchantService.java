@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
@@ -43,12 +43,12 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/partners/purchases/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Token " + payLeeProperties.token());
             httpHeaders.add("Content-Type", "application/json");
@@ -56,14 +56,14 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setPrice(detailsRequest.getAmount());
-        request.setRequisitesType(parseMethod(merchantMethod, Method.class));
-        if (Objects.nonNull(detailsRequest.getUserId())) {
-            request.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setPrice(request.getAmount());
+        requestBody.setRequisitesType(parseMethod(request.getMethod(), Method.class));
+        if (Objects.nonNull(request.getUserId())) {
+            requestBody.setClientId(hashids.encode(Long.parseLong(request.getUserId())));
         }
-        return request;
+        return requestBody;
     }
 
     @Override

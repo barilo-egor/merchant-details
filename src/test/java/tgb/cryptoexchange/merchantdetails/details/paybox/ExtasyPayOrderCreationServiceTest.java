@@ -18,8 +18,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -59,8 +59,8 @@ class ExtasyPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(Collections.singletonList(method.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(Collections.singletonList(method.name())).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
@@ -85,7 +85,7 @@ class ExtasyPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
 
         Request actual = extasyPayOrderCreationService.body(detailsRequest, null);

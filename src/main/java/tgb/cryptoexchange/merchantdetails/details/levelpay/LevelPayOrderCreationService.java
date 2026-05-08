@@ -11,8 +11,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
 
 import java.net.URI;
@@ -38,12 +38,12 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/api/h2h/order").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return this::addHeaders;
     }
 
@@ -54,20 +54,20 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setMerchantId(levelPayProperties.merchantId());
-        request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setPaymentDetailType(method);
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setMerchantId(levelPayProperties.merchantId());
+        requestBody.setAmount(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setPaymentDetailType(method);
         if (Method.ALFA_ALFA.equals(method)) {
-            request.setPaymentGateway("alfa-alfa");
+            requestBody.setPaymentGateway("alfa-alfa");
         }
-        request.setExternalId(UUID.randomUUID().toString());
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+        requestBody.setExternalId(UUID.randomUUID().toString());
+        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        request.setFloatingAmount(true);
-        return request;
+        requestBody.setFloatingAmount(true);
+        return requestBody;
     }
 
     @Override

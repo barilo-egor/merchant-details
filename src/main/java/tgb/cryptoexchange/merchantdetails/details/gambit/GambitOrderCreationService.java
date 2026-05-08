@@ -5,8 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitProperties;
 
 import java.net.URI;
@@ -27,12 +27,12 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/orders/init").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return this::addHeaders;
     }
 
@@ -42,14 +42,14 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setMethod(method);
-        request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
-        request.setAmount(detailsRequest.getAmount());
-        request.setTerminalUid(gambitProperties.terminal());
-        return request;
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setMethod(method);
+        requestBody.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
+        requestBody.setAmount(request.getAmount());
+        requestBody.setTerminalUid(gambitProperties.terminal());
+        return requestBody;
     }
 
     @Override

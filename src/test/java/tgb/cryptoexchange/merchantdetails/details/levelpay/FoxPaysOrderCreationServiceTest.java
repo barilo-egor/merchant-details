@@ -18,8 +18,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.FoxPaysProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -86,9 +86,9 @@ class FoxPaysOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(method.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
@@ -107,9 +107,9 @@ class FoxPaysOrderCreationServiceTest {
 
     @Test
     void bodyShouldBuildRequestObjectWithAlfaAlfaPaymentGateway() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(1);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn("merchantId");
 
         Request request = foxPaysOrderCreationService.body(detailsRequest, Method.ALFA_ALFA.name());

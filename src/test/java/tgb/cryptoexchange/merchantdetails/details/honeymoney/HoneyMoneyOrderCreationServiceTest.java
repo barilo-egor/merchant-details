@@ -19,7 +19,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -58,8 +58,8 @@ class HoneyMoneyOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldAddPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(method.getUri(), honeyMoneyOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
     }
@@ -73,8 +73,8 @@ class HoneyMoneyOrderCreationServiceTest {
         when(honeyMoneyProperties.authToken()).thenReturn(authToken);
         when(signatureService.hmacSHA256(any(), any(), any())).thenReturn(signature);
 
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.CARD.name())).build()));
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.CARD.name())).build()));
         HttpHeaders headers = new HttpHeaders();
         honeyMoneyOrderCreationService.headers(detailsRequest, Method.CARD.name(), "body").accept(headers);
         assertAll(
@@ -90,9 +90,9 @@ class HoneyMoneyOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         Request request = honeyMoneyOrderCreationService.body(detailsRequest, method.name());

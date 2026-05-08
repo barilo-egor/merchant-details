@@ -6,8 +6,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.details.VoidCallback;
 import tgb.cryptoexchange.merchantdetails.properties.PspWareProperties;
 
@@ -37,29 +37,29 @@ public class PspWareOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
         return uriBuilder -> uriBuilder.path("/merchant/v2/orders").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
         return httpHeaders -> httpHeaders.add("X-API-KEY", pspWareProperties.token());
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
-        Request request = new Request();
-        request.setSum(detailsRequest.getAmount());
-        Method method = parseMethod(merchantMethod, Method.class);
-        request.setPayTypes(List.of(method));
+    protected Request body(OrderCreationRequest request) {
+        Request requestBody = new Request();
+        requestBody.setSum(request.getAmount());
+        Method method = parseMethod(request.getMethod(), Method.class);
+        requestBody.setPayTypes(List.of(method));
         if (Method.TRANSGRAN_PHONE.equals(method)) {
-            request.setGeos(List.of("TJK"));
+            requestBody.setGeos(List.of("TJK"));
         } else if (Method.SBP.equals(method)) {
-            request.setGeos(List.of("RU", "ABH"));
+            requestBody.setGeos(List.of("RU", "ABH"));
         } else {
-            request.setGeos(List.of("RU"));
+            requestBody.setGeos(List.of("RU"));
         }
-        return request;
+        return requestBody;
     }
 
     @Override

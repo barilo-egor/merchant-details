@@ -5,7 +5,6 @@ import jakarta.persistence.Transient;
 import lombok.Data;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
-import tgb.cryptoexchange.merchantdetails.details.IDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ApiDetailsRequest implements IDetailsRequest {
+public class ApiDetailsRequest {
 
     private String requestId;
 
@@ -26,12 +25,6 @@ public class ApiDetailsRequest implements IDetailsRequest {
     private Integer amount;
 
     private List<RequestMethod> requestMethods = new ArrayList<>();
-
-    @Override
-    @Transient
-    public String getId() {
-        return this.internalId;
-    }
 
     @Transient
     public List<String> getMerchantMethods(Merchant merchant) {
