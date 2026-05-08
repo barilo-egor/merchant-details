@@ -10,7 +10,6 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,7 +28,7 @@ public class ApiDetailsRequest {
     @Transient
     public List<String> getMerchantMethods(Merchant merchant) {
         List<String> merchantMethodNames = MerchantConstants.getMethods(merchant).stream().map(MerchantMethod::name).toList();
-        return this.requestMethods.stream().map(Enum::name).filter(merchantMethodNames::contains).collect(Collectors.toList());
+        return this.requestMethods.stream().map(Enum::name).filter(merchantMethodNames::contains).toList();
     }
 
 }
