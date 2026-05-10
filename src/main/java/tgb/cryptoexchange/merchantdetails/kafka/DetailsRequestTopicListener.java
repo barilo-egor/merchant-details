@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -19,6 +20,8 @@ public class DetailsRequestTopicListener {
     @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}",
             containerFactory = "kafkaListenerContainerFactory")
     public void receive(@Payload BotDetailsRequest request) {
-        detailsRequestProcessorService.process(request);
+        try (var ignored = MDC.putCloseable("logDest", "bot")) {
+            detailsRequestProcessorService.process(request);
+        }
     }
 }
