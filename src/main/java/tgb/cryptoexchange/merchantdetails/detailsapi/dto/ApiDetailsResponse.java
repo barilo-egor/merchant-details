@@ -7,6 +7,10 @@ public class ApiDetailsResponse {
 
     private String requestId;
 
+    private String orderId;
+
     private Details details;
+
+    private Integer amount;
 
 }

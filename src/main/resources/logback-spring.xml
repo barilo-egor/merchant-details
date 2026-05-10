@@ -27,33 +27,27 @@
         </rollingPolicy>
     </appender>
 
-    <!-- 3. APPLICATION ФАЙЛЫ -->
-    <appender name="APPLICATION_BOT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/application-bot.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/application-bot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>3</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
-        </rollingPolicy>
-    </appender>
-
-    <appender name="APPLICATION_API_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/application-api.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/application-api.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>3</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
-        </rollingPolicy>
+    <!-- 3. ДИНАМИЧЕСКИЙ РАСПРЕДЕЛИТЕЛЬ (SIFTING) -->
+    <appender name="APPLICATION_SIFTER" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>logDest</key>
+            <defaultValue>bot</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${logDest}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>logs/application-${logDest}.log</file>
+                <encoder>
+                    <pattern>${FILE_PATTERN}</pattern>
+                    <charset>utf8</charset>
+                </encoder>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>logs/application-${logDest}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                    <maxFileSize>30MB</maxFileSize>
+                    <maxHistory>3</maxHistory>
+                    <totalSizeCap>3GB</totalSizeCap>
+                </rollingPolicy>
+            </appender>
+        </sift>
     </appender>
 
     <!-- 4. SPRING ФАЙЛ -->
@@ -70,26 +64,21 @@
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
     </appender>
+
     <!-- НАСТРОЙКИ ЛОГГЕРОВ -->
 
-    <!-- Application логи идут в application.log и консоль -->
     <logger name="tgb.cryptoexchange" additivity="false" level="DEBUG">
-        <appender-ref ref="APPLICATION_BOT_FILE"/>
-        <appender-ref ref="APPLICATION_API_FILE"/>
+        <appender-ref ref="APPLICATION_SIFTER"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-
-    <!-- Spring логи идут в spring.log и консоль -->
     <logger name="org.springframework" additivity="false">
         <appender-ref ref="SPRING_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-    <!-- Все остальные логи идут в application.log и консоль -->
     <root level="INFO">
         <appender-ref ref="ALL_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>
-
 </configuration>

@@ -57,7 +57,7 @@ public class ApiMerchantDetailsService {
         this.merchantServiceRegistry = merchantServiceRegistry;
     }
 
-    @Timed(value = Metrics.GET_DETAILS, description = "Метрики api запросов на получение реквизитов.")
+    @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")
     public Optional<ApiDetailsResponse> getDetails(ApiDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
@@ -85,14 +85,14 @@ public class ApiMerchantDetailsService {
         String today = LocalDate.now().toString();
         if (!hasDetails) {
             meterRegistry.counter(
-                    Metrics.GET_DETAILS_RESULT,
+                    Metrics.GET_DETAILS_RESULT_API,
                     STATUS, "empty",
                     "date", today,
                     "configType", ConfigType.API.name()
             ).increment();
             log.debug("Реквизиты для api-сделки {} у мерчантов получены не были.", request.getRequestId());
         } else {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT, STATUS, "success",
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT_API, STATUS, "success",
                     "date", today,
                     "configType", ConfigType.API.name()).increment();
         }
@@ -108,16 +108,16 @@ public class ApiMerchantDetailsService {
             try {
                 log.debug("Попытка №{} мерчанта {} для api-сделки {}.", attemptNumber, merchant.name(), request.getRequestId());
                 maybeDetailsResponse = getDetails(merchant, request);
-                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, MERCHANT, merchant.name()));
+                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS_API, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "success").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "success").increment();
                 } else {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "empty").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "empty").increment();
                 }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getRequestId(), attemptNumber, e.getMessage(), e);
-                meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "error").increment();
+                meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getRequestId(), responseException.getResponseBodyAsString());
                 }
@@ -154,6 +154,7 @@ public class ApiMerchantDetailsService {
                 DetailsResponse orderResponse = maybeDetailsResponse.get();
                 ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
                 apiDetailsResponse.setRequestId(orderResponse.getRequestId());
+                apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
                 Details details = Details.builder()
                         .requestMethod(RequestMethod.valueOf(merchantMethod))
                         .details(orderResponse.getDetails())
@@ -161,6 +162,7 @@ public class ApiMerchantDetailsService {
                         .operator(orderResponse.getOperator())
                         .build();
                 apiDetailsResponse.setDetails(details);
+                apiDetailsResponse.setAmount(orderResponse.getAmount());
                 return Optional.of(apiDetailsResponse);
             }
         }
