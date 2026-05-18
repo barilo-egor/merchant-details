@@ -274,6 +274,18 @@ meridian-pay-nspk:
   url: ""
   token: ""
   merchant-id: ""
+mansory:
+  url:
+  api-key:
+  secret:
+mansory-high-check:
+  url:
+  api-key:
+  secret:
+mansory-low-check:
+  url:
+  api-key:
+  secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:
