@@ -287,4 +287,19 @@ public class WebClientsConfig {
     public WebClient zPayWebClient(ZPayProperties zPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(zPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayHighCheckWebClient(MeridianPayHighCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayLowCheckWebClient(MeridianPayLowCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
 }

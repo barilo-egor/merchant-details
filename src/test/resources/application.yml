@@ -243,6 +243,18 @@ asgard-high-check:
 z-pay:
   url: "z-pay-url"
   token: "z-pay-token"
+meridian-pay:
+  url: "meridian-pay-url"
+  token: "meridian-pay-token"
+  merchant-id: "meridian-pay-merchant-id"
+meridian-pay-high-check:
+  url: "meridian-pay-high-check-url"
+  token: "meridian-pay-high-check-token"
+  merchant-id: "meridian-pay-high-check-merchant-id"
+meridian-pay-low-check:
+  url: "meridian-pay-low-check-url"
+  token: "meridian-pay-low-check-token"
+  merchant-id: "meridian-pay-low-check-merchant-id"
 #Конфиг приложния
 server:
   servlet:

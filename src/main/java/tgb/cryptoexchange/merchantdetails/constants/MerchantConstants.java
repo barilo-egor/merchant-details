@@ -230,6 +230,17 @@ public enum MerchantConstants {
     Z_PAY(
             tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
+    ),
+    MERIDIAN_PAY(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ), MERIDIAN_PAY_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
+    MERIDIAN_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
