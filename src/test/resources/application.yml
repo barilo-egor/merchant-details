@@ -243,6 +243,10 @@ asgard-high-check:
 z-pay:
   url: "z-pay-url"
   token: "z-pay-token"
+deora:
+  url: "deora-url"
+  key: "deora-key"
+  secret: "deora-secret"
 #Конфиг приложния
 server:
   servlet:

@@ -287,4 +287,9 @@ public class WebClientsConfig {
     public WebClient zPayWebClient(ZPayProperties zPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(zPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient deoraWebClient(DeoraProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
 }
