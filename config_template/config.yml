@@ -239,6 +239,18 @@ asgard-high-check:
 z-pay:
   url:
   token:
+meridian-pay:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-high-check:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-low-check:
+  url: ""
+  token: ""
+  merchant-id: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
