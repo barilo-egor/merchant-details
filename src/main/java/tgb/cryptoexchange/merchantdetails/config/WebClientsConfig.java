@@ -332,4 +332,19 @@ public class WebClientsConfig {
     public WebClient meridianPayNspkWebClient(MeridianPayNspkProperties meridianPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient mansoryWebClient(MansoryImplProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mansoryHighCheckWebClient(MansoryHighCheckProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mansoryLowCheckWebClient(MansoryLowCheckProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
 }
