@@ -21,36 +21,50 @@ class ResponseTest {
     }
 
     @Test
-    @DisplayName("Должен возвращать false, если requisites не null, но bankName и phone равны null")
+    @DisplayName("Должен возвращать false, если requisites не null, но cardNumber и phone равны null")
     void shouldReturnFalseWhenRequisitesIsEmpty() {
         Response response = new Response();
-        response.setRequisites(new Response.Requisites());
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setBankName("Bank");
+        response.setRequisites(requisites);
 
         assertThat(response.hasDetails()).isFalse();
     }
 
     @Test
-    @DisplayName("Должен возвращать true, если заполнен только bankName")
+    @DisplayName("Должен возвращать false, если заполнен только bankName")
     void shouldReturnTrueWhenBankNameIsPresent() {
         Response response = new Response();
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Sberbank");
         response.setRequisites(requisites);
 
-        assertThat(response.hasDetails()).isTrue();
+        assertThat(response.hasDetails()).isFalse();
     }
 
     @Test
-    @DisplayName("Должен возвращать true, если заполнен только phone")
+    @DisplayName("Должен возвращать true, если заполнен только bankName и phone")
     void shouldReturnTrueWhenPhoneIsPresent() {
         Response response = new Response();
         Response.Requisites requisites = new Response.Requisites();
+        requisites.setBankName("Sberbank");
         requisites.setPhone("+79991112233");
         response.setRequisites(requisites);
 
         assertThat(response.hasDetails()).isTrue();
     }
 
+    @Test
+    @DisplayName("Должен возвращать true, если заполнен только bankName и cardNumber")
+    void shouldReturnTrueWhenCardNumberIsPresent() {
+        Response response = new Response();
+        Response.Requisites requisites = new Response.Requisites();
+        requisites.setBankName("Sberbank");
+        requisites.setCardNumber("1111 2222 3333 4444");
+        response.setRequisites(requisites);
+
+        assertThat(response.hasDetails()).isTrue();
+    }
 
     @Test
     @DisplayName("Должен возвращать пустой ValidationResult, если hasDetails() равен false")
@@ -69,6 +83,7 @@ class ResponseTest {
         response.setAmount(1000);
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
+        requisites.setPhone("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"orderId\" must not be null", response.validate().errorsToString());
@@ -82,6 +97,7 @@ class ResponseTest {
         response.setOrderId("qwe");
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
+        requisites.setPhone("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
@@ -95,6 +111,7 @@ class ResponseTest {
         response.setOrderId("qwe");
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
+        requisites.setPhone("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"status\" must not be null", response.validate().errorsToString());
