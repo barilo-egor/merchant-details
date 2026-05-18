@@ -64,10 +64,10 @@ public abstract class MansoryService extends MerchantOrderCreationService<Respon
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
         Response.Requisites requisites = response.getRequisites();
-        if (StringUtils.isNotBlank(requisites.getBankName())) {
-            detailsResponse.setDetails(requisites.getBankName());
+        if (StringUtils.isNotBlank(requisites.getCardNumber())) {
+            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getCardNumber());
         } else {
-            detailsResponse.setDetails(requisites.getPhone());
+            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getPhone());
         }
         return Optional.of(detailsResponse);
     }

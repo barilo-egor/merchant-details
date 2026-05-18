@@ -105,31 +105,33 @@ class MansoryServiceTest {
 
 
     @Test
-    @DisplayName("buildResponse должен брать BankName, если он передан")
-    void shouldMapResponseWithBankName() {
+    @DisplayName("buildResponse должен брать cardNumber, если он передан")
+    void shouldMapResponseWithCardNumber() {
         Response response = createBaseResponse();
         response.getRequisites().setBankName("Alfa-Bank");
-
+        response.getRequisites().setCardNumber("1111 2222 3333 4444");
         Optional<DetailsResponse> resultOpt = service.buildResponse(response);
 
         assertThat(resultOpt).isPresent();
         DetailsResponse result = resultOpt.get();
         assertThat(result.getMerchant()).isEqualTo(Merchant.MANSORY);
-        assertThat(result.getDetails()).isEqualTo("Alfa-Bank");
+        assertThat(result.getDetails()).isEqualTo("Alfa-Bank 1111 2222 3333 4444");
         assertThat(result.getMerchantOrderStatus()).isEqualTo("COMPLETED");
     }
 
     @Test
-    @DisplayName("buildResponse должен переключаться на Phone, если BankName пустой")
-    void shouldMapResponseWithPhoneWhenBankNameIsBlank() {
+    @DisplayName("buildResponse должен брать phone, если он передан")
+    void shouldMapResponseWithPhone() {
         Response response = createBaseResponse();
-        response.getRequisites().setBankName(" ");
-        response.getRequisites().setPhone("+79990000000");
-
+        response.getRequisites().setBankName("Alfa-Bank");
+        response.getRequisites().setCardNumber("88005553535");
         Optional<DetailsResponse> resultOpt = service.buildResponse(response);
 
         assertThat(resultOpt).isPresent();
-        assertThat(resultOpt.get().getDetails()).isEqualTo("+79990000000");
+        DetailsResponse result = resultOpt.get();
+        assertThat(result.getMerchant()).isEqualTo(Merchant.MANSORY);
+        assertThat(result.getDetails()).isEqualTo("Alfa-Bank 88005553535");
+        assertThat(result.getMerchantOrderStatus()).isEqualTo("COMPLETED");
     }
 
     private Response createBaseResponse() {
@@ -142,7 +144,7 @@ class MansoryServiceTest {
     }
 
     @Test
-    @DisplayName("makeCancelRequest должен дергать requestService с правильным HTTP методом")
+    @DisplayName("makeCancelRequest должен вызывать requestService с правильным HTTP методом")
     void shouldExecuteCancelPostRequest() {
         CancelOrderRequest cancelRequest = new CancelOrderRequest();
         cancelRequest.setOrderId("order-to-cancel");

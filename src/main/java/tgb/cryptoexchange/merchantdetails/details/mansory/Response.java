@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.mansory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
@@ -14,10 +15,12 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("payment_id")
     private String orderId;
 
+    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     private Integer amount;
 
+    @JsonProperty("recipient")
     private Requisites requisites;
 
     @Override
@@ -39,7 +42,7 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(requisites) && (Objects.nonNull(requisites.getBankName()) || Objects.nonNull(requisites.getPhone()));
+        return Objects.nonNull(requisites) && Objects.nonNull(requisites.bankName) && (Objects.nonNull(requisites.getCardNumber()) || Objects.nonNull(requisites.getPhone()));
     }
 
     @Data
@@ -50,6 +53,9 @@ public class Response implements MerchantDetailsResponse {
         private String bankName;
 
         private String phone;
+
+        @JsonProperty("card_number")
+        private String cardNumber;
 
     }
 
