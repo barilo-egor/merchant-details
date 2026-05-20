@@ -239,6 +239,18 @@ asgard-high-check:
 z-pay:
   url:
   token:
+eclipse-gate:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+eclipse-gate-high-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+eclipse-gate-low-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
