@@ -243,6 +243,18 @@ asgard-high-check:
 z-pay:
   url: "z-pay-url"
   token: "z-pay-token"
+eclipse-gate:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-key-card"
+  key-sbp: "eclipse-gate-key-sbp"
+eclipse-gate-high-check:
+  url: "eclipse-gate-high-check-url"
+  key-card: "eclipse-gate-high-check-key-card"
+  key-sbp: "eclipse-gate-high-check-key-sbp"
+eclipse-gate-low-check:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-low-check-key-card"
+  key-sbp: "eclipse-gate-low-check-key-sbp"
 #Конфиг приложния
 server:
   servlet:

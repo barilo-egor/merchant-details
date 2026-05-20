@@ -230,6 +230,18 @@ public enum MerchantConstants {
     Z_PAY(
             tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
+    ),
+    ECLIPSE_GATE(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
+    ),
+    ECLIPSE_GATE_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
+    ),
+    ECLIPSE_GATE_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

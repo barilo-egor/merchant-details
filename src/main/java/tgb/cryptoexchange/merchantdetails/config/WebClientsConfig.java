@@ -287,4 +287,19 @@ public class WebClientsConfig {
     public WebClient zPayWebClient(ZPayProperties zPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(zPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient eclipseGateWebClient(EclipseGateProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateHighCheckWebClient(EclipseGateHighCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateLowCheckWebClient(EclipseGateLowCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
 }
