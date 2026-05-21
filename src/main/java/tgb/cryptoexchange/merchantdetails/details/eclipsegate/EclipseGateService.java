@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.eclipsegate;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -63,11 +62,8 @@ public abstract class EclipseGateService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
         Response.Requisites requisites = response.getRequisites();
-        if (StringUtils.isNotBlank(requisites.getBill())) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getBill());
-        } else {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getPhone());
-        }
+        detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getBill());
+
         return Optional.of(detailsResponse);
     }
 
