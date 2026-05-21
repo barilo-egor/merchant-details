@@ -230,6 +230,10 @@ public enum MerchantConstants {
     Z_PAY(
             tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
+    ),
+    DEORA(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
