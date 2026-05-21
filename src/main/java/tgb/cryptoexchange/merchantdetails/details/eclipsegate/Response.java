@@ -42,7 +42,7 @@ public class Response implements MerchantDetailsResponse {
     @Override
     public boolean hasDetails() {
         return Objects.nonNull(requisites) && Objects.nonNull(requisites.bankName)
-                && (Objects.nonNull(requisites.getBill()) || Objects.nonNull(requisites.getPhone()));
+                && Objects.nonNull(requisites.getBill());
     }
 
     @Data
@@ -51,8 +51,6 @@ public class Response implements MerchantDetailsResponse {
 
         @JsonProperty("bank_name")
         private String bankName;
-
-        private String phone;
 
         private String bill;
 

@@ -113,21 +113,6 @@ class EclipseGateServiceTest {
         assertThat(result.getMerchantOrderStatus()).isEqualTo("PENDING");
     }
 
-    @Test
-    @DisplayName("buildResponse должен брать phone, если он передан")
-    void shouldMapResponseWithPhone() {
-        Response response = createBaseResponse();
-        response.getRequisites().setBankName("Alfa-Bank");
-        response.getRequisites().setPhone("88005553535");
-        Optional<DetailsResponse> resultOpt = service.buildResponse(response);
-
-        assertThat(resultOpt).isPresent();
-        DetailsResponse result = resultOpt.get();
-        assertThat(result.getMerchant()).isEqualTo(Merchant.ECLIPSE_GATE);
-        assertThat(result.getDetails()).isEqualTo("Alfa-Bank 88005553535");
-        assertThat(result.getMerchantOrderStatus()).isEqualTo("PENDING");
-    }
-
     private Response createBaseResponse() {
         Response response = new Response();
         response.setOrderId("id-100");

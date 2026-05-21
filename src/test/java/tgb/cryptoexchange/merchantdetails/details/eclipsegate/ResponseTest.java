@@ -48,7 +48,7 @@ class ResponseTest {
         Response response = new Response();
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Sberbank");
-        requisites.setPhone("+79991112233");
+        requisites.setBill("+79991112233");
         response.setRequisites(requisites);
 
         assertThat(response.hasDetails()).isTrue();
@@ -83,7 +83,7 @@ class ResponseTest {
         response.setAmount(1000);
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
-        requisites.setPhone("88005553535");
+        requisites.setBill("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"orderId\" must not be null", response.validate().errorsToString());
@@ -97,7 +97,7 @@ class ResponseTest {
         response.setOrderId("qwe");
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
-        requisites.setPhone("88005553535");
+        requisites.setBill("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"amount\" must not be null", response.validate().errorsToString());
@@ -111,7 +111,7 @@ class ResponseTest {
         response.setOrderId("qwe");
         Response.Requisites requisites = new Response.Requisites();
         requisites.setBankName("Alfa");
-        requisites.setPhone("88005553535");
+        requisites.setBill("88005553535");
         response.setRequisites(requisites);
 
         assertEquals("field \"status\" must not be null", response.validate().errorsToString());
