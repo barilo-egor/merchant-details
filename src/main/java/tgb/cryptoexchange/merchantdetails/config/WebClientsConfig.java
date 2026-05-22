@@ -289,6 +289,26 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient eclipseGateWebClient(EclipseGateProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateHighCheckWebClient(EclipseGateHighCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateLowCheckWebClient(EclipseGateLowCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraWebClient(DeoraProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
     public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }
@@ -300,6 +320,16 @@ public class WebClientsConfig {
 
     @Bean
     public WebClient meridianPayLowCheckWebClient(MeridianPayLowCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPaySimWebClient(MeridianPaySimProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayNspkWebClient(MeridianPayNspkProperties meridianPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }
 }

@@ -243,6 +243,25 @@ asgard-high-check:
 z-pay:
   url: "z-pay-url"
   token: "z-pay-token"
+deora:
+  url: "deora-url"
+  key: "deora-key"
+  secret: "deora-secret"
+eclipse-gate:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-key-card"
+  key-sbp: "eclipse-gate-key-sbp"
+  key-sim: "eclipse-gate-key-sim"
+eclipse-gate-high-check:
+  url: "eclipse-gate-high-check-url"
+  key-card: "eclipse-gate-high-check-key-card"
+  key-sbp: "eclipse-gate-high-check-key-sbp"
+  key-sim: "eclipse-gatehigh-check-key-sim"
+eclipse-gate-low-check:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-low-check-key-card"
+  key-sbp: "eclipse-gate-low-check-key-sbp"
+  key-sim: "eclipse-gate-low-check-key-sim"
 meridian-pay:
   url: "meridian-pay-url"
   token: "meridian-pay-token"
@@ -255,6 +274,14 @@ meridian-pay-low-check:
   url: "meridian-pay-low-check-url"
   token: "meridian-pay-low-check-token"
   merchant-id: "meridian-pay-low-check-merchant-id"
+meridian-pay-sim:
+  url: "meridian-pay-sim-url"
+  token: "meridian-pay-sim-token"
+  merchant-id: "meridian-pay-sim-merchant-id"
+meridian-pay-nspk:
+  url: "meridian-pay-nspk-url"
+  token: "meridian-pay-nspk-token"
+  merchant-id: "meridian-pay-nspk-merchant-id"
 #Конфиг приложния
 server:
   servlet:
