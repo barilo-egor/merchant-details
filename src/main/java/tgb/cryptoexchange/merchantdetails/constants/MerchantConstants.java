@@ -231,6 +231,22 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
     ),
+    DEORA(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    ECLIPSE_GATE(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
+    ),
+    ECLIPSE_GATE_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
+    ),
+    ECLIPSE_GATE_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
+    ),
     MERIDIAN_PAY(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
@@ -239,6 +255,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
     MERIDIAN_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
+    MERIDIAN_PAY_SIM(
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
+    MERIDIAN_PAY_NSPK(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     );
