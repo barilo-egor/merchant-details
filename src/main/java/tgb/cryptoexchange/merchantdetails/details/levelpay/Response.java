@@ -21,7 +21,7 @@ public class Response implements MerchantDetailsResponse {
         if (success) {
             if (Objects.isNull(data)) {
                 result.notNull("data");
-            } else {
+            } else if (hasDetails()) {
                 validateData(result);
             }
         } else {
@@ -40,18 +40,12 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(data.getPaymentGatewayName()) && Objects.isNull(data.getPaymentGateway())) {
             result.notNull("data.paymentGatewayName", "data.paymentGateway");
         }
-        if (Objects.isNull(data.getPaymentDetail())) {
-            result.notNull("data.paymentDetail");
-        } else {
-            if (Objects.isNull(data.getPaymentDetail().getDetail())) {
-                result.notNull("data.paymentDetail.detail");
-            }
-        }
     }
 
     @Override
     public boolean hasDetails() {
-        return true;
+        return Objects.nonNull(data) && Objects.nonNull(data.getPaymentDetail()) &&
+                (Objects.nonNull(data.getPaymentDetail().getDetail()) || Objects.nonNull(data.getPaymentDetail().getQrCodeLink()));
     }
 
     @Data
@@ -78,6 +72,9 @@ public class Response implements MerchantDetailsResponse {
         public static class PaymentDetail {
 
             private String detail;
+
+            @JsonProperty("qr_code_link")
+            private String qrCodeLink;
         }
     }
 }

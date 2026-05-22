@@ -1,4 +1,5 @@
-package tgb.cryptoexchange.merchantdetails.details.levelpay;
+package tgb.cryptoexchange.merchantdetails.details.eclipsegate;
+
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -9,24 +10,22 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 
 import java.io.IOException;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
-    PHONE("phone", "СБП"),
-    ALFA_ALFA("phone", "Альфа-альфа"),
-    SIM("sim", "SIM"),
-    QR("nspk", "QR");
+    SIM("sbp", "СБП"),
+    SBP("sim", "СИМ");
 
     private final String value;
 
     private final String description;
 
     public static class Serializer extends JsonSerializer<Method> {
-
         @Override
-        public void serialize(Method value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeString(value.getValue());
+        public void serialize(Method method, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeString(method.getValue());
         }
     }
 }
+

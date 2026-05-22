@@ -239,6 +239,41 @@ asgard-high-check:
 z-pay:
   url:
   token:
+eclipse-gate:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+eclipse-gate-high-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+eclipse-gate-low-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+meridian-pay:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-high-check:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-low-check:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-sim:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-nspk:
+  url: ""
+  token: ""
+  merchant-id: ""
 # Конфиг приложение
 springdoc:
   swagger-ui:
