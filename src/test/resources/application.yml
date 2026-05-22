@@ -251,14 +251,17 @@ eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
   key-sbp: "eclipse-gate-key-sbp"
+  key-sim: "eclipse-gate-key-sim"
 eclipse-gate-high-check:
   url: "eclipse-gate-high-check-url"
   key-card: "eclipse-gate-high-check-key-card"
   key-sbp: "eclipse-gate-high-check-key-sbp"
+  key-sim: "eclipse-gatehigh-check-key-sim"
 eclipse-gate-low-check:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-low-check-key-card"
   key-sbp: "eclipse-gate-low-check-key-sbp"
+  key-sim: "eclipse-gate-low-check-key-sim"
 #Конфиг приложния
 server:
   servlet:
