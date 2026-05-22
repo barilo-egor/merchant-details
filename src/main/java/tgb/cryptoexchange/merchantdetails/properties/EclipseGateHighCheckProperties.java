@@ -4,11 +4,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method;
 
 @ConfigurationProperties("eclipse-gate-high-check")
-public record EclipseGateHighCheckProperties(String url, String keyCard, String keySbp) implements EclipseGateConfig {
+public record EclipseGateHighCheckProperties(String url, String keyCard, String keySbp,
+                                             String keySim) implements EclipseGateConfig {
 
     @Override
     public String apiKey(String method) {
-        return Method.CARD.name().equalsIgnoreCase(method) ? keyCard : keySbp;
+        if (Method.CARD.name().equalsIgnoreCase(keyCard)) {
+            return keyCard;
+        } else if (Method.SBP.name().equalsIgnoreCase(keySbp)) {
+            return keySbp;
+        } else return keySim;
     }
 
 }

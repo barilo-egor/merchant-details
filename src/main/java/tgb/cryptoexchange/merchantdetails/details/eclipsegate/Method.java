@@ -14,7 +14,8 @@ import java.io.IOException;
 @AllArgsConstructor
 public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
-    SBP("sbp", "СБП");
+    SIM("sbp", "СБП"),
+    SBP("sim", "СИМ");
 
     private final String value;
 
