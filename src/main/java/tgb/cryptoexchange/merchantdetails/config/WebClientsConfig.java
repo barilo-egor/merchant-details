@@ -289,6 +289,21 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient eclipseGateWebClient(EclipseGateProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateHighCheckWebClient(EclipseGateHighCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateLowCheckWebClient(EclipseGateLowCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
     public WebClient deoraWebClient(DeoraProperties deoraProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
     }
