@@ -307,4 +307,29 @@ public class WebClientsConfig {
     public WebClient deoraWebClient(DeoraProperties deoraProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
     }
+
+    @Bean
+    public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayHighCheckWebClient(MeridianPayHighCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayLowCheckWebClient(MeridianPayLowCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPaySimWebClient(MeridianPaySimProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayNspkWebClient(MeridianPayNspkProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
 }
