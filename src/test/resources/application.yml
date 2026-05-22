@@ -262,6 +262,26 @@ eclipse-gate-low-check:
   key-card: "eclipse-gate-low-check-key-card"
   key-sbp: "eclipse-gate-low-check-key-sbp"
   key-sim: "eclipse-gate-low-check-key-sim"
+meridian-pay:
+  url: "meridian-pay-url"
+  token: "meridian-pay-token"
+  merchant-id: "meridian-pay-merchant-id"
+meridian-pay-high-check:
+  url: "meridian-pay-high-check-url"
+  token: "meridian-pay-high-check-token"
+  merchant-id: "meridian-pay-high-check-merchant-id"
+meridian-pay-low-check:
+  url: "meridian-pay-low-check-url"
+  token: "meridian-pay-low-check-token"
+  merchant-id: "meridian-pay-low-check-merchant-id"
+meridian-pay-sim:
+  url: "meridian-pay-sim-url"
+  token: "meridian-pay-sim-token"
+  merchant-id: "meridian-pay-sim-merchant-id"
+meridian-pay-nspk:
+  url: "meridian-pay-nspk-url"
+  token: "meridian-pay-nspk-token"
+  merchant-id: "meridian-pay-nspk-merchant-id"
 #Конфиг приложния
 server:
   servlet:
