@@ -52,7 +52,9 @@ public class ApiDetailsRequestMapper {
     public DetailsResponseGrpc mapToGrpcDto(ApiDetailsResponse response) {
         return DetailsResponseGrpc.newBuilder()
                 .setRequestId(response.getRequestId())
+                .setMerchant(response.getMerchant())
                 .setOrderId(response.getOrderId())
+                .setOrderStatus(response.getOrderStatus())
                 .setAmount(response.getAmount())
                 .setDetails(DetailsGrpc.newBuilder()
                         .setRequestMethod(response.getDetails().getRequestMethod().name())

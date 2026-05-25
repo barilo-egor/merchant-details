@@ -21,9 +21,11 @@ message DetailsRequestGrpc {
 
 message DetailsResponseGrpc {
   string request_id = 1;
-  string order_id = 2;
-  DetailsGrpc details = 3;
-  int32 amount = 4;
+  string merchant = 2;
+  string order_id = 3;
+  string  order_status = 4;
+  DetailsGrpc details = 5;
+  int32 amount = 6;
 }
 
 message DetailsGrpc {

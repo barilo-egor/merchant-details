@@ -155,6 +155,8 @@ public class ApiMerchantDetailsService {
                 ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
                 apiDetailsResponse.setRequestId(orderResponse.getRequestId());
                 apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
+                apiDetailsResponse.setOrderStatus(orderResponse.getMerchantOrderStatus());
+                apiDetailsResponse.setMerchant(orderResponse.getMerchant().name());
                 Details details = Details.builder()
                         .requestMethod(RequestMethod.valueOf(merchantMethod))
                         .details(orderResponse.getDetails())
