@@ -265,6 +265,18 @@ public enum MerchantConstants {
     MERIDIAN_PAY_NSPK(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
+    ),
+    MANSORY(
+            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
+    ),
+    MANSORY_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
+    ),
+    MANSORY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
