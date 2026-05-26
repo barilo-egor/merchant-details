@@ -17,6 +17,11 @@ public class MeridianPayOrderCreationService extends LevelPayOrderCreationServic
     }
 
     @Override
+    protected Integer getAmount(String amount) {
+        return Integer.parseInt(amount) / 100;
+    }
+
+    @Override
     public Merchant getMerchant() {
         return Merchant.MERIDIAN_PAY;
     }
