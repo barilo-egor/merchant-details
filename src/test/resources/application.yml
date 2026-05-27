@@ -282,6 +282,18 @@ meridian-pay-nspk:
   url: "meridian-pay-nspk-url"
   token: "meridian-pay-nspk-token"
   merchant-id: "meridian-pay-nspk-merchant-id"
+mansory:
+  url: "mansory-url"
+  api-key: "mansory-api-key"
+  secret: "mansory-secret"
+mansory-high-check:
+  url: "mansory-high-check-url"
+  api-key: "mansory-high-check-api-key"
+  secret: "mansory-high-check-secret"
+mansory-low-check:
+  url: "mansory-low-check-url"
+  api-key: "mansory-low-check-api-key"
+  secret: "mansory-low-check-secret"
 #Конфиг приложния
 server:
   servlet:
