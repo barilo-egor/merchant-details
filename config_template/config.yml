@@ -286,6 +286,18 @@ mansory-low-check:
   url:
   api-key:
   secret:
+souz:
+  url:
+  key:
+  secret:
+souz-sbp-qr:
+  url:
+  key:
+  secret:
+souz-sim:
+  url:
+  key:
+  secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:
