@@ -294,6 +294,18 @@ mansory-low-check:
   url: "mansory-low-check-url"
   api-key: "mansory-low-check-api-key"
   secret: "mansory-low-check-secret"
+souz:
+  url: "souz-url"
+  key: "souz-key"
+  secret: "souz-secret"
+souz-sbp-qr:
+  url: "souz-sbp-qr-url"
+  key: "souz-sbp-qr-key"
+  secret: "souz-sbp-qr-secret"
+souz-sim:
+  url: "souz-sim-url"
+  key: "souz-sim-key"
+  secret: "souz-sim-secret"
 #Конфиг приложния
 server:
   servlet:

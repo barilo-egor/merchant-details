@@ -263,6 +263,7 @@ public class WebClientsConfig {
     public WebClient gambitSimWebClient(GambitSimProperties gambitSimProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(gambitSimProperties.url()).build();
     }
+
     @Bean
     public WebClient asgardWebClient(AsgardImplProperties asgardProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
@@ -347,4 +348,20 @@ public class WebClientsConfig {
     public WebClient mansoryLowCheckWebClient(MansoryLowCheckProperties mansoryProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
     }
+
+    @Bean
+    public WebClient souzWebClient(SouzProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzSbpQrWebClient(SouzSbpQrProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzSimWebClient(SouzSimProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
 }

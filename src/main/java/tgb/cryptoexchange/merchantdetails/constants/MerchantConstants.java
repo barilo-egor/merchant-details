@@ -277,6 +277,18 @@ public enum MerchantConstants {
     MANSORY_LOW_CHECK(
             tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
+    ),
+    SOUZ(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    SOUZ_SBP_QR(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    SOUZ_SIM(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
