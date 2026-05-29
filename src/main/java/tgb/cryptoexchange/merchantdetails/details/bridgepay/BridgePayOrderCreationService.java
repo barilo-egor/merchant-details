@@ -52,19 +52,19 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return headers -> addHeaders(headers, parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class), body);
+        return headers -> addHeaders(headers, parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class), body,
+                bridgePayProperties.url() + "/api/merchant/invoices");
     }
 
-    private void addHeaders(HttpHeaders headers, Method method, String body) {
+    private void addHeaders(HttpHeaders headers, Method method, String body, String url) {
         headers.add("Content-Type", "application/json");
         headers.add("X-Identity", keyFunction().apply(method));
-        String createInvoiceUrl = bridgePayProperties.url() + "/api/merchant/invoices";
         try {
             headers.add("X-Signature", signatureService.hmacSHA1(
-                    buildSignatureData(createInvoiceUrl, body), bridgePayProperties.secret()
+                    buildSignatureData(url, body), bridgePayProperties.secret()
             ));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), createInvoiceUrl, body);
+            log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), url, body);
             throw new SignatureCreationException("Ошибка формирования подписи.", e);
         }
     }
@@ -135,9 +135,11 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        String cancelUrl = "/api/merchant/invoices/" + cancelOrderRequest.getOrderId() + "/cancel";
         requestService.request(webClient, HttpMethod.POST,
-                uriBuilder -> uriBuilder.path("/api/merchant/invoices/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
-                headers -> addHeaders(headers, parseMethod(cancelOrderRequest.getMethod(), Method.class), null),
+                uriBuilder -> uriBuilder.path(cancelUrl).build(),
+                headers -> addHeaders(headers, parseMethod(cancelOrderRequest.getMethod(), Method.class), null,
+                        bridgePayProperties.url() + cancelUrl),
                 null
         );
     }
