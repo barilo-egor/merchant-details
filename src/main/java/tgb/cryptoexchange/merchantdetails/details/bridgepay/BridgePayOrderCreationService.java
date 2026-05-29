@@ -21,6 +21,7 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -109,6 +110,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
             String details = dealDTO.getPaymentMethod().getDisplayName() + " " + dealDTO.getRequisites().getRequisites();
             requisiteVO.setDetails(details);
         }
+        requisiteVO.setPaymentMethod(Objects.isNull(dealDTO.getPaymentOption()) ? null : dealDTO.getPaymentOption().name());
     }
 
     @Override
