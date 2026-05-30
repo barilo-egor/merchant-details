@@ -286,6 +286,18 @@ mansory-low-check:
   url:
   api-key:
   secret:
+deora:
+  url:
+  key:
+  secret:
+deora-sim:
+  url:
+  key:
+  secret:
+deora-low-check:
+  url:
+  key:
+  secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:

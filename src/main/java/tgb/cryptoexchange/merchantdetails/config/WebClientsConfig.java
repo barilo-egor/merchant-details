@@ -309,6 +309,16 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient deoraSimWebClient(DeoraSimProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraLowCheckWebClient(DeoraLowCheckProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
     public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }

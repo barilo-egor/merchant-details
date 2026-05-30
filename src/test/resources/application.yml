@@ -247,6 +247,14 @@ deora:
   url: "deora-url"
   key: "deora-key"
   secret: "deora-secret"
+deora-sim:
+  url: "deora-sim-url"
+  key: "deora-sim-key"
+  secret: "deora-sim-secret"
+deora-low-check:
+  url: "deora-low-check-url"
+  key: "deora-low-check-key"
+  secret: "deora-low-check-secret"
 eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
