@@ -19,7 +19,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
+import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,13 +34,13 @@ import static org.mockito.Mockito.when;
 class CrocoPayOrderCreationServiceTest {
 
     @Mock
-    private CrocoPayProperties crocoPayProperties;
+    private CrocoPayImplProperties crocoPayProperties;
 
     @Mock
     private CallbackConfig callbackConfig;
 
     @InjectMocks
-    private CrocoPayOrderCreationService crocoPayOrderCreationService;
+    private CrocoPayImplOrderCreationService crocoPayOrderCreationService;
 
 
     @Test

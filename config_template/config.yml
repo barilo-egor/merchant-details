@@ -311,6 +311,22 @@ deora-low-check:
   url:
   key:
   secret:
+base51:
+  url:
+  client-id:
+  client-secret:
+base51-sim:
+  url:
+  client-id:
+  client-secret:
+base51-high-check:
+  url:
+  client-id:
+  client-secret:
+base51-low-check:
+  url:
+  client-id:
+  client-secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:
