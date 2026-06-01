@@ -52,6 +52,7 @@ onyx-pay:
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
+  internal-qr-token: "extasy-pay-internal-qr-token"
 extasy-pay-qr:
   url: "extasy-pay-qr-url"
   token: "extasy-pay-qr-token"
@@ -247,6 +248,14 @@ deora:
   url: "deora-url"
   key: "deora-key"
   secret: "deora-secret"
+deora-sim:
+  url: "deora-sim-url"
+  key: "deora-sim-key"
+  secret: "deora-sim-secret"
+deora-low-check:
+  url: "deora-low-check-url"
+  key: "deora-low-check-key"
+  secret: "deora-low-check-secret"
 eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
@@ -294,6 +303,18 @@ mansory-low-check:
   url: "mansory-low-check-url"
   api-key: "mansory-low-check-api-key"
   secret: "mansory-low-check-secret"
+souz:
+  url: "souz-url"
+  key: "souz-key"
+  secret: "souz-secret"
+souz-sbp-qr:
+  url: "souz-sbp-qr-url"
+  key: "souz-sbp-qr-key"
+  secret: "souz-sbp-qr-secret"
+souz-sim:
+  url: "souz-sim-url"
+  key: "souz-sim-key"
+  secret: "souz-sim-secret"
 #Конфиг приложния
 server:
   servlet:

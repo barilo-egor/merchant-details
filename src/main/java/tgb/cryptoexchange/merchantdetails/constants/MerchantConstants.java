@@ -235,6 +235,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     ),
+    DEORA_SIM(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    DEORA_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
     ECLIPSE_GATE(
             tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
@@ -277,6 +285,18 @@ public enum MerchantConstants {
     MANSORY_LOW_CHECK(
             tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
+    ),
+    SOUZ(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    SOUZ_SBP_QR(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    SOUZ_SIM(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

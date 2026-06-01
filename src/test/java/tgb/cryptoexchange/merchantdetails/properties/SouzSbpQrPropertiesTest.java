@@ -8,17 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class ExtasyPayPropertiesTest {
+class SouzSbpQrPropertiesTest {
 
     @Autowired
-    private ExtasyPayProperties extasyPayProperties;
+    private SouzSbpQrProperties souzProperties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("extasy-pay-url", extasyPayProperties.url()),
-                () -> assertEquals("extasy-pay-token", extasyPayProperties.token()),
-                () -> assertEquals("extasy-pay-internal-qr-token", extasyPayProperties.internalQrToken())
+                () -> assertEquals("souz-sbp-qr-url", souzProperties.url()),
+                () -> assertEquals("souz-sbp-qr-key", souzProperties.key()),
+                () -> assertEquals("souz-sbp-qr-secret", souzProperties.secret())
         );
     }
 }
