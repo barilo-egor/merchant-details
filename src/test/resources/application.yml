@@ -315,6 +315,22 @@ souz-sim:
   url: "souz-sim-url"
   key: "souz-sim-key"
   secret: "souz-sim-secret"
+base51:
+  url: "base51-url"
+  client-id: "base51-client-id"
+  client-secret: "base51-client-secret"
+base51-sim:
+  url: "base51-sim-url"
+  client-id: "base51-sim-client-id"
+  client-secret: "base51-sim-client-secret"
+base51-high-check:
+  url: "base51-high-check-url"
+  client-id: "base51-high-check-client-id"
+  client-secret: "base51-high-check-client-secret"
+base51-low-check:
+  url: "base51-low-check-url"
+  client-id: "base51-low-check-client-id"
+  client-secret: "base51-low-check-client-secret"
 #Конфиг приложния
 server:
   servlet:

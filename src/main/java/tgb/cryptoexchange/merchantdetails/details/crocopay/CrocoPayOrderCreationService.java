@@ -2,13 +2,11 @@ package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -21,23 +19,18 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Service
-public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+@Slf4j
+public abstract class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final CrocoPayProperties crocoPayProperties;
 
-    private final CallbackConfig callbackConfig;
+    protected final CallbackConfig callbackConfig;
 
-    protected CrocoPayOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
-                                           CrocoPayProperties crocoPayProperties, CallbackConfig callbackConfig) {
+    protected CrocoPayOrderCreationService(WebClient webClient, CrocoPayProperties crocoPayProperties,
+                                           CallbackConfig callbackConfig) {
         super(webClient, Response.class, Callback.class);
         this.crocoPayProperties = crocoPayProperties;
         this.callbackConfig = callbackConfig;
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.CROCO_PAY;
     }
 
     @Override
@@ -59,9 +52,13 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        setCallback(request, detailsRequest);
+        return request;
+    }
+
+    protected void setCallback(Request request, DetailsRequest detailsRequest) {
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/crocoPay?dealId="
                 + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
-        return request;
     }
 
     @Override
@@ -96,4 +93,5 @@ public class CrocoPayOrderCreationService extends MerchantOrderCreationService<R
             return false;
         };
     }
+
 }
