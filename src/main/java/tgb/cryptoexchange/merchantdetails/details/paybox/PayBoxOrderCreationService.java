@@ -42,10 +42,11 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return this::addHeaders;
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        return headers -> addHeaders(headers, method);
     }
 
-    private void addHeaders(HttpHeaders httpHeaders) {
+    protected void addHeaders(HttpHeaders httpHeaders, Method method) {
         httpHeaders.add("Content-Type", "application/json");
         httpHeaders.add("Authorization", "Bearer " + payBoxProperties.token());
     }
@@ -114,9 +115,10 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        Method method = parseMethod(cancelOrderRequest.getMethod(), Method.class);
         requestService.request(webClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/api/v1/transactions/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
-                this::addHeaders, null
+                headers -> addHeaders(headers, method), null
         );
     }
 

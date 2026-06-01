@@ -75,12 +75,20 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("card_number")
     private String cardNumber;
 
+    @JsonProperty("payment_link")
+    private String paymentLink;
+
+    @JsonProperty("qr_image")
+    private String qrImage;
+
     private void validateDetails(ValidationResult result) {
         if (Objects.isNull(id)) {
             result.notNull("id");
         }
 
-        if (Objects.isNull(paymentUrl)) {
+        boolean isSberVtbQr = checkIsSberVtbQR(result);
+
+        if (!isSberVtbQr && Objects.isNull(paymentUrl)) {
             if (Objects.isNull(bankName)) {
                 result.notNull("bankName");
             }
@@ -91,5 +99,19 @@ public class Response implements MerchantDetailsResponse {
                 result.notNull("paymentUrl");
             }
         }
+    }
+
+    private boolean checkIsSberVtbQR(ValidationResult result) {
+        if (Objects.nonNull(bankName) && Objects.isNull(paymentUrl) &&
+                (Method.VTB_QR.getBankName().equals(bankName) || Method.SBER_QR.getBankName().equals(bankName))) {
+            if (Objects.isNull(paymentLink)) {
+                result.notNull("paymentLink");
+            }
+            if (Objects.isNull(qrImage)) {
+                result.notNull("qrImage");
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -52,6 +52,7 @@ onyx-pay:
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
+  internal-qr-token: "extasy-pay-internal-qr-token"
 extasy-pay-qr:
   url: "extasy-pay-qr-url"
   token: "extasy-pay-qr-token"
