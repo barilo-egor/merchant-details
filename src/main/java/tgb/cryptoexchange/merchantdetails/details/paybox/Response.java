@@ -102,13 +102,12 @@ public class Response implements MerchantDetailsResponse {
     }
 
     private boolean checkIsSberVtbQR(ValidationResult result) {
-        if (Objects.nonNull(bankName) && Objects.isNull(paymentUrl) &&
-                (Method.VTB_QR.getBankName().equals(bankName) || Method.SBER_QR.getBankName().equals(bankName))) {
-            if (Objects.isNull(paymentLink)) {
-                result.notNull("paymentLink");
-            }
+        if (Objects.nonNull(bankName) && Objects.isNull(paymentUrl)) {
             if (Objects.isNull(qrImage)) {
                 result.notNull("qrImage");
+            }
+            if (Objects.isNull(paymentLink)) {
+                result.notNull("paymentLink");
             }
             return true;
         }

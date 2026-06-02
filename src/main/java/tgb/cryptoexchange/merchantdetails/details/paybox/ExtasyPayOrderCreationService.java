@@ -54,13 +54,10 @@ public class ExtasyPayOrderCreationService extends PayBoxOrderCreationService {
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
 
-        if (Objects.nonNull(response.getBankName()) && Objects.isNull(response.getPaymentUrl()) &&
-                (Method.VTB_QR.getBankName().equals(response.getBankName()) || Method.SBER_QR.getBankName().equals(response.getBankName()))) {
-            if (Objects.nonNull(response.getQrImage())) {
-                detailsResponse.setQr(response.getQrImage());
-            } else {
-                detailsResponse.setQr(response.getPaymentLink());
-            }
+        if (Objects.nonNull(response.getQrImage())) {
+            detailsResponse.setQr(response.getQrImage());
+        } else if (Objects.nonNull(response.getPaymentLink())) {
+            detailsResponse.setQr(response.getPaymentLink());
         } else if (Objects.nonNull(response.getPaymentUrl())) {
             detailsResponse.setQr(response.getPaymentUrl());
         } else if (Objects.nonNull(response.getPhoneNumber())) {

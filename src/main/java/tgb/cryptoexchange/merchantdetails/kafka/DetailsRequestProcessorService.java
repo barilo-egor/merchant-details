@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -52,6 +53,11 @@ public class DetailsRequestProcessorService {
                 if (!Thread.currentThread().isInterrupted()) {
                     result = detailsResponse.orElseGet(DetailsResponse::new);
                     result.setRequestId(detailsRequest.getRequestId());
+                    detailsResponse.ifPresent(response -> {
+                        if (StringUtils.isBlank(response.getPaymentMethod())) {
+                            response.setPaymentMethod(detailsRequest.getCurrentMerchantMethod());
+                        }
+                    });
                     detailsResponseKafkaTemplate.send(detailsResponseFoundTopic, result.getRequestId(), result);
                 }
             } catch (Exception e) {
