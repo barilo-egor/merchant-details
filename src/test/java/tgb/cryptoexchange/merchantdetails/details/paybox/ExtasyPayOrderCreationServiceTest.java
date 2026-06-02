@@ -72,9 +72,11 @@ class ExtasyPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void headersShouldSetRequiredHeaders(String token) {
-        when(extasyPayProperties.token()).thenReturn(token);
+        when(extasyPayProperties.getToken(any())).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        extasyPayOrderCreationService.headers(null, null).accept(headers);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        extasyPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -88,7 +90,7 @@ class ExtasyPayOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(int amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-
+        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
         Request actual = extasyPayOrderCreationService.body(detailsRequest);
 
         assertAll(

@@ -54,6 +54,7 @@ onyx-pay:
 extasy-pay:
   url: ""
   token: ""
+  internal-qr-token: ""
 extasy-pay-qr:
   url: ""
   token: ""
@@ -285,6 +286,30 @@ mansory-high-check:
 mansory-low-check:
   url:
   api-key:
+  secret:
+souz:
+  url:
+  key:
+  secret:
+souz-sbp-qr:
+  url:
+  key:
+  secret:
+souz-sim:
+  url:
+  key:
+  secret:
+deora:
+  url:
+  key:
+  secret:
+deora-sim:
+  url:
+  key:
+  secret:
+deora-low-check:
+  url:
+  key:
   secret:
 # Конфиг приложение
 springdoc:
