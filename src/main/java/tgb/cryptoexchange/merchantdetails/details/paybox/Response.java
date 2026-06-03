@@ -93,6 +93,7 @@ public class Response implements MerchantDetailsResponse {
             if (!hasBankAndCredentials && !hasQrOrLink) {
                 if (Objects.isNull(bankName)) {
                     result.notNull("bankName");
+                    result.notNull("paymentUrl");
                 }
                 if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
                     result.notNull("phoneNumber", "cardNumber");
