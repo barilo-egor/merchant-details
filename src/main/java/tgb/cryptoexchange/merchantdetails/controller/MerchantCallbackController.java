@@ -42,19 +42,15 @@ public class MerchantCallbackController extends ApiController {
     @PatchMapping
     public ResponseEntity<Void> callback(@RequestParam Merchant merchant, @RequestParam String secret,
                                          @RequestBody String callbackBody) {
-        try {
-            if (!this.secret.equals(secret)) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-
-            if (callbackDecryptServiceMap.containsKey(merchant)) {
-                callbackBody = callbackDecryptServiceMap.get(merchant).decrypt(callbackBody);
-            }
-
-            merchantDetailsService.updateStatus(merchant, callbackBody);
-        } catch (Exception e) {
-            log.error("Ошибка обработки callback: {}", e.getMessage(), e);
+        if (!this.secret.equals(secret)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
+        if (callbackDecryptServiceMap.containsKey(merchant)) {
+            callbackBody = callbackDecryptServiceMap.get(merchant).decrypt(callbackBody);
+        }
+
+        merchantDetailsService.updateStatus(merchant, callbackBody);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
