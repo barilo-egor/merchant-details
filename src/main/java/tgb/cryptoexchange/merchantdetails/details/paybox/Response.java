@@ -86,31 +86,21 @@ public class Response implements MerchantDetailsResponse {
             result.notNull("id");
         }
 
-        boolean isSberVtbQr = checkIsSberVtbQR(result);
+        if (Objects.isNull(paymentUrl)) {
+            boolean hasBankAndCredentials = Objects.nonNull(bankName) && (Objects.nonNull(phoneNumber) || Objects.nonNull(cardNumber));
+            boolean hasQrOrLink = Objects.nonNull(qrImage) || Objects.nonNull(paymentLink);
 
-        if (!isSberVtbQr && Objects.isNull(paymentUrl)) {
-            if (Objects.isNull(bankName)) {
-                result.notNull("bankName");
-            }
-            if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
-                result.notNull("phoneNumber", "cardNumber");
-            }
-            if ((Objects.isNull(bankName) || (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)))) {
-                result.notNull("paymentUrl");
+            if (!hasBankAndCredentials && !hasQrOrLink) {
+                if (Objects.isNull(bankName)) {
+                    result.notNull("bankName");
+                    result.notNull("paymentUrl");
+                }
+                if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
+                    result.notNull("phoneNumber", "cardNumber");
+                }
+                result.notNull("qrImage", "paymentLink");
             }
         }
     }
 
-    private boolean checkIsSberVtbQR(ValidationResult result) {
-        if (Objects.nonNull(bankName) && Objects.isNull(paymentUrl)) {
-            if (Objects.isNull(qrImage)) {
-                result.notNull("qrImage");
-            }
-            if (Objects.isNull(paymentLink)) {
-                result.notNull("paymentLink");
-            }
-            return true;
-        }
-        return false;
-    }
 }

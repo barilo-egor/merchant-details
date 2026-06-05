@@ -57,7 +57,8 @@ class ResponseTest {
     void validateShouldReturnErrorIfRequisitesIsNull() {
         Response response = new Response();
         response.setId(123L);
-        assertEquals("field \"bankName\" must not be null;field \"phoneNumber or cardNumber\" must not be null;field \"paymentUrl\" must not be null", response.validate().errorsToString());
+        assertEquals("field \"bankName\" must not be null;field \"paymentUrl\" must not be null;field \"phoneNumber or cardNumber\" must not be null;field \"qrImage or paymentLink\" must not be null",
+                response.validate().errorsToString());
     }
 
     @Test
