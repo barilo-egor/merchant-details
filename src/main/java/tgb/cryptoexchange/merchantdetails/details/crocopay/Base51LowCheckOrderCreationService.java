@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.Base51LowCheckProperties;
 
 @Service
@@ -16,12 +15,6 @@ public class Base51LowCheckOrderCreationService extends CrocoPayOrderCreationSer
     protected Base51LowCheckOrderCreationService(@Qualifier("base51LowCheckWebClient") WebClient webClient,
                                                  Base51LowCheckProperties base51LowCheckProperties, CallbackConfig callbackConfig) {
         super(webClient, base51LowCheckProperties, callbackConfig);
-    }
-
-    @Override
-    protected void setCallback(Request request, DetailsRequest detailsRequest) {
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
-                + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
     }
 
     @Override
