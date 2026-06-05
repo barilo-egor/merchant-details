@@ -88,7 +88,7 @@ class CrocoPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
-                () -> assertEquals(gatewayUrl + "/merchant-details/callback/crocoPay?dealId=" + dealId + "&secret=" + secret,
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback/" + Merchant.CROCO_PAY + "?dealId=" + dealId + "&secret=" + secret,
                         request.getCallbackUrl())
         );
     }

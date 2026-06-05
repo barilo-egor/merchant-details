@@ -57,7 +57,7 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     }
 
     protected void setCallback(Request request, DetailsRequest detailsRequest) {
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/crocoPay?dealId="
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?dealId="
                 + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
     }
 
