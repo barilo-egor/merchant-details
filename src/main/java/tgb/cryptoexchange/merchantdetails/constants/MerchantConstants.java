@@ -243,6 +243,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     ),
+    DEORA_PDF(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
     ECLIPSE_GATE(
             tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
