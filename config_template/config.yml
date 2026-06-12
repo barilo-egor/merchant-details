@@ -311,6 +311,10 @@ deora-low-check:
   url:
   key:
   secret:
+deora-pdf:
+  url:
+  key:
+  secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:
