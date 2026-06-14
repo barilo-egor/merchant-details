@@ -153,11 +153,9 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("attachment", new ByteArrayResource(fileContent))
                 .filename(fileName);
-        builder.part("dealId", orderId);
-        builder.part("disputeReason", "has_payment");
 
         URI fullUri = UriComponentsBuilder.fromUriString(bridgePayProperties.url())
-                .pathSegment("api", "merchant", "invoices", orderId, "dispute").build().toUri();
+                .pathSegment("api", "merchant", "invoices", orderId, "confirm-transfer").build().toUri();
         requestService.request(
                 webClient,
                 HttpMethod.POST,
@@ -167,7 +165,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                     headers.add("Content-Type", "multipart/form-data");
                 },
                 BodyInserters.fromMultipartData(builder.build()),
-                t -> log.error("Ошибка отправки чека мерчанту " + getMerchant() + " по ордеру {}: {}", orderId, t.getMessage(), t)
+                t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant(), orderId, t.getMessage(), t)
         );
     }
 }
