@@ -81,7 +81,7 @@ class TMPayOrderCreationServiceTest {
     void shouldSuccessfullyBuildResponse() {
         Response mockResponse = new Response();
         Response.Data mockData = new Response.Data();
-        mockData.setUuid("order-uuid-999");
+        mockData.setInvoiceId("order-uuid-999");
         mockData.setBank("Sberbank");
         mockData.setCard("4444 4444 4444 4444");
         mockResponse.setData(mockData);
