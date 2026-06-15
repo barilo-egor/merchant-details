@@ -32,8 +32,8 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(data)) {
             result.notNull("data");
         } else {
-            if (Objects.isNull(data.uuid)) {
-                result.notNull("data.uuid");
+            if (Objects.isNull(data.invoiceId)) {
+                result.notNull("data.invoiceId");
             }
         }
     }
@@ -46,7 +46,7 @@ public class Response implements MerchantDetailsResponse {
     @lombok.Data
     public static class Data {
 
-        private String uuid;
+        private String invoiceId;
 
         private String bank;
 

@@ -68,7 +68,7 @@ public class TMPayOrderCreationService extends MerchantOrderCreationService<Resp
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
-        detailsResponse.setMerchantOrderId(response.getData().getUuid());
+        detailsResponse.setMerchantOrderId(response.getData().getInvoiceId());
         detailsResponse.setMerchantOrderStatus(Status.CREATED.name());
         detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getCard());
         return Optional.of(detailsResponse);
