@@ -311,6 +311,9 @@ deora-low-check:
   url:
   key:
   secret:
+tm-pay:
+  url:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
