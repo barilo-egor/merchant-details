@@ -315,6 +315,9 @@ souz-sim:
   url: "souz-sim-url"
   key: "souz-sim-key"
   secret: "souz-sim-secret"
+tm-pay:
+  url: "tm-pay-url"
+  key: "tm-pay-key"
 #Конфиг приложния
 server:
   servlet:
@@ -337,6 +340,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  cloud:
+    config:
+      enabled: false
 details:
   executor:
     core-pool-size: 40
