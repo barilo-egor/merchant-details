@@ -25,7 +25,7 @@ public class GeoTransferMerchantCreationService extends BridgePayOrderCreationSe
     @Override
     protected Function<Method, String> keyFunction() {
         return method -> {
-            if (Method.SBP_QR.equals(method)) {
+            if (Method.MANUAL_SBP_QR.equals(method)) {
                 return geoTransferProperties.keyQr();
             }
             return geoTransferProperties.key();
