@@ -301,6 +301,10 @@ public enum MerchantConstants {
     SOUZ_SIM(
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
+    TM_PAY(
+            tgb.cryptoexchange.merchantdetails.details.tmpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.tmpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
