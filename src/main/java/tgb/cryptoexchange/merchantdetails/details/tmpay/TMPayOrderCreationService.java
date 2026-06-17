@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.properties.TMPayProperties;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -70,7 +71,11 @@ public class TMPayOrderCreationService extends MerchantOrderCreationService<Resp
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getInvoiceId());
         detailsResponse.setMerchantOrderStatus(Status.CREATED.name());
-        detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getCard());
+        if (Objects.nonNull(response.getData().getPhone())) {
+            detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getPhone());
+        } else {
+            detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getCard());
+        }
         return Optional.of(detailsResponse);
     }
 

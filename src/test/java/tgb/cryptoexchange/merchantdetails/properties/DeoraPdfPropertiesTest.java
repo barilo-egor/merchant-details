@@ -8,17 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class CrocoPayPropertiesTest {
+class DeoraPdfPropertiesTest {
 
     @Autowired
-    private CrocoPayImplProperties crocoPayProperties;
+    private DeoraPdfProperties deoraProperties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("croco-pay-url", crocoPayProperties.url()),
-                () -> assertEquals("croco-pay-client-id", crocoPayProperties.clientId()),
-                () -> assertEquals("croco-pay-client-secret", crocoPayProperties.clientSecret())
+                () -> assertEquals("deora-pdf-url", deoraProperties.url()),
+                () -> assertEquals("deora-pdf-key", deoraProperties.key()),
+                () -> assertEquals("deora-pdf-secret", deoraProperties.secret())
         );
     }
 }

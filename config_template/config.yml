@@ -311,9 +311,29 @@ deora-low-check:
   url:
   key:
   secret:
+deora-pdf:
+  url:
+  key:
+  secret:
 tm-pay:
   url:
   key:
+base51:
+  url:
+  client-id:
+  client-secret:
+base51-sim:
+  url:
+  client-id:
+  client-secret:
+base51-high-check:
+  url:
+  client-id:
+  client-secret:
+base51-low-check:
+  url:
+  client-id:
+  client-secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:

@@ -83,7 +83,7 @@ class MerchantCallbackControllerTest {
             """)
     @ParameterizedTest
     void crocoPayShouldReturn200IfSecretAccessed(String body, Long dealId) throws Exception {
-        mockMvc.perform(post("/merchant-details/callback/crocoPay")
+        mockMvc.perform(post("/merchant-details/callback/" + Merchant.CROCO_PAY)
                         .queryParam("secret", "test-callback-secret")
                         .queryParam("dealId", String.valueOf(dealId))
                         .content(body))

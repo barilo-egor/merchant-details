@@ -3,11 +3,15 @@ package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -141,6 +145,27 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                 headers -> addHeaders(headers, parseMethod(cancelOrderRequest.getMethod(), Method.class), null,
                         bridgePayProperties.url() + cancelUrl),
                 null
+        );
+    }
+
+    @Override
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("attachment", new ByteArrayResource(fileContent))
+                .filename(fileName);
+
+        URI fullUri = UriComponentsBuilder.fromUriString(bridgePayProperties.url())
+                .pathSegment("api", "merchant", "invoices", orderId, "confirm-transfer").build().toUri();
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
+                uriBuilder -> fullUri,
+                headers -> {
+                    addHeaders(headers, null, null, fullUri.toString());
+                    headers.add("Content-Type", "multipart/form-data");
+                },
+                BodyInserters.fromMultipartData(builder.build()),
+                t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant(), orderId, t.getMessage(), t)
         );
     }
 }

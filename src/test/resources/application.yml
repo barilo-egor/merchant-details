@@ -256,6 +256,10 @@ deora-low-check:
   url: "deora-low-check-url"
   key: "deora-low-check-key"
   secret: "deora-low-check-secret"
+deora-pdf:
+  url: "deora-pdf-url"
+  key: "deora-pdf-key"
+  secret: "deora-pdf-secret"
 eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
@@ -318,6 +322,22 @@ souz-sim:
 tm-pay:
   url: "tm-pay-url"
   key: "tm-pay-key"
+base51:
+  url: "base51-url"
+  client-id: "base51-client-id"
+  client-secret: "base51-client-secret"
+base51-sim:
+  url: "base51-sim-url"
+  client-id: "base51-sim-client-id"
+  client-secret: "base51-sim-client-secret"
+base51-high-check:
+  url: "base51-high-check-url"
+  client-id: "base51-high-check-client-id"
+  client-secret: "base51-high-check-client-secret"
+base51-low-check:
+  url: "base51-low-check-url"
+  client-id: "base51-low-check-client-id"
+  client-secret: "base51-low-check-client-secret"
 #Конфиг приложния
 server:
   servlet:
@@ -340,9 +360,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-  cloud:
-    config:
-      enabled: false
 details:
   executor:
     core-pool-size: 40
