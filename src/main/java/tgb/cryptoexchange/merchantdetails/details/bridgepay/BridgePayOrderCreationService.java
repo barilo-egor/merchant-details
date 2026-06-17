@@ -7,12 +7,14 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.enums.FiatCurrency;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
@@ -21,6 +23,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -42,12 +45,16 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     private final CallbackConfig callbackConfig;
 
+    private final SleepingService sleepingService;
+
     protected BridgePayOrderCreationService(WebClient webClient, BridgePayProperties bridgePayProperties,
-                                            SignatureService signatureService, CallbackConfig callbackConfig) {
+                                            SignatureService signatureService, CallbackConfig callbackConfig,
+                                            SleepingService sleepingService) {
         super(webClient, Response.class, BridgeCallback.class);
         this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
+        this.sleepingService = sleepingService;
     }
 
     @Override
@@ -62,11 +69,15 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     private void addHeaders(HttpHeaders headers, Method method, String body, String url) {
+        this.addHeaders(headers, method, body, url, HttpMethod.POST);
+    }
+
+    private void addHeaders(HttpHeaders headers, Method method, String body, String url, HttpMethod httpMethod) {
         headers.add("Content-Type", "application/json");
         headers.add("X-Identity", keyFunction().apply(method));
         try {
             headers.add("X-Signature", signatureService.hmacSHA1(
-                    buildSignatureData(url, body), bridgePayProperties.secret()
+                    buildSignatureData(url, body, httpMethod), bridgePayProperties.secret()
             ));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.error("Ошибка формирования подписи для method={}, url={}, body={}", method().name(), url, body);
@@ -78,8 +89,8 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         return method -> bridgePayProperties.key();
     }
 
-    private String buildSignatureData(String url, String body) {
-        return method().name().toUpperCase() + url + (body != null ? body : "");
+    private String buildSignatureData(String url, String body, HttpMethod method) {
+        return method.name().toUpperCase() + url + (body != null ? body : "");
     }
 
     @Override
@@ -116,6 +127,55 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
             requisiteVO.setDetails(details);
         }
         requisiteVO.setPaymentMethod(Objects.isNull(dealDTO.getPaymentOption()) ? null : dealDTO.getPaymentOption().name());
+    }
+
+    @Override
+    protected Optional<String> makeRequest(DetailsRequest detailsRequest, String body) {
+        Optional<String> createOrderResponse = super.makeRequest(detailsRequest, body);
+        if (createOrderResponse.isEmpty()) {
+            log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());
+            return Optional.empty();
+        }
+        String createOrderResponseBody = createOrderResponse.get();
+        Response response;
+        try {
+            response = objectMapper.readValue(createOrderResponseBody, Response.class);
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.debug("{} Ошибки преобразования ответа при создании ордера мерчанта {}, body: {}",
+                    currentTime, getMerchant().name(), createOrderResponseBody);
+            throw new ServiceUnavailableException("Error occurred while mapping create order response: " + currentTime);
+        }
+        if (CollectionUtils.isEmpty(response.getDeals()) || !Method.MANUAL_SBP_QR.equals(response.getDeals().getFirst().getPaymentOption())) {
+            return Optional.of(createOrderResponseBody);
+        }
+        try {
+            sleepingService.sleep(25);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при ожидании: {}", currentTime, e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while wait: " + currentTime);
+        }
+        String targetUrl = bridgePayProperties.url() + "/api/merchant/invoices/" + response.getId();
+        String listOrderStringResponse = requestService.request(webClient, HttpMethod.GET,
+                uriBuilder -> URI.create(targetUrl),
+                headers -> addHeaders(headers, Method.MANUAL_SBP_QR, null, targetUrl, HttpMethod.GET),
+                null
+        );
+        JsonNode listOrderResponse;
+        try {
+            listOrderResponse = objectMapper.readTree(listOrderStringResponse);
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.debug("{} Ошибки преобразования ответа списка ордеров мерчанта {}, body: {}", currentTime,
+                    getMerchant().name(), createOrderResponseBody);
+            throw new ServiceUnavailableException("Error occurred while mapping get order response: " + currentTime);
+        }
+        if (listOrderResponse != null && !listOrderResponse.isEmpty()) {
+            return Optional.of(listOrderResponse.toPrettyString());
+        }
+        return Optional.empty();
     }
 
     @Override

@@ -7,14 +7,16 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamWTProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class AlfaTeamWTMerchantOrderCreationService extends BridgePayOrderCreationService{
 
     protected AlfaTeamWTMerchantOrderCreationService(@Qualifier("alfaTeamWTWebClient") WebClient webClient,
                                                      AlfaTeamWTProperties alfaTeamWTProperties,
-                                                     SignatureService signatureService, CallbackConfig callbackConfig) {
-        super(webClient, alfaTeamWTProperties, signatureService, callbackConfig);
+                                                     SignatureService signatureService, CallbackConfig callbackConfig,
+                                                     SleepingService sleepingService) {
+        super(webClient, alfaTeamWTProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override
