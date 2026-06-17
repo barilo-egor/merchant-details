@@ -8,17 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class CrocoPayPropertiesTest {
+class Base51HighCheckPropertiesTest {
 
     @Autowired
-    private CrocoPayImplProperties crocoPayProperties;
+    private Base51HighCheckProperties base51Properties;
 
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("croco-pay-url", crocoPayProperties.url()),
-                () -> assertEquals("croco-pay-client-id", crocoPayProperties.clientId()),
-                () -> assertEquals("croco-pay-client-secret", crocoPayProperties.clientSecret())
+                () -> assertEquals("base51-high-check-url", base51Properties.url()),
+                () -> assertEquals("base51-high-check-client-id", base51Properties.clientId()),
+                () -> assertEquals("base51-high-check-client-secret", base51Properties.clientSecret())
         );
     }
 }
