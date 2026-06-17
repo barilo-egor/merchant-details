@@ -256,6 +256,10 @@ deora-low-check:
   url: "deora-low-check-url"
   key: "deora-low-check-key"
   secret: "deora-low-check-secret"
+deora-pdf:
+  url: "deora-pdf-url"
+  key: "deora-pdf-key"
+  secret: "deora-pdf-secret"
 eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
