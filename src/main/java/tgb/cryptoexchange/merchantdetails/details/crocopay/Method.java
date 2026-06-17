@@ -8,7 +8,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 @Getter
 public enum Method implements MerchantMethod {
     TO_CARD("Карта"),
-    SBP("СБП");
+    SBP("СБП"),
+    SIM("MOBILE_PHONE");
 
     private final String description;
 }

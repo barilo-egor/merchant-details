@@ -14,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,15 +55,21 @@ public class MerchantCallbackController extends ApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/crocoPay")
-    public ResponseEntity<Void> crocoPay(@RequestParam Long dealId, String secret) throws JsonProcessingException {
-        if (!this.secret.equals(secret)) {
+    @PostMapping("/{merchant}")
+    public ResponseEntity<Void> crocoPay(@RequestParam Long dealId, String secret, @PathVariable String merchant) throws JsonProcessingException {
+        var merchants = List.of(
+                Merchant.CROCO_PAY.name(),
+                Merchant.BASE_51.name(),
+                Merchant.BASE_51_SIM.name(),
+                Merchant.BASE_51_HIGH_CHECK.name(),
+                Merchant.BASE_51_LOW_CHECK.name());
+        if (!merchants.contains(merchant) || !this.secret.equals(secret)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Callback callback = new Callback();
         callback.setId(dealId.toString());
         callback.setStatus(Status.SUCCESS);
-        merchantDetailsService.updateStatus(Merchant.CROCO_PAY, objectMapper.writeValueAsString(callback));
+        merchantDetailsService.updateStatus(Merchant.valueOf(merchant), objectMapper.writeValueAsString(callback));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
