@@ -256,6 +256,10 @@ deora-low-check:
   url: "deora-low-check-url"
   key: "deora-low-check-key"
   secret: "deora-low-check-secret"
+deora-pdf:
+  url: "deora-pdf-url"
+  key: "deora-pdf-key"
+  secret: "deora-pdf-secret"
 eclipse-gate:
   url: "eclipse-gate-url"
   key-card: "eclipse-gate-key-card"
@@ -315,6 +319,9 @@ souz-sim:
   url: "souz-sim-url"
   key: "souz-sim-key"
   secret: "souz-sim-secret"
+tm-pay:
+  url: "tm-pay-url"
+  key: "tm-pay-key"
 base51:
   url: "base51-url"
   client-id: "base51-client-id"

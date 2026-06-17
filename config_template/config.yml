@@ -311,6 +311,13 @@ deora-low-check:
   url:
   key:
   secret:
+deora-pdf:
+  url:
+  key:
+  secret:
+tm-pay:
+  url:
+  key:
 base51:
   url:
   client-id:

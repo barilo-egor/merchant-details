@@ -320,6 +320,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient deoraPdfWebClient(DeoraPdfProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
     public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }
@@ -392,6 +397,11 @@ public class WebClientsConfig {
     @Bean
     public WebClient base51LowCheckWebClient(Base51LowCheckProperties base51Properties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
+    }
+
+    @Bean
+    public WebClient tmPayWebClient(TMPayProperties tmPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
     }
 
 }
