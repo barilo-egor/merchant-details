@@ -315,6 +315,9 @@ deora-pdf:
   url:
   key:
   secret:
+tm-pay:
+  url:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:

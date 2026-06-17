@@ -379,4 +379,9 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
     }
 
+    @Bean
+    public WebClient tmPayWebClient(TMPayProperties tmPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
+    }
+
 }
