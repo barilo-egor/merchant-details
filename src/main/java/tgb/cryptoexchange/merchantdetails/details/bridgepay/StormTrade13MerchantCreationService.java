@@ -7,14 +7,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.StormTrade13Properties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class StormTrade13MerchantCreationService extends BridgePayOrderCreationService {
 
     protected StormTrade13MerchantCreationService(@Qualifier("stormTrade13WebClient") WebClient webClient,
                                                   StormTrade13Properties stormTrade13Properties, SignatureService signatureService,
-                                                  CallbackConfig callbackConfig) {
-        super(webClient, stormTrade13Properties, signatureService, callbackConfig);
+                                                  CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, stormTrade13Properties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override
