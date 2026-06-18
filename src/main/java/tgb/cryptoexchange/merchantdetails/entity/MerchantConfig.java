@@ -3,6 +3,7 @@ package tgb.cryptoexchange.merchantdetails.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,4 +47,8 @@ public class MerchantConfig {
 
     @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
     private Integer minDealsCount;
+
+    @Enumerated(EnumType.STRING)
+    private RequiredReceipt requiredReceipt;
+
 }
