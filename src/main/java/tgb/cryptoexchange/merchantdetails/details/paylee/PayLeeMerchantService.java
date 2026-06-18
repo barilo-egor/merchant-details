@@ -82,7 +82,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     private boolean isNeedQR(List<Method> methods) {
-        List<Method> merchants = Arrays.asList(Method.ANY_QR, Method.SBER_QR, Method.OZON_QR, Method.ALFA_QR, Method.GAZPROM_QR);
+        List<Method> merchants = Arrays.asList(Method.ANY_QR, Method.SBER_QR, Method.OZON_QR, Method.ALFA_QR, Method.GAZPROM_QR, Method.NSPK);
         return methods.stream().anyMatch(merchants::contains);
     }
 
