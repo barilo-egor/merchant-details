@@ -95,6 +95,10 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                         builder.setMerchant(dto.getMerchant().name());
                     }
 
+                    if (dto.getRequiredReceipt() != null) {
+                        builder.setRequiredReceipt(dto.getRequiredReceipt().name());
+                    }
+
                     if (dto.getMaxAmount() != null) {
                         builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
                     }
