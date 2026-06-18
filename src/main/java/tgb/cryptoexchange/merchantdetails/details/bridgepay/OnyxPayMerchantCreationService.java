@@ -7,6 +7,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 import java.util.function.Function;
 
@@ -17,8 +18,8 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
 
     protected OnyxPayMerchantCreationService(@Qualifier("onyxPayWebClient") WebClient webClient,
                                              OnyxPayProperties onyxPayProperties, SignatureService signatureService,
-                                             CallbackConfig callbackConfig) {
-        super(webClient, onyxPayProperties, signatureService, callbackConfig);
+                                             CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, onyxPayProperties, signatureService, callbackConfig, sleepingService);
         this.onyxPayProperties = onyxPayProperties;
     }
 
