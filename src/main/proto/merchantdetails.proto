@@ -68,6 +68,7 @@ message MerchantConfigDTOGrpc {
   google.protobuf.Int32Value merchant_order = 10;
   repeated AutoConfirmConfigDTOGrpc confirm_configs = 11;
   google.protobuf.Int64Value group_chat_id = 12;
+  string required_receipt = 13;
 }
 
 message MerchantConfigResponseGrpc {

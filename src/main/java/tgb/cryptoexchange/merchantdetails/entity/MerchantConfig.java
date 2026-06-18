@@ -3,6 +3,7 @@ package tgb.cryptoexchange.merchantdetails.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,4 +44,8 @@ public class MerchantConfig {
     private List<AutoConfirmConfig> confirmConfigs = new ArrayList<>();
 
     private Long groupChatId;
+
+    @Enumerated(EnumType.STRING)
+    private RequiredReceipt requiredReceipt;
+
 }

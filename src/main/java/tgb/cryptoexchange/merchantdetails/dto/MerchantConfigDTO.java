@@ -12,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,6 +48,8 @@ public class MerchantConfigDTO {
 
     private Long groupChatId;
 
+    private RequiredReceipt requiredReceipt;
+
     public static MerchantConfigDTO fromEntity(MerchantConfig merchantConfig) {
         MerchantConfigDTO merchantConfigDTO = new MerchantConfigDTO();
         merchantConfigDTO.setId(merchantConfig.getId());
@@ -69,6 +72,7 @@ public class MerchantConfigDTO {
             );
         }
         merchantConfigDTO.setGroupChatId(merchantConfig.getGroupChatId());
+        merchantConfigDTO.setRequiredReceipt(merchantConfig.getRequiredReceipt());
         return merchantConfigDTO;
     }
 
