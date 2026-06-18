@@ -262,7 +262,8 @@ public enum MerchantConstants {
     MERIDIAN_PAY(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
-    ), MERIDIAN_PAY_HIGH_CHECK(
+    ),
+    MERIDIAN_PAY_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
