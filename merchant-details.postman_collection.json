@@ -22,7 +22,7 @@
                     "header": [
                       {
                         "key": "Authorization",
-                        "value": "Token ***REMOVED***",
+                        "value": "Token ",
                         "type": "text"
                       }
                     ],
