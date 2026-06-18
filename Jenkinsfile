@@ -11,7 +11,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean bootJar --no-daemon'
+                sh './gradlew clean test bootJar --no-daemon'
             }
         }
         stage('Deploy') {
