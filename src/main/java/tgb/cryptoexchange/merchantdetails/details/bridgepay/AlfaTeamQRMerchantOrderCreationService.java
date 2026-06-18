@@ -7,14 +7,16 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamQRProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class AlfaTeamQRMerchantOrderCreationService extends BridgePayOrderCreationService {
 
     protected AlfaTeamQRMerchantOrderCreationService(@Qualifier("alfaTeamQRWebClient") WebClient webClient,
                                                      AlfaTeamQRProperties alfaTeamQRProperties,
-                                                     SignatureService signatureService, CallbackConfig callbackConfig) {
-        super(webClient, alfaTeamQRProperties, signatureService, callbackConfig);
+                                                     SignatureService signatureService, CallbackConfig callbackConfig,
+                                                     SleepingService sleepingService) {
+        super(webClient, alfaTeamQRProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override
