@@ -7,14 +7,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.DeoraLowCheckProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class DeoraLowCheckMerchantCreationService extends BridgePayOrderCreationService {
 
     protected DeoraLowCheckMerchantCreationService(@Qualifier("deoraLowCheckWebClient") WebClient webClient,
                                                    DeoraLowCheckProperties deoraProperties, SignatureService signatureService,
-                                                   CallbackConfig callbackConfig) {
-        super(webClient, deoraProperties, signatureService, callbackConfig);
+                                                   CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, deoraProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override

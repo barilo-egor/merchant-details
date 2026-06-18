@@ -7,14 +7,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.RostrastProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class RostrastMerchantCreationService extends BridgePayOrderCreationService {
 
     protected RostrastMerchantCreationService(@Qualifier("rostrastWebClient") WebClient webClient,
                                               RostrastProperties rostrastProperties, SignatureService signatureService,
-                                              CallbackConfig callbackConfig) {
-        super(webClient, rostrastProperties, signatureService, callbackConfig);
+                                              CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, rostrastProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override

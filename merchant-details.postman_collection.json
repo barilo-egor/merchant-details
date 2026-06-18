@@ -1,0 +1,62 @@
+{
+  "info": {
+    "_postman_id": "61d00eaf-deec-4ba8-9a74-a96f1eca4fa7",
+    "name": "merchant-details",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54996925"
+  },
+  "item": [
+    {
+      "name": "merchants",
+      "item": [
+        {
+          "name": "PayLee",
+          "item": [
+            {
+              "name": "PayLee QR",
+              "item": [
+                {
+                  "name": "Создание ордера",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Token ",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"price\" : 10000,\n  \"requisitesType\" : \"nspk\",\n  \"clientId\" : \"qwerty123456\",\n  \"amountCurrency\" : \"USDT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "https://api.paylee.cc/partners/purchases/",
+                      "protocol": "https",
+                      "host": [
+                        "api",
+                        "paylee",
+                        "cc"
+                      ],
+                      "path": [
+                        "partners",
+                        "purchases",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

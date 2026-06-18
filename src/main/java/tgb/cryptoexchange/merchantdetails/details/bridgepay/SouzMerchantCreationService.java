@@ -7,14 +7,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.SouzProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class SouzMerchantCreationService extends BridgePayOrderCreationService {
 
     protected SouzMerchantCreationService(@Qualifier("souzWebClient") WebClient webClient,
                                           SouzProperties souzProperties, SignatureService signatureService,
-                                          CallbackConfig callbackConfig) {
-        super(webClient, souzProperties, signatureService, callbackConfig);
+                                          CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, souzProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override

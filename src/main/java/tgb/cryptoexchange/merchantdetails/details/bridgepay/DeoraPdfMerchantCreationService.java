@@ -7,14 +7,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.DeoraPdfProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 @Service
 public class DeoraPdfMerchantCreationService extends BridgePayOrderCreationService {
 
     protected DeoraPdfMerchantCreationService(@Qualifier("deoraPdfWebClient") WebClient webClient,
                                               DeoraPdfProperties deoraProperties, SignatureService signatureService,
-                                              CallbackConfig callbackConfig) {
-        super(webClient, deoraProperties, signatureService, callbackConfig);
+                                              CallbackConfig callbackConfig, SleepingService sleepingService) {
+        super(webClient, deoraProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override
