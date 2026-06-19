@@ -56,6 +56,46 @@
               ]
             }
           ]
+        },
+        {
+          "name": "PrismaPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{prisma-pay-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"paymentMethod\":\"card\",\"type\":\"sell\",\"baseCurrency\":\"RUB\",\"quoteCurrency\":\"USDT\",\"amountIn\":2300}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://prismapay.software/api/orders",
+                  "protocol": "https",
+                  "host": [
+                    "prismapay",
+                    "software"
+                  ],
+                  "path": [
+                    "api",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }

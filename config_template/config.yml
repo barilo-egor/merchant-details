@@ -338,6 +338,9 @@ base51-low-check:
   url:
   client-id:
   client-secret:
+prisma-pay:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:
