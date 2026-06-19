@@ -380,6 +380,11 @@ public class WebClientsConfig {
     }
 
     @Bean
+    public WebClient souzPdfWebClient(SouzPdfProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
     public WebClient base51WebClient(Base51Properties base51Properties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
     }
