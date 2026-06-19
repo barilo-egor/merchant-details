@@ -299,6 +299,10 @@ souz-sim:
   url:
   key:
   secret:
+souz-pdf:
+  url:
+  key:
+  secret:
 deora:
   url:
   key:
