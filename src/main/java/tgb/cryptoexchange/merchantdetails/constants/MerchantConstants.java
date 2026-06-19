@@ -303,6 +303,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
     ),
+    SOUZ_PDF(
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
+    ),
     TM_PAY(
             tgb.cryptoexchange.merchantdetails.details.tmpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tmpay.Method.values()
