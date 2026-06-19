@@ -319,6 +319,10 @@ souz-sim:
   url: "souz-sim-url"
   key: "souz-sim-key"
   secret: "souz-sim-secret"
+souz-pdf:
+  url: "souz-pdf-url"
+  key: "souz-pdf-key"
+  secret: "souz-pdf-secret"
 tm-pay:
   url: "tm-pay-url"
   key: "tm-pay-key"
