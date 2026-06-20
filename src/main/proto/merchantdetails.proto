@@ -14,6 +14,7 @@ service MerchantDetailsService {
   rpc GetAllGroupChatIds (google.protobuf.Empty) returns (GroupChatIdsResponseGrpc);
   rpc DeleteConfigField (DeleteConfigFieldRequestGrpc) returns (google.protobuf.Empty);
   rpc UpdateOrder (UpdateOrderRequestGrpc) returns (google.protobuf.Empty);
+  rpc UpdateMinDealsCount (UpdateMinDealsCountRequestGrpc) returns (google.protobuf.Empty);
   rpc GetVariable (GetVariableRequestGrpc) returns (VariableDTOGrpc);
   rpc UpdateVariable (UpdateVariableRequestGrpc) returns (google.protobuf.Empty);
   rpc SendReceipt (SendReceiptRequestGrpc) returns (google.protobuf.Empty);
@@ -97,6 +98,11 @@ message UpdateOrderRequestGrpc {
   string merchant = 1;
   google.protobuf.BoolValue is_up = 2;
   google.protobuf.Int32Value new_order = 3;
+}
+
+message UpdateMinDealsCountRequestGrpc {
+  string merchant = 1;
+  int32 new_count = 3;
 }
 
 enum VariableTypeGrpc {

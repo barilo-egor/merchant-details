@@ -82,6 +82,15 @@ public class MerchantDetailsController extends ApiController {
         }
     }
 
+    @PatchMapping("/config/min-deals-count")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateMinDealsCount(@RequestParam Merchant merchant, @RequestParam Integer newCount) {
+        if (newCount < 0) {
+            return;
+        }
+        merchantConfigService.changeMinDealsCount(merchant, newCount);
+    }
+
     @GetMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType) {

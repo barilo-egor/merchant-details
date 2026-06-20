@@ -116,11 +116,22 @@ public class MerchantConfigService {
         repository.delete(config);
     }
 
-    @Transactional
-    public void changeOrder(Merchant merchant, Integer newOrder) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
+    private MerchantConfig getMerchantConfigElseNotFound(Merchant merchant) {
+        return getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
+    }
+
+    @Transactional
+    public void changeMinDealsCount(Merchant merchant, Integer minDealsCount) {
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
+        config.setMinDealsCount(minDealsCount);
+        repository.save(config);
+    }
+
+    @Transactional
+    public void changeOrder(Merchant merchant, Integer newOrder) {
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
         int currentOrder = config.getMerchantOrder();
         int maxOrder = repository.findMaxMerchantOrder();
         if (currentOrder == newOrder) {
@@ -148,9 +159,7 @@ public class MerchantConfigService {
     }
 
     public void changeOrder(Merchant merchant, boolean isUp) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
-                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
-        );
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
         int currentOrder = config.getMerchantOrder();
         int maxOrder = repository.findMaxMerchantOrder();
 

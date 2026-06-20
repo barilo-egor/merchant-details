@@ -226,6 +226,19 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     }
 
     @Override
+    public void updateMinDealsCount(UpdateMinDealsCountRequestGrpc request, StreamObserver<Empty> responseObserver) {
+        if (request.getNewCount() < 0) {
+            responseObserver.onNext(Empty.newBuilder().build());
+            responseObserver.onCompleted();
+        }
+        Merchant merchant = Merchant.valueOf(request.getMerchant());
+        merchantConfigService.changeMinDealsCount(merchant, request.getNewCount());
+
+        responseObserver.onNext(Empty.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void getVariable(GetVariableRequestGrpc request, StreamObserver<VariableDTOGrpc> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
 
