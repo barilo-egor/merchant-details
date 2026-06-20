@@ -67,6 +67,7 @@ public class MerchantConfigService {
                         .maxAmount(5000)
                         .minAmount(1)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
+                        .minDealsCount(0)
                         .build()
         );
     }

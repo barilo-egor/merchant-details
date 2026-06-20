@@ -43,4 +43,7 @@ public class MerchantConfig {
     private List<AutoConfirmConfig> confirmConfigs = new ArrayList<>();
 
     private Long groupChatId;
+
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    private Integer minDealsCount;
 }
