@@ -12,8 +12,7 @@ public enum Status implements MerchantOrderStatus {
     DISPUTE("В споре"),
     SUCCESS("Успешно"),
     WAITING_ADMIN_APPROVAL("Ожидает одобрения администратора"),
-    EXPIRED("Ожидает одобрения администратора"),
-    UPDATED("Просрочена");
+    EXPIRED("Просрочена");
 
     final String description;
 }
