@@ -230,6 +230,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
         if (request.getNewCount() < 0) {
             responseObserver.onNext(Empty.newBuilder().build());
             responseObserver.onCompleted();
+            return;
         }
         Merchant merchant = Merchant.valueOf(request.getMerchant());
         merchantConfigService.changeMinDealsCount(merchant, request.getNewCount());
