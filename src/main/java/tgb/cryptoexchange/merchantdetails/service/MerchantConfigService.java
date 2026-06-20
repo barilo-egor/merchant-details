@@ -122,6 +122,12 @@ public class MerchantConfigService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<Merchant> findMerchantsByMinDealsCount(Integer minDealsCount) {
+        List<MerchantConfig> merchantConfigs = repository.findAllByMinDealsCountLessThanEqual(minDealsCount);
+        return merchantConfigs.stream().map(MerchantConfig::getMerchant).collect(Collectors.toList());
+    }
+
     @Transactional
     public void changeMinDealsCount(Merchant merchant, Integer minDealsCount) {
         MerchantConfig config = getMerchantConfigElseNotFound(merchant);
