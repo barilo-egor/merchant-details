@@ -409,4 +409,19 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
     }
 
+    @Bean
+    public WebClient manyPayWebClient(ManyPayPropertiesImpl manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient manyPayLowCheckWebClient(ManyPayLowCheckProperties manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient manyPayHighCheckWebClient(ManyPayHighCheckProperties manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
 }

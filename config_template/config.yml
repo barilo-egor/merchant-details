@@ -338,6 +338,15 @@ base51-low-check:
   url:
   client-id:
   client-secret:
+many-pay:
+  url:
+  token:
+many-pay-low-check:
+  url:
+  token:
+many-pay-high-check:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:

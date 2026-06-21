@@ -342,6 +342,15 @@ base51-low-check:
   url: "base51-low-check-url"
   client-id: "base51-low-check-client-id"
   client-secret: "base51-low-check-client-secret"
+many-pay:
+  url: "many-pay-url"
+  token: "many-pay-token"
+many-pay-low-check:
+  url: "many-pay-low-check-url"
+  token: "many-pay-low-check-token"
+many-pay-high-check:
+  url: "many-pay-high-check-url"
+  token: "many-pay-high-check-token"
 #Конфиг приложния
 server:
   servlet:
