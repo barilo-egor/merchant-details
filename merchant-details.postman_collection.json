@@ -177,6 +177,33 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "PaySync",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://paysync.bot/api/client{{paysync-client-id}}/amount1000/currencyRUB",
+                  "protocol": "https",
+                  "host": [
+                    "paysync",
+                    "bot"
+                  ],
+                  "path": [
+                    "api",
+                    "client{{paysync-client-id}}",
+                    "amount1000",
+                    "currencyRUB"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }

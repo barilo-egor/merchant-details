@@ -350,6 +350,10 @@ public enum MerchantConstants {
     PRISMA_PAY(
             tgb.cryptoexchange.merchantdetails.details.prismapay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.prismapay.Method.values()
+    ),
+    PAYSYNC(
+            tgb.cryptoexchange.merchantdetails.details.paysync.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paysync.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
