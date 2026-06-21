@@ -409,4 +409,9 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
     }
 
+    @Bean
+    public WebClient paySyncWebClient(PaySyncProperties paySyncProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(paySyncProperties.url()).build();
+    }
+
 }

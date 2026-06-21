@@ -326,6 +326,10 @@ public enum MerchantConstants {
     BASE_51_LOW_CHECK(
             tgb.cryptoexchange.merchantdetails.details.crocopay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.crocopay.Method.values()
+    ),
+    PAY_SYNC(
+            tgb.cryptoexchange.merchantdetails.details.paysync.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paysync.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
