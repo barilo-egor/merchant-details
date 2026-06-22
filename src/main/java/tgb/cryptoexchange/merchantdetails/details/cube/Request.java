@@ -1,0 +1,19 @@
+package tgb.cryptoexchange.merchantdetails.details.cube;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
+@Data
+public class Request {
+
+    private String amount;
+
+    @JsonProperty("external_id")
+    private String externalId;
+
+    @JsonProperty("token")
+    private Method method;
+
+    @JsonProperty("callback_url")
+    private String callbackUrl;
+}

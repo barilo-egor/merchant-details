@@ -409,4 +409,24 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
     }
 
+    @Bean
+    public WebClient cubeWebClient(CubePropertiesImpl cubeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cubeProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient cubeLowCheckWebClient(CubeLowCheckProperties cubeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cubeProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient cubeHighCheckWebClient(CubeHighCheckProperties cubeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cubeProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient cubeSimWebClient(CubeSimProperties cubeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cubeProperties.url()).build();
+    }
+
 }

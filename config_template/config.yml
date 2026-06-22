@@ -338,6 +338,22 @@ base51-low-check:
   url:
   client-id:
   client-secret:
+cube:
+  url:
+  key:
+  private-key:
+cube-low-check:
+  url:
+  key:
+  private-key:
+cube-high-check:
+  url:
+  key:
+  private-key:
+cube-sim:
+  url:
+  key:
+  private-key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
