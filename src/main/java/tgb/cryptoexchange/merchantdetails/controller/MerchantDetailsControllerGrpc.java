@@ -183,6 +183,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                             .map(GrpcMapUtils::mapToAutoConfirmConfigDTO)
                             .toList());
                     break;
+                case "min_deals_count":
+                    dto.setMinDealsCount(request.getMinDealsCount());
+                    break;
             }
         }
 
@@ -221,20 +224,6 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
         } else if (request.hasNewOrder()) {
             merchantConfigService.changeOrder(merchant, request.getNewOrder().getValue());
         }
-        responseObserver.onNext(Empty.newBuilder().build());
-        responseObserver.onCompleted();
-    }
-
-    @Override
-    public void updateMinDealsCount(UpdateMinDealsCountRequestGrpc request, StreamObserver<Empty> responseObserver) {
-        if (request.getNewCount() < 0) {
-            responseObserver.onNext(Empty.newBuilder().build());
-            responseObserver.onCompleted();
-            return;
-        }
-        Merchant merchant = Merchant.valueOf(request.getMerchant());
-        merchantConfigService.changeMinDealsCount(merchant, request.getNewCount());
-
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
     }

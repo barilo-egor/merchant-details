@@ -14,7 +14,6 @@ service MerchantDetailsService {
   rpc GetAllGroupChatIds (google.protobuf.Empty) returns (GroupChatIdsResponseGrpc);
   rpc DeleteConfigField (DeleteConfigFieldRequestGrpc) returns (google.protobuf.Empty);
   rpc UpdateOrder (UpdateOrderRequestGrpc) returns (google.protobuf.Empty);
-  rpc UpdateMinDealsCount (UpdateMinDealsCountRequestGrpc) returns (google.protobuf.Empty);
   rpc MerchantsByMinDealsCount (MerchantsByMinDealsCountRequestGrpc) returns (MerchantsByMinDealsCountResponseGrpc);
   rpc GetVariable (GetVariableRequestGrpc) returns (VariableDTOGrpc);
   rpc UpdateVariable (UpdateVariableRequestGrpc) returns (google.protobuf.Empty);
@@ -89,6 +88,7 @@ message UpdateMerchantConfigRequestGrpc {
   google.protobuf.Int64Value group_chat_id = 7;
   repeated AutoConfirmConfigDTOGrpc confirm_configs = 8;
   google.protobuf.FieldMask update_mask = 9;
+  int32 min_deals_count = 10;
 }
 
 message DeleteConfigFieldRequestGrpc {
@@ -108,11 +108,6 @@ message MerchantsByMinDealsCountRequestGrpc {
 
 message MerchantsByMinDealsCountResponseGrpc {
   repeated string merchants = 1;
-}
-
-message UpdateMinDealsCountRequestGrpc {
-  string merchant = 1;
-  int32 new_count = 2;
 }
 
 enum VariableTypeGrpc {
