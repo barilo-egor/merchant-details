@@ -76,9 +76,9 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         if (Objects.nonNull(response.getCardNumber())) {
-            detailsResponse.setDetails(response.getBank() + " " + response.getCardNumber());
+            detailsResponse.setDetails(response.getBank().getName() + " " + response.getCardNumber());
         } else {
-            detailsResponse.setDetails(response.getBank() + " " + response.getPhoneNumber());
+            detailsResponse.setDetails(response.getBank().getName() + " " + response.getPhoneNumber());
         }
         return Optional.of(detailsResponse);
     }
