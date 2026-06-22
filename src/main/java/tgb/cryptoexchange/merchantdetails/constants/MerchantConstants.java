@@ -354,6 +354,22 @@ public enum MerchantConstants {
     PAYSYNC(
             tgb.cryptoexchange.merchantdetails.details.paysync.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paysync.Method.values()
+    ),
+    CUBE(
+            tgb.cryptoexchange.merchantdetails.details.cube.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.cube.Method.values()
+    ),
+    CUBE_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.cube.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.cube.Method.values()
+    ),
+    CUBE_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.cube.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.cube.Method.values()
+    ),
+    CUBE_SIM(
+            tgb.cryptoexchange.merchantdetails.details.cube.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.cube.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

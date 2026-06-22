@@ -55,9 +55,18 @@ public class MerchantCallbackController extends ApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/{merchant}")
+    public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+        return callbackPost(dealId, secret, merchant);
+    }
+
     @PostMapping("/{merchant}")
-    public ResponseEntity<Void> crocoPay(@RequestParam Long dealId, String secret, @PathVariable String merchant) throws JsonProcessingException {
+    public ResponseEntity<Void> callbackPost(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
         var merchants = List.of(
+                Merchant.CUBE.name(),
+                Merchant.CUBE_HIGH_CHECK.name(),
+                Merchant.CUBE_LOW_CHECK.name(),
+                Merchant.CUBE_SIM.name(),
                 Merchant.CROCO_PAY.name(),
                 Merchant.BASE_51.name(),
                 Merchant.BASE_51_SIM.name(),

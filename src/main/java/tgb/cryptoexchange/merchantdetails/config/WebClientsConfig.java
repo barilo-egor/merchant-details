@@ -443,4 +443,9 @@ public class WebClientsConfig {
     public WebClient paySyncWebClient(PaySyncProperties paySyncProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(paySyncProperties.url()).build();
     }
+
+    @Bean
+    public WebClient cubeWebClient(CubePropertiesImpl cubeProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(cubeProperties.url()).build();
+    }
 }

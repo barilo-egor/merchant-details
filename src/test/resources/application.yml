@@ -373,6 +373,22 @@ prisma-pay:
 paysync:
   url: "paysync-url"
   client-id: "paysync-client-id"
+cube:
+  url: "cube-url"
+  key: "cube-key"
+  private-key: "cube-private-key"
+cube-low-check:
+  url: "cube-low-check-url"
+  key: "cube-low-check-key"
+  private-key: "cube-low-check-private-key"
+cube-high-check:
+  url: "cube-high-check-url"
+  key: "cube-high-check-key"
+  private-key: "cube-high-check-private-key"
+cube-sim:
+  url: "cube-sim-url"
+  key: "cube-sim-key"
+  private-key: "cube-sim-private-key"
 #Конфиг приложния
 server:
   servlet:
