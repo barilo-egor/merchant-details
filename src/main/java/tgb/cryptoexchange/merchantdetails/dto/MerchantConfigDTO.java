@@ -47,6 +47,8 @@ public class MerchantConfigDTO {
 
     private Long groupChatId;
 
+    private Integer minDealsCount;
+
     public static MerchantConfigDTO fromEntity(MerchantConfig merchantConfig) {
         MerchantConfigDTO merchantConfigDTO = new MerchantConfigDTO();
         merchantConfigDTO.setId(merchantConfig.getId());
@@ -69,6 +71,7 @@ public class MerchantConfigDTO {
             );
         }
         merchantConfigDTO.setGroupChatId(merchantConfig.getGroupChatId());
+        merchantConfigDTO.setMinDealsCount(merchantConfig.getMinDealsCount());
         return merchantConfigDTO;
     }
 
