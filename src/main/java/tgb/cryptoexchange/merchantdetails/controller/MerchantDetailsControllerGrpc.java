@@ -139,7 +139,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                                         .build())
                                 .toList());
                     }
-
+                    if (dto.getMinDealsCount() != null) {
+                        builder.setMinDealsCount(dto.getMinDealsCount());
+                    }
                     return builder.build();
                 })
                 .toList();
