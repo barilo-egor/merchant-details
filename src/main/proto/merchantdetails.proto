@@ -86,7 +86,8 @@ message UpdateMerchantConfigRequestGrpc {
   google.protobuf.Int32Value min_amount = 6;
   google.protobuf.Int64Value group_chat_id = 7;
   repeated AutoConfirmConfigDTOGrpc confirm_configs = 8;
-  google.protobuf.FieldMask update_mask = 15;
+  google.protobuf.FieldMask update_mask = 9;
+  string required_receipt = 11;
 }
 
 message DeleteConfigFieldRequestGrpc {
