@@ -23,5 +23,7 @@ public class UpdateMerchantConfigDTO {
 
     private Long groupChatId;
 
+    private Integer minDealsCount;
+
     private List<AutoConfirmConfigDTO> confirmConfigs;
 }

@@ -139,7 +139,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                                         .build())
                                 .toList());
                     }
-
+                    if (dto.getMinDealsCount() != null) {
+                        builder.setMinDealsCount(dto.getMinDealsCount());
+                    }
                     return builder.build();
                 })
                 .toList();
@@ -183,6 +185,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                             .map(GrpcMapUtils::mapToAutoConfirmConfigDTO)
                             .toList());
                     break;
+                case "min_deals_count":
+                    dto.setMinDealsCount(request.getMinDealsCount());
+                    break;
             }
         }
 
@@ -222,6 +227,17 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
             merchantConfigService.changeOrder(merchant, request.getNewOrder().getValue());
         }
         responseObserver.onNext(Empty.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void merchantsByMinDealsCount(MerchantsByMinDealsCountRequestGrpc request, StreamObserver<MerchantsByMinDealsCountResponseGrpc> responseObserver) {
+        List<Merchant> merchants = merchantConfigService.findMerchantsByMinDealsCount(request.getMinDealsCount());
+
+        responseObserver.onNext(MerchantsByMinDealsCountResponseGrpc
+                .newBuilder()
+                .addAllMerchants(merchants.stream().map(Merchant::name).toList())
+                .build());
         responseObserver.onCompleted();
     }
 
