@@ -357,6 +357,15 @@ bucks-pay-high-check:
   key: "bucks-pay-high-check-key"
   secret: "bucks-pay-high-check-secret"
   shop-id: "bucks-pay-high-check-shop-id"
+many-pay:
+  url: "many-pay-url"
+  token: "many-pay-token"
+many-pay-low-check:
+  url: "many-pay-low-check-url"
+  token: "many-pay-low-check-token"
+many-pay-high-check:
+  url: "many-pay-high-check-url"
+  token: "many-pay-high-check-token"
 #Конфиг приложния
 server:
   servlet:

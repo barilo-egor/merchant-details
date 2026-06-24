@@ -338,6 +338,18 @@ public enum MerchantConstants {
     BUCKS_PAY_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.buckspay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.buckspay.Method.values()
+    ),
+    MANY_PAY(
+            tgb.cryptoexchange.merchantdetails.details.manypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.manypay.Method.values()
+    ),
+    MANY_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.manypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.manypay.Method.values()
+    ),
+    MANY_PAY_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.manypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.manypay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

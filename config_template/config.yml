@@ -343,6 +343,15 @@ bucks-pay:
   key:
   secret:
   shop-id:
+many-pay:
+  url:
+  token:
+many-pay-low-check:
+  url:
+  token:
+many-pay-high-check:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:
