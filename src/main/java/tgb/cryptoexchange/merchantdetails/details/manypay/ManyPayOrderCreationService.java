@@ -2,9 +2,11 @@ package tgb.cryptoexchange.merchantdetails.details.manypay;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -36,10 +38,12 @@ public abstract class ManyPayOrderCreationService extends MerchantOrderCreationS
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return httpHeaders -> {
-            httpHeaders.add("Content-Type", "application/json");
-            httpHeaders.add("X-API-ACCESS-TOKEN", manyPayProperties.token());
-        };
+        return this::addHeaders;
+    }
+
+    private void addHeaders(HttpHeaders httpHeaders) {
+        httpHeaders.add("Content-Type", "application/json");
+        httpHeaders.add("X-API-ACCESS-TOKEN", manyPayProperties.token());
     }
 
     @Override
@@ -60,6 +64,13 @@ public abstract class ManyPayOrderCreationService extends MerchantOrderCreationS
         detailsResponse.setMerchantOrderStatus(data.getStatus().name());
         detailsResponse.setMerchant(getMerchant());
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        requestService.request(webClient, HttpMethod.POST,
+                uriBuilder -> uriBuilder.path("/api/order/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
+                this::addHeaders, null);
     }
 
 }
