@@ -56,6 +56,87 @@
               ]
             }
           ]
+        },
+        {
+          "name": "ManyPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-ACCESS-TOKEN",
+                    "value": "{{many-pay-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 420000, //копейки\r\n    \"payment_method\": \"card\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://manypay.org/api/merchant/order",
+                  "protocol": "https",
+                  "host": [
+                    "manypay",
+                    "org"
+                  ],
+                  "path": [
+                    "api",
+                    "merchant",
+                    "order"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PrismaPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{prisma-pay-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"paymentMethod\":\"card\",\"type\":\"sell\",\"baseCurrency\":\"RUB\",\"quoteCurrency\":\"USDT\",\"amountIn\":2300}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://prismapay.software/api/orders",
+                  "protocol": "https",
+                  "host": [
+                    "prismapay",
+                    "software"
+                  ],
+                  "path": [
+                    "api",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }

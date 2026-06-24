@@ -294,6 +294,32 @@ class MerchantConfigServiceTest {
     }
 
     @Test
+    void changeMinDealCount_Success_ShouldUpdateAndSaveConfig() {
+        Merchant targetMerchant = Merchant.ALFA_TEAM;
+        Integer newDealsCount = 1;
+
+        MerchantConfig merchantConfig = MerchantConfig.builder()
+                .merchant(targetMerchant)
+                .minDealsCount(0)
+                .build();
+
+        Example<MerchantConfig> merchantExample = Example.of(
+                MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build()
+        );
+        when(merchantConfigRepository.findBy(eq(merchantExample), any())).thenReturn(Optional.of(merchantConfig));
+        merchantConfigService.changeMinDealsCount(targetMerchant, newDealsCount);
+        ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
+        verify(merchantConfigRepository, times(1)).save(configCaptor.capture());
+
+        MerchantConfig savedConfig = configCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(targetMerchant, savedConfig.getMerchant()),
+                () -> assertEquals(newDealsCount, savedConfig.getMinDealsCount())
+        );
+    }
+
+    @Test
     void changeOrderShouldLowerOrderFrom1To2() {
         MerchantConfig changeOrderMerchantConfig = MerchantConfig.builder()
                 .merchant(Merchant.ALFA_TEAM)
