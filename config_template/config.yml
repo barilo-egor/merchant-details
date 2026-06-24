@@ -352,6 +352,9 @@ many-pay-low-check:
 many-pay-high-check:
   url:
   token:
+prisma-pay:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:

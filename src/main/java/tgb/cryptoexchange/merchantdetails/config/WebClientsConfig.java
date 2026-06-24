@@ -439,4 +439,9 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
     }
 
+    @Bean
+    public WebClient prismaPayWebClient(PrismaPayProperties prismaPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(prismaPayProperties.url()).build();
+    }
+
 }

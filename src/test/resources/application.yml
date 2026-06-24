@@ -366,6 +366,9 @@ many-pay-low-check:
 many-pay-high-check:
   url: "many-pay-high-check-url"
   token: "many-pay-high-check-token"
+prisma-pay:
+  url: "prisma-pay-url"
+  token: "prisma-pay-token"
 #Конфиг приложния
 server:
   servlet:

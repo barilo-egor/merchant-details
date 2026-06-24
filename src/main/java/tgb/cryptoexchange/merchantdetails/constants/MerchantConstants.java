@@ -350,6 +350,10 @@ public enum MerchantConstants {
     MANY_PAY_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.manypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.manypay.Method.values()
+    ),
+    PRISMA_PAY(
+            tgb.cryptoexchange.merchantdetails.details.prismapay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.prismapay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
