@@ -8,7 +8,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 @Getter
 public enum Status implements MerchantOrderStatus {
     PENDING("Создан, ожидает подтверждения"),
-    WAITING_PAYMENT("Подтверждён, ожидает оплаты"),
+    WAITING_PAYMENT("Ожидает оплаты"),
     PAID("Оплата получена"),
     CANCELLED("Отменён"),
     EXPIRED("Истёк");
