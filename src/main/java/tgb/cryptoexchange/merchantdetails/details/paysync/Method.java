@@ -7,8 +7,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("Card", "Карта"),
-    SBP("Sbp", "СБП");
+    CARD("Card", "Карта");
 
     final String value;
 

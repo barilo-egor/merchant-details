@@ -342,6 +342,9 @@ base51-low-check:
   url: "base51-low-check-url"
   client-id: "base51-low-check-client-id"
   client-secret: "base51-low-check-client-secret"
+paysync:
+  url: "paysync-url"
+  client-id: "paysync-client-id"
 #Конфиг приложния
 server:
   servlet:

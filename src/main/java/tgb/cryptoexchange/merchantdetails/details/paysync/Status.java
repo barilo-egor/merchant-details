@@ -13,6 +13,7 @@ import java.io.IOException;
 @Getter
 public enum Status implements MerchantOrderStatus {
     PAID("paid", "Оплачено"),
+    WAIT("wait", "Ожидание"),
     FAILED("failed", "Платеж не удался"),
     PENDING("pending", "Создано");
 

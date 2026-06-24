@@ -338,6 +338,9 @@ base51-low-check:
   url:
   client-id:
   client-secret:
+paysync:
+  url:
+  client-id:
 # Конфиг приложение
 springdoc:
   swagger-ui:

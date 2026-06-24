@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "5f03e392-d011-48dd-ab9a-d6c0af41acf4",
+    "_postman_id": "0c775b64-9a03-436d-91c6-3bbc7ac56c08",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51311572",
-    "_collection_link": "https://go.postman.co/collection/51311572-5f03e392-d011-48dd-ab9a-d6c0af41acf4?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/51311572-0c775b64-9a03-436d-91c6-3bbc7ac56c08?source=collection_link"
   },
   "item": [
     {
@@ -54,6 +54,33 @@
                   "response": []
                 }
               ]
+            }
+          ]
+        },
+        {
+          "name": "PaySync",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://paysync.bot/api/client{{paysync-client-id}}/amount1000/currencyRUB",
+                  "protocol": "https",
+                  "host": [
+                    "paysync",
+                    "bot"
+                  ],
+                  "path": [
+                    "api",
+                    "client{{paysync-client-id}}",
+                    "amount1000",
+                    "currencyRUB"
+                  ]
+                }
+              },
+              "response": []
             }
           ]
         }
