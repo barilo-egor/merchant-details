@@ -21,6 +21,7 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -183,6 +184,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                     break;
                 case "group_chat_id":
                     dto.setGroupChatId(request.getGroupChatId().getValue());
+                    break;
+                case "required_receipt":
+                    dto.setRequiredReceipt(RequiredReceipt.valueOf(request.getRequiredReceipt()));
                     break;
                 case "confirm_configs":
                     dto.setConfirmConfigs(request.getConfirmConfigsList().stream()
