@@ -338,7 +338,12 @@ base51-low-check:
   url:
   client-id:
   client-secret:
-bucks-pay:
+bucks-pay-sim:
+  url:
+  key:
+  secret:
+  shop-id:
+bucks-pay-high-check:
   url:
   key:
   secret:

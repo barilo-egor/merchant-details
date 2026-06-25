@@ -342,11 +342,6 @@ base51-low-check:
   url: "base51-low-check-url"
   client-id: "base51-low-check-client-id"
   client-secret: "base51-low-check-client-secret"
-bucks-pay:
-  url: "bucks-pay-url"
-  key: "bucks-pay-key"
-  secret: "bucks-pay-secret"
-  shop-id: "bucks-pay-shop-id"
 bucks-pay-sim:
   url: "bucks-pay-sim-url"
   key: "bucks-pay-sim-key"
