@@ -347,11 +347,11 @@ bucks-pay-sim:
   key: "bucks-pay-sim-key"
   secret: "bucks-pay-sim-secret"
   shop-id: "bucks-pay-sim-shop-id"
-bucks-pay-high-check:
-  url: "bucks-pay-high-check-url"
-  key: "bucks-pay-high-check-key"
-  secret: "bucks-pay-high-check-secret"
-  shop-id: "bucks-pay-high-check-shop-id"
+bucks-pay:
+  url: "bucks-pay-url"
+  key: "bucks-pay-key"
+  secret: "bucks-pay-secret"
+  shop-id: "bucks-pay-shop-id"
 many-pay:
   url: "many-pay-url"
   token: "many-pay-token"

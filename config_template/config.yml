@@ -343,7 +343,7 @@ bucks-pay-sim:
   key:
   secret:
   shop-id:
-bucks-pay-high-check:
+bucks-pay:
   url:
   key:
   secret:

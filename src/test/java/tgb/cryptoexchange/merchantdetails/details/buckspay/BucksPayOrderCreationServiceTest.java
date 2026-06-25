@@ -16,7 +16,7 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.properties.BucksPayHighCheckProperties;
+import tgb.cryptoexchange.merchantdetails.properties.BucksPayPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -35,9 +35,9 @@ import static org.mockito.Mockito.when;
 class BucksPayOrderCreationServiceTest {
 
     @Mock
-    private BucksPayHighCheckProperties properties;
+    private BucksPayPropertiesImpl properties;
 
-    private BucksPayHighCheckOrderCreationService service;
+    private BucksPayOrderCreationServiceImpl service;
 
     @Mock
     private RequestService requestService;
@@ -53,7 +53,7 @@ class BucksPayOrderCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new BucksPayHighCheckOrderCreationService(
+        service = new BucksPayOrderCreationServiceImpl(
                 webClient, properties, callbackConfig, signatureService
         );
         service.setRequestService(requestService);
@@ -123,7 +123,7 @@ class BucksPayOrderCreationServiceTest {
         assertEquals("tx-100", details.getMerchantOrderId());
         assertEquals("PAID", details.getMerchantOrderStatus());
         assertEquals("VisaBank 5555********4444", details.getDetails());
-        assertEquals(Merchant.BUCKS_PAY_HIGH_CHECK, details.getMerchant());
+        assertEquals(Merchant.BUCKS_PAY, details.getMerchant());
     }
 
     @Test
@@ -168,7 +168,7 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void getMerchantShouldReturnPrismaPay() {
-        assertEquals(Merchant.BUCKS_PAY_HIGH_CHECK, service.getMerchant());
+        assertEquals(Merchant.BUCKS_PAY, service.getMerchant());
     }
 
 }

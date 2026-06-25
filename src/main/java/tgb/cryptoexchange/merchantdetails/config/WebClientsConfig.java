@@ -415,7 +415,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient bucksPayHighCheckWebClient(BucksPayHighCheckProperties bucksPayProperties) {
+    public WebClient bucksPayWebClient(BucksPayPropertiesImpl bucksPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
     }
 
