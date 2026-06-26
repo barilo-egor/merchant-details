@@ -41,8 +41,8 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(IDetailsRequest detailsRequest, String merchantMethod, String body) {
-        Method method = parseMethod(merchantMethod, Method.class);
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return headers -> addHeaders(headers, method);
     }
 
@@ -52,7 +52,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());

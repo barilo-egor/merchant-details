@@ -48,15 +48,15 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(IDetailsRequest detailsRequest, String merchantMethod) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(merchantMethod, Method.class));
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         setCallback(request, detailsRequest);
         return request;
     }
 
-    protected void setCallback(Request request, IDetailsRequest detailsRequest) {
+    protected void setCallback(Request request, OrderCreationRequest detailsRequest) {
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?dealId="
                 + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
     }

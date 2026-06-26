@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -77,6 +78,9 @@ public class MerchantDetailsService {
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
                     merchantDetailsReceiveEventProducer.put(merchant, merchantMethod, request, maybeDetailsResponse.get());
+                }
+                if (StringUtils.isBlank(maybeDetailsResponse.get().getPaymentMethod())) {
+                    maybeDetailsResponse.get().setPaymentMethod(merchantMethod);
                 }
                 return maybeDetailsResponse;
             }

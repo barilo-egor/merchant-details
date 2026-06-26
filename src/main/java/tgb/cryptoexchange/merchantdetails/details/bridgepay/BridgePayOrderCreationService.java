@@ -64,7 +64,8 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
-        return headers -> addHeaders(headers, parseMethod(request.getMethod(), Method.class), body);
+        return headers -> addHeaders(headers, parseMethod(request.getMethod(), Method.class), body,
+                bridgePayProperties.url() + "/api/merchant/invoices");
     }
 
     private void addHeaders(HttpHeaders headers, Method method, String body, String url) {
@@ -129,7 +130,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Optional<String> makeRequest(IDetailsRequest detailsRequest, String body) {
+    protected Optional<String> makeRequest(OrderCreationRequest detailsRequest, String body) {
         Optional<String> createOrderResponse = super.makeRequest(detailsRequest, body);
         if (createOrderResponse.isEmpty()) {
             log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());

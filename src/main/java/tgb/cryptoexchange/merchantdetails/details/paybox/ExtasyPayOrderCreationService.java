@@ -5,8 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 
 import java.util.Objects;
@@ -36,12 +36,12 @@ public class ExtasyPayOrderCreationService extends PayBoxOrderCreationService {
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());
 
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         if (Method.SBER_QR.equals(method) || Method.VTB_QR.equals(method)) {
             request.setBankName(method.getBankName());
         }
