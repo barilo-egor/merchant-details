@@ -327,15 +327,11 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.crocopay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.crocopay.Method.values()
     ),
-    BUCKS_PAY(
-            tgb.cryptoexchange.merchantdetails.details.buckspay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.buckspay.Method.values()
-    ),
     BUCKS_PAY_SIM(
             tgb.cryptoexchange.merchantdetails.details.buckspay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.buckspay.Method.values()
     ),
-    BUCKS_PAY_HIGH_CHECK(
+    BUCKS_PAY(
             tgb.cryptoexchange.merchantdetails.details.buckspay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.buckspay.Method.values()
     ),
