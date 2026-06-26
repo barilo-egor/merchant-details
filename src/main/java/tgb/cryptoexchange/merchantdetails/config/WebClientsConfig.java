@@ -410,17 +410,12 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient bucksPayWebClient(BucksPayPropertiesImpl bucksPayProperties) {
-        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
-    }
-
-    @Bean
     public WebClient bucksPaySimWebClient(BucksPaySimProperties bucksPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
     }
 
     @Bean
-    public WebClient bucksPayHighCheckWebClient(BucksPayHighCheckProperties bucksPayProperties) {
+    public WebClient bucksPayWebClient(BucksPayPropertiesImpl bucksPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
     }
 
