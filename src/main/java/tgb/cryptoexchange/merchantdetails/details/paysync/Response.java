@@ -19,6 +19,8 @@ public class Response implements MerchantDetailsResponse {
 
     private String bank;
 
+    private Integer amount;
+
     @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
@@ -30,6 +32,9 @@ public class Response implements MerchantDetailsResponse {
         }
         if (Objects.isNull(status)) {
             result.notNull("status");
+        }
+        if (Objects.isNull(amount)) {
+            result.notNull("amount");
         }
         return result;
     }
