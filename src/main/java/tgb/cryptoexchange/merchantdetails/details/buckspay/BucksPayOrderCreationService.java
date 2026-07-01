@@ -45,25 +45,50 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
 
     @Override
     protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        return this::addHeaders;
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        return headers -> addHeaders(headers, method);
     }
 
-    private void addHeaders(HttpHeaders headers) {
+    private void addHeaders(HttpHeaders headers, Method method) {
         Long nonce = new Date().getTime() * 1000;
         headers.add("NONCE", String.valueOf(nonce));
         headers.add("Content-Type", "application/json");
-        headers.add("APIKEY", bucksPayProperties.key());
+        headers.add("APIKEY", getApiKey(method));
         headers.add("SIGNATURE", signatureService.hmacSHA256(
-                bucksPayProperties.key() + nonce, bucksPayProperties.secret()
+                getApiKey(method) + nonce, getSecret(method)
         ).toUpperCase());
+    }
+
+    private String getApiKey(Method method) {
+        return switch (method) {
+            case NSPK -> bucksPayProperties.qrKey();
+            case T_PAY -> bucksPayProperties.tPayKey();
+            default -> bucksPayProperties.key();
+        };
+    }
+
+    private String getSecret(Method method) {
+        return switch (method) {
+            case NSPK -> bucksPayProperties.qrSecret();
+            case T_PAY -> bucksPayProperties.tPaySecret();
+            default -> bucksPayProperties.secret();
+        };
+    }
+
+    private String getShopId(Method method) {
+        return switch (method) {
+            case NSPK -> bucksPayProperties.qrShopId();
+            case T_PAY -> bucksPayProperties.tPayShopId();
+            default -> bucksPayProperties.shopId();
+        };
     }
 
     @Override
     protected Request body(DetailsRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
-        request.setShop(bucksPayProperties.shopId());
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        request.setShop(getShopId(method));
         request.setPaymentType(method);
         request.setOperationId(UUID.randomUUID().toString());
         request.setBank(method.getBankCode());
@@ -89,9 +114,10 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String cancelUrl = "/invoice/" + cancelOrderRequest.getOrderId() + "/cancel";
+        Method method = parseMethod(cancelOrderRequest.getMethod(), Method.class);
         requestService.request(webClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path(cancelUrl).build(),
-                this::addHeaders,
+                httpHeaders -> addHeaders(httpHeaders, method),
                 null
         );
     }
