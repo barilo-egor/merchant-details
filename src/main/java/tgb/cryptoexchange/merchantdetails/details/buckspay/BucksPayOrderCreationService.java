@@ -66,6 +66,7 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setPaymentType(method);
         request.setOperationId(UUID.randomUUID().toString());
+        request.setBank(method.getBankCode());
         return request;
     }
 
@@ -75,7 +76,9 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        if (Objects.nonNull(response.getCardNumber())) {
+        if (Objects.nonNull(response.getQrLink())) {
+            detailsResponse.setQr(response.getQrLink());
+        } else if (Objects.nonNull(response.getCardNumber())) {
             detailsResponse.setDetails(response.getBank().getName() + " " + response.getCardNumber());
         } else {
             detailsResponse.setDetails(response.getBank().getName() + " " + response.getPhoneNumber());

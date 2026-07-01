@@ -18,15 +18,11 @@ public class Request {
     @JsonProperty("operation_id")
     private String operationId;
 
+    private Integer bank;
+
     @JsonProperty("pair")
     public String getPair() {
         return "USDT-RUB";
     }
-
-    @JsonProperty("bank")
-    public Integer getBank() {
-        return 0;
-    }
-
 
 }
