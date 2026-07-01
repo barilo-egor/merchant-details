@@ -1,10 +1,9 @@
 {
   "info": {
-    "_postman_id": "5f03e392-d011-48dd-ab9a-d6c0af41acf4",
+    "_postman_id": "6acdbd2f-319f-4703-81ad-81c449938e9c",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "51311572",
-    "_collection_link": "https://go.postman.co/collection/51311572-5f03e392-d011-48dd-ab9a-d6c0af41acf4?source=collection_link"
+    "_exporter_id": "54996925"
   },
   "item": [
     {
@@ -131,6 +130,47 @@
                   "path": [
                     "api",
                     "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "FoxPays",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Access-Token",
+                    "value": "{{foxPaysToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"external_id\": \"testqwe123\",\n    \"amount\": 5000,\n    \"payment_detail_type\": \"phone\",\n    \"merchantId\": \"33319bd0-b5ce-4f16-82b4-20ec04b58bfe\",\n    \"currency\": \"rub\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://foxpays.top/api/h2h/order",
+                  "protocol": "https",
+                  "host": [
+                    "foxpays",
+                    "top"
+                  ],
+                  "path": [
+                    "api",
+                    "h2h",
+                    "order"
                   ]
                 }
               },
