@@ -346,8 +346,14 @@ bucks-pay-sim:
 bucks-pay:
   url:
   key:
+  qr-key:
+  t-pay-key:
   secret:
+  qr-secret:
+  t-pay-secret:
   shop-id:
+  qr-shop-id:
+  t-pay-shop-id:
 many-pay:
   url:
   token:
