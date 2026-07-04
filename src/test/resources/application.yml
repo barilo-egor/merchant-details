@@ -370,6 +370,9 @@ many-pay-high-check:
 prisma-pay:
   url: "prisma-pay-url"
   token: "prisma-pay-token"
+paysync:
+  url: "paysync-url"
+  client-id: "paysync-client-id"
 #Конфиг приложния
 server:
   servlet:

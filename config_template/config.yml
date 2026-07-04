@@ -366,6 +366,9 @@ many-pay-high-check:
 prisma-pay:
   url:
   token:
+paysync:
+  url:
+  client-id:
 # Конфиг приложение
 springdoc:
   swagger-ui:
