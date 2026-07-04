@@ -23,6 +23,8 @@ public interface MerchantConfigRepository extends JpaRepository<MerchantConfig, 
     @Query("SELECT DISTINCT m.groupChatId FROM MerchantConfig m WHERE m.groupChatId IS NOT NULL")
     List<Long> findDistinctGroupChatIdByGroupChatIdNotNull();
 
+    List<MerchantConfig> findAllByMinDealsCountLessThanEqual(Integer minDealsCount);
+
     @Modifying
     @Query("update MerchantConfig mc set mc.merchantOrder = mc.merchantOrder + :delta " +
             "where mc.merchantOrder >= :start and mc.merchantOrder <= :end")

@@ -52,6 +52,7 @@ onyx-pay:
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
+  internal-qr-token: "extasy-pay-internal-qr-token"
 extasy-pay-qr:
   url: "extasy-pay-qr-url"
   token: "extasy-pay-qr-token"
@@ -240,6 +241,129 @@ asgard-high-check:
   token: "asgard-high-check-token"
   secret: "asgard-high-check-secret"
   merchant-id: "asgard-high-check-merchant-id"
+z-pay:
+  url: "z-pay-url"
+  token: "z-pay-token"
+deora:
+  url: "deora-url"
+  key: "deora-key"
+  secret: "deora-secret"
+deora-sim:
+  url: "deora-sim-url"
+  key: "deora-sim-key"
+  secret: "deora-sim-secret"
+deora-low-check:
+  url: "deora-low-check-url"
+  key: "deora-low-check-key"
+  secret: "deora-low-check-secret"
+deora-pdf:
+  url: "deora-pdf-url"
+  key: "deora-pdf-key"
+  secret: "deora-pdf-secret"
+eclipse-gate:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-key-card"
+  key-sbp: "eclipse-gate-key-sbp"
+  key-sim: "eclipse-gate-key-sim"
+eclipse-gate-high-check:
+  url: "eclipse-gate-high-check-url"
+  key-card: "eclipse-gate-high-check-key-card"
+  key-sbp: "eclipse-gate-high-check-key-sbp"
+  key-sim: "eclipse-gatehigh-check-key-sim"
+eclipse-gate-low-check:
+  url: "eclipse-gate-url"
+  key-card: "eclipse-gate-low-check-key-card"
+  key-sbp: "eclipse-gate-low-check-key-sbp"
+  key-sim: "eclipse-gate-low-check-key-sim"
+meridian-pay:
+  url: "meridian-pay-url"
+  token: "meridian-pay-token"
+  merchant-id: "meridian-pay-merchant-id"
+meridian-pay-high-check:
+  url: "meridian-pay-high-check-url"
+  token: "meridian-pay-high-check-token"
+  merchant-id: "meridian-pay-high-check-merchant-id"
+meridian-pay-low-check:
+  url: "meridian-pay-low-check-url"
+  token: "meridian-pay-low-check-token"
+  merchant-id: "meridian-pay-low-check-merchant-id"
+meridian-pay-sim:
+  url: "meridian-pay-sim-url"
+  token: "meridian-pay-sim-token"
+  merchant-id: "meridian-pay-sim-merchant-id"
+meridian-pay-nspk:
+  url: "meridian-pay-nspk-url"
+  token: "meridian-pay-nspk-token"
+  merchant-id: "meridian-pay-nspk-merchant-id"
+mansory:
+  url: "mansory-url"
+  api-key: "mansory-api-key"
+  secret: "mansory-secret"
+mansory-high-check:
+  url: "mansory-high-check-url"
+  api-key: "mansory-high-check-api-key"
+  secret: "mansory-high-check-secret"
+mansory-low-check:
+  url: "mansory-low-check-url"
+  api-key: "mansory-low-check-api-key"
+  secret: "mansory-low-check-secret"
+souz:
+  url: "souz-url"
+  key: "souz-key"
+  secret: "souz-secret"
+souz-sbp-qr:
+  url: "souz-sbp-qr-url"
+  key: "souz-sbp-qr-key"
+  secret: "souz-sbp-qr-secret"
+souz-sim:
+  url: "souz-sim-url"
+  key: "souz-sim-key"
+  secret: "souz-sim-secret"
+souz-pdf:
+  url: "souz-pdf-url"
+  key: "souz-pdf-key"
+  secret: "souz-pdf-secret"
+tm-pay:
+  url: "tm-pay-url"
+  key: "tm-pay-key"
+base51:
+  url: "base51-url"
+  client-id: "base51-client-id"
+  client-secret: "base51-client-secret"
+base51-sim:
+  url: "base51-sim-url"
+  client-id: "base51-sim-client-id"
+  client-secret: "base51-sim-client-secret"
+base51-high-check:
+  url: "base51-high-check-url"
+  client-id: "base51-high-check-client-id"
+  client-secret: "base51-high-check-client-secret"
+base51-low-check:
+  url: "base51-low-check-url"
+  client-id: "base51-low-check-client-id"
+  client-secret: "base51-low-check-client-secret"
+bucks-pay-sim:
+  url: "bucks-pay-sim-url"
+  key: "bucks-pay-sim-key"
+  secret: "bucks-pay-sim-secret"
+  shop-id: "bucks-pay-sim-shop-id"
+bucks-pay:
+  url: "bucks-pay-url"
+  key: "bucks-pay-key"
+  secret: "bucks-pay-secret"
+  shop-id: "bucks-pay-shop-id"
+many-pay:
+  url: "many-pay-url"
+  token: "many-pay-token"
+many-pay-low-check:
+  url: "many-pay-low-check-url"
+  token: "many-pay-low-check-token"
+many-pay-high-check:
+  url: "many-pay-high-check-url"
+  token: "many-pay-high-check-token"
+prisma-pay:
+  url: "prisma-pay-url"
+  token: "prisma-pay-token"
 #Конфиг приложния
 server:
   servlet:
@@ -257,6 +381,9 @@ kafka:
 callback-secret: test-callback-secret
 gateway-url: "https://gateway-example-url.com"
 spring:
+  cloud:
+    config:
+      enabled: false
   datasource:
     url: jdbc:h2:mem:testdb
   jpa:

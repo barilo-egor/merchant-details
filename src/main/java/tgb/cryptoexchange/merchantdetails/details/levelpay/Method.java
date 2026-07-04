@@ -15,7 +15,8 @@ public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
     PHONE("phone", "СБП"),
     ALFA_ALFA("phone", "Альфа-альфа"),
-    SIM("sim", "SIM");
+    SIM("sim", "SIM"),
+    QR("nspk", "QR");
 
     private final String value;
 

@@ -262,6 +262,13 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                 throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
             }
         }
+
+        deleteReceipt(maybeMerchantOrderId.get(), maybeStatus.get());
+    }
+
+    @SuppressWarnings("unused")
+    protected void deleteReceipt(String orderId, String orderStatus) {
+        log.trace("Реализация удаления чека для ордера {} мерчанту {} отсутствует.", orderId, getMerchant().name());
     }
 
     public void cancelOrder(CancelOrderRequest cancelOrderRequest) {

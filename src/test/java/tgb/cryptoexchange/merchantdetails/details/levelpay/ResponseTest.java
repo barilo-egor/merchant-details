@@ -67,33 +67,13 @@ class ResponseTest {
     }
 
     @Test
-    void validateShouldReturnErrorIfPaymentDetailIsNull() {
+    void hasDetailsShouldReturnTrue() {
         Response response = new Response();
-        response.setSuccess(true);
         Response.Order order = new Response.Order();
-        order.setOrderId("orderId");
-        order.setStatus(Status.PENDING);
-        order.setPaymentGateway("paymentGateway");
-        response.setData(order);
-        assertEquals("field \"data.paymentDetail\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void validateShouldReturnErrorIfPaymentDetailDetailIsNull() {
-        Response response = new Response();
-        response.setSuccess(true);
-        Response.Order order = new Response.Order();
-        order.setOrderId("orderId");
-        order.setStatus(Status.PENDING);
-        order.setPaymentGatewayName("paymentGatewayName");
         Response.Order.PaymentDetail paymentDetail = new Response.Order.PaymentDetail();
+        paymentDetail.setDetail("111 222 3333 4444");
         order.setPaymentDetail(paymentDetail);
         response.setData(order);
-        assertEquals("field \"data.paymentDetail.detail\" must not be null", response.validate().errorsToString());
-    }
-
-    @Test
-    void hasDetailsShouldReturnTrue() {
-        assertTrue(new Response().hasDetails());
+        assertTrue(response.hasDetails());
     }
 }

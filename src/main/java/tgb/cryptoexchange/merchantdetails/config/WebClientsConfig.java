@@ -55,7 +55,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient crocoPayWebClient(CrocoPayProperties crocoPayProperties) {
+    public WebClient crocoPayWebClient(CrocoPayImplProperties crocoPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(crocoPayProperties.url()).build();
     }
 
@@ -263,6 +263,7 @@ public class WebClientsConfig {
     public WebClient gambitSimWebClient(GambitSimProperties gambitSimProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(gambitSimProperties.url()).build();
     }
+
     @Bean
     public WebClient asgardWebClient(AsgardImplProperties asgardProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
@@ -282,4 +283,160 @@ public class WebClientsConfig {
     public WebClient asgardHighCheckWebClient(AsgardHighCheckProperties asgardProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(asgardProperties.url()).build();
     }
+
+    @Bean
+    public WebClient zPayWebClient(ZPayProperties zPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(zPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateWebClient(EclipseGateProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateHighCheckWebClient(EclipseGateHighCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient eclipseGateLowCheckWebClient(EclipseGateLowCheckProperties eclipseGateProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(eclipseGateProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraWebClient(DeoraProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraSimWebClient(DeoraSimProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraLowCheckWebClient(DeoraLowCheckProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient deoraPdfWebClient(DeoraPdfProperties deoraProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(deoraProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayWebClient(MeridianPayProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayHighCheckWebClient(MeridianPayHighCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayLowCheckWebClient(MeridianPayLowCheckProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPaySimWebClient(MeridianPaySimProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient meridianPayNspkWebClient(MeridianPayNspkProperties meridianPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(meridianPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mansoryWebClient(MansoryImplProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mansoryHighCheckWebClient(MansoryHighCheckProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient mansoryLowCheckWebClient(MansoryLowCheckProperties mansoryProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(mansoryProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzWebClient(SouzProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzSbpQrWebClient(SouzSbpQrProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzSimWebClient(SouzSimProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient souzPdfWebClient(SouzPdfProperties souzProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(souzProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient base51WebClient(Base51Properties base51Properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
+    }
+
+    @Bean
+    public WebClient base51SimWebClient(Base51SimProperties base51Properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
+    }
+
+    @Bean
+    public WebClient base51HighCheckWebClient(Base51HighCheckProperties base51Properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
+    }
+
+    @Bean
+    public WebClient base51LowCheckWebClient(Base51LowCheckProperties base51Properties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(base51Properties.url()).build();
+    }
+
+    @Bean
+    public WebClient tmPayWebClient(TMPayProperties tmPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tmPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient bucksPaySimWebClient(BucksPaySimProperties bucksPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient bucksPayWebClient(BucksPayPropertiesImpl bucksPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bucksPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient manyPayWebClient(ManyPayPropertiesImpl manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient manyPayLowCheckWebClient(ManyPayLowCheckProperties manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient manyPayHighCheckWebClient(ManyPayHighCheckProperties manyPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(manyPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient prismaPayWebClient(PrismaPayProperties prismaPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(prismaPayProperties.url()).build();
+    }
+
 }

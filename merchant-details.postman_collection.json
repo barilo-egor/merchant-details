@@ -1,0 +1,208 @@
+{
+  "info": {
+    "_postman_id": "6acdbd2f-319f-4703-81ad-81c449938e9c",
+    "name": "merchant-details",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54996925"
+  },
+  "item": [
+    {
+      "name": "merchants",
+      "item": [
+        {
+          "name": "PayLee",
+          "item": [
+            {
+              "name": "PayLee QR",
+              "item": [
+                {
+                  "name": "Создание ордера",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Token {{pay-lee-qr-token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"price\" : 10000,\n  \"requisitesType\" : \"nspk\",\n  \"clientId\" : \"qwerty123456\",\n  \"amountCurrency\" : \"USDT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "https://api.paylee.cc/partners/purchases/",
+                      "protocol": "https",
+                      "host": [
+                        "api",
+                        "paylee",
+                        "cc"
+                      ],
+                      "path": [
+                        "partners",
+                        "purchases",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ManyPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-ACCESS-TOKEN",
+                    "value": "{{many-pay-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 420000, //копейки\r\n    \"payment_method\": \"card\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://manypay.org/api/merchant/order",
+                  "protocol": "https",
+                  "host": [
+                    "manypay",
+                    "org"
+                  ],
+                  "path": [
+                    "api",
+                    "merchant",
+                    "order"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PrismaPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{prisma-pay-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"paymentMethod\":\"card\",\"type\":\"sell\",\"baseCurrency\":\"RUB\",\"quoteCurrency\":\"USDT\",\"amountIn\":2300}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://prismapay.software/api/orders",
+                  "protocol": "https",
+                  "host": [
+                    "prismapay",
+                    "software"
+                  ],
+                  "path": [
+                    "api",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "FoxPays",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Access-Token",
+                    "value": "{{foxPaysToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"external_id\": \"testqwe123\",\n    \"amount\": 5000,\n    \"payment_detail_type\": \"phone\",\n    \"merchantId\": \"33319bd0-b5ce-4f16-82b4-20ec04b58bfe\",\n    \"currency\": \"rub\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://foxpays.top/api/h2h/order",
+                  "protocol": "https",
+                  "host": [
+                    "foxpays",
+                    "top"
+                  ],
+                  "path": [
+                    "api",
+                    "h2h",
+                    "order"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

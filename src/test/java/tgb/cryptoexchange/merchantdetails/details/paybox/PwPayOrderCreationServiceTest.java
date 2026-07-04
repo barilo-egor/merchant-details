@@ -77,7 +77,9 @@ class PwPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(pwPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        pwPayOrderCreationService.headers(null, null).accept(headers);
+        DetailsRequest detailsRequest = new DetailsRequest();
+        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        pwPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())

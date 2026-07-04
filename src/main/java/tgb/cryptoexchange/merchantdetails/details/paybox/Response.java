@@ -75,21 +75,32 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("card_number")
     private String cardNumber;
 
+    @JsonProperty("payment_link")
+    private String paymentLink;
+
+    @JsonProperty("qr_image")
+    private String qrImage;
+
     private void validateDetails(ValidationResult result) {
         if (Objects.isNull(id)) {
             result.notNull("id");
         }
 
         if (Objects.isNull(paymentUrl)) {
-            if (Objects.isNull(bankName)) {
-                result.notNull("bankName");
-            }
-            if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
-                result.notNull("phoneNumber", "cardNumber");
-            }
-            if ((Objects.isNull(bankName) || (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)))) {
-                result.notNull("paymentUrl");
+            boolean hasBankAndCredentials = Objects.nonNull(bankName) && (Objects.nonNull(phoneNumber) || Objects.nonNull(cardNumber));
+            boolean hasQrOrLink = Objects.nonNull(qrImage) || Objects.nonNull(paymentLink);
+
+            if (!hasBankAndCredentials && !hasQrOrLink) {
+                if (Objects.isNull(bankName)) {
+                    result.notNull("bankName");
+                    result.notNull("paymentUrl");
+                }
+                if (Objects.isNull(phoneNumber) && Objects.isNull(cardNumber)) {
+                    result.notNull("phoneNumber", "cardNumber");
+                }
+                result.notNull("qrImage", "paymentLink");
             }
         }
     }
+
 }

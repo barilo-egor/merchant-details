@@ -73,10 +73,14 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        if (Objects.nonNull(response.getData().getPaymentGatewayName())) {
-            detailsResponse.setDetails(response.getData().getPaymentGatewayName() + " " + response.getData().getPaymentDetail().getDetail());
+        if (Objects.nonNull(response.getData().getPaymentDetail().getDetail())) {
+            if (Objects.nonNull(response.getData().getPaymentGatewayName())) {
+                detailsResponse.setDetails(response.getData().getPaymentGatewayName() + " " + response.getData().getPaymentDetail().getDetail());
+            } else {
+                detailsResponse.setDetails(response.getData().getPaymentGateway() + " " + response.getData().getPaymentDetail().getDetail());
+            }
         } else {
-            detailsResponse.setDetails(response.getData().getPaymentGateway() + " " + response.getData().getPaymentDetail().getDetail());
+            detailsResponse.setQr(response.getData().getPaymentDetail().getQrCodeLink());
         }
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getOrderId());

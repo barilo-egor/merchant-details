@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.grpc.server.service.GrpcService;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.grpc.generated.*;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
@@ -31,7 +31,7 @@ import java.util.List;
 import static tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService.STATUS;
 import static tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
-@Service
+@GrpcService
 @Slf4j
 public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.MerchantDetailsServiceImplBase {
 
@@ -139,7 +139,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                                         .build())
                                 .toList());
                     }
-
+                    if (dto.getMinDealsCount() != null) {
+                        builder.setMinDealsCount(dto.getMinDealsCount());
+                    }
                     return builder.build();
                 })
                 .toList();
@@ -182,6 +184,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                     dto.setConfirmConfigs(request.getConfirmConfigsList().stream()
                             .map(GrpcMapUtils::mapToAutoConfirmConfigDTO)
                             .toList());
+                    break;
+                case "min_deals_count":
+                    dto.setMinDealsCount(request.getMinDealsCount());
                     break;
             }
         }
@@ -226,6 +231,17 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     }
 
     @Override
+    public void merchantsByMinDealsCount(MerchantsByMinDealsCountRequestGrpc request, StreamObserver<MerchantsByMinDealsCountResponseGrpc> responseObserver) {
+        List<Merchant> merchants = merchantConfigService.findMerchantsByMinDealsCount(request.getMinDealsCount());
+
+        responseObserver.onNext(MerchantsByMinDealsCountResponseGrpc
+                .newBuilder()
+                .addAllMerchants(merchants.stream().map(Merchant::name).toList())
+                .build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void getVariable(GetVariableRequestGrpc request, StreamObserver<VariableDTOGrpc> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
 
@@ -266,7 +282,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            log.error("Ошибка в gRPC методе sendReceipt: {}", e.getMessage());
+            log.error("Ошибка в gRPC методе sendReceipt: {}", e.getMessage(), e);
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Ошибка обработки чека: " + e.getMessage())
                     .asRuntimeException());

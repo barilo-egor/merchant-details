@@ -67,6 +67,7 @@ public class MerchantConfigService {
                         .maxAmount(5000)
                         .minAmount(1)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
+                        .minDealsCount(0)
                         .build()
         );
     }
@@ -115,11 +116,28 @@ public class MerchantConfigService {
         repository.delete(config);
     }
 
-    @Transactional
-    public void changeOrder(Merchant merchant, Integer newOrder) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
+    private MerchantConfig getMerchantConfigElseNotFound(Merchant merchant) {
+        return getMerchantConfig(merchant).orElseThrow(
                 () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<Merchant> findMerchantsByMinDealsCount(Integer minDealsCount) {
+        List<MerchantConfig> merchantConfigs = repository.findAllByMinDealsCountLessThanEqual(minDealsCount);
+        return merchantConfigs.stream().map(MerchantConfig::getMerchant).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void changeMinDealsCount(Merchant merchant, Integer minDealsCount) {
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
+        config.setMinDealsCount(minDealsCount);
+        repository.save(config);
+    }
+
+    @Transactional
+    public void changeOrder(Merchant merchant, Integer newOrder) {
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
         int currentOrder = config.getMerchantOrder();
         int maxOrder = repository.findMaxMerchantOrder();
         if (currentOrder == newOrder) {
@@ -147,9 +165,7 @@ public class MerchantConfigService {
     }
 
     public void changeOrder(Merchant merchant, boolean isUp) {
-        MerchantConfig config = getMerchantConfig(merchant).orElseThrow(
-                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
-        );
+        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
         int currentOrder = config.getMerchantOrder();
         int maxOrder = repository.findMaxMerchantOrder();
 
@@ -213,6 +229,9 @@ public class MerchantConfigService {
         }
         if (Objects.nonNull(dto.getGroupChatId())) {
             merchantConfig.setGroupChatId(dto.getGroupChatId());
+        }
+        if (Objects.nonNull(dto.getMinDealsCount())) {
+            merchantConfig.setMinDealsCount(dto.getMinDealsCount());
         }
         if (Objects.nonNull(dto.getConfirmConfigs())) {
             List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();

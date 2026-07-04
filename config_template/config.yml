@@ -54,6 +54,7 @@ onyx-pay:
 extasy-pay:
   url: ""
   token: ""
+  internal-qr-token: ""
 extasy-pay-qr:
   url: ""
   token: ""
@@ -236,6 +237,129 @@ asgard-high-check:
   token:
   secret:
   merchant-id:
+z-pay:
+  url:
+  token:
+eclipse-gate:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+eclipse-gate-high-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+eclipse-gate-low-check:
+  url: ""
+  key-card: ""
+  key-sbp: ""
+  key-sim: ""
+meridian-pay:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-high-check:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-low-check:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-sim:
+  url: ""
+  token: ""
+  merchant-id: ""
+meridian-pay-nspk:
+  url: ""
+  token: ""
+  merchant-id: ""
+mansory:
+  url:
+  api-key:
+  secret:
+mansory-high-check:
+  url:
+  api-key:
+  secret:
+mansory-low-check:
+  url:
+  api-key:
+  secret:
+souz:
+  url:
+  key:
+  secret:
+souz-sbp-qr:
+  url:
+  key:
+  secret:
+souz-sim:
+  url:
+  key:
+  secret:
+souz-pdf:
+  url:
+  key:
+  secret:
+deora:
+  url:
+  key:
+  secret:
+deora-sim:
+  url:
+  key:
+  secret:
+deora-low-check:
+  url:
+  key:
+  secret:
+deora-pdf:
+  url:
+  key:
+  secret:
+tm-pay:
+  url:
+  key:
+base51:
+  url:
+  client-id:
+  client-secret:
+base51-sim:
+  url:
+  client-id:
+  client-secret:
+base51-high-check:
+  url:
+  client-id:
+  client-secret:
+base51-low-check:
+  url:
+  client-id:
+  client-secret:
+bucks-pay-sim:
+  url:
+  key:
+  secret:
+  shop-id:
+bucks-pay:
+  url:
+  key:
+  secret:
+  shop-id:
+many-pay:
+  url:
+  token:
+many-pay-low-check:
+  url:
+  token:
+many-pay-high-check:
+  url:
+  token:
+prisma-pay:
+  url:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:
