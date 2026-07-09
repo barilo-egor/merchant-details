@@ -235,6 +235,9 @@ public class MerchantConfigService {
         if (Objects.nonNull(dto.getMinDealsCount())) {
             merchantConfig.setMinDealsCount(dto.getMinDealsCount());
         }
+        if (Objects.nonNull(dto.getRequiredReceipt())) {
+            merchantConfig.setRequiredReceipt(dto.getRequiredReceipt());
+        }
         if (Objects.nonNull(dto.getConfirmConfigs())) {
             List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();
             merchantConfig.setConfirmConfigs(new ArrayList<>());
