@@ -73,12 +73,12 @@ public class MerchantDetailsController extends ApiController {
 
     @PatchMapping("/config/order")
     @ResponseStatus(HttpStatus.OK)
-    public void updateOrder(@RequestParam Merchant merchant, @RequestParam(required = false) Boolean isUp,
+    public void updateOrder(@RequestParam Merchant merchantFirst, @RequestParam(required = false) Merchant merchantSecond,
                             @RequestParam(required = false) Integer newOrder) {
-        if (isUp != null) {
-            merchantConfigService.changeOrder(merchant, isUp);
+        if (merchantSecond != null) {
+            merchantConfigService.changeOrder(merchantFirst, merchantSecond);
         } else if (newOrder != null) {
-            merchantConfigService.changeOrder(merchant, newOrder);
+            merchantConfigService.changeOrder(merchantFirst, newOrder);
         }
     }
 
