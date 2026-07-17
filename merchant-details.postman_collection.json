@@ -204,6 +204,124 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Cube",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Apipublic",
+                    "value": "{{cube-api-public}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Apiprivate",
+                    "value": "{{cube-api-private}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"amount\": \"2000\",\r\n  \"external_id\": \"order_12345\",\r\n  \"token\": \"INTERBRUB\",\r\n  \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM?dealId=12345\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cube.api.treasurepay.online/v1/transactions/payin",
+                  "protocol": "https",
+                  "host": [
+                    "cube",
+                    "api",
+                    "treasurepay",
+                    "online"
+                  ],
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "payin"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Создание ордера",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Apipublic",
+                        "value": "473a633f-ee88-4d5a-949c-8c66c3224ec0",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Apiprivate",
+                        "value": "c15f7315-455a-4591-9fb1-b8ca807dff17",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"amount\": \"1000\",\r\n  \"external_id\": \"order_12345\",\r\n  \"token\": \"INTERBRUB\",\r\n  \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM?dealId=12345\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "https://cube.api.treasurepay.online/v1/transactions/payin",
+                      "protocol": "https",
+                      "host": [
+                        "cube",
+                        "api",
+                        "treasurepay",
+                        "online"
+                      ],
+                      "path": [
+                        "v1",
+                        "transactions",
+                        "payin"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Server",
+                      "value": "nginx/1.26.0 (Ubuntu)"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Thu, 16 Jul 2026 15:36:45 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "525"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "keep-alive"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"data\": {\n        \"external_id\": \"order_12345\",\n        \"internal_id\": \"ebf05ae6929852ef41da642392196e62f1b416f0f1cd5b3a62b08fba25ce92a3\",\n        \"amount\": \"1000\",\n        \"amount_paid\": \"0\",\n        \"amount_crypto\": \"9.7815\",\n        \"base_rate\": \"83.8317\",\n        \"rate\": \"102.23\",\n        \"merch_percent\": \"0.18\",\n        \"commission\": \"2.1471618307871605\",\n        \"receiver\": \"2200700523039997\",\n        \"bank_name\": \"Сбербанк\",\n        \"recipient_name\": \"иван  иванов\",\n        \"status\": \"ACCEPTED\",\n        \"extra\": {\n            \"bankName\": \"Сбербанк\",\n            \"recipientName\": \"иван  иванов\",\n            \"amount_crypto_vendor\": \"0\",\n            \"vendor_percent\": \"0\"\n        }\n    }\n}"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
