@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -31,6 +32,16 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
             }
             return onyxPayProperties.key();
         };
+    }
+
+    @Override
+    protected Request body(DetailsRequest detailsRequest) {
+        Request request = super.body(detailsRequest);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        if (Method.T_PAY.equals(method)) {
+            request.setPaymentMethod("tinkoff");
+        }
+        return request;
     }
 
     @Override
