@@ -220,11 +220,12 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     @Override
     public void updateOrder(UpdateOrderRequestGrpc request, StreamObserver<Empty> responseObserver) {
-        Merchant merchant = Merchant.valueOf(request.getMerchant());
-        if (request.hasIsUp()) {
-            merchantConfigService.changeOrder(merchant, request.getIsUp().getValue());
+        Merchant merchantFirst = Merchant.valueOf(request.getMerchantFirst());
+        if (request.hasMerchantSecond()) {
+            Merchant merchantSecond = Merchant.valueOf(request.getMerchantSecond().getValue());
+            merchantConfigService.changeOrder(merchantFirst, merchantSecond);
         } else if (request.hasNewOrder()) {
-            merchantConfigService.changeOrder(merchant, request.getNewOrder().getValue());
+            merchantConfigService.changeOrder(merchantFirst, request.getNewOrder().getValue());
         }
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
