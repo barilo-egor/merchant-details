@@ -97,8 +97,8 @@ message DeleteConfigFieldRequestGrpc {
 }
 
 message UpdateOrderRequestGrpc {
-  string merchant = 1;
-  google.protobuf.BoolValue is_up = 2;
+  string merchant_first = 1;
+  google.protobuf.StringValue merchant_second = 2;
   google.protobuf.Int32Value new_order = 3;
 }
 

@@ -178,10 +178,10 @@ class MerchantDetailsControllerTest {
     @Test
     void updateOrderShouldPCallServiceChangeOrderMethod() throws Exception {
         mockMvc.perform(patch("/merchant-details/config/order")
-                        .param("merchant", "ALFA_TEAM")
-                        .param("isUp", "true"))
+                        .param("merchantFirst", "ALFA_TEAM")
+                        .param("merchantSecond", "ALFA_TEAM_QR"))
                 .andExpect(status().isOk());
-        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, Merchant.ALFA_TEAM_QR);
     }
 
     @Test
