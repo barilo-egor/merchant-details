@@ -369,6 +369,22 @@ prisma-pay:
 paysync:
   url:
   client-id:
+cube:
+  url:
+  key:
+  private-key:
+cube-low-check:
+  url:
+  key:
+  private-key:
+cube-high-check:
+  url:
+  key:
+  private-key:
+cube-sim:
+  url:
+  key:
+  private-key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
