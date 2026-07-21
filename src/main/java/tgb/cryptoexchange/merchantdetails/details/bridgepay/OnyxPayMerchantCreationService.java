@@ -30,6 +30,9 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
             if (Method.MOBILE_TOP_UP.equals(method)) {
                 return onyxPayProperties.simKey();
             }
+            if (Method.T_PAY.equals(method)) {
+                return onyxPayProperties.tPayKey();
+            }
             return onyxPayProperties.key();
         };
     }

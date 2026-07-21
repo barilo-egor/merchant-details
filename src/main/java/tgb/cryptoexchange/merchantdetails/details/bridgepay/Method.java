@@ -18,9 +18,9 @@ public enum Method implements MerchantMethod {
     SBP("SBP", "СБП"),
     TO_CARD("TO_CARD", "Перевод на карту"),
     CROSS_BORDER("CROSS_BORDER", "Трансграничный перевод"),
+    T_PAY("CROSS_BORDER", "Трансграничный перевод Т-банк — Т-банк"),
     MOBILE_TOP_UP("MOBILE_TOP_UP", "Пополнение счета моб.телефона"),
     SBP_QR("SBP_QR", "СБП QR"),
-    T_PAY("SBP QR", "СБП QR Т-банк — Т-банк"),
     MANUAL_SBP_QR("MANUAL_SBP_QR", "Ручной QR");
 
     private final String value;
