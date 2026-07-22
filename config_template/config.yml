@@ -385,6 +385,13 @@ cube-sim:
   url:
   key:
   private-key:
+rs-pay:
+  url:
+  api-key:
+  secret:
+rs-pay-bt:
+  api-key:
+  secret:
 # Конфиг приложение
 springdoc:
   swagger-ui:

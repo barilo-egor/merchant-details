@@ -370,6 +370,14 @@ public enum MerchantConstants {
     CUBE_SIM(
             tgb.cryptoexchange.merchantdetails.details.cube.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.cube.Method.values()
+    ),
+    RS_PAY(
+            tgb.cryptoexchange.merchantdetails.details.rspay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.rspay.Method.values()
+    ),
+    RS_PAY_BT(
+            tgb.cryptoexchange.merchantdetails.details.rspay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.rspay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
