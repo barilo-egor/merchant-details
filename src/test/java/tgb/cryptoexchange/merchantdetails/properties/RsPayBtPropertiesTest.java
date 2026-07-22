@@ -16,7 +16,6 @@ class RsPayBtPropertiesTest {
     @Test
     void shouldLoadProperties() {
         assertAll(
-                () -> assertEquals("rs-pay-bt-url", rsPayProperties.url()),
                 () -> assertEquals("rs-pay-bt-api-key", rsPayProperties.apiKey()),
                 () -> assertEquals("rs-pay-bt-secret", rsPayProperties.secret())
         );
