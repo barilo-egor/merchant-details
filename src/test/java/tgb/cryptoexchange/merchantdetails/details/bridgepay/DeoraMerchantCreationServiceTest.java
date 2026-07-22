@@ -150,7 +150,7 @@ class DeoraMerchantCreationServiceTest {
     void buildResponseShouldReturnMappedRequisiteDTO(String id, Bank bank, String requisite) {
         Response response = new Response();
         DealDTO dealDTO = new DealDTO();
-        dealDTO.setPaymentMethod(bank);
+        dealDTO.setPaymentMethod(bank.getDisplayName());
         RequisitesDTO requisitesDTO = new RequisitesDTO();
         requisitesDTO.setRequisites(requisite);
         dealDTO.setRequisites(requisitesDTO);

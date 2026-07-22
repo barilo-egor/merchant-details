@@ -32,7 +32,7 @@ class ResponseTest {
         RequisitesDTO requisitesDTO = new RequisitesDTO();
         requisitesDTO.setRequisites("requisites");
         dealDTO.setRequisites(requisitesDTO);
-        dealDTO.setPaymentMethod(Bank.ABR);
+        dealDTO.setPaymentMethod(Bank.ABR.getDisplayName());
         response.setDeals(deals);
         ValidationResult validationResult = response.validate();
         assertEquals("field \"id\" must not be null", validationResult.errorsToString());
@@ -73,7 +73,7 @@ class ResponseTest {
         List<DealDTO> deals = new ArrayList<>();
         DealDTO deal = new DealDTO();
         deals.add(deal);
-        deal.setPaymentMethod(Bank.ABR);
+        deal.setPaymentMethod(Bank.ABR.getDisplayName());
         response.setDeals(deals);
         ValidationResult validationResult = response.validate();
         assertEquals("field \"deal.requisites\" must not be null", validationResult.errorsToString());
@@ -88,7 +88,7 @@ class ResponseTest {
         deals.add(dealDTO);
         RequisitesDTO requisitesDTO = new RequisitesDTO();
         dealDTO.setRequisites(requisitesDTO);
-        dealDTO.setPaymentMethod(Bank.ABR);
+        dealDTO.setPaymentMethod(Bank.ABR.getDisplayName());
         response.setDeals(deals);
         ValidationResult validationResult = response.validate();
         assertEquals("field \"deal.requisites.requisites\" must not be null", validationResult.errorsToString());
@@ -101,7 +101,7 @@ class ResponseTest {
         List<DealDTO> deals = new ArrayList<>();
         DealDTO deal = new DealDTO();
         deals.add(deal);
-        deal.setPaymentMethod(Bank.ABR);
+        deal.setPaymentMethod(Bank.ABR.getDisplayName());
         deal.setPaymentOption(Method.SBP_QR);
         response.setDeals(deals);
         ValidationResult validationResult = response.validate();
