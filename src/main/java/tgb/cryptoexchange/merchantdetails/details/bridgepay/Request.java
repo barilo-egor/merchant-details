@@ -22,8 +22,6 @@ public class Request {
     @JsonSerialize(using = Method.Serializer.class)
     private Method paymentOption;
 
-    private String paymentMethod;
-
     private Boolean startDeal;
 
     private String crossBorderCurrency;

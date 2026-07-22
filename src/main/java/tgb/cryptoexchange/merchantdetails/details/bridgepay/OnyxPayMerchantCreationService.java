@@ -42,7 +42,6 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
         Request request = super.body(detailsRequest);
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         if (Method.T_PAY.equals(method)) {
-            request.setPaymentMethod("tinkoff");
             request.setCrossBorderCurrency("UZS");
         }
         return request;
