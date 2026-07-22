@@ -322,6 +322,64 @@
               ]
             }
           ]
+        },
+        {
+          "name": "RsPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Nonce",
+                    "value": "{{rs-pay-nonce}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Timestamp",
+                    "value": "{{rs-pay-x-timestamp}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Shop-API-Key",
+                    "value": "{{rs-pay-x-shop-api-key}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Signature",
+                    "value": "{{rs-pay-x-signature}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"amount\":\"2400\",\"receipt\":true,\"transaction_id\":\"58eda29f-6682-41b1-bc13-66354f630e9f\",\"payment_method\":\"sbp\",\"callback_url\":\"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=RS_PAY&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM\",\"currency\":\"RUB\",\"kyc\":true}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://rspay.win/api/v1/requisites/request/",
+                  "protocol": "https",
+                  "host": [
+                    "rspay",
+                    "win"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "requisites",
+                    "request",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
