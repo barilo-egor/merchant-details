@@ -34,8 +34,12 @@ public class SignatureService {
     }
 
     public String hmacSHA256(String signatureString, String signKey) {
+        return hmacSHA256(signatureString.getBytes(StandardCharsets.UTF_8), signKey);
+    }
+
+    public String hmacSHA256(byte[] valueObject, String signKey) {
         HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, signKey.getBytes(StandardCharsets.UTF_8));
-        byte[] hmacSha256 = hmacUtils.hmac(signatureString.getBytes(StandardCharsets.UTF_8));
+        byte[] hmacSha256 = hmacUtils.hmac(valueObject);
         return Hex.encodeHexString(hmacSha256);
     }
 

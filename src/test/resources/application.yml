@@ -389,6 +389,13 @@ cube-sim:
   url: "cube-sim-url"
   key: "cube-sim-key"
   private-key: "cube-sim-private-key"
+rs-pay:
+  url: "rs-pay-url"
+  api-key: "rs-pay-api-key"
+  secret: "rs-pay-secret"
+rs-pay-bt:
+  api-key: "rs-pay-bt-api-key"
+  secret: "rs-pay-bt-secret"
 #Конфиг приложния
 server:
   servlet:

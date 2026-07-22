@@ -2,7 +2,9 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -42,4 +44,19 @@ public class RequestService {
                 .doOnError(onError)
                 .subscribe();
     }
+
+    public void request(WebClient webClient, HttpMethod httpMethod, Function<UriBuilder, URI> uriBuilder,
+                        Consumer<HttpHeaders> headersConsumer,
+                        BodyInserter<?, ? super ReactiveHttpOutputMessage> body,
+                        Consumer<? super Throwable> onError) {
+        WebClient.RequestBodyUriSpec method = webClient.method(httpMethod);
+        method.uri(uriBuilder)
+                .headers(headersConsumer)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity()
+                .doOnError(onError)
+                .subscribe();
+    }
+
 }
