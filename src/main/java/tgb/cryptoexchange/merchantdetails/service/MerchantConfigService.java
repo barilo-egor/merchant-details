@@ -19,6 +19,7 @@ import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
@@ -67,6 +68,7 @@ public class MerchantConfigService {
                         .minAmount(1)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
                         .minDealsCount(0)
+                        .requiredReceipt(RequiredReceipt.NOT_REQUIRED)
                         .build()
         );
     }
@@ -217,6 +219,9 @@ public class MerchantConfigService {
         }
         if (Objects.nonNull(dto.getMinDealsCount())) {
             merchantConfig.setMinDealsCount(dto.getMinDealsCount());
+        }
+        if (Objects.nonNull(dto.getRequiredReceipt())) {
+            merchantConfig.setRequiredReceipt(dto.getRequiredReceipt());
         }
         if (Objects.nonNull(dto.getConfirmConfigs())) {
             List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();
