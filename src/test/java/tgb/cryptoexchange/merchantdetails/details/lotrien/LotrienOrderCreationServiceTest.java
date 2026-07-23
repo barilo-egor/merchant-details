@@ -33,7 +33,7 @@ class LotrienOrderCreationServiceTest {
     private LotrienProperties lotrienProperties;
 
     @InjectMocks
-    private LotrienOrderCreationService service;
+    private LotrienImplOrderCreationService service;
 
     @Test
     void uriBuilderShouldAddPath() {

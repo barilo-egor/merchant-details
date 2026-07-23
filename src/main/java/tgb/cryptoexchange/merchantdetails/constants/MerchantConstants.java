@@ -203,6 +203,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.lotrien.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.lotrien.Method.values()
     ),
+    LOTRIEN_PDF(
+            tgb.cryptoexchange.merchantdetails.details.lotrien.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.lotrien.Method.values()
+    ),
     GAMBIT(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
