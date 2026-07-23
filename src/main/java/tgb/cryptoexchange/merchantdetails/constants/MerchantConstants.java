@@ -71,14 +71,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paylee.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paylee.Method.values()
     ),
-    PSP_WARE(
-            tgb.cryptoexchange.merchantdetails.details.pspware.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.pspware.Method.values()
-    ),
-    PAY_CROWN(
-            tgb.cryptoexchange.merchantdetails.details.paycrown.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.paycrown.Method.values()
-    ),
     PAYSCROW(
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
@@ -95,18 +87,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
-    LUCKY_PAY(
-            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
-    ),
-    YA_PAY(
-            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
-    ),
-    DAO_PAYMENTS(
-            tgb.cryptoexchange.merchantdetails.details.daopayments.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.daopayments.Method.values()
-    ),
     GEO_TRANSFER(
             Status.values(),
             Method.values()
@@ -114,10 +94,6 @@ public enum MerchantConstants {
     ROSTRAST(
             Status.values(),
             Method.values()
-    ),
-    FOX_PAYS(
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
     STORM_TRADE(
             Status.values(),
@@ -147,18 +123,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paylee.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paylee.Method.values()
     ),
-    NEURAL_PAY(
-            tgb.cryptoexchange.merchantdetails.details.neuralpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.neuralpay.Method.values()
-    ),
-    STUDIO(
-            tgb.cryptoexchange.merchantdetails.details.studio.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.studio.Method.values()
-    ),
-    STUDIO_SIM(
-            tgb.cryptoexchange.merchantdetails.details.studio.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.studio.Method.values()
-    ),
     YOLO(
             tgb.cryptoexchange.merchantdetails.details.yolo.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.yolo.Method.values()
@@ -178,10 +142,6 @@ public enum MerchantConstants {
     FIAT_CUT(
             tgb.cryptoexchange.merchantdetails.details.fiatcut.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.fiatcut.Method.values()
-    ),
-    VIATRUM(
-            tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
     ),
     CASH_OUT(
             tgb.cryptoexchange.merchantdetails.details.cashout.Status.values(),
@@ -227,10 +187,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.asgard.Method.values()
     ),
-    Z_PAY(
-            tgb.cryptoexchange.merchantdetails.details.zpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.zpay.Method.values()
-    ),
     DEORA(
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
@@ -246,18 +202,6 @@ public enum MerchantConstants {
     DEORA_PDF(
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
-    ),
-    ECLIPSE_GATE(
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
-    ),
-    ECLIPSE_GATE_HIGH_CHECK(
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
-    ),
-    ECLIPSE_GATE_LOW_CHECK(
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.eclipsegate.Method.values()
     ),
     MERIDIAN_PAY(
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
@@ -279,18 +223,6 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.levelpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.levelpay.Method.values()
     ),
-    MANSORY(
-            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
-    ),
-    MANSORY_HIGH_CHECK(
-            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
-    ),
-    MANSORY_LOW_CHECK(
-            tgb.cryptoexchange.merchantdetails.details.mansory.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.mansory.Method.values()
-    ),
     SOUZ(
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
@@ -306,10 +238,6 @@ public enum MerchantConstants {
     SOUZ_PDF(
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.bridgepay.Method.values()
-    ),
-    TM_PAY(
-            tgb.cryptoexchange.merchantdetails.details.tmpay.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.tmpay.Method.values()
     ),
     BASE_51(
             tgb.cryptoexchange.merchantdetails.details.crocopay.Status.values(),

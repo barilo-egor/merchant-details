@@ -15,7 +15,7 @@ class MeridianPayCreationServiceTest {
     private MeridianPayOrderCreationService meridianPayOrderCreationService;
 
     @Test
-    void getMerchantShouldReturnFoxPays() {
+    void getMerchantShouldReturnMeridianPay() {
         assertEquals(Merchant.MERIDIAN_PAY, meridianPayOrderCreationService.getMerchant());
     }
 
