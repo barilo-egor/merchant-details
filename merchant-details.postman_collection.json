@@ -1,9 +1,10 @@
 {
   "info": {
-    "_postman_id": "6acdbd2f-319f-4703-81ad-81c449938e9c",
+    "_postman_id": "94cb1158-2c61-4515-98db-c3f59738320c",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "54996925"
+    "_exporter_id": "51311572",
+    "_collection_link": "https://go.postman.co/collection/51311572-94cb1158-2c61-4515-98db-c3f59738320c?source=collection_link"
   },
   "item": [
     {
@@ -226,7 +227,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"amount\": \"1000\",\r\n    \"external_id\": \"order_12345\",\r\n    \"token\": \"SBPRUB\",\r\n    \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM?dealId=12345\"\r\n}",
+                  "raw": "{\r\n    \"amount\": \"1000\",\r\n    \"external_id\": \"order_12345\",\r\n    \"token\": \"SBPRUB\",\r\n    \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret={{rce_secret}}?dealId=12345\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -268,7 +269,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n  \"amount\": \"1000\",\r\n  \"external_id\": \"order_12345\",\r\n  \"token\": \"INTERBRUB\",\r\n  \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM?dealId=12345\"\r\n}",
+                      "raw": "{\r\n  \"amount\": \"1000\",\r\n  \"external_id\": \"order_12345\",\r\n  \"token\": \"INTERBRUB\",\r\n  \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret={{rce_secret}}?dealId=12345\"\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -293,7 +294,7 @@
                   },
                   "status": "OK",
                   "code": 200,
-                  "_postman_previewlanguage": null,
+                  "_postman_previewlanguage": "Text",
                   "header": [
                     {
                       "key": "Server",
@@ -354,7 +355,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"amount\":\"2400\",\"receipt\":true,\"transaction_id\":\"58eda29f-6682-41b1-bc13-66354f630e9f\",\"payment_method\":\"sbp\",\"callback_url\":\"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=RS_PAY&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM\",\"currency\":\"RUB\",\"kyc\":true}",
+                  "raw": "{\"amount\":\"2400\",\"receipt\":true,\"transaction_id\":\"58eda29f-6682-41b1-bc13-66354f630e9f\",\"payment_method\":\"sbp\",\"callback_url\":\"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=RS_PAY&secret={{rce_secret}}\",\"currency\":\"RUB\",\"kyc\":true}",
                   "options": {
                     "raw": {
                       "language": "json"
