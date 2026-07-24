@@ -118,7 +118,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         return Optional.of(requisiteVO);
     }
 
-    private void fillRequisites(DetailsResponse requisiteVO, Response response) {
+    protected void fillRequisites(DetailsResponse requisiteVO, Response response) {
         DealDTO dealDTO = response.getDeals().getFirst();
         if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(dealDTO.getPaymentOption())) {
             requisiteVO.setQr(dealDTO.getQrCodeLink());
