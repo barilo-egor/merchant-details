@@ -72,7 +72,7 @@ class CubeMerchantServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CUBE).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CUBE).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setChatId(1231231231L);
         detailsRequest.setId(123456789L);
         detailsRequest.setCurrentMerchantMethod(method.name());

@@ -154,7 +154,7 @@ class YoloOrderCreationServiceTest {
         DetailsRequest request = new DetailsRequest();
         request.setAmount(1000);
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).method(Collections.singletonList("SBP")).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).methods(Collections.singletonList("SBP")).build());
         request.setMethods(methods);
         request.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
