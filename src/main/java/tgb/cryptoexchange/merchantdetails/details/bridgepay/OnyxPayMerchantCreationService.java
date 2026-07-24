@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -29,8 +31,32 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
             if (Method.MOBILE_TOP_UP.equals(method)) {
                 return onyxPayProperties.simKey();
             }
+            if (Method.CROSS_BORDER.equals(method)) {
+                return onyxPayProperties.tPayKey();
+            }
             return onyxPayProperties.key();
         };
+    }
+
+    @Override
+    protected Request body(DetailsRequest detailsRequest) {
+        Request request = super.body(detailsRequest);
+        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        if (Method.CROSS_BORDER.equals(method)) {
+            request.setCrossBorderCurrency("UZS");
+        }
+        return request;
+    }
+
+    @Override
+    protected void fillRequisites(DetailsResponse requisiteVO, Response response) {
+        super.fillRequisites(requisiteVO, response);
+
+        DealDTO dealDTO = response.getDeals().getFirst();
+        if (Method.CROSS_BORDER.equals(dealDTO.getPaymentOption())) {
+            requisiteVO.setQr(dealDTO.getQrCodeLink());
+            requisiteVO.setDetails(null);
+        }
     }
 
     @Override

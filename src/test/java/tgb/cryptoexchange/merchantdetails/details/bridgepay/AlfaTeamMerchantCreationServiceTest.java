@@ -121,7 +121,7 @@ class AlfaTeamMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
@@ -150,7 +150,7 @@ class AlfaTeamMerchantCreationServiceTest {
     void buildResponseShouldReturnMappedRequisiteDTO(String id, Bank bank, String requisite) {
         Response response = new Response();
         DealDTO dealDTO = new DealDTO();
-        dealDTO.setPaymentMethod(bank);
+        dealDTO.setPaymentMethod(bank.getDisplayName());
         RequisitesDTO requisitesDTO = new RequisitesDTO();
         requisitesDTO.setRequisites(requisite);
         dealDTO.setRequisites(requisitesDTO);

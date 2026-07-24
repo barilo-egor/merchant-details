@@ -43,7 +43,7 @@ class GeoTransferMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GEO_TRANSFER).method(Collections.singletonList("SBP")).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GEO_TRANSFER).methods(Collections.singletonList("SBP")).build()));
         detailsRequest.setCurrentMerchantMethod("SBP");
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);

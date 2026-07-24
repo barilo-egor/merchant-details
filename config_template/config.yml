@@ -74,9 +74,6 @@ pay-lee-qr:
   token: ""
   secret: ""
   client-id-salt:
-psp-ware:
-  url: ""
-  token: ""
 
 pay-points:
   url: ""
@@ -89,20 +86,12 @@ panda-pay:
   url: ""
   key: ""
   secret: ""
-pay-crown:
-  url: ""
-  key: ""
-  secret: ""
-  merchant-id: ""
 payscrow:
   url: ""
   key: ""
   high-check-key: ""
   in-house-key: ""
   white-triangle-key: ""
-lucky-pay:
-  url: ""
-  key: ""
 appexbit:
   url: ""
   key: ""
@@ -110,13 +99,6 @@ mobius:
   url: ""
   token: ""
   merchant-id: ""
-ya-pay:
-  url: ""
-  token: ""
-  sign-key: ""
-dao-payments:
-  url: ""
-  key: ""
 geo-transfer:
   url: ""
   token: ""
@@ -127,10 +109,6 @@ rostrast:
   key: ""
   secret: ""
   url: ""
-fox-pays:
-  url: ""
-  token: ""
-  merchant-id: ""
 storm-trade:
   token: ""
   key: ""
@@ -163,16 +141,6 @@ plata18:
   url: ""
   token: ""
   merchant-id: ""
-neural-pay:
-  url: ""
-  token: ""
-studio:
-  url: ""
-  key-card: ""
-  key-sbp: ""
-studio-sim:
-  url: ""
-  key-sim: ""
 yolo:
   account-id: ""
   url: ""
@@ -195,11 +163,6 @@ noros-high-check:
   url:
   key:
   client-id-salt:
-viatrum:
-  url:
-  pub:
-  secret:
-  environment:
 cashout:
   url:
   key:
@@ -237,24 +200,6 @@ asgard-high-check:
   token:
   secret:
   merchant-id:
-z-pay:
-  url:
-  token:
-eclipse-gate:
-  url: ""
-  key-card: ""
-  key-sbp: ""
-  key-sim: ""
-eclipse-gate-high-check:
-  url: ""
-  key-card: ""
-  key-sbp: ""
-  key-sim: ""
-eclipse-gate-low-check:
-  url: ""
-  key-card: ""
-  key-sbp: ""
-  key-sim: ""
 meridian-pay:
   url: ""
   token: ""
@@ -275,18 +220,6 @@ meridian-pay-nspk:
   url: ""
   token: ""
   merchant-id: ""
-mansory:
-  url:
-  api-key:
-  secret:
-mansory-high-check:
-  url:
-  api-key:
-  secret:
-mansory-low-check:
-  url:
-  api-key:
-  secret:
 souz:
   url:
   key:
@@ -319,9 +252,6 @@ deora-pdf:
   url:
   key:
   secret:
-tm-pay:
-  url:
-  key:
 base51:
   url:
   client-id:

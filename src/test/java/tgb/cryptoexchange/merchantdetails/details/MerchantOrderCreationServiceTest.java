@@ -192,9 +192,9 @@ class MerchantOrderCreationServiceTest {
         DetailsRequest request = new DetailsRequest();
         request.setCurrentMerchantMethod("CARD");
         List<DetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("method")).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList("method")).build());
-        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList("method")).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("method")).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList("method")).build());
+        methods.add(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList("method")).build());
         request.setMethods(methods);
         assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request.getCurrentMerchantMethod(), Method.class));
     }
@@ -236,7 +236,7 @@ class MerchantOrderCreationServiceTest {
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate().test(detailsRequest));
