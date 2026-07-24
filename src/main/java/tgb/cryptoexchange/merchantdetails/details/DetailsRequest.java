@@ -42,7 +42,7 @@ public class DetailsRequest {
     public List<String> getMerchantMethod(Merchant merchant) {
         for (MerchantMethod merchantMethod : methods) {
             if (merchantMethod.getMerchant().equals(merchant)) {
-                return merchantMethod.getMethods();
+                return merchantMethod.getMethod();
             }
         }
         return Collections.emptyList();
@@ -56,7 +56,7 @@ public class DetailsRequest {
 
         private Merchant merchant;
 
-        private List<String> methods;
+        private List<String> method;
 
     }
 
