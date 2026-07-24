@@ -1,9 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.lotrien;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -11,19 +14,20 @@ import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Service
 @Slf4j
-public abstract class LotrienOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class LotrienOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final LotrienProperties lotrienProperties;
 
-    protected LotrienOrderCreationService(WebClient webClient, LotrienProperties lotrienProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected LotrienOrderCreationService(@Qualifier("lotrienWebClient") WebClient lotrienWebClient,
+                                          LotrienProperties lotrienProperties) {
+        super(lotrienWebClient, Response.class, Callback.class);
         this.lotrienProperties = lotrienProperties;
     }
 
@@ -59,13 +63,17 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
         Response.Requisites requisites = response.getRequisites();
-        if (List.of(Method.PDF_BANK_CARD, Method.BANK_CARD).contains(response.getPaymentMethod())) {
+        if (Method.BANK_CARD.equals(response.getPaymentMethod())) {
             detailsResponse.setDetails(requisites.getBank() + " " + requisites.getCardNumber());
         } else {
             detailsResponse.setDetails(requisites.getBank() + " " + requisites.getPhoneNumber());
         }
-
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return Merchant.LOTRIEN;
     }
 
 }

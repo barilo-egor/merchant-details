@@ -85,7 +85,7 @@ class NorosOrderCreationServiceImplTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS).methods(
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS).method(
                         Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
         Request resultBody = norosOrderCreationService.body(detailsRequest);

@@ -13,10 +13,7 @@ import java.io.IOException;
 @Getter
 public enum Method implements MerchantMethod {
     BANK_CARD("Карта"),
-    SBP("СБП"),
-    PDF_BANK_CARD("Карта PDF"),
-    PDF_SBP("СБП PDF"),
-    ;
+    SBP("СБП");
 
     final String description;
 
