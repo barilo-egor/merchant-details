@@ -381,6 +381,49 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Lotrien",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{lotrien-key}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"paymentMethods\": [\"PDF_BANK_CARD\"],\r\n    \"fiatSum\": \"1750\",\r\n    \"fiatCurrencyCode\": \"RUB\",\r\n    \"cryptoCurrencyCode\": \"USDT\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://app.lotrien-dev-zone.xyz/api/v1/order/payin",
+                  "protocol": "https",
+                  "host": [
+                    "app",
+                    "lotrien-dev-zone",
+                    "xyz"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "order",
+                    "payin"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
