@@ -60,7 +60,7 @@ class ExtasyPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setCurrentMerchantMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 

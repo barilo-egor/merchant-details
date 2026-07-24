@@ -38,7 +38,7 @@ class LuckyPayOrderCreationServiceTest {
             """)
     void keyFunctionShouldAlwaysReturnKey(String method, Integer amount, Long id, Long chatId, String key) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LUCKY_PAY).methods(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         detailsRequest.setChatId(chatId);

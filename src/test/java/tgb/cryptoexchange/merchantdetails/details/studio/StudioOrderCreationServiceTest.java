@@ -86,7 +86,7 @@ class StudioOrderCreationServiceTest {
         request.setAmount(amount);
         request.setRequestId(clientOrderId);
         request.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).method(Collections.singletonList(mainMethod.name()))
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.STUDIO).methods(Collections.singletonList(mainMethod.name()))
                         .build()));
         request.setCurrentMerchantMethod(mainMethod.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);

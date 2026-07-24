@@ -113,7 +113,7 @@ class EvoPayOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
         detailsRequest.setCurrentMerchantMethod(method);
         Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(

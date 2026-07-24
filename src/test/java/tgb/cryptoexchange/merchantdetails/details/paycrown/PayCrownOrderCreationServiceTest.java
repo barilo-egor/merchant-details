@@ -87,7 +87,7 @@ class PayCrownOrderCreationServiceTest {
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         objectNode.put("created_at", System.currentTimeMillis());
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(Method.CARD.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).methods(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setAmount(1000);
         detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
         Consumer<HttpHeaders> headersConsumer = payCrownOrderCreationService.headers(detailsRequest, "");
@@ -120,7 +120,7 @@ class PayCrownOrderCreationServiceTest {
         when(signatureService.getMD5Hash(anyString())).thenReturn(signature);
 
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setCurrentMerchantMethod(method.name());
         HttpHeaders headers = new HttpHeaders();
@@ -141,7 +141,7 @@ class PayCrownOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String gatewayUrl, String merchantId, String secret) {
         DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_CROWN).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setCurrentMerchantMethod(method.name());
         when(payCrownProperties.merchantId()).thenReturn(merchantId);

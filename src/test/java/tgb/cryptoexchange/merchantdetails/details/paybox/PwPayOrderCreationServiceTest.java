@@ -62,7 +62,7 @@ class PwPayOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setCurrentMerchantMethod(method.name());
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 

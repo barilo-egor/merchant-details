@@ -61,7 +61,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithTJKGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.TRANSGRAN_PHONE.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).methods(Collections.singletonList(Method.TRANSGRAN_PHONE.name())).build()));
         detailsRequest.setCurrentMerchantMethod(Method.TRANSGRAN_PHONE.name());
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(1, actual.getGeos().size());
@@ -78,7 +78,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithRUAndABHGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.SBP.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).methods(Collections.singletonList(Method.SBP.name())).build()));
         detailsRequest.setCurrentMerchantMethod(Method.SBP.name());
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(2, actual.getGeos().size());
@@ -93,7 +93,7 @@ class PspWareOrderCreationServiceTest {
     void bodyShouldReturnRequestObjectWithRUGeo(Integer amount) {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).method(Collections.singletonList(Method.CARD.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PSP_WARE).methods(Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
         Request actual = pspWareOrderCreationService.body(detailsRequest);
         assertEquals(1, actual.getGeos().size());

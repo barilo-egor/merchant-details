@@ -89,7 +89,7 @@ class FoxPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setCurrentMerchantMethod(method.name());
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).methods(Collections.singletonList(method.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn(merchantId);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
@@ -111,7 +111,7 @@ class FoxPaysOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(1);
         detailsRequest.setCurrentMerchantMethod(Method.ALFA_ALFA.name());
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
+        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.FOX_PAYS).methods(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         when(foxPaysProperties.merchantId()).thenReturn("merchantId");
 
         Request request = foxPaysOrderCreationService.body(detailsRequest);

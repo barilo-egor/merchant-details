@@ -64,7 +64,7 @@ class LotrienOrderCreationServiceTest {
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LOTRIEN).method(Collections.singletonList(method.name()))
+                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.LOTRIEN).methods(Collections.singletonList(method.name()))
                         .build()));
         detailsRequest.setCurrentMerchantMethod(method.name());
         Request actual = service.body(detailsRequest);
