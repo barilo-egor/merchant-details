@@ -27,21 +27,21 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     protected Request body(DetailsRequest detailsRequest) {
         Request request = super.body(detailsRequest);
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
-        if (Arrays.asList(Method.CARD, Method.SBP).contains(method)) {
-            request.setReceipt(true);
-        }
+//        if (Arrays.asList(Method.CARD, Method.SBP).contains(method)) {
+//            request.setReceipt(true);
+//        }
         return request;
     }
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         Optional<DetailsResponse> detailsResponseMaybe = super.buildResponse(response);
-        if (detailsResponseMaybe.isPresent()) {
-            DetailsResponse detailsResponse = detailsResponseMaybe.get();
-            if (Arrays.asList(Method.CARD, Method.SBP).contains(response.getPaymentMethod())) {
-                detailsResponse.setExternalReceiptDemand(true);
-            }
-        }
+//        if (detailsResponseMaybe.isPresent()) {
+//            DetailsResponse detailsResponse = detailsResponseMaybe.get();
+//            if (Arrays.asList(Method.CARD, Method.SBP).contains(response.getPaymentMethod())) {
+//                detailsResponse.setExternalReceiptDemand(true);
+//            }
+//        }
         return detailsResponseMaybe;
     }
 
