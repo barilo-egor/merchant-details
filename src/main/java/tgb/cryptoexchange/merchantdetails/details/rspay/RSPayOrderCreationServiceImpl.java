@@ -24,7 +24,7 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     protected Request body(DetailsRequest detailsRequest) {
         Request request = super.body(detailsRequest);
         isRequiredReceipt().ifPresent(requiredReceipt -> {
-            if (RequiredReceipt.PDF.equals(requiredReceipt)) request.setReceipt(true);
+            if (RequiredReceipt.REQUIRED_RECEIPTS.contains(requiredReceipt)) request.setReceipt(true);
         });
         return request;
     }
