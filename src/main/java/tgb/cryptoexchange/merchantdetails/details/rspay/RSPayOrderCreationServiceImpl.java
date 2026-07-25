@@ -6,12 +6,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 @Service
 public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
@@ -26,23 +23,10 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     @Override
     protected Request body(DetailsRequest detailsRequest) {
         Request request = super.body(detailsRequest);
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
-//        if (Arrays.asList(Method.CARD, Method.SBP).contains(method)) {
-//            request.setReceipt(true);
-//        }
+        isRequiredReceipt().ifPresent(requiredReceipt -> {
+            if (RequiredReceipt.PDF.equals(requiredReceipt)) request.setReceipt(true);
+        });
         return request;
-    }
-
-    @Override
-    protected Optional<DetailsResponse> buildResponse(Response response) {
-        Optional<DetailsResponse> detailsResponseMaybe = super.buildResponse(response);
-//        if (detailsResponseMaybe.isPresent()) {
-//            DetailsResponse detailsResponse = detailsResponseMaybe.get();
-//            if (Arrays.asList(Method.CARD, Method.SBP).contains(response.getPaymentMethod())) {
-//                detailsResponse.setExternalReceiptDemand(true);
-//            }
-//        }
-        return detailsResponseMaybe;
     }
 
     @Override

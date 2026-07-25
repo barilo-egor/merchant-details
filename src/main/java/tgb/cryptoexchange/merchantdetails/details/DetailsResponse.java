@@ -29,8 +29,6 @@ public class DetailsResponse {
 
     private String qr;
 
-    private Boolean externalReceiptDemand;
-
     @Slf4j
     public static class KafkaSerializer implements Serializer<DetailsResponse> {
 

@@ -16,7 +16,10 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
+import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -24,7 +27,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,6 +53,9 @@ class RsPayMerchantServiceTest {
     private DetailsRequest detailsRequest;
     private Response response;
     private CancelOrderRequest cancelOrderRequest;
+    @Mock
+    private MerchantConfigService merchantConfigService;
+    private MerchantConfig merchantConfig;
 
     @BeforeEach
     void setUp() {
@@ -61,6 +67,7 @@ class RsPayMerchantServiceTest {
         );
         rsPayService.setObjectMapper(objectMapper);
         rsPayService.setRequestService(requestService);
+        rsPayService.setMerchantConfigService(merchantConfigService);
 
         detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(100);
@@ -72,6 +79,9 @@ class RsPayMerchantServiceTest {
 
         cancelOrderRequest = new CancelOrderRequest();
         cancelOrderRequest.setOrderId("order-123");
+
+        merchantConfig = new MerchantConfig();
+        merchantConfig.setRequiredReceipt(RequiredReceipt.PDF);
     }
 
     @Test
@@ -191,6 +201,16 @@ class RsPayMerchantServiceTest {
                 any(),
                 anyString()
         );
+    }
+
+    @Test
+    void shouldSetReceiptToTrue_WhenRequiredReceiptIsPdf() {
+        when(merchantConfigService.getMerchantConfig(any(Merchant.class))).thenReturn(Optional.of(merchantConfig));
+
+        Request result = rsPayService.body(detailsRequest);
+
+        assertNotNull(result);
+        assertTrue(result.getReceipt(), "Receipt должен быть равен true, если тип PDF");
     }
 
     @Test
