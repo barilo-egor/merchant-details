@@ -28,6 +28,6 @@ public class Request {
 
     @JsonProperty("kyc")
     public Boolean getKyc() {
-        return true;
+        return false;
     }
 }
