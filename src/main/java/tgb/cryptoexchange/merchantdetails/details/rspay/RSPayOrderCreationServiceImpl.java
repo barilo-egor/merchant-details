@@ -27,6 +27,9 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     protected Request body(DetailsRequest detailsRequest) {
         Request request = super.body(detailsRequest);
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        if (Arrays.asList(Method.CARD, Method.SBP).contains(method)) {
+            request.setReceipt(true);
+        }
         return request;
     }
 
