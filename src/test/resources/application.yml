@@ -326,6 +326,11 @@ rs-pay:
 rs-pay-bt:
   api-key: "rs-pay-bt-api-key"
   secret: "rs-pay-bt-secret"
+wat:
+  url: "wat-url"
+  token: "wat-token"
+wat-sim:
+  token: "wat-sim-token"
 #Конфиг приложния
 server:
   servlet:

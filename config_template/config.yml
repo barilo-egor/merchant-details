@@ -322,6 +322,11 @@ rs-pay:
 rs-pay-bt:
   api-key:
   secret:
+wat:
+  url:
+  token:
+wat-sim:
+  token:
 # Конфиг приложение
 springdoc:
   swagger-ui:

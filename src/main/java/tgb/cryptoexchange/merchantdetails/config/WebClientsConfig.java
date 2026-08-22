@@ -363,4 +363,9 @@ public class WebClientsConfig {
     public WebClient rsPayWebClient(RSPayImplProperties rsPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(rsPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient watWebClient(WatPropertiesImpl watProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(watProperties.url()).build();
+    }
 }
