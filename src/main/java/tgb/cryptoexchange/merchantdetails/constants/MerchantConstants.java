@@ -310,6 +310,14 @@ public enum MerchantConstants {
     RS_PAY_BT(
             tgb.cryptoexchange.merchantdetails.details.rspay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.rspay.Method.values()
+    ),
+    WAT(
+            tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
+    ),
+    WAT_SIM(
+            tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
