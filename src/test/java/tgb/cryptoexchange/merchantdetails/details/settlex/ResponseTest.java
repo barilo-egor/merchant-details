@@ -96,4 +96,5 @@ class ResponseTest {
     void hasDetailsShouldReturnTrue() {
         assertTrue(new Response().hasDetails());
     }
+
 }
