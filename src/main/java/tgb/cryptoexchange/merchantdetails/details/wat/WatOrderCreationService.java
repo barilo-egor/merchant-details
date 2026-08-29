@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.properties.WatProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,6 +103,15 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
                 this::addHeaders,
                 body
         );
+    }
+
+    @Override
+    protected void deleteReceipt(String orderId, String orderStatus) {
+        if (!Arrays.asList(Status.FINISHED.name(), Status.CANCELED.name()).contains(orderStatus)) {
+            return;
+        }
+        String folderName = StringUtils.lowerCase(getMerchant().name());
+        receiptService.deleteReceipt(orderId + ".pdf", folderName);
     }
 
 
