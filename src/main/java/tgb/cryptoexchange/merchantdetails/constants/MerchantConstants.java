@@ -318,6 +318,10 @@ public enum MerchantConstants {
     WAT_SIM(
             tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
+    ),
+    WAT_PDF(
+            tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

@@ -331,6 +331,8 @@ wat:
   token: "wat-token"
 wat-sim:
   token: "wat-sim-token"
+wat-pdf:
+  token: "wat-pdf-token"
 #Конфиг приложния
 server:
   servlet:
