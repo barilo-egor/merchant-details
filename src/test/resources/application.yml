@@ -331,6 +331,15 @@ wat:
   token: "wat-token"
 wat-sim:
   token: "wat-sim-token"
+tron-ex-sim:
+  url: "tron-ex-sim-url"
+  key: "tron-ex-sim-key"
+tron-ex-bt:
+  key: "tron-ex-bt-key"
+tron-ex-qr:
+  key: "tron-ex-qr-key"
+tron-ex-pdf:
+  key: "tron-ex-pdf-key"
 #Конфиг приложния
 server:
   servlet:

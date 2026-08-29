@@ -327,6 +327,15 @@ wat:
   token:
 wat-sim:
   token:
+tron-ex-sim:
+  url:
+  key:
+tron-ex-bt:
+  key:
+tron-ex-qr:
+  key:
+tron-ex-pdf:
+  key:
 # Конфиг приложение
 springdoc:
   swagger-ui:
