@@ -17,7 +17,8 @@ import java.io.IOException;
 public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
     SBP("sbp", "СБП"),
-    SIM("sim", "Sim");
+    SIM("sim", "Sim"),
+    BT_PDF("bt-pdf", "BT PDF");
 
     final String methodUid;
 
