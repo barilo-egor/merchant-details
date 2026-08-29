@@ -111,7 +111,7 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
             return;
         }
         String folderName = StringUtils.lowerCase(getMerchant().name());
-        receiptService.deleteReceipt(orderId + ".pdf", folderName);
+        receiptService.deleteReceipt(orderId, folderName);
     }
 
 

@@ -9,6 +9,7 @@ import tgb.cryptoexchange.merchantdetails.exception.SaveReceiptException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,13 +46,25 @@ public class ReceiptService {
     }
 
     public void deleteReceipt(String fileName, String folderName) {
-        try {
-            String jarPath = System.getProperty("user.dir");
-            Path filePath = Paths.get(jarPath, RECEIPT_FOLDER, folderName).resolve(fileName);
-            boolean deleted = Files.deleteIfExists(filePath);
-            if (deleted) {
-                log.debug("Чек {} успешно удален из папки {}", fileName, folderName);
-            } else {
+        String jarPath = System.getProperty("user.dir");
+        Path folderPath = Paths.get(jarPath, RECEIPT_FOLDER, folderName);
+
+        if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
+            log.warn("Папка {} не существует", folderName);
+            return;
+        }
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(folderPath, fileName + ".*")) {
+            boolean deleted = false;
+            for (Path path : stream) {
+                if (Files.isRegularFile(path)) {
+                    Files.delete(path);
+                    log.debug("Чек {} успешно удален из папки {}", path.getFileName(), folderName);
+                    deleted = true;
+                }
+            }
+
+            if (!deleted) {
                 log.warn("Не удалось удалить чек {}: файл не найден в папке {}", fileName, folderName);
             }
         } catch (IOException e) {
