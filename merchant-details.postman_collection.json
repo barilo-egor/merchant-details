@@ -424,6 +424,50 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "TronEx",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Api-Key",
+                    "value": "th_sandbox_00000000000000000000000000000000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": \"ORDER_123\",\r\n  \"amount\": 5000,\r\n  \"paymethod\": \"c2c\",\r\n  \"timeout\": 900\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://tronex.world/merchant/v2/incoming/payment/create/",
+                  "protocol": "https",
+                  "host": [
+                    "tronex",
+                    "world"
+                  ],
+                  "path": [
+                    "merchant",
+                    "v2",
+                    "incoming",
+                    "payment",
+                    "create",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
