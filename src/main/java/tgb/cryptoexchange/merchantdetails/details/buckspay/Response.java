@@ -23,6 +23,9 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("phone_number")
     private String phoneNumber;
 
+    @JsonProperty("qrm_qr_link")
+    private String qrLink;
+
     private Bank bank;
 
     @Override
@@ -41,8 +44,8 @@ public class Response implements MerchantDetailsResponse {
 
     @Override
     public boolean hasDetails() {
-        return Objects.nonNull(bank) && Objects.nonNull(bank.name) && Objects.nonNull(cardNumber) ||
-                Objects.nonNull(phoneNumber);
+        return (Objects.nonNull(bank) && Objects.nonNull(bank.name) && Objects.nonNull(cardNumber) ||
+                Objects.nonNull(phoneNumber)) || Objects.nonNull(qrLink);
     }
 
     @Data

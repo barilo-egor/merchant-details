@@ -33,7 +33,7 @@ class LotrienOrderCreationServiceTest {
     private LotrienProperties lotrienProperties;
 
     @InjectMocks
-    private LotrienOrderCreationService service;
+    private LotrienImplOrderCreationService service;
 
     @Test
     void uriBuilderShouldAddPath() {
@@ -64,7 +64,7 @@ class LotrienOrderCreationServiceTest {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.LOTRIEN).method(Collections.singletonList(method.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.LOTRIEN).methods(Collections.singletonList(method.name()))
                         .build()));
         Request actual = service.body(detailsRequest, method.name());
         assertAll(

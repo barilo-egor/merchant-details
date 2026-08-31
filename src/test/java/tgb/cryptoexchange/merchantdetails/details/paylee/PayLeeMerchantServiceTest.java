@@ -79,7 +79,7 @@ class PayLeeMerchantServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setUserId(String.valueOf(1231231231L));
         Request actual = payLeeMerchantService.body(detailsRequest, method.name());
         assertAll(

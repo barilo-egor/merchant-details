@@ -75,7 +75,7 @@ class BitZoneOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = bitZoneOrderCreationService.body(detailsRequest, method);

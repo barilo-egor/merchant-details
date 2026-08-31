@@ -43,7 +43,7 @@ class StormTradeMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.STORM_TRADE).method(Collections.singletonList("SBP")).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.STORM_TRADE).methods(Collections.singletonList("SBP")).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 

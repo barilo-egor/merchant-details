@@ -80,7 +80,7 @@ class CrocoPayOrderCreationServiceTest {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setId(String.valueOf(dealId));
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = crocoPayOrderCreationService.body(detailsRequest, method);

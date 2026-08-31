@@ -60,7 +60,7 @@ class ExtasyPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).methods(Collections.singletonList(method.name())).build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());

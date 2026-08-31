@@ -114,7 +114,7 @@ class EvoPayOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
         Request request = evoPayOrderCreationService.body(detailsRequest, method);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),

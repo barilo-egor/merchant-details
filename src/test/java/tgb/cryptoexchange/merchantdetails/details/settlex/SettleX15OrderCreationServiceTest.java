@@ -72,7 +72,7 @@ class SettleX15OrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).methods(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         if (Method.SBP.equals(method)) {

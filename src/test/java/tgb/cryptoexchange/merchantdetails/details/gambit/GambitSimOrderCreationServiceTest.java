@@ -64,7 +64,7 @@ class GambitSimOrderCreationServiceTest {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).method(Collections.singletonList(method.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).methods(Collections.singletonList(method.name()))
                         .build()));
         Request actual = service.body(detailsRequest, method.name());
         assertAll(

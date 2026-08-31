@@ -18,6 +18,7 @@ import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.mapper.MerchantConfigGrpcMapper;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -109,6 +110,9 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                 case "group_chat_id":
                     dto.setGroupChatId(request.getGroupChatId().getValue());
                     break;
+                case "required_receipt":
+                    dto.setRequiredReceipt(RequiredReceipt.valueOf(request.getRequiredReceipt()));
+                    break;
                 case "confirm_configs":
                     dto.setConfirmConfigs(request.getConfirmConfigsList().stream()
                             .map(GrpcMapUtils::mapToAutoConfirmConfigDTO)
@@ -148,11 +152,12 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     @Override
     public void updateOrder(UpdateOrderRequestGrpc request, StreamObserver<Empty> responseObserver) {
-        Merchant merchant = Merchant.valueOf(request.getMerchant());
-        if (request.hasIsUp()) {
-            merchantConfigService.changeOrder(merchant, request.getIsUp().getValue());
+        Merchant merchantFirst = Merchant.valueOf(request.getMerchantFirst());
+        if (request.hasMerchantSecond()) {
+            Merchant merchantSecond = Merchant.valueOf(request.getMerchantSecond().getValue());
+            merchantConfigService.changeOrder(merchantFirst, merchantSecond);
         } else if (request.hasNewOrder()) {
-            merchantConfigService.changeOrder(merchant, request.getNewOrder().getValue());
+            merchantConfigService.changeOrder(merchantFirst, request.getNewOrder().getValue());
         }
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();

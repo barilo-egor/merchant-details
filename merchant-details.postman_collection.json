@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "5f03e392-d011-48dd-ab9a-d6c0af41acf4",
+    "_postman_id": "94cb1158-2c61-4515-98db-c3f59738320c",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51311572",
-    "_collection_link": "https://go.postman.co/collection/51311572-5f03e392-d011-48dd-ab9a-d6c0af41acf4?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/51311572-94cb1158-2c61-4515-98db-c3f59738320c?source=collection_link"
   },
   "item": [
     {
@@ -130,6 +130,378 @@
                   ],
                   "path": [
                     "api",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "FoxPays",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Access-Token",
+                    "value": "{{foxPaysToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"external_id\": \"testqwe123\",\n    \"amount\": 5000,\n    \"payment_detail_type\": \"phone\",\n    \"merchantId\": \"33319bd0-b5ce-4f16-82b4-20ec04b58bfe\",\n    \"currency\": \"rub\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://foxpays.top/api/h2h/order",
+                  "protocol": "https",
+                  "host": [
+                    "foxpays",
+                    "top"
+                  ],
+                  "path": [
+                    "api",
+                    "h2h",
+                    "order"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PaySync",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://paysync.bot/api/client{{paysync-client-id}}/amount1000/currencyRUB",
+                  "protocol": "https",
+                  "host": [
+                    "paysync",
+                    "bot"
+                  ],
+                  "path": [
+                    "api",
+                    "client{{paysync-client-id}}",
+                    "amount1000",
+                    "currencyRUB"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Cube",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Apipublic",
+                    "value": "{{cube-api-public}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Apiprivate",
+                    "value": "{{cube-api-private}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"1000\",\r\n    \"external_id\": \"order_12345\",\r\n    \"token\": \"SBPRUB\",\r\n    \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret={{rce_secret}}?dealId=12345\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cube.api.treasurepay.online/v1/transactions/payin",
+                  "protocol": "https",
+                  "host": [
+                    "cube",
+                    "api",
+                    "treasurepay",
+                    "online"
+                  ],
+                  "path": [
+                    "v1",
+                    "transactions",
+                    "payin"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Создание ордера",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Apipublic",
+                        "value": "473a633f-ee88-4d5a-949c-8c66c3224ec0",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Apiprivate",
+                        "value": "c15f7315-455a-4591-9fb1-b8ca807dff17",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"amount\": \"1000\",\r\n  \"external_id\": \"order_12345\",\r\n  \"token\": \"INTERBRUB\",\r\n  \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=CUBE&secret={{rce_secret}}?dealId=12345\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "https://cube.api.treasurepay.online/v1/transactions/payin",
+                      "protocol": "https",
+                      "host": [
+                        "cube",
+                        "api",
+                        "treasurepay",
+                        "online"
+                      ],
+                      "path": [
+                        "v1",
+                        "transactions",
+                        "payin"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "Text",
+                  "header": [
+                    {
+                      "key": "Server",
+                      "value": "nginx/1.26.0 (Ubuntu)"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Thu, 16 Jul 2026 15:36:45 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "525"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "keep-alive"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"data\": {\n        \"external_id\": \"order_12345\",\n        \"internal_id\": \"ebf05ae6929852ef41da642392196e62f1b416f0f1cd5b3a62b08fba25ce92a3\",\n        \"amount\": \"1000\",\n        \"amount_paid\": \"0\",\n        \"amount_crypto\": \"9.7815\",\n        \"base_rate\": \"83.8317\",\n        \"rate\": \"102.23\",\n        \"merch_percent\": \"0.18\",\n        \"commission\": \"2.1471618307871605\",\n        \"receiver\": \"2200700523039997\",\n        \"bank_name\": \"Сбербанк\",\n        \"recipient_name\": \"иван  иванов\",\n        \"status\": \"ACCEPTED\",\n        \"extra\": {\n            \"bankName\": \"Сбербанк\",\n            \"recipientName\": \"иван  иванов\",\n            \"amount_crypto_vendor\": \"0\",\n            \"vendor_percent\": \"0\"\n        }\n    }\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "RsPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Nonce",
+                    "value": "{{rs-pay-nonce}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Timestamp",
+                    "value": "{{rs-pay-x-timestamp}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Shop-API-Key",
+                    "value": "{{rs-pay-x-shop-api-key}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "X-Signature",
+                    "value": "{{rs-pay-x-signature}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"amount\":\"2400\",\"receipt\":true,\"transaction_id\":\"58eda29f-6682-41b1-bc13-66354f630e9f\",\"payment_method\":\"sbp\",\"callback_url\":\"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=RS_PAY&secret={{rce_secret}}\",\"currency\":\"RUB\",\"kyc\":true}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://rspay.win/api/v1/requisites/request/",
+                  "protocol": "https",
+                  "host": [
+                    "rspay",
+                    "win"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "requisites",
+                    "request",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Lotrien",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{lotrien-key}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"paymentMethods\": [\"PDF_BANK_CARD\"],\r\n    \"fiatSum\": \"1750\",\r\n    \"fiatCurrencyCode\": \"RUB\",\r\n    \"cryptoCurrencyCode\": \"USDT\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://app.lotrien-dev-zone.xyz/api/v1/order/payin",
+                  "protocol": "https",
+                  "host": [
+                    "app",
+                    "lotrien-dev-zone",
+                    "xyz"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "order",
+                    "payin"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "TronEx",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Api-Key",
+                    "value": "th_sandbox_00000000000000000000000000000000",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"id\": \"ORDER_123\",\r\n  \"amount\": 5000,\r\n  \"paymethod\": \"c2c\",\r\n  \"timeout\": 900\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://tronex.world/merchant/v2/incoming/payment/create/",
+                  "protocol": "https",
+                  "host": [
+                    "tronex",
+                    "world"
+                  ],
+                  "path": [
+                    "merchant",
+                    "v2",
+                    "incoming",
+                    "payment",
+                    "create",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Wat",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{wat-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"id\": \"order_123\",\r\n    \"rub_amount\": 1800,\r\n    \"payment_method\": \"card\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://apiproc.net/api/v1/orders",
+                  "protocol": "https",
+                  "host": [
+                    "apiproc",
+                    "net"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
                     "orders"
                   ]
                 }

@@ -36,7 +36,7 @@ class MerchantDetailsReceiveEventProducerTest {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
         BotDetailsRequest detailsRequestBot = new BotDetailsRequest();
         detailsRequestBot.setId(String.valueOf(dealId));
-        detailsRequestBot.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequestBot.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
         detailsRequestBot.setAmount(requestedAmount);
         detailsRequestBot.setUserId(String.valueOf(userId));
         detailsRequestBot.setInitiatorApp(appId);

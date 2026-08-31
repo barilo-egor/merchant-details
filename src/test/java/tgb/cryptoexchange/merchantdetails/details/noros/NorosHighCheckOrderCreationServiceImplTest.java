@@ -85,7 +85,7 @@ class NorosHighCheckOrderCreationServiceImplTest {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS_HIGH_CHECK).method(
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS_HIGH_CHECK).methods(
                         Collections.singletonList(Method.SBP.name())).build()));
         Request resultBody = norosHighCheckOrderCreationService.body(detailsRequest, Method.SBP.name());
 

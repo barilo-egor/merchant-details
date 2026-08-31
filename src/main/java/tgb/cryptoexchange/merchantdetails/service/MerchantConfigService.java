@@ -19,13 +19,13 @@ import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
 import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
 
 import java.util.*;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,6 +68,7 @@ public class MerchantConfigService {
                         .minAmount(1)
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
                         .minDealsCount(0)
+                        .requiredReceipt(RequiredReceipt.NOT_REQUIRED)
                         .build()
         );
     }
@@ -164,36 +165,22 @@ public class MerchantConfigService {
         repository.save(config);
     }
 
-    public void changeOrder(Merchant merchant, boolean isUp) {
-        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
-        int currentOrder = config.getMerchantOrder();
-        int maxOrder = repository.findMaxMerchantOrder();
+    public void changeOrder(Merchant merchantFirst, Merchant merchantSecond) {
+        MerchantConfig configFirst = getMerchantConfigElseNotFound(merchantFirst);
+        MerchantConfig configSecond = getMerchantConfigElseNotFound(merchantSecond);
 
-        if ((isUp && currentOrder == 1) || (!isUp && currentOrder == maxOrder)) {
-            return;
-        }
+        final Integer firstOrder = configFirst.getMerchantOrder();
+        final Integer secondOrder = configSecond.getMerchantOrder();
 
-        IntUnaryOperator operation = order -> isUp ? order - 1 : order + 1;
-        int newOrder = operation.applyAsInt(currentOrder);
-        MerchantConfig otherConfig = null;
-        while (otherConfig == null && newOrder > -1 && newOrder <= Merchant.values().length) {
-            otherConfig = getByMerchantOrder(newOrder).orElse(null);
-            if (Objects.isNull(otherConfig)) {
-                newOrder = operation.applyAsInt(newOrder);
-            }
-        }
-        if (Objects.isNull(otherConfig)) {
-            throw new IllegalStateException("Config with order " + newOrder + NOT_FOUND);
-        }
+        configFirst.setMerchantOrder(-1);
+        configSecond.setMerchantOrder(-2);
+        repository.saveAndFlush(configFirst);
+        repository.saveAndFlush(configSecond);
 
-        otherConfig.setMerchantOrder(-1);
-        repository.saveAndFlush(otherConfig);
-
-        config.setMerchantOrder(newOrder);
-        repository.saveAndFlush(config);
-
-        otherConfig.setMerchantOrder(currentOrder);
-        repository.saveAndFlush(otherConfig);
+        configFirst.setMerchantOrder(secondOrder);
+        configSecond.setMerchantOrder(firstOrder);
+        repository.saveAndFlush(configFirst);
+        repository.saveAndFlush(configSecond);
     }
 
     public void save(MerchantConfig config) {
@@ -232,6 +219,9 @@ public class MerchantConfigService {
         }
         if (Objects.nonNull(dto.getMinDealsCount())) {
             merchantConfig.setMinDealsCount(dto.getMinDealsCount());
+        }
+        if (Objects.nonNull(dto.getRequiredReceipt())) {
+            merchantConfig.setRequiredReceipt(dto.getRequiredReceipt());
         }
         if (Objects.nonNull(dto.getConfirmConfigs())) {
             List<AutoConfirmConfig> confirmConfigs = merchantConfig.getConfirmConfigs();

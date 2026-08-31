@@ -14,8 +14,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
+import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
@@ -50,6 +53,8 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private Environment environment;
 
+    private MerchantConfigService merchantConfigService;
+
     protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType, Class<P> callbackType) {
         this.webClient = webClient;
         this.responseType = responseType;
@@ -69,6 +74,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     @Autowired
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    @Autowired
+    public void setMerchantConfigService(MerchantConfigService merchantConfigService) {
+        this.merchantConfigService = merchantConfigService;
     }
 
     @Autowired(required = false)
@@ -217,6 +227,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
                         + getMerchant().name() + " not found."));
+    }
+
+    protected Optional<RequiredReceipt> isRequiredReceipt() {
+        Optional<MerchantConfig> merchantConfigMaybe = merchantConfigService.getMerchantConfig(getMerchant());
+        return merchantConfigMaybe.map(MerchantConfig::getRequiredReceipt);
     }
 
     @Override

@@ -68,7 +68,7 @@ class FiatCutOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret, String merchantId) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).methods(Collections.singletonList(method)).build()));
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);

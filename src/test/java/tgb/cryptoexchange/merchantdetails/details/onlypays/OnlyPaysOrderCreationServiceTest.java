@@ -55,7 +55,7 @@ class OnlyPaysOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method, String id, String secret) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(method.name())).build()));
         when(onlyPaysProperties.id()).thenReturn(id);
         when(onlyPaysProperties.secret()).thenReturn(secret);
         Request actual = onlyPaysOrderCreationService.body(detailsRequest, Merchant.ONLY_PAYS.name());
@@ -73,7 +73,7 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithSimTrueIfMethodSim() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.SIM.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.SIM.name())).build()));
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
@@ -87,7 +87,7 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithBankAlfaTrueIfMethodAlfaAlfa() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
@@ -102,7 +102,7 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithBankOzonTrueIfMethodOzonOzon() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.OZON_OZON.name())).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.OZON_OZON.name())).build()));
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");

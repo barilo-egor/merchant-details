@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class UpdateMerchantConfigDTO {
     private Long groupChatId;
 
     private Integer minDealsCount;
+
+    private RequiredReceipt requiredReceipt;
 
     private List<AutoConfirmConfigDTO> confirmConfigs;
 }

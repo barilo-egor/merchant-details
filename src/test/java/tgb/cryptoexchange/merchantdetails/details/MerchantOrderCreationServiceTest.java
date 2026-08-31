@@ -153,9 +153,9 @@ class MerchantOrderCreationServiceTest {
         BotDetailsRequest request = new BotDetailsRequest();
 
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("method")).build());
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList("method")).build());
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList("method")).build());
         request.setMethods(methods);
         assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
@@ -197,7 +197,7 @@ class MerchantOrderCreationServiceTest {
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, String id) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate("ALFA").test(detailsRequest));

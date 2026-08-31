@@ -61,7 +61,7 @@ class PwPayOrderCreationServiceTest {
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).method(Collections.singletonList(method.name()))
+                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 

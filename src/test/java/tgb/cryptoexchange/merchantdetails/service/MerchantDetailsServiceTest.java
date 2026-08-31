@@ -65,7 +65,7 @@ class MerchantDetailsServiceTest {
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantReturnNoDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("CARD")).build()));
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
         when(merchantService.createOrder(any(), any())).thenReturn(Optional.empty());
@@ -81,7 +81,7 @@ class MerchantDetailsServiceTest {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(Merchant.ALFA_TEAM);
         detailsResponse.setDetails("SOME BANK 1234 1234 1234 1234");
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("CARD")).build()));
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("CARD")).build()));
         when(merchantService.createOrder(any(), any())).thenReturn(Optional.of(detailsResponse));
         ArgumentCaptor<Merchant> merchantCaptor = ArgumentCaptor.forClass(Merchant.class);
         ArgumentCaptor<BotDetailsRequest> detailsRequestCaptor = ArgumentCaptor.forClass(BotDetailsRequest.class);
@@ -141,7 +141,7 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnEmptyOptionalIfOneMerchantHasNoDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -168,7 +168,7 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsIfOneMerchantHasDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -200,10 +200,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsIfFirstHasDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -234,10 +234,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsIfLastHasDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -281,10 +281,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsIfNoOneHasDetails() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -324,10 +324,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldReturnDetailsIfFirstHasDetailsOnSecondIteration() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -376,10 +376,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldTryAttemptsCountTimes(Integer times) {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -425,10 +425,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldStopTryIfDetailsFounded() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");
@@ -480,10 +480,10 @@ class MerchantDetailsServiceTest {
     void getDetailsShouldKeepTryAfterExceptions() {
         BotDetailsRequest detailsRequest = new BotDetailsRequest();
         List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).method(Collections.singletonList(Method.TO_CARD.name())).build());
-        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).method(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.TO_CARD.name())).build());
         detailsRequest.setMethods(merchantMethods);
         detailsRequest.setAmount(1000);
         detailsRequest.setInitiatorApp("bot");

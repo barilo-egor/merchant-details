@@ -183,7 +183,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -198,7 +198,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList("SBP")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("SBP")).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -221,7 +221,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(merchant).method(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(merchant).methods(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5500);
         assertAll(
                 () -> assertEquals(0, actual.size())
@@ -244,7 +244,7 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig3);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 5501);
         assertAll(
                 () -> assertEquals(1, actual.size()),
@@ -272,9 +272,9 @@ class MerchantConfigServiceTest {
         merchantConfigs.add(merchantConfig5);
         when(merchantConfigRepository.findAllByIsOnOrderByMerchantOrder(any())).thenReturn(merchantConfigs);
         List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).method(Collections.singletonList(method)).build());
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).method(Collections.singletonList(method)).build());
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).method(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X).methods(Collections.singletonList(method)).build());
         List<MerchantConfig> actual = merchantConfigService.findAllByMethodsAndAmount(methods, 1500);
         assertAll(
                 () -> assertEquals(3, actual.size()),
@@ -335,21 +335,20 @@ class MerchantConfigServiceTest {
                 MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build()
         );
         Example<MerchantConfig> orderExample = Example.of(
-                MerchantConfig.builder().merchantOrder(2).build()
+                MerchantConfig.builder().merchant(Merchant.EVO_PAY).build()
         );
         when(merchantConfigRepository.findBy(eq(merchantExample), any())).thenReturn(Optional.of(changeOrderMerchantConfig));
-        when(merchantConfigRepository.findMaxMerchantOrder()).thenReturn(10);
         when(merchantConfigRepository.findBy(eq(orderExample), any())).thenReturn(Optional.of(previousMerchantConfig));
 
-        merchantConfigService.changeOrder(Merchant.ALFA_TEAM, false);
+        merchantConfigService.changeOrder(Merchant.ALFA_TEAM, Merchant.EVO_PAY);
 
         ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
-        verify(merchantConfigRepository, times(3)).saveAndFlush(configCaptor.capture());
+        verify(merchantConfigRepository, times(4)).saveAndFlush(configCaptor.capture());
         assertAll(
-                () -> assertEquals(Merchant.ALFA_TEAM, configCaptor.getAllValues().get(1).getMerchant()),
-                () -> assertEquals(2, configCaptor.getAllValues().get(1).getMerchantOrder()),
-                () -> assertEquals(Merchant.EVO_PAY, configCaptor.getAllValues().get(2).getMerchant()),
-                () -> assertEquals(1, configCaptor.getAllValues().get(2).getMerchantOrder())
+                () -> assertEquals(Merchant.ALFA_TEAM, configCaptor.getAllValues().getFirst().getMerchant()),
+                () -> assertEquals(2, configCaptor.getAllValues().getFirst().getMerchantOrder()),
+                () -> assertEquals(Merchant.EVO_PAY, configCaptor.getAllValues().get(1).getMerchant()),
+                () -> assertEquals(1, configCaptor.getAllValues().get(1).getMerchantOrder())
         );
     }
 
@@ -369,21 +368,20 @@ class MerchantConfigServiceTest {
                 MerchantConfig.builder().merchant(Merchant.ALFA_TEAM).build()
         );
         Example<MerchantConfig> orderExample = Example.of(
-                MerchantConfig.builder().merchantOrder(3).build()
+                MerchantConfig.builder().merchant(Merchant.EVO_PAY).build()
         );
         when(merchantConfigRepository.findBy(eq(merchantExample), any())).thenReturn(Optional.of(changeOrderMerchantConfig));
-        when(merchantConfigRepository.findMaxMerchantOrder()).thenReturn(26);
         when(merchantConfigRepository.findBy(eq(orderExample), any())).thenReturn(Optional.of(previousMerchantConfig));
 
-        merchantConfigService.changeOrder(Merchant.ALFA_TEAM, true);
+        merchantConfigService.changeOrder(Merchant.ALFA_TEAM, Merchant.EVO_PAY);
 
         ArgumentCaptor<MerchantConfig> configCaptor = ArgumentCaptor.forClass(MerchantConfig.class);
-        verify(merchantConfigRepository, times(3)).saveAndFlush(configCaptor.capture());
+        verify(merchantConfigRepository, times(4)).saveAndFlush(configCaptor.capture());
         assertAll(
-                () -> assertEquals(Merchant.ALFA_TEAM, configCaptor.getAllValues().get(1).getMerchant()),
-                () -> assertEquals(3, configCaptor.getAllValues().get(1).getMerchantOrder()),
-                () -> assertEquals(Merchant.EVO_PAY, configCaptor.getAllValues().get(2).getMerchant()),
-                () -> assertEquals(4, configCaptor.getAllValues().get(2).getMerchantOrder())
+                () -> assertEquals(Merchant.ALFA_TEAM, configCaptor.getAllValues().getFirst().getMerchant()),
+                () -> assertEquals(3, configCaptor.getAllValues().getFirst().getMerchantOrder()),
+                () -> assertEquals(Merchant.EVO_PAY, configCaptor.getAllValues().get(1).getMerchant()),
+                () -> assertEquals(4, configCaptor.getAllValues().get(1).getMerchantOrder())
         );
     }
 

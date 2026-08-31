@@ -236,14 +236,14 @@ class MerchantDetailsControllerGrpcTest {
     @Test
     void updateOrder_ShouldCallChangeOrderWithIsUp() {
         UpdateOrderRequestGrpc request = UpdateOrderRequestGrpc.newBuilder()
-                .setMerchant(Merchant.ALFA_TEAM.name())
-                .setIsUp(BoolValue.of(true))
+                .setMerchantFirst(Merchant.ALFA_TEAM.name())
+                .setMerchantSecond(StringValue.newBuilder().setValue(Merchant.ALFA_TEAM_QR.name()).build())
                 .build();
 
         StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
         grpcController.updateOrder(request, responseObserver);
 
-        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, true);
+        verify(merchantConfigService).changeOrder(Merchant.ALFA_TEAM, Merchant.ALFA_TEAM_QR);
 
         verify(responseObserver).onNext(any(Empty.class));
         verify(responseObserver).onCompleted();
@@ -252,7 +252,7 @@ class MerchantDetailsControllerGrpcTest {
     @Test
     void updateOrder_ShouldCallChangeOrderWithNewOrderValue() {
         UpdateOrderRequestGrpc request = UpdateOrderRequestGrpc.newBuilder()
-                .setMerchant(Merchant.ALFA_TEAM.name())
+                .setMerchantFirst(Merchant.ALFA_TEAM.name())
                 .setNewOrder(Int32Value.of(10))
                 .build();
 
