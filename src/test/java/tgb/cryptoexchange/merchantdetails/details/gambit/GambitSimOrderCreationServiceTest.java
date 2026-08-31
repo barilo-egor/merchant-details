@@ -12,13 +12,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitSimProperties;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -39,7 +37,7 @@ class GambitSimOrderCreationServiceTest {
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/orders/init",
-                service.uriBuilder(null, null).apply(uriBuilder).getPath());
+                service.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -49,7 +47,7 @@ class GambitSimOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(gambitProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null, null).accept(headers);
+        service.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + gambitProperties.key(), Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()));
@@ -61,12 +59,10 @@ class GambitSimOrderCreationServiceTest {
             10500, SBP
             """)
     void body(String amount, Method method) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
-        detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).methods(Collections.singletonList(method.name()))
-                        .build()));
-        Request actual = service.body(detailsRequest, method.name());
+        detailsRequest.setMethod(method.name());
+        Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), new BigDecimal(actual.getAmount()).intValue())
         );
@@ -93,12 +89,12 @@ class GambitSimOrderCreationServiceTest {
 
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s", operator, phoneValue);
         assertAll(
                 () -> assertEquals(amount.intValue(), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(expectedDetails, actual.getDetails()),
+                () -> assertEquals(operator, actual.getOperator()),
+                () -> assertEquals(phoneValue, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );
     }

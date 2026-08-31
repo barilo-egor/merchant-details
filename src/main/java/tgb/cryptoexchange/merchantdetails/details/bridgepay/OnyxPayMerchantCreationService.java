@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -39,9 +39,9 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = super.body(detailsRequest);
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         if (Method.CROSS_BORDER.equals(method)) {
             request.setCrossBorderCurrency("UZS");
         }

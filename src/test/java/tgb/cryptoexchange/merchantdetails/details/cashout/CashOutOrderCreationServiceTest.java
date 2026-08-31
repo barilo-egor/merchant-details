@@ -9,8 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CashOutProperties;
 
 import java.net.URI;
@@ -41,7 +41,7 @@ class CashOutOrderCreationServiceTest {
     @Test
     void uriBuilder_ShouldBuildCorrectUri() {
         UriBuilder builder = UriComponentsBuilder.newInstance();
-        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(BotDetailsRequest.class), null);
+        Function<UriBuilder, URI> uriFunction = service.uriBuilder(mock(OrderCreationRequest.class));
 
         URI result = uriFunction.apply(builder);
 
@@ -53,7 +53,7 @@ class CashOutOrderCreationServiceTest {
         when(cashOutProperties.key()).thenReturn("cashout-key");
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(null, null, null);
+        Consumer<HttpHeaders> headersConsumer = service.headers(null, null);
         headersConsumer.accept(headers);
 
         assertThat(headers.getFirst("Content-Type")).isEqualTo("application/json");
@@ -79,7 +79,8 @@ class CashOutOrderCreationServiceTest {
         assertThat(result).isPresent();
         DetailsResponse dr = result.get();
         assertThat(dr.getMerchantOrderId()).isEqualTo("TX-1");
-        assertThat(dr.getDetails()).isEqualTo("Sber 11112222");
+        assertThat(dr.getDetails()).isEqualTo("11112222");
+        assertThat(dr.getBank()).isEqualTo("Sber");
         assertThat(dr.getAmount()).isEqualTo(500);
     }
 }

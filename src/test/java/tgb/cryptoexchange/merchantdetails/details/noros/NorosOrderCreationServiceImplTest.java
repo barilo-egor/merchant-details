@@ -16,15 +16,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.NorosPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -67,14 +65,14 @@ class NorosOrderCreationServiceImplTest {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(
                 "/transaction",
-                norosOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath()
+                norosOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
         );
     }
 
     @Test
     void shouldAddCorrectHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        norosOrderCreationService.headers(new BotDetailsRequest(), null, "").accept(headers);
+        norosOrderCreationService.headers(new OrderCreationRequest(), "").accept(headers);
 
         assertEquals("application/json", headers.getFirst(HttpHeaders.CONTENT_TYPE));
         assertEquals("test-api-key", headers.getFirst("api_key"));
@@ -82,12 +80,10 @@ class NorosOrderCreationServiceImplTest {
 
     @Test
     void shouldCorrectBuildBody() {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.NOROS).methods(
-                        Collections.singletonList(Method.CARD.name())).build()));
-        Request resultBody = norosOrderCreationService.body(detailsRequest, Method.CARD.name());
+        detailsRequest.setMethod(Method.CARD.name());
+        Request resultBody = norosOrderCreationService.body(detailsRequest);
 
         assertNotNull(resultBody.getOrderId());
         assertEquals(1000, resultBody.getAmount());
@@ -109,7 +105,8 @@ class NorosOrderCreationServiceImplTest {
         DetailsResponse result = responseOpt.get();
         assertEquals("merchant-123", result.getMerchantOrderId());
         assertEquals("CREATED", result.getMerchantOrderStatus());
-        assertEquals("Tinkoff 22001100", result.getDetails());
+        assertEquals("22001100", result.getDetails());
+        assertEquals("Tinkoff", result.getBank());
         assertEquals(1000, result.getAmount());
     }
 

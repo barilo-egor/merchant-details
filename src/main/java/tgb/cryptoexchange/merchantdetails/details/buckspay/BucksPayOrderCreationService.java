@@ -45,7 +45,7 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
 
     @Override
     protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return headers -> addHeaders(headers, method);
     }
 

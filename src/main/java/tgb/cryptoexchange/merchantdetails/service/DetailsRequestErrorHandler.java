@@ -14,7 +14,7 @@ public class DetailsRequestErrorHandler implements ErrorHandler {
     @Override
     public void handleError(@Nullable Throwable t) {
         if (Objects.nonNull(t)) {
-            log.error("Ошибка при обработке DetailsRequest: {}", t.getMessage(), t);
+            log.error("Ошибка при обработке OrderCreationRequest: {}", t.getMessage(), t);
         }
     }
 }

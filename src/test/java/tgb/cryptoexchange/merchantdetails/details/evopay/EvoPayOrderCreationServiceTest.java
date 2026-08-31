@@ -21,7 +21,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
@@ -29,7 +28,9 @@ import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,9 +99,9 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithMoreThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(detailsRequest, null, null).accept(headers);
+        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst())
         );
@@ -112,10 +113,10 @@ class EvoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
-        Request request = evoPayOrderCreationService.body(detailsRequest, method);
+        detailsRequest.setMethod(method);
+        Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
                 () -> assertEquals(Method.valueOf(method), request.getPaymentMethod()),
@@ -144,7 +145,8 @@ class EvoPayOrderCreationServiceTest {
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
@@ -169,7 +171,8 @@ class EvoPayOrderCreationServiceTest {
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
@@ -183,22 +186,22 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingCreateOrderResponse() throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
     }
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfInterruptedExceptionWasThrown() throws JsonProcessingException, InterruptedException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenReturn(response);
         doThrow(InterruptedException.class).when(sleepingService).sleep(8);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
     }
 
     @ValueSource(strings = {
@@ -207,7 +210,7 @@ class EvoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void makeRequestShouldMakeRequestToListOrdersUrlWithOrderIdParam(String id) throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -217,7 +220,7 @@ class EvoPayOrderCreationServiceTest {
         ArgumentCaptor<Function<UriBuilder, URI>> captor =
                 (ArgumentCaptor<Function<UriBuilder, URI>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(Function.class);
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
         verify(requestService).request(any(), eq(HttpMethod.GET), captor.capture(), any(), anyString());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         URI actual = captor.getValue().apply(uriBuilder);
@@ -226,19 +229,19 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingGetOrderResponse() throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenReturn(response);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
-        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, null, ""));
+        assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
     }
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfHasNoEntries() throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -247,12 +250,12 @@ class EvoPayOrderCreationServiceTest {
         JsonNode responseNode = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(responseNode);
         when(responseNode.has("entries")).thenReturn(false);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
     }
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsNotArray() throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -264,12 +267,12 @@ class EvoPayOrderCreationServiceTest {
         JsonNode entries = Mockito.mock(JsonNode.class);
         when(responseNode.get("entries")).thenReturn(entries);
         when(entries.isArray()).thenReturn(false);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
     }
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty() throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -282,7 +285,7 @@ class EvoPayOrderCreationServiceTest {
         when(responseNode.get("entries")).thenReturn(entries);
         when(entries.isArray()).thenReturn(true);
         when(entries.isEmpty()).thenReturn(true);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, null, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
     }
 
     @ParameterizedTest
@@ -293,7 +296,7 @@ class EvoPayOrderCreationServiceTest {
                     "{\"recipient_phone_number\":null,\"recipient_card_number\":\"4111111111111111\",\"recipient_bank\":\"Tinkoff\"}}"
     })
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty(String orderBody) throws JsonProcessingException {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -309,7 +312,7 @@ class EvoPayOrderCreationServiceTest {
         JsonNode order = Mockito.mock(JsonNode.class);
         when(entries.get(0)).thenReturn(order);
         when(order.toPrettyString()).thenReturn(orderBody);
-        Optional<String> maybeResponse = evoPayOrderCreationService.makeRequest(detailsRequest, null, "");
+        Optional<String> maybeResponse = evoPayOrderCreationService.makeRequest(detailsRequest, "");
         assertTrue(maybeResponse.isPresent());
         assertEquals(orderBody, maybeResponse.get());
     }

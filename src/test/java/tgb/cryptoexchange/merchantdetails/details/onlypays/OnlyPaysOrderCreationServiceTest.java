@@ -11,11 +11,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnlyPaysProperties;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -37,13 +39,13 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/get_requisite", onlyPaysOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/get_requisite", onlyPaysOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @Test
     void headersShouldAddRequiredHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        onlyPaysOrderCreationService.headers(null, null, null).accept(headers);
+        onlyPaysOrderCreationService.headers(null, null).accept(headers);
         assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst());
     }
 
@@ -53,12 +55,12 @@ class OnlyPaysOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method, String id, String secret) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethod(method.name());
         when(onlyPaysProperties.id()).thenReturn(id);
         when(onlyPaysProperties.secret()).thenReturn(secret);
-        Request actual = onlyPaysOrderCreationService.body(detailsRequest, Merchant.ONLY_PAYS.name());
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(id, actual.getApiId()),
                 () -> assertEquals(amount, actual.getAmount()),
@@ -72,12 +74,12 @@ class OnlyPaysOrderCreationServiceTest {
 
     @Test
     void bodyShouldBuildRequestObjectWithSimTrueIfMethodSim() {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.SIM.name())).build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.SIM.name());
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(detailsRequest, Method.SIM.name());
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.SIM, actual.getMethod()),
                 () -> assertTrue(actual.getSim())
@@ -86,12 +88,12 @@ class OnlyPaysOrderCreationServiceTest {
 
     @Test
     void bodyShouldBuildRequestObjectWithBankAlfaTrueIfMethodAlfaAlfa() {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.ALFA_ALFA.name());
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(detailsRequest, Method.ALFA_ALFA.name());
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.ALFA_ALFA, actual.getMethod()),
                 () -> assertNull(actual.getSim()),
@@ -101,12 +103,12 @@ class OnlyPaysOrderCreationServiceTest {
 
     @Test
     void bodyShouldBuildRequestObjectWithBankOzonTrueIfMethodOzonOzon() {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.OZON_OZON.name())).build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.OZON_OZON.name());
         detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
-        Request actual = onlyPaysOrderCreationService.body(detailsRequest, Method.OZON_OZON.name());
+        Request actual = onlyPaysOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Method.OZON_OZON, actual.getMethod()),
                 () -> assertNull(actual.getSim()),
@@ -131,7 +133,8 @@ class OnlyPaysOrderCreationServiceTest {
         DetailsResponse actual = maybeResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.ONLY_PAYS, actual.getMerchant()),
-                () -> assertEquals(bank + " " + requisites, actual.getDetails()),
+                () -> assertEquals(requisites, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(Status.WAITING.name(), actual.getMerchantOrderStatus())
         );

@@ -9,11 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GeoTransferProperties;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -41,15 +38,15 @@ class GeoTransferMerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.GEO_TRANSFER).methods(Collections.singletonList("SBP")).build()));
+        detailsRequest.setMethod(Method.SBP.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(geoTransferProperties.token()).thenReturn("token");
 
-        Request actual = geoTransferMerchantCreationService.body(detailsRequest, "SBP");
+        Request actual = geoTransferMerchantCreationService.body(detailsRequest);
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=GEO_TRANSFER&secret=" + secret,
                 actual.getNotificationUrl());
     }

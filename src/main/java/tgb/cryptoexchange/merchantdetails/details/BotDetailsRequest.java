@@ -74,7 +74,7 @@ public class BotDetailsRequest {
         public BotDetailsRequest deserialize(String topic, byte[] data) {
             try {
                 if (data == null) return null;
-                DetailsRequest request = objectMapper.readValue(data, BotDetailsRequest.class);
+                BotDetailsRequest request = objectMapper.readValue(data, BotDetailsRequest.class);
                 if (Objects.nonNull(request) && !CollectionUtils.isEmpty(request.getMethods())) {
                     var partitioned = request.getMethods().stream()
                             .collect(Collectors.partitioningBy(method -> Objects.nonNull(method.getMerchant())));

@@ -10,11 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -61,15 +58,15 @@ class OnyxPayMerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONYX_PAY).methods(Collections.singletonList("SBP")).build()));
+        detailsRequest.setMethod(Method.SBP.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(onyxPayProperties.token()).thenReturn("token");
 
-        Request actual = onyxPayMerchantCreationService.body(detailsRequest, "SBP");
+        Request actual = onyxPayMerchantCreationService.body(detailsRequest);
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=ONYX_PAY&secret=" + secret,
                 actual.getNotificationUrl());
     }

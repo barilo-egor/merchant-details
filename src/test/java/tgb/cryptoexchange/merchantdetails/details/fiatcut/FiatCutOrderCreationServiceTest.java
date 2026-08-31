@@ -12,11 +12,13 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -41,7 +43,7 @@ class FiatCutOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/h2h/order", fiatCutOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/api/h2h/order", fiatCutOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -53,7 +55,7 @@ class FiatCutOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         when(fiatCutProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        fiatCutOrderCreationService.headers(null, null, null).accept(headers);
+        fiatCutOrderCreationService.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Accept")).getFirst()),
                 () -> assertEquals(token, Objects.requireNonNull(headers.get("Access-Token")).getFirst())
@@ -66,14 +68,14 @@ class FiatCutOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret, String merchantId) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(fiatCutProperties.merchantId()).thenReturn(merchantId);
-        Request request = fiatCutOrderCreationService.body(detailsRequest, method);
+        Request request = fiatCutOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getExternalId())),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
@@ -108,7 +110,8 @@ class FiatCutOrderCreationServiceTest {
                 () -> assertEquals(Merchant.FIAT_CUT, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

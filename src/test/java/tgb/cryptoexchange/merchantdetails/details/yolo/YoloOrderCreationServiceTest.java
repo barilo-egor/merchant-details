@@ -15,17 +15,14 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.YoloPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -65,7 +62,7 @@ class YoloOrderCreationServiceTest {
     void uriBuilderShouldAddPathAndQuery() {
         when(yoloProperties.accountId()).thenReturn("testId");
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        URI resultUri = yoloService.uriBuilder(null, null).apply(uriBuilder);
+        URI resultUri = yoloService.uriBuilder(null).apply(uriBuilder);
 
         assertEquals("/api/client/orders/deposit", resultUri.getPath());
         assertEquals("accountId=testId", resultUri.getQuery());
@@ -86,7 +83,7 @@ class YoloOrderCreationServiceTest {
 
 
         HttpHeaders headers = new HttpHeaders();
-        yoloService.headers(null, null, null).accept(headers);
+        yoloService.headers(null, null).accept(headers);
 
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
@@ -114,7 +111,7 @@ class YoloOrderCreationServiceTest {
         when(yoloProperties.storeKey()).thenReturn(storeKey);
         when(requestService.request(any(), any(), any(), any(), any())).thenReturn(jsonResponse);
         HttpHeaders headers = new HttpHeaders();
-        yoloService.headers(null, null, null).accept(headers);
+        yoloService.headers(null, null).accept(headers);
 
         assertAll(
                 () -> assertEquals("application/json", headers.getFirst("Content-Type")),
@@ -133,7 +130,7 @@ class YoloOrderCreationServiceTest {
                 .thenReturn(mockJwtJson);
 
 
-        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new BotDetailsRequest(), null, "body");
+        Consumer<HttpHeaders> headersConsumer = yoloService.headers(new OrderCreationRequest(), "body");
         headersConsumer.accept(new HttpHeaders());
 
         verify(requestService, times(1)).request(
@@ -151,15 +148,13 @@ class YoloOrderCreationServiceTest {
 
     @Test
     void body_ShouldMapCorrectly() {
-        BotDetailsRequest request = new BotDetailsRequest();
+        OrderCreationRequest request = new OrderCreationRequest();
         request.setAmount(1000);
-        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.YOLO).methods(Collections.singletonList("SBP")).build());
-        request.setMethods(methods);
+        request.setMethod(Method.SBP.name());
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");
 
-        Request result = yoloService.body(request, "SBP");
+        Request result = yoloService.body(request);
 
         assertNotNull(result.getExternalId());
         assertEquals("1000", result.getValue());
@@ -178,7 +173,8 @@ class YoloOrderCreationServiceTest {
         Optional<DetailsResponse> result = yoloService.buildResponse(response);
 
         assertTrue(result.isPresent());
-        assertEquals("Sber 79991234567", result.get().getDetails());
+        assertEquals("79991234567", result.get().getDetails());
+        assertEquals("Sber", result.get().getBank());
         assertEquals("order_1", result.get().getMerchantOrderId());
     }
 
@@ -193,6 +189,7 @@ class YoloOrderCreationServiceTest {
         Optional<DetailsResponse> result = yoloService.buildResponse(response);
 
         assertTrue(result.isPresent());
-        assertEquals("Tinkoff 123456789", result.get().getDetails());
+        assertEquals("123456789", result.get().getDetails());
+        assertEquals("Tinkoff", result.get().getBank());
     }
 }

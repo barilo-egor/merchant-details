@@ -18,13 +18,11 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +45,7 @@ class SettleX15OrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/merchant/transactions/in", service.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/api/merchant/transactions/in", service.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -57,7 +55,7 @@ class SettleX15OrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(settleXProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null, null).accept(headers);
+        service.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, headers.getFirst("x-merchant-api-key")),
                 () -> assertEquals("application/json", headers.getFirst("Content-Type"))
@@ -70,9 +68,9 @@ class SettleX15OrderCreationServiceTest {
             12504,C2C,https://gateway.paysendmmm.online/merchant/settleX,O9GFCTfz8wf7o2Q,cmhhrccre0shany01q8oah3cd,cmhhrcwo40szlny01q71c4djw
             """)
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethod(method.name());
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         if (Method.SBP.equals(method)) {
@@ -80,7 +78,7 @@ class SettleX15OrderCreationServiceTest {
         } else {
             when(settleXProperties.c2cId()).thenReturn(c2cId);
         }
-        Request actual = service.body(detailsRequest, method.name());
+        Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
                 () -> {
@@ -115,7 +113,8 @@ class SettleX15OrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertAll(
-                () -> assertEquals(bankName + " " + cardName, actual.getDetails()),
+                () -> assertEquals(cardName, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(orderId, actual.getMerchantCustomId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),

@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
@@ -50,7 +50,7 @@ class RsPayMerchantServiceTest {
     private WebClient webClient;
     @Mock
     private SignatureService signatureService;
-    private DetailsRequest detailsRequest;
+    private OrderCreationRequest detailsRequest;
     private Response response;
     private CancelOrderRequest cancelOrderRequest;
     @Mock
@@ -69,9 +69,9 @@ class RsPayMerchantServiceTest {
         rsPayService.setRequestService(requestService);
         rsPayService.setMerchantConfigService(merchantConfigService);
 
-        detailsRequest = new DetailsRequest();
+        detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(100);
-        detailsRequest.setCurrentMerchantMethod("CARD");
+        detailsRequest.setMethod("CARD");
 
         response = new Response();
         response.setId("order-123");

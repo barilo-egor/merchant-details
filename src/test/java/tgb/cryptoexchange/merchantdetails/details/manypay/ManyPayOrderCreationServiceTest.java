@@ -11,8 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.ManyPayPropertiesImpl;
 
 import java.util.Optional;
@@ -54,9 +54,9 @@ class ManyPayOrderCreationServiceTest {
 
     @Test
     void shouldMapDetailsRequestToRequestBody() {
-        DetailsRequest request = mock(DetailsRequest.class);
+        OrderCreationRequest request = mock(OrderCreationRequest.class);
         when(request.getAmount()).thenReturn(150);
-        when(request.getCurrentMerchantMethod()).thenReturn("CARD");
+        when(request.getMethod()).thenReturn("CARD");
         Request resultBody = service.body(request);
 
         assertThat(resultBody).isNotNull();

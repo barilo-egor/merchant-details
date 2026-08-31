@@ -9,11 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.StormTrade13Properties;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -41,15 +38,15 @@ class StormTrade13MerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.STORM_TRADE_13).methods(Collections.singletonList("SBP")).build()));
+        detailsRequest.setMethod(Method.SBP.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(stormTrade13Properties.token()).thenReturn("token");
 
-        Request actual = stormTrade13MerchantCreationService.body(detailsRequest, "SBP");
+        Request actual = stormTrade13MerchantCreationService.body(detailsRequest);
         assertEquals(gatewayUrl + "/merchant-details/callback?merchant=STORM_TRADE_13&secret=" + secret,
                 actual.getNotificationUrl());
     }

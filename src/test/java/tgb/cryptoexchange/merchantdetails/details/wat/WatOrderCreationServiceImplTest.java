@@ -16,8 +16,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.WatPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -71,7 +71,7 @@ class WatOrderCreationServiceImplTest {
 
     @Test
     void uriBuilder_ShouldBuildCorrectPath() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
 
         Function<UriBuilder, URI> builderFunction = service.uriBuilder(detailsRequest);
@@ -85,7 +85,7 @@ class WatOrderCreationServiceImplTest {
         when(watProperties.token()).thenReturn(TEST_TOKEN);
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        service.headers(new DetailsRequest(), null).accept(httpHeaders);
+        service.headers(new OrderCreationRequest(), null).accept(httpHeaders);
 
         assertThat(httpHeaders.get("Content-Type")).containsExactly("application/json");
         assertThat(httpHeaders.get("Authorization")).containsExactly("Bearer " + TEST_TOKEN);

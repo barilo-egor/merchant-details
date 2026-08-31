@@ -40,9 +40,10 @@ class MerchantOrderCreationServiceTest {
     @Test
     void createOrderShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileWriteBody() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
-        BotDetailsRequest request = new BotDetailsRequest();
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod("CARD");
 
-        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(request, "CARD"));
+        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(request));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping body: "));
     }
 
@@ -71,10 +72,11 @@ class MerchantOrderCreationServiceTest {
     void createOrderShouldThrowUnavailableExceptionIfWebClientExceptionWasThrown() throws JsonProcessingException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenThrow(RuntimeException.class);
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(
                 ServiceUnavailableException.class,
-                () -> service.createOrder(detailsRequest, "CARD")
+                () -> service.createOrder(detailsRequest)
         );
         assertTrue(ex.getMessage().startsWith("Error occurred while creating order: "));
     }
@@ -84,8 +86,9 @@ class MerchantOrderCreationServiceTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenThrow(JsonProcessingException.class);
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(detailsRequest, "CARD"));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
+        ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(detailsRequest));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping merchant response: "));
     }
 
@@ -99,10 +102,11 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.errorsToString()).thenReturn("");
         when(validationResult.isValid()).thenReturn(false);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(
                 ServiceUnavailableException.class,
-                () -> service.createOrder(detailsRequest, "CARD")
+                () -> service.createOrder(detailsRequest)
         );
         verify(validationResult).errorsToString();
         assertTrue(ex.getMessage().startsWith("Mapped response is invalid: "));
@@ -118,8 +122,9 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.isValid()).thenReturn(true);
         when(response.hasDetails()).thenReturn(false);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest, "CARD");
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
+        Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isEmpty());
     }
 
@@ -133,10 +138,11 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.isValid()).thenReturn(true);
         when(response.hasDetails()).thenReturn(true);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
         detailsRequest.setId(String.valueOf(5234));
         detailsRequest.setUserId(String.valueOf(3745747545L));
-        Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest, "CARD");
+        Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isPresent());
     }
 
@@ -196,8 +202,8 @@ class MerchantOrderCreationServiceTest {
             method2,2000,12586
             """)
     void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, String id) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(method);
         detailsRequest.setAmount(amount);
         detailsRequest.setId(id);
         assertTrue(service.isValidRequestPredicate("ALFA").test(detailsRequest));
@@ -225,7 +231,7 @@ class MerchantOrderCreationServiceTest {
         }
 
         @Override
-        protected Request body(OrderCreationRequest request) {
+        protected Request body(OrderCreationRequest creationRequest) {
             Request request = new Request();
             request.setAmount("1000");
             return request;

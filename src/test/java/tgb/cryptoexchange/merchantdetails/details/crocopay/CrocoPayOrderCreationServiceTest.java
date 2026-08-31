@@ -17,12 +17,10 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,7 +49,7 @@ class CrocoPayOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/api/v2/h2h/invoices", crocoPayOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @CsvSource({
@@ -64,7 +62,7 @@ class CrocoPayOrderCreationServiceTest {
         when(crocoPayProperties.clientId()).thenReturn(id);
         when(crocoPayProperties.clientSecret()).thenReturn(secret);
         HttpHeaders headers = new HttpHeaders();
-        crocoPayOrderCreationService.headers(null, null, null).accept(headers);
+        crocoPayOrderCreationService.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals(id, Objects.requireNonNull(headers.get("Client-Id")).getFirst()),
                 () -> assertEquals(secret, Objects.requireNonNull(headers.get("Client-Secret")).getFirst())
@@ -77,13 +75,13 @@ class CrocoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret, Long dealId) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setId(String.valueOf(dealId));
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        Request request = crocoPayOrderCreationService.body(detailsRequest, method);
+        Request request = crocoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getAmount()),
                 () -> assertEquals(Method.valueOf(method), request.getMethod()),
@@ -143,7 +141,8 @@ class CrocoPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

@@ -18,14 +18,16 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,14 +61,12 @@ class PwPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(
-                List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
-                        .build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(),
-                pwPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
+                pwPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -76,7 +76,9 @@ class PwPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(pwPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        pwPayOrderCreationService.headers(null, null, null).accept(headers);
+        OrderCreationRequest creationRequest = new OrderCreationRequest();
+        creationRequest.setMethod(Method.CARD.name());
+        pwPayOrderCreationService.headers(creationRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -88,10 +90,10 @@ class PwPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
 
-        Request actual = pwPayOrderCreationService.body(detailsRequest, null);
+        Request actual = pwPayOrderCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),
@@ -116,7 +118,8 @@ class PwPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.PW_PAY, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(bank, detailsResponse.getBank()),
                 () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
@@ -136,7 +139,8 @@ class PwPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals("bank", detailsResponse.getBank())
         );
     }
 

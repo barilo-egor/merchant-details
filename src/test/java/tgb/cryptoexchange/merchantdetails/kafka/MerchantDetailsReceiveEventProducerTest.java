@@ -27,12 +27,12 @@ class MerchantDetailsReceiveEventProducerTest {
     private KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate;
 
     @CsvSource("""
-            merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,ALFA 79879878787
-            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,Банк развития 1234123412341234
+            merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,79879878787, ALFA
+            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,1234123412341234, Банк развития
             """)
     @ParameterizedTest
     void putShouldSendEventToTopic(String topic, Long dealId, Long userId, String appId, Merchant merchant, String orderId,
-                                   Integer requestedAmount, Integer merchantAmount, String method, String details) {
+                                   Integer requestedAmount, Integer merchantAmount, String method, String details, String bank) {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
         BotDetailsRequest detailsRequestBot = new BotDetailsRequest();
         detailsRequestBot.setId(String.valueOf(dealId));
@@ -43,6 +43,7 @@ class MerchantDetailsReceiveEventProducerTest {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(merchant);
         detailsResponse.setDetails(details);
+        detailsResponse.setBank(bank);
         detailsResponse.setMerchantOrderId(orderId);
         detailsResponse.setAmount(merchantAmount);
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
@@ -61,7 +62,7 @@ class MerchantDetailsReceiveEventProducerTest {
                 () -> assertEquals(requestedAmount, event.getRequestedAmount()),
                 () -> assertEquals(merchantAmount, event.getMerchantAmount()),
                 () -> assertEquals(method, event.getMethod()),
-                () -> assertEquals(details, event.getDetails()),
+                () -> assertEquals(bank + " " + details, event.getDetails()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(keyCaptor.getValue()))
 
         );

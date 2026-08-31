@@ -20,8 +20,8 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.DeoraProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -30,7 +30,10 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -90,8 +93,8 @@ class DeoraMerchantCreationServiceTest {
         when(signatureService.hmacSHA1(dataArgumentCaptor.capture(), secretArgumentCaptor.capture())).thenReturn(sign);
 
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
+        OrderCreationRequest request = Mockito.mock(OrderCreationRequest.class);
+        when(request.getMethod()).thenReturn(Method.TO_CARD.name());
         deoraMerchantCreationService.headers(request, expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -103,8 +106,8 @@ class DeoraMerchantCreationServiceTest {
 
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
-        DetailsRequest request = Mockito.mock(DetailsRequest.class);
-        when(request.getCurrentMerchantMethod()).thenReturn(Method.TO_CARD.name());
+        OrderCreationRequest request = Mockito.mock(OrderCreationRequest.class);
+        when(request.getMethod()).thenReturn(Method.TO_CARD.name());
         when(deoraProperties.url()).thenReturn("");
         when(deoraProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
@@ -119,14 +122,13 @@ class DeoraMerchantCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.DEORA).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(deoraProperties.token()).thenReturn(token);
-        detailsRequest.setCurrentMerchantMethod(method);
+        detailsRequest.setMethod(method);
         Request actual = deoraMerchantCreationService.body(detailsRequest);
 
         assertAll(

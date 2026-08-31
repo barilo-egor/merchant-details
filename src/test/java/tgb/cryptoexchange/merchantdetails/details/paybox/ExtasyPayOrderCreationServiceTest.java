@@ -18,14 +18,16 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,11 +61,11 @@ class ExtasyPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).methods(Collections.singletonList(method.name())).build()));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest, method.name()).apply(uriBuilder).getPath());
+        assertEquals("/api/v1/transactions" + method.getUri(), extasyPayOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -71,9 +73,11 @@ class ExtasyPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void headersShouldSetRequiredHeaders(String token) {
-        when(extasyPayProperties.token()).thenReturn(token);
+        when(extasyPayProperties.getToken(any())).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        extasyPayOrderCreationService.headers(null, null, null).accept(headers);
+        OrderCreationRequest creationRequest = new OrderCreationRequest();
+        creationRequest.setMethod(Method.CARD.name());
+        extasyPayOrderCreationService.headers(creationRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -85,10 +89,11 @@ class ExtasyPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(Method.CARD.name());
 
-        Request actual = extasyPayOrderCreationService.body(detailsRequest, null);
+        Request actual = extasyPayOrderCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount, actual.getAmount()),

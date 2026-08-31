@@ -18,13 +18,12 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -54,7 +53,7 @@ class PayLeeMerchantServiceTest {
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/partners/purchases/", payLeeMerchantService.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/partners/purchases/", payLeeMerchantService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -64,7 +63,7 @@ class PayLeeMerchantServiceTest {
     void headersShouldAddRequiredHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         when(payLeeProperties.token()).thenReturn(token);
-        payLeeMerchantService.headers(null, null, null).accept(headers);
+        payLeeMerchantService.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Token " + token, headers.getFirst(HttpHeaders.AUTHORIZATION)),
                 () -> assertEquals("application/json", headers.getFirst(HttpHeaders.CONTENT_TYPE))
@@ -77,11 +76,11 @@ class PayLeeMerchantServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethod(method.name());
         detailsRequest.setUserId(String.valueOf(1231231231L));
-        Request actual = payLeeMerchantService.body(detailsRequest, method.name());
+        Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),
                 () -> assertEquals(method, actual.getRequisitesType()),

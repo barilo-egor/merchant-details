@@ -10,8 +10,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.AsgardImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -38,10 +38,10 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void uriBuilder_ShouldReturnCorrectPath() {
-        BotDetailsRequest request = new BotDetailsRequest();
+        OrderCreationRequest request = new OrderCreationRequest();
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
-        Function<UriBuilder, URI> resultFunc = service.uriBuilder(request, null);
+        Function<UriBuilder, URI> resultFunc = service.uriBuilder(request);
         URI uri = resultFunc.apply(uriBuilder);
 
         assertEquals("/payments", uri.getPath());
@@ -60,7 +60,7 @@ class AsgardImplOrderCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(new BotDetailsRequest(), null, body);
+        Consumer<HttpHeaders> headersConsumer = service.headers(new OrderCreationRequest(), body);
         headersConsumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));
@@ -70,14 +70,15 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void body_ShouldMapRequestCorrectly() {
-        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(5936);
+        detailsRequest.setMethod(Method.CARD.name());
 
         when(asgardProperties.merchantId()).thenReturn("M-123");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("cb-secret");
 
-        Request result = service.body(detailsRequest, "CARD");
+        Request result = service.body(detailsRequest);
 
         assertNotNull(result.getOrderId());
         assertEquals("M-123", result.getMerchantId());
@@ -104,7 +105,8 @@ class AsgardImplOrderCreationServiceTest {
         DetailsResponse dr = result.get();
         assertEquals("order-1", dr.getMerchantOrderId());
         assertEquals("CREATED", dr.getMerchantOrderStatus());
-        assertEquals("Sber 1234 56xx", dr.getDetails());
+        assertEquals("1234 56xx", dr.getDetails());
+        assertEquals("Sber", dr.getBank());
         assertEquals("CARD", dr.getPaymentMethod());
     }
 

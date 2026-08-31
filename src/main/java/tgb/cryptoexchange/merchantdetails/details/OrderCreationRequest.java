@@ -1,12 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @ToString
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderCreationRequest {
 
     protected String requestId;

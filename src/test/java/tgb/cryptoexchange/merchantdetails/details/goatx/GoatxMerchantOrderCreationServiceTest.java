@@ -11,8 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxPropertiesImpl;
 
 import java.util.Objects;
@@ -40,13 +40,13 @@ class GoatxMerchantOrderCreationServiceTest {
     @Test
     void uriBuilderShouldAddUriPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        assertEquals("/api/order/", goatxMerchantOrderCreationService.uriBuilder(null, null).apply(uriBuilder).getPath());
+        assertEquals("/api/order/", goatxMerchantOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @Test
     void headersShouldAddRequiredHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        goatxMerchantOrderCreationService.headers(null, null, null).accept(headers);
+        goatxMerchantOrderCreationService.headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
         );
@@ -58,11 +58,12 @@ class GoatxMerchantOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String contractId, String method) {
-        BotDetailsRequest detailsRequest = spy(new BotDetailsRequest());
+        OrderCreationRequest detailsRequest = spy(new OrderCreationRequest());
+        detailsRequest.setMethod(method);
         detailsRequest.setAmount(amount);
         when(goatxProperties.merchantContractId()).thenReturn(contractId);
 
-        Request result = goatxMerchantOrderCreationService.body(detailsRequest, method);
+        Request result = goatxMerchantOrderCreationService.body(detailsRequest);
 
         assertAll(
                 () -> assertEquals(amount.toString(), result.getSum()),
@@ -97,7 +98,8 @@ class GoatxMerchantOrderCreationServiceTest {
         assertAll(
             () -> assertEquals(Merchant.GOAT_X, actual.getMerchant()),
             () -> assertEquals(id, actual.getMerchantOrderId()),
-            () -> assertEquals(bankName + " " + requisiteString, actual.getDetails()),
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
             () -> assertEquals(status.name(), actual.getMerchantOrderStatus())
         );
     }
@@ -121,6 +123,7 @@ class GoatxMerchantOrderCreationServiceTest {
         Optional<DetailsResponse> maybeActual = goatxMerchantOrderCreationService.buildResponse(response);
         assertTrue(maybeActual.isPresent());
         DetailsResponse actual = maybeActual.get();
-        assertEquals(bankName + " " + requisiteString, actual.getDetails());
+        assertEquals(requisiteString, actual.getDetails());
+        assertEquals(bankName, actual.getBank());
     }
 }

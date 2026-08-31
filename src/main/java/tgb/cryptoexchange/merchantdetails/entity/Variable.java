@@ -32,12 +32,13 @@ public class Variable {
      * Тип переменной
      */
     @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private VariableType type;
 
     /**
      * Значение
      */
+    @Column(name = "variable_value")
     private String value;
 
     @Transient
