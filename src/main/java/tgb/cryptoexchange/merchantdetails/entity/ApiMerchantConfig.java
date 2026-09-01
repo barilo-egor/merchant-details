@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
 
+import java.util.UUID;
+
 @Entity
 @Data
 @Builder
@@ -29,5 +31,8 @@ public class ApiMerchantConfig implements BaseConfig {
 
     @Column(unique = true, nullable = false)
     private Integer merchantOrder;
+
+    @Column
+    private UUID ownerId;
 
 }

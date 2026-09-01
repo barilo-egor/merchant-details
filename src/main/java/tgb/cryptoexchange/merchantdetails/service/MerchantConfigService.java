@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -47,8 +46,16 @@ public class MerchantConfigService {
         this.autoConfirmConfigRepository = autoConfirmConfigRepository;
     }
 
-    @PostConstruct
-    public void init() {
+    /**
+     * Проверяет наличие конфигураций для всех доступных значений перечисления {@link Merchant}.
+     * При старте приложения сервис {@code tgb.cryptoexchange.merchantdetails.service.StartupClearMerchantConfigService}
+     * предварительно удаляет из базы данных записи конфигураций несуществующих мерчантов.
+     * Если количество не совпадает, метод находит отсутствующие конфигурации и инициализирует их.
+     */
+    protected void checkMerchantConfigIsExist() {
+        if (Merchant.values().length == countAll()) {
+            return;
+        }
         for (Merchant merchant : Merchant.values()) {
             Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
             if (merchantConfig.isEmpty()) {
@@ -87,7 +94,21 @@ public class MerchantConfigService {
         );
     }
 
+    private Long countAll() {
+        return repository.count();
+    }
+
+    public List<MerchantConfigDTO> findAll(MerchantConfigRequest request) {
+        checkMerchantConfigIsExist();
+        return repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
+                        request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
+                )).stream()
+                .map(MerchantConfigDTO::fromEntity)
+                .toList();
+    }
+
     public Page<MerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
+        checkMerchantConfigIsExist();
         return repository.findAll(
                 ((root, query, criteriaBuilder) -> criteriaBuilder.and(
                         request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
@@ -105,6 +126,7 @@ public class MerchantConfigService {
     }
 
     public List<MerchantConfig> findAllByMethodsAndAmount(List<BotDetailsRequest.MerchantMethod> methods, Integer amount) {
+        checkMerchantConfigIsExist();
         Map<Merchant, BotDetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(BotDetailsRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
@@ -188,7 +210,7 @@ public class MerchantConfigService {
     }
 
     @Transactional
-    public void update(UpdateMerchantConfigDTO dto) {
+    public MerchantConfigDTO update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id" + dto.getId() + NOT_FOUND));
@@ -235,7 +257,8 @@ public class MerchantConfigService {
                 merchantConfig.getConfirmConfigs().add(autoConfirmConfigRepository.save(autoConfirmConfig));
             }
         }
-        repository.save(merchantConfig);
+        MerchantConfig saved = repository.save(merchantConfig);
+        return MerchantConfigDTO.fromEntity(saved);
     }
 
     public void deleteField(Long id, String field) {

@@ -19,6 +19,8 @@ public class MerchantConfigRequest {
 
     private String sort;
 
+    private String ownerId;
+
     public <T> List<Predicate> toPredicates(Root<T> root, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
         if (Objects.nonNull(merchantOrder)) {
@@ -26,6 +28,9 @@ public class MerchantConfigRequest {
         }
         if (Objects.nonNull(merchant)) {
             predicates.add(cb.equal(root.get("merchant"), merchant));
+        }
+        if (Objects.nonNull(ownerId)) {
+            predicates.add(cb.equal(root.get("ownerId"), ownerId));
         }
         return predicates;
     }
