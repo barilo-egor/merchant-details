@@ -30,8 +30,9 @@ public class ApiConfigRequestControllerGrpc extends ApiMerchantConfigServiceGrpc
                         StreamObserver<FindAllApiMerchantConfigsResponseGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
 
-            List<ApiMerchantConfigItemGrpc> configList = apiMerchantConfigService.findAll(mapper.mapToApiMerchantConfigRequest(request))
-                    .stream()
+            List<ApiMerchantConfigItemGrpc> configList = apiMerchantConfigService.findAllAndCreateIfNotExist(
+                            mapper.mapToApiMerchantConfigRequest(request)
+                    ).stream()
                     .map(mapper::mapToGrpcApiMerchantConfigItem)
                     .toList();
 

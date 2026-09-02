@@ -30,24 +30,30 @@ public class ApiMerchantConfigService {
         this.repository = repository;
     }
 
-    public List<ApiMerchantConfigDTO> findAll(MerchantConfigRequest request) {
-        List<ApiMerchantConfig> configs = repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
-                request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
-        ));
+    public List<ApiMerchantConfigDTO> findAllAndCreateIfNotExist(MerchantConfigRequest request) {
+        List<ApiMerchantConfig> configs = findAll(request);
         if (Merchant.values().length != configs.size()) {
-            createApiConfigs(UUID.fromString(request.getOwnerId()));
+            configs = createApiConfigs(UUID.fromString(request.getOwnerId()));
         }
         return configs.stream()
                 .map(ApiMerchantConfigDTO::fromEntity)
                 .toList();
     }
 
-    protected void createApiConfigs(UUID ownerId) {
+    public List<ApiMerchantConfig> findAll(MerchantConfigRequest request) {
+        return repository.findAll(
+                (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                        request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
+                ));
+    }
+
+    protected List<ApiMerchantConfig> createApiConfigs(UUID ownerId) {
+        List<ApiMerchantConfig> configs = new ArrayList<>();
         for (Merchant merchant : Merchant.values()) {
-            Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(ownerId);
+            Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(ownerId, merchant);
             if (merchantConfig.isEmpty()) {
                 Integer maxValue = repository.findMaxMerchantOrder(ownerId);
-                repository.save(
+                configs.add(repository.save(
                         ApiMerchantConfig.builder()
                                 .isOn(false)
                                 .merchant(merchant)
@@ -56,14 +62,15 @@ public class ApiMerchantConfigService {
                                 .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
                                 .ownerId(ownerId)
                                 .build()
-                );
+                ));
             }
         }
+        return configs;
     }
 
-    public Optional<ApiMerchantConfig> getMerchantConfig(UUID ownerId) {
+    public Optional<ApiMerchantConfig> getMerchantConfig(UUID ownerId, Merchant merchant) {
         return repository.findBy(
-                Example.of(ApiMerchantConfig.builder().ownerId(ownerId).build()),
+                Example.of(ApiMerchantConfig.builder().merchant(merchant).ownerId(ownerId).build()),
                 FluentQuery.FetchableFluentQuery::one
         );
     }
