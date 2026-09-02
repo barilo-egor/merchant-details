@@ -89,11 +89,58 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-tasks.jar {
-	archiveFileName = "merchant-details.jar"
-}
-
-bootJar {
+tasks.named("bootJar") {
 	archiveFileName = 'merchant-details.jar'
+	mustRunAfter("clean")
 }
 
+tasks.register('copyJarToDockerDir', Copy) {
+	from(new File(rootDir, 'build/libs/'))
+	include('merchant-details.jar')
+	into(new File(rootDir, 'docker/mount/merchant-details'))
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	mustRunAfter('bootJar')
+}
+
+tasks.register('copyConfigToDockerDir', Copy) {
+	from(rootDir)
+	include('config/**')
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	into(new File(rootDir, 'docker/mount/merchant-details'))
+}
+
+tasks.register('merchantDetailsStartUp', Exec) {
+	workingDir file("${project.rootDir}/docker")
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'up', '-d', '--build'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'up', '-d', '--build'
+	}
+	dependsOn('clean', 'bootJar', 'copyJarToDockerDir', 'copyConfigToDockerDir')
+}
+
+tasks.register('merchantDetailsShutdown', Exec) {
+	workingDir file("${project.rootDir}/docker")
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'down'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'down'
+	}
+}
+
+tasks.register('merchantDetailsRedeployJar', Exec) {
+	workingDir file("${project.rootDir}/docker")
+
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate', 'merchant-details'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'up', '-d', '--no-deps', '--force-recreate', 'merchant-details'
+	}
+	dependsOn('clean', 'bootJar', 'copyJarToDockerDir', 'copyConfigToDockerDir')
+}
