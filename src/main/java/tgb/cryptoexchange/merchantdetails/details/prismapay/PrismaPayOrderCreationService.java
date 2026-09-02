@@ -107,7 +107,7 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
             return;
         }
         String folderName = StringUtils.lowerCase(getMerchant().name());
-        receiptService.deleteReceipt(orderId + ".pdf", folderName);
+        receiptService.deleteReceipt(orderId, folderName);
     }
 
     @Override

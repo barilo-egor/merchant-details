@@ -5,23 +5,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.properties.WatSimProperties;
+import tgb.cryptoexchange.merchantdetails.properties.WatPdfProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 
 @Service
-public class WatSimOrderCreationService extends WatOrderCreationService {
+public class WatPdfOrderCreationService extends WatOrderCreationService {
 
 
-    protected WatSimOrderCreationService(@Qualifier("watWebClient") WebClient webClient,
-                                         WatSimProperties watSimProperties, CallbackConfig callbackConfig,
+    protected WatPdfOrderCreationService(@Qualifier("watWebClient") WebClient webClient,
+                                         WatPdfProperties watPdfProperties, CallbackConfig callbackConfig,
                                          ReceiptService receiptService) {
-        super(webClient, watSimProperties, callbackConfig, receiptService);
+        super(webClient, watPdfProperties, callbackConfig, receiptService);
     }
 
 
     @Override
     public Merchant getMerchant() {
-        return Merchant.WAT_SIM;
+        return Merchant.WAT_PDF;
     }
 
 
