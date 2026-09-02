@@ -11,14 +11,15 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantConfig, Long>, JpaSpecificationExecutor<ApiMerchantConfig> {
 
     List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn);
 
-    @Query("select max(merchantOrder) from ApiMerchantConfig")
-    Integer findMaxMerchantOrder();
+    @Query("select max(merchantOrder) from ApiMerchantConfig where ownerId=:ownerId")
+    Integer findMaxMerchantOrder(UUID ownerId);
 
     @Modifying
     @Query("update ApiMerchantConfig mc set mc.merchantOrder = mc.merchantOrder + :delta " +

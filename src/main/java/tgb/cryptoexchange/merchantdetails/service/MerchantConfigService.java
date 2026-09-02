@@ -15,11 +15,13 @@ import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
+import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
@@ -34,14 +36,17 @@ public class MerchantConfigService {
 
     private final MerchantConfigRepository repository;
 
+    private final ApiMerchantConfigRepository apiMerchantConfigRepository;
+
     private final MerchantSuccessStatusRepository merchantSuccessStatusRepository;
 
     private final AutoConfirmConfigRepository autoConfirmConfigRepository;
 
-    public MerchantConfigService(MerchantConfigRepository repository,
+    public MerchantConfigService(MerchantConfigRepository repository, ApiMerchantConfigRepository apiMerchantConfigRepository,
                                  MerchantSuccessStatusRepository merchantSuccessStatusRepository,
                                  AutoConfirmConfigRepository autoConfirmConfigRepository) {
         this.repository = repository;
+        this.apiMerchantConfigRepository = apiMerchantConfigRepository;
         this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
         this.autoConfirmConfigRepository = autoConfirmConfigRepository;
     }
@@ -60,6 +65,25 @@ public class MerchantConfigService {
             Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
             if (merchantConfig.isEmpty()) {
                 create(merchant);
+            }
+        }
+    }
+
+    protected void createApiConfigs(UUID ownerId) {
+        for (Merchant merchant : Merchant.values()) {
+            Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
+            if (merchantConfig.isEmpty()) {
+                Integer maxValue = apiMerchantConfigRepository.findMaxMerchantOrder(ownerId);
+                apiMerchantConfigRepository.save(
+                        ApiMerchantConfig.builder()
+                                .isOn(false)
+                                .merchant(merchant)
+                                .maxAmount(5000)
+                                .minAmount(1)
+                                .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
+                                .ownerId(ownerId)
+                                .build()
+                );
             }
         }
     }
@@ -99,10 +123,13 @@ public class MerchantConfigService {
     }
 
     public List<MerchantConfigDTO> findAll(MerchantConfigRequest request) {
-        checkMerchantConfigIsExist();
-        return repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
+        List<MerchantConfig> configs = repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
                         request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
-                )).stream()
+                ));
+        if (Merchant.values().length != configs.size()) {
+            createApiConfigs(UUID.fromString(request.getOwnerId()));
+        }
+         return configs.stream()
                 .map(MerchantConfigDTO::fromEntity)
                 .toList();
     }

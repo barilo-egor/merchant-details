@@ -21,7 +21,7 @@ public class ApiMerchantConfig implements BaseConfig {
 
     private Boolean isOn;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Merchant merchant;
 
@@ -29,7 +29,7 @@ public class ApiMerchantConfig implements BaseConfig {
 
     private Integer minAmount;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private Integer merchantOrder;
 
     @Column
