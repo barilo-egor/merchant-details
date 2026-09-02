@@ -1,6 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.wat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,9 +12,13 @@ import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.WatProperties;
+import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -25,11 +31,15 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
 
     protected final CallbackConfig callbackConfig;
 
+    private final ReceiptService receiptService;
+
     protected WatOrderCreationService(WebClient webClient,
-                                      WatProperties watProperties, CallbackConfig callbackConfig) {
+                                      WatProperties watProperties, CallbackConfig callbackConfig,
+                                      ReceiptService receiptService) {
         super(webClient, Response.class, Callback.class);
         this.watProperties = watProperties;
         this.callbackConfig = callbackConfig;
+        this.receiptService = receiptService;
     }
 
     @Override
@@ -74,5 +84,35 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
                 uriBuilder -> uriBuilder.path("/orders/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
                 this::addHeaders, null);
     }
+
+    @Override
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        String linkToReceipt = receiptService.saveReceipt(fileContent, fileName, StringUtils.lowerCase(getMerchant().name()));
+        String body;
+        try {
+            Map<String, String> bodyMap = Map.of("receipt_url", linkToReceipt);
+            body = objectMapper.writeValueAsString(bodyMap);
+        } catch (JsonProcessingException e) {
+            throw new BodyMappingException("Ошибка сериализации JSON", e);
+        }
+
+        requestService.request(
+                webClient,
+                HttpMethod.PATCH,
+                uriBuilder -> uriBuilder.path("/orders/" + orderId).build(),
+                this::addHeaders,
+                body
+        );
+    }
+
+    @Override
+    protected void deleteReceipt(String orderId, String orderStatus) {
+        if (!Arrays.asList(Status.FINISHED.name(), Status.CANCELED.name()).contains(orderStatus)) {
+            return;
+        }
+        String folderName = StringUtils.lowerCase(getMerchant().name());
+        receiptService.deleteReceipt(orderId, folderName);
+    }
+
 
 }

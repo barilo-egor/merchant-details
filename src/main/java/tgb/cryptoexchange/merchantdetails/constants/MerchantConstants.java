@@ -319,6 +319,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
     ),
+    WAT_PDF(
+            tgb.cryptoexchange.merchantdetails.details.wat.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.wat.Method.values()
+    ),
     TRON_EX_SIM(
             tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
