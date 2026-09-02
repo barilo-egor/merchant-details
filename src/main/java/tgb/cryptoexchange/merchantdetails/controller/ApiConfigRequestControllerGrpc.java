@@ -5,37 +5,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.grpc.server.service.GrpcService;
 import tgb.cryptoexchange.grpc.generated.*;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.mapper.MerchantConfigGrpcMapper;
-import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
+import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.mapper.ApiMerchantConfigGrpcMapper;
+import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 
 import java.util.List;
 
 @Slf4j
 @GrpcService
-public class ApiConfigRequestControllerGrpc extends MerchantConfigServiceGrpc.MerchantConfigServiceImplBase {
+public class ApiConfigRequestControllerGrpc extends ApiMerchantConfigServiceGrpc.ApiMerchantConfigServiceImplBase {
 
-    private final MerchantConfigService merchantConfigService;
+    private final ApiMerchantConfigService apiMerchantConfigService;
 
-    private final MerchantConfigGrpcMapper mapper;
+    private final ApiMerchantConfigGrpcMapper mapper;
 
-    public ApiConfigRequestControllerGrpc(MerchantConfigService merchantConfigService,
-                                          MerchantConfigGrpcMapper mapper) {
-        this.merchantConfigService = merchantConfigService;
+    public ApiConfigRequestControllerGrpc(ApiMerchantConfigService apiMerchantConfigService,
+                                          ApiMerchantConfigGrpcMapper mapper) {
+        this.apiMerchantConfigService = apiMerchantConfigService;
         this.mapper = mapper;
     }
 
     @Override
-    public void findAll(FindAllMerchantConfigsRequestGrpc request,
-                        StreamObserver<FindAllMerchantConfigsResponseGrpc> responseObserver) {
+    public void findAll(FindAllApiMerchantConfigsRequestGrpc request,
+                        StreamObserver<FindAllApiMerchantConfigsResponseGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
 
-            List<MerchantConfigItemGrpc> configList = merchantConfigService.findAll(mapper.mapToMerchantConfigRequest(request))
+            List<ApiMerchantConfigItemGrpc> configList = apiMerchantConfigService.findAll(mapper.mapToApiMerchantConfigRequest(request))
                     .stream()
-                    .map(mapper::mapToGrpcMerchantConfigItem)
+                    .map(mapper::mapToGrpcApiMerchantConfigItem)
                     .toList();
 
-            FindAllMerchantConfigsResponseGrpc response = FindAllMerchantConfigsResponseGrpc.newBuilder()
+            FindAllApiMerchantConfigsResponseGrpc response = FindAllApiMerchantConfigsResponseGrpc.newBuilder()
                     .addAllConfigs(configList)
                     .build();
 
@@ -45,12 +45,12 @@ public class ApiConfigRequestControllerGrpc extends MerchantConfigServiceGrpc.Me
     }
 
     @Override
-    public void update(UpdateMerchantConfigItemGrpc request,
-                       StreamObserver<MerchantConfigItemGrpc> responseObserver) {
+    public void update(UpdateApiMerchantConfigItemGrpc request,
+                       StreamObserver<ApiMerchantConfigItemGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
-            MerchantConfigDTO updated = merchantConfigService.update(mapper.mapToUpdateMerchantConfigDTO(request));
+            ApiMerchantConfigDTO updated = apiMerchantConfigService.update(mapper.mapToUpdateMerchantConfigDTO(request));
 
-            responseObserver.onNext(mapper.mapToGrpcMerchantConfigItem(updated));
+            responseObserver.onNext(mapper.mapToGrpcApiMerchantConfigItem(updated));
             responseObserver.onCompleted();
         }
     }

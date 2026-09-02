@@ -1,11 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +17,6 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
 import java.util.*;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,50 +30,42 @@ public class ApiMerchantConfigService {
         this.repository = repository;
     }
 
-    @PostConstruct
-    public void init() {
+    public List<ApiMerchantConfigDTO> findAll(MerchantConfigRequest request) {
+        List<ApiMerchantConfig> configs = repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
+                request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
+        ));
+        if (Merchant.values().length != configs.size()) {
+            createApiConfigs(UUID.fromString(request.getOwnerId()));
+        }
+        return configs.stream()
+                .map(ApiMerchantConfigDTO::fromEntity)
+                .toList();
+    }
+
+    protected void createApiConfigs(UUID ownerId) {
         for (Merchant merchant : Merchant.values()) {
-            Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(merchant);
+            Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(ownerId);
             if (merchantConfig.isEmpty()) {
-                create(merchant);
+                Integer maxValue = repository.findMaxMerchantOrder(ownerId);
+                repository.save(
+                        ApiMerchantConfig.builder()
+                                .isOn(false)
+                                .merchant(merchant)
+                                .maxAmount(5000)
+                                .minAmount(1)
+                                .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
+                                .ownerId(ownerId)
+                                .build()
+                );
             }
         }
     }
 
-    private void create(Merchant merchant) {
-        Integer maxValue = repository.findMaxMerchantOrder();
-        repository.save(
-                ApiMerchantConfig.builder()
-                        .isOn(false)
-                        .merchant(merchant)
-                        .maxAmount(5000)
-                        .minAmount(1)
-                        .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
-                        .build()
-        );
-    }
-
-    public Optional<ApiMerchantConfig> getMerchantConfig(Merchant merchant) {
+    public Optional<ApiMerchantConfig> getMerchantConfig(UUID ownerId) {
         return repository.findBy(
-                Example.of(ApiMerchantConfig.builder().merchant(merchant).build()),
+                Example.of(ApiMerchantConfig.builder().ownerId(ownerId).build()),
                 FluentQuery.FetchableFluentQuery::one
         );
-    }
-
-    public Optional<ApiMerchantConfig> getByMerchantOrder(Integer order) {
-        return repository.findBy(
-                Example.of(ApiMerchantConfig.builder().merchantOrder(order).build()),
-                FluentQuery.FetchableFluentQuery::one
-        );
-    }
-
-    public Page<ApiMerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
-        return repository.findAll(
-                ((root, query, criteriaBuilder) -> criteriaBuilder.and(
-                        request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
-                )),
-                pageable
-        ).map(ApiMerchantConfigDTO::fromEntity);
     }
 
     public List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
@@ -111,77 +98,8 @@ public class ApiMerchantConfigService {
         });
     }
 
-    public void delete(ApiMerchantConfig config) {
-        repository.delete(config);
-    }
-
     @Transactional
-    public void changeOrder(Merchant merchant, Integer newOrder) {
-        ApiMerchantConfig config = getMerchantConfig(merchant).orElseThrow(
-                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
-        );
-        int currentOrder = config.getMerchantOrder();
-        int maxOrder = repository.findMaxMerchantOrder();
-        if (currentOrder == newOrder) {
-            return;
-        }
-        if (newOrder > maxOrder) {
-            newOrder = maxOrder;
-        }
-        if (newOrder < 1) {
-            newOrder = 1;
-        }
-        config.setMerchantOrder(-1);
-        repository.saveAndFlush(config);
-
-        int offset = maxOrder + 10000;
-        if (newOrder > currentOrder) {
-            repository.addOffsetToRange(currentOrder + 1, newOrder, offset);
-            repository.addOffsetToRange(offset + currentOrder + 1, offset + newOrder, -(offset + 1));
-        } else {
-            repository.addOffsetToRange(newOrder, currentOrder - 1, offset);
-            repository.addOffsetToRange(offset + newOrder, offset + currentOrder - 1, -(offset - 1));
-        }
-        config.setMerchantOrder(newOrder);
-        repository.save(config);
-    }
-
-    public void changeOrder(Merchant merchant, boolean isUp) {
-        ApiMerchantConfig config = getMerchantConfig(merchant).orElseThrow(
-                () -> new MerchantConfigNotFoundException("Configuration for merchant " + merchant.name() + NOT_FOUND)
-        );
-        int currentOrder = config.getMerchantOrder();
-        int maxOrder = repository.findMaxMerchantOrder();
-
-        if ((isUp && currentOrder == 1) || (!isUp && currentOrder == maxOrder)) {
-            return;
-        }
-
-        IntUnaryOperator operation = order -> isUp ? order - 1 : order + 1;
-        int newOrder = operation.applyAsInt(currentOrder);
-        ApiMerchantConfig otherConfig = null;
-        while (otherConfig == null && newOrder > -1 && newOrder <= Merchant.values().length) {
-            otherConfig = getByMerchantOrder(newOrder).orElse(null);
-            if (Objects.isNull(otherConfig)) {
-                newOrder = operation.applyAsInt(newOrder);
-            }
-        }
-        if (Objects.isNull(otherConfig)) {
-            throw new IllegalStateException("Config with order " + newOrder + NOT_FOUND);
-        }
-
-        otherConfig.setMerchantOrder(-1);
-        repository.saveAndFlush(otherConfig);
-
-        config.setMerchantOrder(newOrder);
-        repository.saveAndFlush(config);
-
-        otherConfig.setMerchantOrder(currentOrder);
-        repository.saveAndFlush(otherConfig);
-    }
-
-    @Transactional
-    public void update(UpdateApiMerchantConfigDTO dto) {
+    public ApiMerchantConfigDTO update(UpdateApiMerchantConfigDTO dto) {
         ApiMerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id" + dto.getId() + NOT_FOUND));
@@ -194,29 +112,8 @@ public class ApiMerchantConfigService {
         if (Objects.nonNull(dto.getMinAmount())) {
             merchantConfig.setMinAmount(dto.getMinAmount());
         }
-        repository.save(merchantConfig);
+        ApiMerchantConfig saved = repository.save(merchantConfig);
+        return ApiMerchantConfigDTO.fromEntity(saved);
     }
-
-    @Transactional
-    public void deleteAllByMerchantNotExist() {
-        repository.deleteAllByMerchantNotIn(List.of(Merchant.values()));
-    }
-
-    @Transactional
-    public void resetMerchantOrder() {
-        List<ApiMerchantConfig> configs = repository.findAll(Sort.by("merchantOrder"));
-        if (configs.isEmpty()) {
-            return;
-        }
-        for (int i = 0; i < configs.size(); i++) {
-            configs.get(i).setMerchantOrder(-(i + 1));
-        }
-        repository.saveAllAndFlush(configs);
-        for (int i = 0; i < configs.size(); i++) {
-            configs.get(i).setMerchantOrder(i + 1);
-        }
-        repository.saveAll(configs);
-    }
-
 
 }

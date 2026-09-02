@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -15,13 +16,11 @@ import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.AutoConfirmConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
-import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.AutoConfirmConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantConfigRepository;
 import tgb.cryptoexchange.merchantdetails.repository.MerchantSuccessStatusRepository;
@@ -36,54 +35,24 @@ public class MerchantConfigService {
 
     private final MerchantConfigRepository repository;
 
-    private final ApiMerchantConfigRepository apiMerchantConfigRepository;
-
     private final MerchantSuccessStatusRepository merchantSuccessStatusRepository;
 
     private final AutoConfirmConfigRepository autoConfirmConfigRepository;
 
-    public MerchantConfigService(MerchantConfigRepository repository, ApiMerchantConfigRepository apiMerchantConfigRepository,
+    public MerchantConfigService(MerchantConfigRepository repository,
                                  MerchantSuccessStatusRepository merchantSuccessStatusRepository,
                                  AutoConfirmConfigRepository autoConfirmConfigRepository) {
         this.repository = repository;
-        this.apiMerchantConfigRepository = apiMerchantConfigRepository;
         this.merchantSuccessStatusRepository = merchantSuccessStatusRepository;
         this.autoConfirmConfigRepository = autoConfirmConfigRepository;
     }
 
-    /**
-     * Проверяет наличие конфигураций для всех доступных значений перечисления {@link Merchant}.
-     * При старте приложения сервис {@code tgb.cryptoexchange.merchantdetails.service.StartupClearMerchantConfigService}
-     * предварительно удаляет из базы данных записи конфигураций несуществующих мерчантов.
-     * Если количество не совпадает, метод находит отсутствующие конфигурации и инициализирует их.
-     */
-    protected void checkMerchantConfigIsExist() {
-        if (Merchant.values().length == countAll()) {
-            return;
-        }
+    @PostConstruct
+    public void init() {
         for (Merchant merchant : Merchant.values()) {
             Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
             if (merchantConfig.isEmpty()) {
                 create(merchant);
-            }
-        }
-    }
-
-    protected void createApiConfigs(UUID ownerId) {
-        for (Merchant merchant : Merchant.values()) {
-            Optional<MerchantConfig> merchantConfig = getMerchantConfig(merchant);
-            if (merchantConfig.isEmpty()) {
-                Integer maxValue = apiMerchantConfigRepository.findMaxMerchantOrder(ownerId);
-                apiMerchantConfigRepository.save(
-                        ApiMerchantConfig.builder()
-                                .isOn(false)
-                                .merchant(merchant)
-                                .maxAmount(5000)
-                                .minAmount(1)
-                                .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
-                                .ownerId(ownerId)
-                                .build()
-                );
             }
         }
     }
@@ -118,24 +87,7 @@ public class MerchantConfigService {
         );
     }
 
-    private Long countAll() {
-        return repository.count();
-    }
-
-    public List<MerchantConfigDTO> findAll(MerchantConfigRequest request) {
-        List<MerchantConfig> configs = repository.findAll((root, query, criteriaBuilder) -> criteriaBuilder.and(
-                        request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
-                ));
-        if (Merchant.values().length != configs.size()) {
-            createApiConfigs(UUID.fromString(request.getOwnerId()));
-        }
-         return configs.stream()
-                .map(MerchantConfigDTO::fromEntity)
-                .toList();
-    }
-
     public Page<MerchantConfigDTO> findAll(Pageable pageable, MerchantConfigRequest request) {
-        checkMerchantConfigIsExist();
         return repository.findAll(
                 ((root, query, criteriaBuilder) -> criteriaBuilder.and(
                         request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
@@ -153,7 +105,6 @@ public class MerchantConfigService {
     }
 
     public List<MerchantConfig> findAllByMethodsAndAmount(List<BotDetailsRequest.MerchantMethod> methods, Integer amount) {
-        checkMerchantConfigIsExist();
         Map<Merchant, BotDetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
                 .collect(Collectors.toMap(BotDetailsRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
@@ -237,7 +188,7 @@ public class MerchantConfigService {
     }
 
     @Transactional
-    public MerchantConfigDTO update(UpdateMerchantConfigDTO dto) {
+    public void update(UpdateMerchantConfigDTO dto) {
         MerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id" + dto.getId() + NOT_FOUND));
@@ -284,8 +235,7 @@ public class MerchantConfigService {
                 merchantConfig.getConfirmConfigs().add(autoConfirmConfigRepository.save(autoConfirmConfig));
             }
         }
-        MerchantConfig saved = repository.save(merchantConfig);
-        return MerchantConfigDTO.fromEntity(saved);
+        repository.save(merchantConfig);
     }
 
     public void deleteField(Long id, String field) {

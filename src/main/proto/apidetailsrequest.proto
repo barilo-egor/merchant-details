@@ -11,9 +11,9 @@ service ApiDetailsRequestService {
   rpc DetailsRequest (DetailsRequestGrpc) returns (DetailsResponseGrpc);
 }
 
-service MerchantConfigService {
-  rpc FindAll (FindAllMerchantConfigsRequestGrpc) returns (FindAllMerchantConfigsResponseGrpc);
-  rpc Update (UpdateMerchantConfigItemGrpc) returns (MerchantConfigItemGrpc);
+service ApiMerchantConfigService {
+  rpc FindAll (FindAllApiMerchantConfigsRequestGrpc) returns (FindAllApiMerchantConfigsResponseGrpc);
+  rpc Update (UpdateApiMerchantConfigItemGrpc) returns (ApiMerchantConfigItemGrpc);
 }
 
 message DetailsRequestGrpc {
@@ -45,23 +45,22 @@ message MerchantError {
   string request_id = 2;
 }
 
-message UpdateMerchantConfigItemGrpc {
+message UpdateApiMerchantConfigItemGrpc {
   int64 id = 1;
   google.protobuf.BoolValue is_on = 2;
-  string merchant = 3;
-  google.protobuf.Int32Value max_amount = 4;
-  google.protobuf.Int32Value min_amount = 5;
+  google.protobuf.Int32Value max_amount = 3;
+  google.protobuf.Int32Value min_amount = 4;
 }
 
-message FindAllMerchantConfigsRequestGrpc {
+message FindAllApiMerchantConfigsRequestGrpc {
   string owner_id = 1;
 }
 
-message FindAllMerchantConfigsResponseGrpc {
-  repeated MerchantConfigItemGrpc configs = 1;
+message FindAllApiMerchantConfigsResponseGrpc {
+  repeated ApiMerchantConfigItemGrpc configs = 1;
 }
 
-message MerchantConfigItemGrpc {
+message ApiMerchantConfigItemGrpc {
   int64 id = 1;
   google.protobuf.BoolValue is_on = 2;
   string merchant = 3;
