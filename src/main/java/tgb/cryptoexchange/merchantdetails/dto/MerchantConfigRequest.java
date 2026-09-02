@@ -9,6 +9,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Data
 public class MerchantConfigRequest {
@@ -30,7 +31,8 @@ public class MerchantConfigRequest {
             predicates.add(cb.equal(root.get("merchant"), merchant));
         }
         if (Objects.nonNull(ownerId)) {
-            predicates.add(cb.equal(root.get("ownerId"), ownerId));
+            UUID ownerUuid = UUID.fromString(ownerId);
+            predicates.add(cb.equal(root.get("ownerId"), ownerUuid));
         }
         return predicates;
     }
