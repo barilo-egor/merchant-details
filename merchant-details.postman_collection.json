@@ -468,6 +468,47 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Wat",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{wat-token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"id\": \"order_123\",\r\n    \"rub_amount\": 1800,\r\n    \"payment_method\": \"card\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://apiproc.net/api/v1/orders",
+                  "protocol": "https",
+                  "host": [
+                    "apiproc",
+                    "net"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
