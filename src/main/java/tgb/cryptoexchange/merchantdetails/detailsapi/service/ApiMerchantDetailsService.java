@@ -20,8 +20,6 @@ import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
-import tgb.cryptoexchange.merchantdetails.service.SleepService;
-import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,19 +39,12 @@ public class ApiMerchantDetailsService {
 
     private final ApiMerchantConfigService merchantConfigService;
 
-    private final VariableService variableService;
-
-    private final SleepService sleepService;
-
     private final MerchantServiceRegistry merchantServiceRegistry;
 
     public ApiMerchantDetailsService(MeterRegistry meterRegistry, ApiMerchantConfigService merchantConfigService,
-                                     VariableService variableService, SleepService sleepService,
                                      MerchantServiceRegistry merchantServiceRegistry) {
         this.meterRegistry = meterRegistry;
         this.merchantConfigService = merchantConfigService;
-        this.variableService = variableService;
-        this.sleepService = sleepService;
         this.merchantServiceRegistry = merchantServiceRegistry;
     }
 
@@ -68,12 +59,12 @@ public class ApiMerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
 
-        final Instant timeoutTime = Instant.now().plusSeconds(request.getWaitTimeout());
+        final Instant deadline = Instant.now().plusSeconds(request.getWaitTimeout());
 
         do {
-            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, timeoutTime);
+            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, deadline);
             if (maybeDetailsResponse.isPresent()) break;
-        } while (Instant.now().compareTo(timeoutTime) > 0);
+        } while (Instant.now().compareTo(deadline) > 0);
 
         boolean hasDetails = maybeDetailsResponse.isPresent();
         String today = LocalDate.now().toString();
@@ -94,7 +85,7 @@ public class ApiMerchantDetailsService {
     }
 
     private Optional<ApiDetailsResponse> tryGetDetails(List<ApiMerchantConfig> merchantConfigList, ApiDetailsRequest request,
-                                                       Instant timeoutTime) {
+                                                       Instant deadline) {
         Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
@@ -118,7 +109,7 @@ public class ApiMerchantDetailsService {
                 }
             }
             index++;
-            if (Instant.now().compareTo(timeoutTime) > 0) {
+            if (Instant.now().compareTo(deadline) > 0) {
                 break;
             }
         }
