@@ -18,7 +18,8 @@ public enum Method implements MerchantMethod {
     CARD("card", "Карта"),
     SBP("sbp", "СБП"),
     SIM("sim", "Sim"),
-    BT_PDF("bt-pdf", "BT PDF");
+    BT_PDF("bt-pdf", "BT PDF карта"),
+    BT_PDF_SBP("bt-pdf", "BT PDF СБП");
 
     final String methodUid;
 
