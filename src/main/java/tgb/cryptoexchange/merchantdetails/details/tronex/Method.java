@@ -1,4 +1,4 @@
-package tgb.cryptoexchange.merchantdetails.details.wat;
+package tgb.cryptoexchange.merchantdetails.details.tronex;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -15,10 +15,10 @@ import java.io.IOException;
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("card", "Карта"),
+    CARD("c2c", "Карта"),
     SBP("sbp", "СБП"),
-    SIM("sim", "Sim"),
-    BT_PDF("bt-pdf", "BT PDF");
+    SIM("mc", "Sim"),
+    QR("vietqr", "QR");
 
     final String methodUid;
 

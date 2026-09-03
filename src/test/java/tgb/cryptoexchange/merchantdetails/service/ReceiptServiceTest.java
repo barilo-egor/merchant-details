@@ -50,12 +50,12 @@ class ReceiptServiceTest {
 
     @Test
     void deleteReceipt_FileExists_ShouldDeleteFileSuccessfully() throws IOException {
-        String fileName = "delete_me.pdf";
+        String fileName = "delete_me";
         String folderName = "refunds";
 
         Path fileFolder = tempDir.resolve(ReceiptService.RECEIPT_FOLDER).resolve(folderName);
         Files.createDirectories(fileFolder);
-        Path targetFile = fileFolder.resolve(fileName);
+        Path targetFile = fileFolder.resolve(fileName + ".pdf");
         Files.createFile(targetFile);
 
         assertTrue(Files.exists(targetFile), "Файл должен существовать перед удалением");

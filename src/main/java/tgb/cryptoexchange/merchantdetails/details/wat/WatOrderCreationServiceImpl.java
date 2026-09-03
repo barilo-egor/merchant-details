@@ -6,14 +6,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.WatPropertiesImpl;
+import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 
 @Service
 public class WatOrderCreationServiceImpl extends WatOrderCreationService {
 
 
     protected WatOrderCreationServiceImpl(@Qualifier("watWebClient") WebClient webClient,
-                                          WatPropertiesImpl watProperties, CallbackConfig callbackConfig) {
-        super(webClient, watProperties, callbackConfig);
+                                          WatPropertiesImpl watProperties, CallbackConfig callbackConfig,
+                                          ReceiptService receiptService) {
+        super(webClient, watProperties, callbackConfig, receiptService);
     }
 
 

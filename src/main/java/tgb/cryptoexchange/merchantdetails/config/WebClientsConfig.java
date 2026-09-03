@@ -368,4 +368,9 @@ public class WebClientsConfig {
     public WebClient watWebClient(WatPropertiesImpl watProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(watProperties.url()).build();
     }
+
+    @Bean
+    public WebClient tronExWebClient(TronExSimProperties tronExProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tronExProperties.url()).build();
+    }
 }

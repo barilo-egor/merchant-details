@@ -19,6 +19,7 @@ import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.WatPropertiesImpl;
+import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
@@ -49,6 +50,9 @@ class WatOrderCreationServiceImplTest {
     @Mock
     private RequestService requestService;
 
+    @Mock
+    private ReceiptService receiptService;
+
     @Captor
     private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
 
@@ -59,7 +63,7 @@ class WatOrderCreationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new WatOrderCreationServiceImpl(webClient, watProperties, callbackConfig);
+        service = new WatOrderCreationServiceImpl(webClient, watProperties, callbackConfig, receiptService);
         ReflectionTestUtils.setField(service, "requestService", requestService);
     }
 
