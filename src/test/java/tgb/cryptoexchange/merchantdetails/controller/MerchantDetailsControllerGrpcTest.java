@@ -287,7 +287,7 @@ class MerchantDetailsControllerGrpcTest {
         Variable mockVariable = Variable.builder()
                 .id(1L)
                 .type(variableType)
-                .value(variableType.getDefaultValue(ConfigType.BOT))
+                .value(variableType.getDefaultValue())
                 .build();
 
         when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(mockVariable);
@@ -304,7 +304,7 @@ class MerchantDetailsControllerGrpcTest {
         VariableDTOGrpc actualResponse = responseCaptor.getValue();
         assertAll(
                 () -> assertEquals(variableType.name(), actualResponse.getType().name()),
-                () -> assertEquals(variableType.getDefaultValue(ConfigType.BOT), actualResponse.getValue()),
+                () -> assertEquals(variableType.getDefaultValue(), actualResponse.getValue()),
                 () -> verify(responseObserver).onCompleted()
         );
     }

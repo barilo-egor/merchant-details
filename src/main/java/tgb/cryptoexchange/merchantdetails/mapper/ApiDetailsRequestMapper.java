@@ -38,6 +38,9 @@ public class ApiDetailsRequestMapper {
         if (grpc.getRequestMethodList().isEmpty()) {
             throwInvalidArgumentException("requestMethod");
         }
+        if (grpc.hasWaitTimeout()) {
+            apiDetailsRequest.setRequestId(grpc.getRequestId().getValue());
+        }
         List<RequestMethod> methods = grpc.getRequestMethodList().stream()
                 .map(RequestMethod::valueOf)
                 .toList();

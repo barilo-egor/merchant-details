@@ -9,7 +9,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
-import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -24,6 +23,7 @@ import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.SleepService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -60,27 +60,21 @@ public class ApiMerchantDetailsService {
     @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")
     public Optional<ApiDetailsResponse> getDetails(ApiDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
-        Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
+        Optional<ApiDetailsResponse> maybeDetailsResponse;
         List<ApiMerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getRequestMethods(), request.getAmount());
         log.debug("Найденные мерчанты для api-запроса {}: {}", request.getRequestId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
                         .collect(Collectors.joining(","))
         );
-        int attemptsCount = variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.API).getInt();
 
-        for (int attemptNumber = 1; attemptNumber <= attemptsCount && !merchantConfigList.isEmpty(); attemptNumber++) {
-            long t1 = System.currentTimeMillis();
-            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
-            long t2 = System.currentTimeMillis();
-            if (attemptNumber < attemptsCount && maybeDetailsResponse.isEmpty()) {
-                long leftTime = (variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.API).getInt() * 1000) - (t2 - t1);
-                if (leftTime > 0) {
-                    sleepService.sleep(leftTime);
-                }
-            }
+        final Instant timeoutTime = Instant.now().plusSeconds(request.getWaitTimeout());
+
+        do {
+            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, timeoutTime);
             if (maybeDetailsResponse.isPresent()) break;
-        }
+        } while (Instant.now().compareTo(timeoutTime) > 0);
+
         boolean hasDetails = maybeDetailsResponse.isPresent();
         String today = LocalDate.now().toString();
         if (!hasDetails) {
@@ -99,14 +93,15 @@ public class ApiMerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<ApiDetailsResponse> tryGetDetails(List<ApiMerchantConfig> merchantConfigList, ApiDetailsRequest request, int attemptNumber) {
+    private Optional<ApiDetailsResponse> tryGetDetails(List<ApiMerchantConfig> merchantConfigList, ApiDetailsRequest request,
+                                                       Instant timeoutTime) {
         Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
             try {
-                log.debug("Попытка №{} мерчанта {} для api-сделки {}.", attemptNumber, merchant.name(), request.getRequestId());
+                log.debug("Попытка мерчанта {} для api-сделки {}.", merchant.name(), request.getRequestId());
                 maybeDetailsResponse = getDetails(merchant, request);
                 sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS_API, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
@@ -115,14 +110,17 @@ public class ApiMerchantDetailsService {
                     meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "empty").increment();
                 }
             } catch (Exception e) {
-                log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{} на попытке №{}: {}",
-                        merchant.name(), request.getRequestId(), attemptNumber, e.getMessage(), e);
+                log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{}: {}",
+                        merchant.name(), request.getRequestId(), e.getMessage(), e);
                 meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getRequestId(), responseException.getResponseBodyAsString());
                 }
             }
             index++;
+            if (Instant.now().compareTo(timeoutTime) > 0) {
+                break;
+            }
         }
         maybeDetailsResponse.ifPresent(detailsResponse ->
                 log.debug("Реквизиты для пользователя {} получены. Реквизиты={}.", request.getUserId(), detailsResponse)

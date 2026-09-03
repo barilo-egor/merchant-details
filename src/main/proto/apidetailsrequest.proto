@@ -21,7 +21,8 @@ message DetailsRequestGrpc {
   google.protobuf.StringValue internal_id = 2;
   google.protobuf.StringValue user_id = 3;
   google.protobuf.Int32Value amount = 4;
-  repeated string request_method = 5;
+  google.protobuf.Int32Value wait_timeout = 5;
+  repeated string request_method = 6;
 }
 
 message DetailsResponseGrpc {

@@ -23,6 +23,8 @@ public class ApiDetailsRequest {
 
     private Integer amount;
 
+    private Integer waitTimeout = 60;
+
     private List<RequestMethod> requestMethods = new ArrayList<>();
 
     @Transient

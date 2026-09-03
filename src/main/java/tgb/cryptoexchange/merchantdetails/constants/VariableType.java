@@ -1,9 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.constants;
 
 import lombok.AllArgsConstructor;
-import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public enum VariableType {
     /**
      * Количество раз, которое будет выполнен поиск реквизитов среди всех мерчантов
@@ -15,14 +16,5 @@ public enum VariableType {
     MIN_ATTEMPT_TIME("15");
 
     private final String defaultValue;
-
-    public String getDefaultValue(ConfigType type) {
-        if (ConfigType.API.equals(type)) {
-            return switch (this) {
-                case ATTEMPTS_COUNT -> "1";
-                case MIN_ATTEMPT_TIME -> "10";
-            };
-        }
-        return defaultValue;
-    }
 }
+

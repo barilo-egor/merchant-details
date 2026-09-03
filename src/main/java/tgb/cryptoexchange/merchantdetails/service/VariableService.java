@@ -24,7 +24,6 @@ public class VariableService {
         for (VariableType variableType : VariableType.values()) {
             updateConfigTypeIfNull(variableType);
             findByTypeAndConfigType(variableType, ConfigType.BOT);
-            findByTypeAndConfigType(variableType, ConfigType.API);
         }
     }
 
@@ -33,7 +32,7 @@ public class VariableService {
                 .orElseGet(() -> {
                     Variable newVariable = new Variable();
                     newVariable.setType(type);
-                    newVariable.setValue(type.getDefaultValue(configType));
+                    newVariable.setValue(type.getDefaultValue());
                     newVariable.setConfigType(configType);
                     return variableRepository.save(newVariable);
                 });

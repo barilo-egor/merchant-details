@@ -195,13 +195,13 @@ class MerchantDetailsControllerTest {
     @EnumSource(VariableType.class)
     @ParameterizedTest
     void getVariableShouldCallServiceMethod(VariableType variableType) throws Exception {
-        when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue(ConfigType.BOT)).build());
+        when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(Variable.builder().id(1L).type(variableType).value(variableType.getDefaultValue()).build());
         mockMvc.perform(get("/merchant-details/variable/" + variableType.name()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("success").value(true))
                 .andExpect(jsonPath("data").exists())
                 .andExpect(jsonPath("data.type").value(variableType.name()))
-                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue(ConfigType.BOT)));
+                .andExpect(jsonPath("data.value").value(variableType.getDefaultValue()));
     }
 
     @CsvSource("""
