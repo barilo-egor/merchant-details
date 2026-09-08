@@ -59,12 +59,7 @@ public class ApiMerchantDetailsService {
                         .collect(Collectors.joining(","))
         );
 
-        final Instant deadline = Instant.now().plusSeconds(request.getWaitTimeout());
-
-        do {
-            maybeDetailsResponse = tryGetDetails(merchantConfigList, request, deadline);
-            if (maybeDetailsResponse.isPresent()) break;
-        } while (Instant.now().compareTo(deadline) > 0);
+        maybeDetailsResponse = tryGetDetails(merchantConfigList, request);
 
         boolean hasDetails = maybeDetailsResponse.isPresent();
         String today = LocalDate.now().toString();
@@ -84,11 +79,15 @@ public class ApiMerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<ApiDetailsResponse> tryGetDetails(List<ApiMerchantConfig> merchantConfigList, ApiDetailsRequest request,
-                                                       Instant deadline) {
+    private Optional<ApiDetailsResponse> tryGetDetails(List<ApiMerchantConfig> merchantConfigList, ApiDetailsRequest request) {
+        if (CollectionUtils.isEmpty(merchantConfigList)) {
+            return Optional.empty();
+        }
         Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
-        while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
+
+        final Instant deadline = Instant.now().plusSeconds(request.getWaitTimeout());
+        while (maybeDetailsResponse.isEmpty() && Instant.now().isBefore(deadline)) {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
             try {
@@ -108,11 +107,11 @@ public class ApiMerchantDetailsService {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getRequestId(), responseException.getResponseBodyAsString());
                 }
             }
-            index++;
-            if (Instant.now().compareTo(deadline) > 0) {
-                break;
-            }
+
+            // Переход к следующему элементу с зацикливанием в начало списка
+            index = (index + 1) % merchantConfigList.size();
         }
+
         maybeDetailsResponse.ifPresent(detailsResponse ->
                 log.debug("Реквизиты для пользователя {} получены. Реквизиты={}.", request.getUserId(), detailsResponse)
         );
