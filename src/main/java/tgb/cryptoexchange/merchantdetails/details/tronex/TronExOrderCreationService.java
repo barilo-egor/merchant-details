@@ -11,9 +11,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.TronExProperties;
 
@@ -39,12 +39,12 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/incoming/payment/create/").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
@@ -54,11 +54,11 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setMethod(method);
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());

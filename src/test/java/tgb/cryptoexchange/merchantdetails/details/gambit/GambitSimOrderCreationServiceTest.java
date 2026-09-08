@@ -93,7 +93,6 @@ class GambitSimOrderCreationServiceTest {
                 () -> assertEquals(amount.intValue(), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(operator, actual.getOperator()),
                 () -> assertEquals(phoneValue, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );

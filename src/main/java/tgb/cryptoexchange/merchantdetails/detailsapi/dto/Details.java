@@ -14,6 +14,4 @@ public class Details {
 
     private String bank;
 
-    private String operator;
-
 }

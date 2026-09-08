@@ -150,7 +150,6 @@ public class ApiMerchantDetailsService {
                         .requestMethod(RequestMethod.valueOf(merchantMethod))
                         .details(orderResponse.getDetails())
                         .bank(orderResponse.getBank())
-                        .operator(orderResponse.getOperator())
                         .build();
                 apiDetailsResponse.setDetails(details);
                 apiDetailsResponse.setAmount(orderResponse.getAmount());

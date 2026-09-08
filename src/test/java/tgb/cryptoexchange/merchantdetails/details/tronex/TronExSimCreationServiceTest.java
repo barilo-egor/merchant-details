@@ -17,8 +17,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.TronExSimProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -78,7 +78,7 @@ class TronExSimCreationServiceTest {
 
     @Test
     void uriBuilder_ShouldBuildCorrectPath() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
 
         Function<UriBuilder, URI> builderFunction = service.uriBuilder(detailsRequest);
@@ -92,7 +92,7 @@ class TronExSimCreationServiceTest {
         when(tronExSimProperties.key()).thenReturn(TEST_API_KEY);
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        service.headers(new DetailsRequest(), null).accept(httpHeaders);
+        service.headers(new OrderCreationRequest(), null).accept(httpHeaders);
 
         assertThat(httpHeaders.get("Content-Type")).containsExactly("application/json");
         assertThat(httpHeaders.get("X-Api-Key")).containsExactly(TEST_API_KEY);
@@ -103,9 +103,9 @@ class TronExSimCreationServiceTest {
         when(callbackConfig.getGatewayUrl()).thenReturn(GATEWAY_URL);
         when(callbackConfig.getCallbackSecret()).thenReturn(CALLBACK_SECRET);
 
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setCurrentMerchantMethod("SIM");
+        detailsRequest.setMethod("SIM");
 
         Request request = service.body(detailsRequest);
 

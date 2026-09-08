@@ -63,7 +63,6 @@ public class ApiDetailsRequestMapper {
                         .setRequestMethod(response.getDetails().getRequestMethod().name())
                         .setDetails(response.getDetails().getDetails())
                         .setBank(response.getDetails().getBank())
-                        .setOperator(response.getDetails().getOperator())
                         .build())
                 .build();
     }
