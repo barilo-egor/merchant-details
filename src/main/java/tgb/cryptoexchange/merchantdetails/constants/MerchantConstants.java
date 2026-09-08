@@ -87,6 +87,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
     ),
+    PAYSCROW_LOW(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
+    PAYSCROW_TRANSGRAN(
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.payscrow.Method.values()
+    ),
     GEO_TRANSFER(
             Status.values(),
             Method.values()
