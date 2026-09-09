@@ -509,6 +509,50 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "BayPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bay-pay-api-key}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 1200,\r\n    \"order_id\": \"0a84d035-2e59-48e6-b005-2ec29f6dac9b\",\r\n    \"payment_method\": \"card\",\r\n    \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=BAY_PAY&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://baypay.live/api/v1/s2s/invoices/create/",
+                  "protocol": "https",
+                  "host": [
+                    "baypay",
+                    "live"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "s2s",
+                    "invoices",
+                    "create",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
