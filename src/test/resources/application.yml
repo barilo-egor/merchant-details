@@ -348,6 +348,9 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+bay-pay:
+  url: "bay-pay-url"
+  api-key: "bay-pay-api-key"
 #Конфиг приложния
 server:
   servlet:

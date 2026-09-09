@@ -338,6 +338,9 @@ tron-ex-qr:
   key:
 tron-ex-pdf:
   key:
+bay-pay:
+  url:
+  api-key:
 # Конфиг приложение
 springdoc:
   swagger-ui:

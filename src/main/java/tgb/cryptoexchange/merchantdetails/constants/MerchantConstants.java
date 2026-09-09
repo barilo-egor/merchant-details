@@ -346,6 +346,10 @@ public enum MerchantConstants {
     TRON_EX_PDF(
             tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
+    ),
+    BAY_PAY(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
