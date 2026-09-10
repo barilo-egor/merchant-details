@@ -1,9 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.cube;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -53,13 +56,13 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
         Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
         request.setMethod(method);
         request.setExternalId(UUID.randomUUID().toString());
-        setCallback(request, detailsRequest);
+        setCallback(request);
         return request;
     }
 
-    protected void setCallback(Request request, DetailsRequest detailsRequest) {
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?dealId="
-                + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
+    protected void setCallback(Request request) {
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?transactionId="
+                + request.getExternalId() + "&secret=" + callbackConfig.getCallbackSecret());
     }
 
     @Override
@@ -72,6 +75,29 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
         detailsResponse.setAmount(response.getData().getAmount().intValue());
 
         return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected Optional<String> makeFetchCallbackData(String transactionId) {
+        String response = requestService.request(webClient, HttpMethod.GET,
+                uriBuilder(null),
+                headers(null, null),
+                null
+        );
+        try {
+            Response.Data data = objectMapper.readValue(response, Response.Data.class);
+
+            Callback callback = new Callback();
+            callback.setId(data.getInternalId());
+            callback.setStatus(data.getStatus());
+            String callbackData = objectMapper.writeValueAsString(callback);
+            return Optional.of(callbackData);
+        } catch (JsonProcessingException e) {
+            long currentTime = System.currentTimeMillis();
+            log.debug("{} Ошибки преобразования ответа информации о транзакции мерчанта {}, body: {}", currentTime,
+                    getMerchant().name(), response);
+            throw new ServiceUnavailableException("Error occurred while mapping get callback data response: " + currentTime);
+        }
     }
 
 }

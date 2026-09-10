@@ -286,6 +286,20 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         log.trace("Реализация удаления чека для ордера {} мерчанту {} отсутствует.", orderId, getMerchant().name());
     }
 
+    public Optional<String> fetchCallbackDataByTransactionId(String transactionId) {
+        try {
+            return makeFetchCallbackData(transactionId);
+        } catch (Exception e) {
+            log.error("Ошибка при попытке получении информации кб (transactionId={}): {}", transactionId, e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    protected Optional<String> makeFetchCallbackData(String transactionId) {
+        log.trace("Реализация получения информации кб для мерчанта {} отсутствует.", getMerchant().name());
+        return Optional.empty();
+    }
+
     public void cancelOrder(CancelOrderRequest cancelOrderRequest) {
         try {
             makeCancelRequest(cancelOrderRequest);
