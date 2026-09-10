@@ -50,6 +50,7 @@ message UpdateApiMerchantConfigItemGrpc {
   google.protobuf.BoolValue is_on = 2;
   google.protobuf.Int32Value max_amount = 3;
   google.protobuf.Int32Value min_amount = 4;
+  google.protobuf.Int32Value new_order = 5;
 }
 
 message FindAllApiMerchantConfigsRequestGrpc {
@@ -66,4 +67,5 @@ message ApiMerchantConfigItemGrpc {
   string merchant = 3;
   google.protobuf.Int32Value max_amount = 4;
   google.protobuf.Int32Value min_amount = 5;
+  google.protobuf.Int32Value merchant_order = 6;
 }

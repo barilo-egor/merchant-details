@@ -23,8 +23,8 @@ public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantCo
 
     @Modifying
     @Query("update ApiMerchantConfig mc set mc.merchantOrder = mc.merchantOrder + :delta " +
-            "where mc.merchantOrder >= :start and mc.merchantOrder <= :end")
-    void addOffsetToRange(int start, int end, int delta);
+            "where mc.ownerId=:ownerId and mc.merchantOrder >= :start and mc.merchantOrder <= :end")
+    void addOffsetToRange(UUID ownerId, int start, int end, int delta);
 
     @Modifying
     @Query("DELETE FROM ApiMerchantConfig m WHERE m.merchant NOT IN :merchants")

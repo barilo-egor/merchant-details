@@ -119,8 +119,40 @@ public class ApiMerchantConfigService {
         if (Objects.nonNull(dto.getMinAmount())) {
             merchantConfig.setMinAmount(dto.getMinAmount());
         }
+        if (Objects.nonNull(dto.getNewOrder())) {
+            changeOrder(merchantConfig, dto.getNewOrder());
+        }
         ApiMerchantConfig saved = repository.save(merchantConfig);
         return ApiMerchantConfigDTO.fromEntity(saved);
     }
+
+    private void changeOrder(ApiMerchantConfig config, Integer newOrder) {
+        int currentOrder = config.getMerchantOrder();
+        UUID ownerId = config.getOwnerId();
+        int maxOrder = repository.findMaxMerchantOrder(ownerId);
+        if (currentOrder == newOrder) {
+            return;
+        }
+        if (newOrder > maxOrder) {
+            newOrder = maxOrder;
+        }
+        if (newOrder < 1) {
+            newOrder = 1;
+        }
+        config.setMerchantOrder(-1);
+        repository.saveAndFlush(config);
+
+        int offset = maxOrder + 10000;
+        if (newOrder > currentOrder) {
+            repository.addOffsetToRange(ownerId, currentOrder + 1, newOrder, offset);
+            repository.addOffsetToRange(ownerId, offset + currentOrder + 1, offset + newOrder, -(offset + 1));
+        } else {
+            repository.addOffsetToRange(ownerId, newOrder, currentOrder - 1, offset);
+            repository.addOffsetToRange(ownerId, offset + newOrder, offset + currentOrder - 1, -(offset - 1));
+        }
+        config.setMerchantOrder(newOrder);
+        repository.save(config);
+    }
+
 
 }

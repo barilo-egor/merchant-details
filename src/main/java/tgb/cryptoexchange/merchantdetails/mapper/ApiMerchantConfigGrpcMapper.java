@@ -28,6 +28,9 @@ public class ApiMerchantConfigGrpcMapper {
         if (dto.getMinAmount() != null) {
             builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
         }
+        if (dto.getMerchantOrder() != null) {
+            builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
+        }
         return builder.build();
     }
 
@@ -50,6 +53,9 @@ public class ApiMerchantConfigGrpcMapper {
         }
         if (grpcRequest.hasMinAmount()) {
             request.setMinAmount(grpcRequest.getMinAmount().getValue());
+        }
+        if (grpcRequest.hasNewOrder()) {
+            request.setNewOrder(grpcRequest.getNewOrder().getValue());
         }
         return request;
     }

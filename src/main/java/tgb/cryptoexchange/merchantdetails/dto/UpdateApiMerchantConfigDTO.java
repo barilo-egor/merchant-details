@@ -14,4 +14,7 @@ public class UpdateApiMerchantConfigDTO {
     private Integer maxAmount;
 
     private Integer minAmount;
+
+    private Integer newOrder;
+
 }
