@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +45,7 @@ public class ApiMerchantConfigService {
         return repository.findAll(
                 (root, query, criteriaBuilder) -> criteriaBuilder.and(
                         request.toPredicates(root, criteriaBuilder).toArray(new Predicate[0])
-                ));
+                ), Sort.by(Sort.Order.asc("merchantOrder")));
     }
 
     protected List<ApiMerchantConfig> createApiConfigs(UUID ownerId) {
