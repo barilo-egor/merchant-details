@@ -80,7 +80,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
     @Override
     protected Optional<String> makeFetchCallbackData(String transactionId) {
         String response = requestService.request(webClient, HttpMethod.GET,
-                uriBuilder(null),
+                builder -> uriBuilder(null).apply(builder.queryParam("internal_id", transactionId)),
                 headers(null, null),
                 null
         );
