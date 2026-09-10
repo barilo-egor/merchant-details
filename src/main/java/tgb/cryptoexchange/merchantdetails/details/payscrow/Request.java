@@ -23,4 +23,19 @@ public class Request {
 
     @JsonProperty("unique_amount")
     private Boolean uniqueAmount;
+
+    @JsonProperty("order_data")
+    private OrderData orderData;
+
+    @Data
+    public static class OrderData {
+
+        @JsonProperty("client_order_id")
+        private String clientOrderId;
+
+        @JsonProperty("order_side")
+        private String orderSide = "Buy";
+
+        private Integer amount;
+    }
 }
