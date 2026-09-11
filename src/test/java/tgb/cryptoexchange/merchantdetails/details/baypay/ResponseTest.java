@@ -36,7 +36,7 @@ class ResponseTest {
 
     @Test
     void shouldPassValidationWhenResponseIsValid() {
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(validData);
 
         ValidationResult result = response.validate();
@@ -45,21 +45,21 @@ class ResponseTest {
         assertThat(result.isValid()).isTrue();
     }
 
-    @ParameterizedTest(name = "status = {0}")
+    @ParameterizedTest(name = "success = {0}")
     @NullSource
     @ValueSource(booleans = {false})
-    void shouldReturnErrorWhenStatusIsNotTrue(Boolean status) {
-        response.setStatus(status);
+    void shouldReturnErrorWhenStatusIsNotTrue(Boolean success) {
+        response.setSuccess(success);
         response.setData(validData);
 
         ValidationResult actual = response.validate();
 
-        assertEquals(String.format("field \"status\" expected 'true' but was %s", status), actual.errorsToString());
+        assertEquals(String.format("field \"success\" expected 'true' but was %s", success), actual.errorsToString());
     }
 
     @Test
     void shouldThrowNpeWhenDataIsNullAndStatusIsTrue() {
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(null);
 
         assertThrows(NullPointerException.class, () -> response.validate());
@@ -67,7 +67,7 @@ class ResponseTest {
 
     @Test
     void shouldReturnErrorsWhenAllDataFieldsAreNull() {
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(new Response.Data());
 
         ValidationResult actual = response.validate();
@@ -82,7 +82,7 @@ class ResponseTest {
     @Test
     void shouldReturnErrorWhenOnlyIdIsNull() {
         validData.setId(null);
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(validData);
 
         ValidationResult actual = response.validate();
@@ -95,7 +95,7 @@ class ResponseTest {
     @Test
     void shouldReturnErrorWhenOnlyAmountIsNull() {
         validData.setAmount(null);
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(validData);
 
         ValidationResult actual = response.validate();
@@ -108,7 +108,7 @@ class ResponseTest {
     @Test
     void shouldReturnErrorWhenOnlyStatusIsNull() {
         validData.setStatus(null);
-        response.setStatus(true);
+        response.setSuccess(true);
         response.setData(validData);
 
         ValidationResult actual = response.validate();
@@ -160,12 +160,12 @@ class ResponseTest {
     void shouldDeserializeCompleteValidJson() throws JsonProcessingException {
         String json = """
                 {
-                  "status": true,
+                  "success": true,
                   "data": {
                     "id": "order-uuid-777",
                     "amount": "25000",
                     "status": "Активна",
-                    "payment_detail": {
+                    "payment_details": {
                       "detail": "2200700199998888",
                       "bank": "Сбербанк"
                     }
@@ -177,7 +177,7 @@ class ResponseTest {
 
         assertAll(
                 () -> assertNotNull(actual),
-                () -> assertTrue(actual.getStatus()),
+                () -> assertTrue(actual.getSuccess()),
                 () -> assertNotNull(actual.getData()),
                 () -> assertEquals("order-uuid-777", actual.getData().getId()),
                 () -> assertEquals("25000", actual.getData().getAmount()),
@@ -195,7 +195,7 @@ class ResponseTest {
     void shouldDeserializeUnknownStatusAsNull() throws JsonProcessingException {
         String json = """
                 {
-                  "status": true,
+                  "success": true,
                   "data": {
                     "id": "order-123",
                     "amount": "1000",
