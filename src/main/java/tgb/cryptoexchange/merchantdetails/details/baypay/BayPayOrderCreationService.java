@@ -83,9 +83,11 @@ public class BayPayOrderCreationService extends MerchantOrderCreationService<Res
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String cancelUrl = "/s2s/invoice/" + cancelOrderRequest.getOrderId() + "/cancel/";
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(
+                webClient,
+                HttpMethod.POST,
                 uriBuilder -> uriBuilder.path(cancelUrl).build(),
-                httpHeaders -> headers(null, null),
+                headers(null, null),
                 null
         );
     }

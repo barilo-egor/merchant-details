@@ -11,15 +11,15 @@ import java.util.Objects;
 @Data
 public class Response implements MerchantDetailsResponse {
 
-    private Boolean status;
+    private Boolean success;
 
     private Data data;
 
     @Override
     public ValidationResult validate() {
         ValidationResult result = new ValidationResult();
-        if (!Boolean.TRUE.equals(status)) {
-            result.addError("status", String.format("expected 'true' but was %s", status));
+        if (!Boolean.TRUE.equals(success)) {
+            result.addError("success", String.format("expected 'true' but was %s", success));
             return result;
         }
         validateData(result);
@@ -56,7 +56,7 @@ public class Response implements MerchantDetailsResponse {
         @JsonDeserialize(using = Status.Deserializer.class)
         private Status status;
 
-        @JsonProperty("payment_detail")
+        @JsonProperty("payment_details")
         private PaymentDetail paymentDetail;
 
         @lombok.Data
