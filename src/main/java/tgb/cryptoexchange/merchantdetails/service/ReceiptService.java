@@ -75,7 +75,7 @@ public class ReceiptService {
     }
 
     private String generateExternalUrl(String fileName, String folderName) {
-        return baseUrl + "/" + RECEIPT_FOLDER + "/" + folderName + "/" + fileName;
+        return baseUrl + "/merchant-details/" + RECEIPT_FOLDER + "/" + folderName + "/" + fileName;
     }
 
 }

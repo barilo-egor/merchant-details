@@ -79,6 +79,12 @@ payscrow-white-triangle:
 payscrow-sim:
   url: "payscrow-sim-url"
   key: "payscrow-sim-key"
+payscrow-low:
+  url: "payscrow-low-url"
+  key: "payscrow-low-key"
+payscrow-transgran:
+  url: "payscrow-transgran-url"
+  key: "payscrow-transgran-key"
 appexbit:
   url: "appexbit-url"
   key: "appexbit-key"
