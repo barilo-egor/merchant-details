@@ -37,7 +37,7 @@ class ReceiptServiceTest {
         byte[] content = "test content".getBytes();
         String fileName = "receipt_123.pdf";
         String folderName = "orders";
-        String expectedUrl = baseUrl + "/" + ReceiptService.RECEIPT_FOLDER + "/" + folderName + "/" + fileName;
+        String expectedUrl = baseUrl + "/merchant-details/" + ReceiptService.RECEIPT_FOLDER + "/" + folderName + "/" + fileName;
 
         String actualUrl = receiptService.saveReceipt(content, fileName, folderName);
 
