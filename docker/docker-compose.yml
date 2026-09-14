@@ -1,5 +1,8 @@
 services:
   merchant-details:
+    ports:
+      - "9090:9090"
+      - "5555:5005"
     networks:
       - processing
     image: eclipse-temurin:21-jre-jammy

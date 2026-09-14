@@ -29,7 +29,7 @@ message DetailsResponseGrpc {
   string request_id = 1;
   string merchant = 2;
   string order_id = 3;
-  string  order_status = 4;
+  string order_status = 4;
   DetailsGrpc details = 5;
   int32 amount = 6;
 }
