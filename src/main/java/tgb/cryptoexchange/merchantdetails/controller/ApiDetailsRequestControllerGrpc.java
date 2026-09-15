@@ -38,11 +38,8 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     @Override
     public void merchantCallbackRequest(MerchantCallbackGrpc requestGrpc, StreamObserver<MerchantCallbackGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
-            String testEnv = TestDetailsInterceptor.TEST_DETAILS_CTX_KEY.get();
-            if ("true".equalsIgnoreCase(testEnv)) {
-                responseObserver.onNext(requestGrpc);
-                responseObserver.onCompleted();
-            }
+            responseObserver.onNext(requestGrpc);
+            responseObserver.onCompleted();
         }
     }
 
