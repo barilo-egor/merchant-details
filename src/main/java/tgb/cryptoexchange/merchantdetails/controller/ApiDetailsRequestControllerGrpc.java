@@ -8,10 +8,7 @@ import org.slf4j.MDC;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.grpc.generated.ApiDetailsRequestServiceGrpc;
-import tgb.cryptoexchange.grpc.generated.DetailsGrpc;
-import tgb.cryptoexchange.grpc.generated.DetailsRequestGrpc;
-import tgb.cryptoexchange.grpc.generated.DetailsResponseGrpc;
+import tgb.cryptoexchange.grpc.generated.*;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
@@ -36,6 +33,17 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.processorService = processorService;
         this.mapper = mapper;
+    }
+
+    @Override
+    public void merchantCallbackRequest(MerchantCallbackGrpc requestGrpc, StreamObserver<MerchantCallbackGrpc> responseObserver) {
+        try (var ignored = MDC.putCloseable("logDest", "api")) {
+            String testEnv = TestDetailsInterceptor.TEST_DETAILS_CTX_KEY.get();
+            if ("true".equalsIgnoreCase(testEnv)) {
+                responseObserver.onNext(requestGrpc);
+                responseObserver.onCompleted();
+            }
+        }
     }
 
     @Override

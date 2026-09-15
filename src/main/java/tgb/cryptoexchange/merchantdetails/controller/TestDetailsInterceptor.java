@@ -1,9 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
 import io.grpc.*;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("dev")
 public class TestDetailsInterceptor implements ServerInterceptor {
 
     public static final Metadata.Key<String> TEST_DETAILS_HEADER_KEY =

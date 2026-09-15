@@ -9,6 +9,7 @@ import "google/protobuf/field_mask.proto";
 
 service ApiDetailsRequestService {
   rpc DetailsRequest (DetailsRequestGrpc) returns (DetailsResponseGrpc);
+  rpc MerchantCallbackRequest (MerchantCallbackGrpc) returns (MerchantCallbackGrpc);
 }
 
 service ApiMerchantConfigService {
@@ -68,4 +69,11 @@ message ApiMerchantConfigItemGrpc {
   google.protobuf.Int32Value max_amount = 4;
   google.protobuf.Int32Value min_amount = 5;
   google.protobuf.Int32Value merchant_order = 6;
+}
+
+message MerchantCallbackGrpc {
+  string merchant_order_id = 1;
+  string status = 2;
+  string status_description = 3;
+  string merchant = 4;
 }
