@@ -70,7 +70,8 @@ public class DetailsRequest {
 
         private final ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
-                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
         @Override
         public DetailsRequest deserialize(String topic, byte[] data) {
