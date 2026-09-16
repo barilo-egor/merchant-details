@@ -40,6 +40,8 @@ public class DetailsRequest {
 
     protected String initiatorApp;
 
+    protected String redirectUrl;
+
     protected List<MerchantMethod> methods;
 
     protected String currentMerchantMethod;
