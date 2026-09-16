@@ -83,6 +83,7 @@ public class PayscrowTransgranOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchantOrderId(data.getOrderData().getOrderId());
         detailsResponse.setDetails(data.getFormUrl());
         detailsResponse.setAmount(data.getOrderData().getAmount().intValue());
+        detailsResponse.setMerchantOrderStatus(Status.UNPAID.name());
 
         return Optional.of(detailsResponse);
     }
