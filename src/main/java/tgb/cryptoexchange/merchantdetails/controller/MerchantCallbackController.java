@@ -14,10 +14,8 @@ import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchant-details/callback")
@@ -55,23 +53,6 @@ public class MerchantCallbackController extends ApiController {
 
         merchantDetailsService.updateStatus(merchant, callbackBody);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/redirect")
-    public ResponseEntity<Void> redirectGet(@RequestParam("transaction_id") String transactionId, @RequestParam String secret,
-                                            @RequestParam String merchant, @RequestParam("bot_url") String botUrl) {
-        if (!this.secret.equals(secret)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-
-        Optional<String> callbackData =
-                merchantDetailsService.fetchCallbackDataByTransactionId(Merchant.valueOf(merchant), transactionId);
-        callbackData.ifPresent(data -> merchantDetailsService.updateStatus(Merchant.valueOf(merchant), data));
-
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(botUrl))
-                .build();
     }
 
     @PostMapping("/{merchant}")

@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,26 +9,20 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PayscrowTransgranOrderCreationServiceTest {
@@ -70,8 +63,6 @@ class PayscrowTransgranOrderCreationServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, String redirectUrl) {
-        String secret = "test_secret";
-        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
 
         DetailsRequest detailsRequest = new DetailsRequest();
         detailsRequest.setAmount(amount);
@@ -87,15 +78,8 @@ class PayscrowTransgranOrderCreationServiceTest {
                 () -> assertEquals(amount, request.getOrderData().getAmount()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(clientOrderId)),
                 () -> {
-                    String expectedUrl = UriComponentsBuilder.fromUriString(BASE_URL)
-                            .path("/merchant-details/callback/redirect")
-                            .queryParam("secret", secret)
-                            .queryParam("merchant", Merchant.PAYSCROW_TRANSGRAN.name())
-                            .queryParam("bot_url", redirectUrl)
-                            .queryParam("transaction_id", clientOrderId)
-                            .toUriString();
-                    assertEquals(expectedUrl, request.getRedirectUrl());
-                    assertEquals(expectedUrl, request.getReturnUrl());
+                    assertEquals(redirectUrl, request.getRedirectUrl());
+                    assertEquals(redirectUrl, request.getReturnUrl());
                 }
         );
     }
@@ -129,76 +113,6 @@ class PayscrowTransgranOrderCreationServiceTest {
                 () -> assertEquals(Merchant.PAYSCROW_TRANSGRAN, actual.getMerchant()),
                 () -> assertEquals(amount.intValue(), actual.getAmount())
         );
-    }
-
-    @Test
-    void makeFetchCallbackDataShouldReturnCallbackJsonWhenValid() throws JsonProcessingException {
-        String txId = "tx-123";
-        String rawResponse = "{\"orders\":{\"items\":[{\"client_order_id\":\"order-777\",\"status\":\"Completed\"}]}}";
-        String expectedCallbackJson = "{\"payload\":{\"id\":\"order-777\",\"status\":\"COMPLETED\"}}";
-
-        TransgranTxDTO txData = new TransgranTxDTO();
-        txData.setSuccess(true);
-        TransgranTxDTO.Order order = new TransgranTxDTO.Order();
-        TransgranTxDTO.Order.Item item = new TransgranTxDTO.Order.Item();
-        item.setOrderId("order-777");
-        item.setStatus(Status.COMPLETED);
-        order.setItems(List.of(item));
-        txData.setOrder(order);
-
-        when(requestService.request(eq(webClient), eq(HttpMethod.GET), any(), any(), any()))
-                .thenReturn(rawResponse);
-        when(objectMapper.readValue(rawResponse, TransgranTxDTO.class)).thenReturn(txData);
-        when(objectMapper.writeValueAsString(any(Callback.class))).thenReturn(expectedCallbackJson);
-
-        Optional<String> result = service.makeFetchCallbackData(txId);
-
-        assertTrue(result.isPresent());
-        assertEquals(expectedCallbackJson, result.get());
-
-        verify(objectMapper).writeValueAsString(argThat((Callback cb) ->
-                cb.getPayload() != null
-                        && "order-777".equals(cb.getPayload().getId())
-                        && Status.COMPLETED.equals(cb.getPayload().getStatus())
-        ));
-    }
-
-    @Test
-    void makeFetchCallbackDataShouldLogAndReturnCallbackJsonWhenInvalidDto() throws JsonProcessingException {
-        String txId = "tx-invalid";
-        String rawResponse = "{\"orders\":{\"items\":[{\"client_order_id\":null,\"status\":null}]}}";
-        String expectedCallbackJson = "{\"payload\":{\"id\":null,\"status\":null}}";
-
-        TransgranTxDTO txData = new TransgranTxDTO();
-        txData.setSuccess(true);
-        TransgranTxDTO.Order order = new TransgranTxDTO.Order();
-        TransgranTxDTO.Order.Item item = new TransgranTxDTO.Order.Item();
-        order.setItems(List.of(item));
-        txData.setOrder(order);
-
-        when(requestService.request(eq(webClient), eq(HttpMethod.GET), any(), any(), any()))
-                .thenReturn(rawResponse);
-        when(objectMapper.readValue(rawResponse, TransgranTxDTO.class)).thenReturn(txData);
-        when(objectMapper.writeValueAsString(any(Callback.class))).thenReturn(expectedCallbackJson);
-
-        Optional<String> result = service.makeFetchCallbackData(txId);
-
-        assertTrue(result.isPresent());
-        assertEquals(expectedCallbackJson, result.get());
-    }
-
-    @Test
-    void makeFetchCallbackDataShouldThrowServiceUnavailableExceptionOnJsonError() throws JsonProcessingException {
-        String txId = "tx-error";
-        String rawResponse = "corrupted-json";
-
-        when(requestService.request(eq(webClient), eq(HttpMethod.GET), any(), any(), any()))
-                .thenReturn(rawResponse);
-        when(objectMapper.readValue(rawResponse, TransgranTxDTO.class))
-                .thenThrow(new JsonProcessingException("Deserialization failed") {
-                });
-
-        assertThrows(ServiceUnavailableException.class, () -> service.makeFetchCallbackData(txId));
     }
 
     @Test

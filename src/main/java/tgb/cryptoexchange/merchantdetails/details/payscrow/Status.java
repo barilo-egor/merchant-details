@@ -1,11 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
@@ -38,14 +35,6 @@ public enum Status implements MerchantOrderStatus {
         @Override
         public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return Status.fromValue(jsonParser.getValueAsString());
-        }
-    }
-
-    public static class Serializer extends JsonSerializer<Status> {
-
-        @Override
-        public void serialize(Status value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeString(value.getValue());
         }
     }
 
