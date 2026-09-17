@@ -346,6 +346,18 @@ public enum MerchantConstants {
     TRON_EX_PDF(
             tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
+    ),
+    PRIME_WALLET(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    PRIME_WALLET_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    PRIME_WALLET_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
