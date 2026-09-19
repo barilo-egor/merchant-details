@@ -348,6 +348,9 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+smack-pay:
+  url: "smack-pay-url"
+  api-key: "smack-pay-api-key"
 #Конфиг приложния
 server:
   servlet:

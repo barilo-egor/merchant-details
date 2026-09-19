@@ -384,4 +384,9 @@ public class WebClientsConfig {
     public WebClient tronExWebClient(TronExSimProperties tronExProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tronExProperties.url()).build();
     }
+
+    @Bean
+    public WebClient smackPayWebClient(SmackPayProperties smackPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(smackPayProperties.url()).build();
+    }
 }

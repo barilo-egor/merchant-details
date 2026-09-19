@@ -346,6 +346,10 @@ public enum MerchantConstants {
     TRON_EX_PDF(
             tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
+    ),
+    SMACK_PAY(
+            tgb.cryptoexchange.merchantdetails.details.smackpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.smackpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
