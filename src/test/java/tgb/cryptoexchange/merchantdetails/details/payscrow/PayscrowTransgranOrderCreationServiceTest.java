@@ -9,10 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,9 +36,9 @@ class PayscrowTransgranOrderCreationServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(Method.TRANS_SBP.name());
+        detailsRequest.setMethod(Method.TRANS_SBP.name());
         Request request = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getOrderData().getAmount()),
