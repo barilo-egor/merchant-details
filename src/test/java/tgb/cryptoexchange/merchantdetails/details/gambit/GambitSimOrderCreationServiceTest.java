@@ -12,8 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitSimProperties;
 
 import java.math.BigDecimal;
@@ -61,12 +61,12 @@ class GambitSimOrderCreationServiceTest {
             10500, SBP
             """)
     void body(String amount, Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).methods(Collections.singletonList(method.name()))
+                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).methods(Collections.singletonList(method.name()))
                         .build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
+        detailsRequest.setMethod(method.name());
         Request actual = service.body(detailsRequest);
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), new BigDecimal(actual.getAmount()).intValue())

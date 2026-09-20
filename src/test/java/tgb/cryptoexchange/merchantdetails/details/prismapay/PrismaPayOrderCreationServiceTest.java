@@ -15,8 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PrismaPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -67,7 +67,7 @@ class PrismaPayOrderCreationServiceTest {
         when(uriBuilder.path("/api/orders")).thenReturn(uriBuilder);
         when(uriBuilder.build()).thenReturn(expectedUri);
 
-        Function<UriBuilder, URI> function = service.uriBuilder(mock(DetailsRequest.class));
+        Function<UriBuilder, URI> function = service.uriBuilder(mock(OrderCreationRequest.class));
         URI actualUri = function.apply(uriBuilder);
 
         assertThat(actualUri).isEqualTo(expectedUri);
@@ -78,7 +78,7 @@ class PrismaPayOrderCreationServiceTest {
         when(prismaPayProperties.token()).thenReturn("test-token");
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(mock(DetailsRequest.class), "body");
+        Consumer<HttpHeaders> headersConsumer = service.headers(mock(OrderCreationRequest.class), "body");
         headersConsumer.accept(httpHeaders);
 
         assertThat(httpHeaders.getFirst("Content-Type")).isEqualTo("application/json");
@@ -87,9 +87,9 @@ class PrismaPayOrderCreationServiceTest {
 
     @Test
     void shouldMapDetailsRequestToMerchantRequest() {
-        DetailsRequest detailsRequest = mock(DetailsRequest.class);
+        OrderCreationRequest detailsRequest = mock(OrderCreationRequest.class);
         when(detailsRequest.getAmount()).thenReturn(100);
-        when(detailsRequest.getCurrentMerchantMethod()).thenReturn("CARD");
+        when(detailsRequest.getMethod()).thenReturn("CARD");
 
         Request request = service.body(detailsRequest);
 

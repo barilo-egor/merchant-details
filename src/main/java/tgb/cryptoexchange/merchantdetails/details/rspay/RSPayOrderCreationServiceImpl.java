@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -21,7 +21,7 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = super.body(detailsRequest);
         isRequiredReceipt().ifPresent(requiredReceipt -> {
             if (RequiredReceipt.REQUIRED_RECEIPTS.contains(requiredReceipt)) request.setReceipt(true);

@@ -7,9 +7,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.NorosProperties;
 
 import java.net.URI;
@@ -34,7 +34,7 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/transaction").build();
     }
 
@@ -44,16 +44,16 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
     @Override
-    public Request body(DetailsRequest detailsRequest) {
+    public Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setOrderId(UUID.randomUUID().toString());
         request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         if (Objects.nonNull(detailsRequest.getChatId())) {
             request.setClientId(hashids.encode(detailsRequest.getChatId()));
         }

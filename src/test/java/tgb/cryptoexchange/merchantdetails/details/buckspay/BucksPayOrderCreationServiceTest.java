@@ -15,8 +15,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BucksPayPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
@@ -68,7 +68,7 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testUriBuilder_ShouldReturnCorrectPath() {
-        DetailsRequest request = new DetailsRequest();
+        OrderCreationRequest request = new OrderCreationRequest();
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         Function<UriBuilder, URI> uriFunction = service.uriBuilder(request);
@@ -79,8 +79,8 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testHeaders_ShouldAddRequiredHeadersWithSignature_ForDefaultMethod() {
-        DetailsRequest request = new DetailsRequest();
-        request.setCurrentMerchantMethod(Method.CARD.name());
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod(Method.CARD.name());
         HttpHeaders headers = new HttpHeaders();
 
         when(properties.key()).thenReturn("key");
@@ -108,8 +108,8 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testHeaders_ShouldUseQrKeysAndSecret_WhenMethodIsNspk() {
-        DetailsRequest request = new DetailsRequest();
-        request.setCurrentMerchantMethod(Method.NSPK.name());
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod(Method.NSPK.name());
         HttpHeaders headers = new HttpHeaders();
 
         when(properties.qrKey()).thenReturn("qr-key");
@@ -136,8 +136,8 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testHeaders_ShouldUseTPayKeysAndSecret_WhenMethodIsTPay() {
-        DetailsRequest request = new DetailsRequest();
-        request.setCurrentMerchantMethod(Method.T_PAY.name());
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod(Method.T_PAY.name());
         HttpHeaders headers = new HttpHeaders();
 
         when(properties.tPayKey()).thenReturn("t-pay-key");
@@ -164,9 +164,9 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testBody_ShouldMapFieldsCorrectly_ForDefaultMethod() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(250);
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        detailsRequest.setMethod(Method.CARD.name());
 
         when(properties.shopId()).thenReturn("shop-id");
 
@@ -184,9 +184,9 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testBody_ShouldUseQrShopId_WhenMethodIsNspk() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(500);
-        detailsRequest.setCurrentMerchantMethod(Method.NSPK.name());
+        detailsRequest.setMethod(Method.NSPK.name());
 
         when(properties.qrShopId()).thenReturn("qr-shop-id");
 
@@ -203,9 +203,9 @@ class BucksPayOrderCreationServiceTest {
 
     @Test
     void testBody_ShouldUseTPayShopId_WhenMethodIsTPay() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(750);
-        detailsRequest.setCurrentMerchantMethod(Method.T_PAY.name());
+        detailsRequest.setMethod(Method.T_PAY.name());
 
         when(properties.tPayShopId()).thenReturn("t-pay-shop-id");
 

@@ -9,9 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -35,14 +35,14 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path("/api/v1/transactions" + method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return headers -> addHeaders(headers, method);
     }
 
@@ -52,7 +52,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());

@@ -8,9 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
 
 import java.net.URI;
@@ -34,12 +34,12 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/v2/h2h/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Client-Id", crocoPayProperties.clientId());
             httpHeaders.add("Client-Secret", crocoPayProperties.clientSecret());
@@ -48,15 +48,15 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         setCallback(request, detailsRequest);
         return request;
     }
 
-    protected void setCallback(Request request, DetailsRequest detailsRequest) {
+    protected void setCallback(Request request, OrderCreationRequest detailsRequest) {
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?dealId="
                 + detailsRequest.getId() + "&secret=" + callbackConfig.getCallbackSecret());
     }

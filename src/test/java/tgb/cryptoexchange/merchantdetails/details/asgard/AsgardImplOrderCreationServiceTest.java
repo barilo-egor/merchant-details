@@ -10,8 +10,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.AsgardImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
@@ -38,7 +38,7 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void uriBuilder_ShouldReturnCorrectPath() {
-        DetailsRequest request = new DetailsRequest();
+        OrderCreationRequest request = new OrderCreationRequest();
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         Function<UriBuilder, URI> resultFunc = service.uriBuilder(request);
@@ -60,7 +60,7 @@ class AsgardImplOrderCreationServiceTest {
 
         HttpHeaders headers = new HttpHeaders();
 
-        Consumer<HttpHeaders> headersConsumer = service.headers(new DetailsRequest(), body);
+        Consumer<HttpHeaders> headersConsumer = service.headers(new OrderCreationRequest(), body);
         headersConsumer.accept(headers);
 
         assertEquals("application/json", headers.getFirst("Content-Type"));
@@ -70,9 +70,9 @@ class AsgardImplOrderCreationServiceTest {
 
     @Test
     void body_ShouldMapRequestCorrectly() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(5936);
-        detailsRequest.setCurrentMerchantMethod("CARD");
+        detailsRequest.setMethod("CARD");
 
         when(asgardProperties.merchantId()).thenReturn("M-123");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");

@@ -12,8 +12,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CubePropertiesImpl;
 
 import java.util.Collections;
@@ -70,12 +70,12 @@ class CubeMerchantServiceTest {
             """)
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CUBE).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.CUBE).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setChatId(1231231231L);
         detailsRequest.setId(123456789L);
-        detailsRequest.setCurrentMerchantMethod(method.name());
+        detailsRequest.setMethod(method.name());
         Request actual = cubeService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, Integer.valueOf(actual.getAmount())),
@@ -87,9 +87,9 @@ class CubeMerchantServiceTest {
 
     @Test
     void bodyShouldGenerateUniqueExternalId() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setCurrentMerchantMethod("CARD");
+        detailsRequest.setMethod("CARD");
         detailsRequest.setId(123L);
 
         Request request1 = cubeService.body(detailsRequest);
@@ -100,9 +100,9 @@ class CubeMerchantServiceTest {
 
     @Test
     void bodyShouldSetCallbackUrlCorrectly() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setCurrentMerchantMethod("CARD");
+        detailsRequest.setMethod("CARD");
         detailsRequest.setId(123456L);
 
         when(callbackConfig.getGatewayUrl()).thenReturn("https://api.example.com");

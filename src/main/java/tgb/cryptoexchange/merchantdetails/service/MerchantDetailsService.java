@@ -54,7 +54,7 @@ public class MerchantDetailsService {
         this.meterRegistry = meterRegistry;
     }
 
-    public Optional<DetailsResponse> getDetails(Merchant merchant, DetailsRequest request) {
+    public Optional<DetailsResponse> getDetails(Merchant merchant, OrderCreationRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isEmpty()) {
             log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
@@ -66,7 +66,7 @@ public class MerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            request.setCurrentMerchantMethod(merchantMethod);
+            request.setMethod(merchantMethod);
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
@@ -100,7 +100,7 @@ public class MerchantDetailsService {
     }
 
     @Timed(value = Metrics.GET_DETAILS, description = "Метрики запросов на получение реквизитов.")
-    public Optional<DetailsResponse> getDetails(DetailsRequest request) {
+    public Optional<DetailsResponse> getDetails(OrderCreationRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
@@ -144,7 +144,7 @@ public class MerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, DetailsRequest
+    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, OrderCreationRequest
                                                             request,
                                                     int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
