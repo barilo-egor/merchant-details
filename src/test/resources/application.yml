@@ -348,6 +348,15 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+prime-wallet:
+  url: "prime-wallet-url"
+  token: "prime-wallet-token"
+prime-wallet-low-check:
+  url: "prime-wallet-low-check-url"
+  token: "prime-wallet-low-check-token"
+prime-wallet-high-check:
+  url: "prime-wallet-high-check-url"
+  token: "prime-wallet-high-check-token"
 #Конфиг приложния
 server:
   servlet:
