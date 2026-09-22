@@ -358,6 +358,10 @@ public enum MerchantConstants {
     PRIME_WALLET_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    BAY_PAY(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

@@ -357,6 +357,9 @@ prime-wallet-low-check:
 prime-wallet-high-check:
   url: "prime-wallet-high-check-url"
   token: "prime-wallet-high-check-token"
+bay-pay:
+  url: "bay-pay-url"
+  api-key: "bay-pay-api-key"
 #Конфиг приложния
 server:
   servlet:
