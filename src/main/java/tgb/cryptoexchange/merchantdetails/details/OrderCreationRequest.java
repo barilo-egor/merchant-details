@@ -40,6 +40,8 @@ public class OrderCreationRequest {
 
     protected String initiatorApp;
 
+    protected String redirectUrl;
+
     protected List<MerchantMethod> methods;
 
     protected String method;

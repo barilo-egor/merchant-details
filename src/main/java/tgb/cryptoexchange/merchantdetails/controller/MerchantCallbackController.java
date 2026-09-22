@@ -55,11 +55,6 @@ public class MerchantCallbackController extends ApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/{merchant}")
-    public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
-        return callbackPost(dealId, secret, merchant);
-    }
-
     @PostMapping("/{merchant}")
     public ResponseEntity<Void> callbackPost(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
         var merchants = List.of(
@@ -81,4 +76,10 @@ public class MerchantCallbackController extends ApiController {
         merchantDetailsService.updateStatus(Merchant.valueOf(merchant), objectMapper.writeValueAsString(callback));
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @GetMapping("/{merchant}")
+    public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+        return callbackPost(dealId, secret, merchant);
+    }
+
 }
