@@ -19,8 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
 import java.util.*;
@@ -73,12 +73,12 @@ class BitZoneOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        detailsRequest.setCurrentMerchantMethod(method);
+        detailsRequest.setMethod(method);
         Request request = bitZoneOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),

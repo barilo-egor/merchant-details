@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "94cb1158-2c61-4515-98db-c3f59738320c",
+    "_postman_id": "86eb1cc1-6b64-44af-8039-128189094a56",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51311572",
-    "_collection_link": "https://go.postman.co/collection/51311572-94cb1158-2c61-4515-98db-c3f59738320c?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/51311572-86eb1cc1-6b64-44af-8039-128189094a56?source=collection_link"
   },
   "item": [
     {
@@ -503,6 +503,92 @@
                     "api",
                     "v1",
                     "orders"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PrimeWallet",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{prime_wallet_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"1010\",\r\n    \"currency\": \"RUB\",\r\n    \"merchant_transaction_id\": \"55a587e6-c0c9-496b-827d-dcdfb1bc2a30\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.pwallet.online/api/v1/transactions/card",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "pwallet",
+                    "online"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "transactions",
+                    "card"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "BayPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bay-pay-api-key}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": 1200,\r\n    \"order_id\": \"0a84d035-2e59-48e6-b005-2ec29f6dac9b\",\r\n    \"payment_method\": \"card\",\r\n    \"callback_url\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=BAY_PAY&secret=bWRAoSmNvKGn23pjNFbEGx0RPQqWebSM\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://baypay.live/api/v1/s2s/invoices/create/",
+                  "protocol": "https",
+                  "host": [
+                    "baypay",
+                    "live"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "s2s",
+                    "invoices",
+                    "create",
+                    ""
                   ]
                 }
               },

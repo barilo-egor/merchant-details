@@ -384,4 +384,15 @@ public class WebClientsConfig {
     public WebClient tronExWebClient(TronExSimProperties tronExProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(tronExProperties.url()).build();
     }
+
+    @Bean
+    public WebClient primeWalletWebClient(PrimeWalletProperties primeWalletProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(primeWalletProperties.url()).build();
+    }
+
+
+    @Bean
+    public WebClient bayPayWebClient(BayPayProperties bayPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bayPayProperties.url()).build();
+    }
 }

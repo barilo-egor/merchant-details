@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import java.util.Map;
@@ -40,7 +40,7 @@ public class DetailsRequestProcessorService {
         this.activeSearchMap = activeSearchMap;
     }
 
-    public void process(DetailsRequest detailsRequest) {
+    public void process(OrderCreationRequest detailsRequest) {
         if (activeSearchMap.containsKey(detailsRequest.getId())) {
             log.info("Отправлен запрос {} на поиск реквизитов для сделки {} при уже действующем поиске. Запрос будет проигнорирован.",
                     detailsRequest.getRequestId(), detailsRequest.getId());
@@ -55,7 +55,7 @@ public class DetailsRequestProcessorService {
                     result.setRequestId(detailsRequest.getRequestId());
                     detailsResponse.ifPresent(response -> {
                         if (StringUtils.isBlank(response.getPaymentMethod())) {
-                            response.setPaymentMethod(detailsRequest.getCurrentMerchantMethod());
+                            response.setPaymentMethod(detailsRequest.getMethod());
                         }
                     });
                     detailsResponseKafkaTemplate.send(detailsResponseFoundTopic, result.getRequestId(), result);

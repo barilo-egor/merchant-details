@@ -8,9 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
 
 import java.net.URI;
@@ -36,12 +36,12 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/v1/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("X-API-Key", payscrowProperties.key());
@@ -49,10 +49,10 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setClientOrderId(UUID.randomUUID().toString());
         request.setUniqueAmount(Merchant.PAYSCROW.equals(getMerchant()) ? true : null);
         return request;

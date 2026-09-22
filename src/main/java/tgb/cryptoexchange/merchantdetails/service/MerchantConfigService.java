@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.BadRequestException;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.dto.AutoConfirmConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
@@ -104,9 +104,9 @@ public class MerchantConfigService {
         return repository.findDistinctGroupChatIdByGroupChatIdNotNull();
     }
 
-    public List<MerchantConfig> findAllByMethodsAndAmount(List<DetailsRequest.MerchantMethod> methods, Integer amount) {
-        Map<Merchant, DetailsRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
-                .collect(Collectors.toMap(DetailsRequest.MerchantMethod::getMerchant, method -> method));
+    public List<MerchantConfig> findAllByMethodsAndAmount(List<OrderCreationRequest.MerchantMethod> methods, Integer amount) {
+        Map<Merchant, OrderCreationRequest.MerchantMethod> sortedMerchantMethods = methods.stream()
+                .collect(Collectors.toMap(OrderCreationRequest.MerchantMethod::getMerchant, method -> method));
         return findAllByIsOnOrderByMerchantOrder(true).stream()
                 .filter(config -> sortedMerchantMethods.containsKey(config.getMerchant()))
                 .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())

@@ -12,9 +12,9 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
 import java.net.URI;
@@ -47,12 +47,12 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/payment/trading/pay-in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("Accept", "application/json");
@@ -61,10 +61,10 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setFiatAmount(detailsRequest.getAmount());
-        request.setMethod(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());

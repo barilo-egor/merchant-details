@@ -19,8 +19,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -59,10 +59,10 @@ class PwPayOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(method.name());
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(method.name());
         detailsRequest.setMethods(
-                List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
+                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
                         .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
@@ -77,8 +77,8 @@ class PwPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(pwPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.CARD.name());
         pwPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
@@ -91,7 +91,7 @@ class PwPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
 
         Request actual = pwPayOrderCreationService.body(detailsRequest);

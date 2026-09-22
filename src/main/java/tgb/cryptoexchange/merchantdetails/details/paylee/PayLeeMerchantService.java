@@ -13,9 +13,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 
 import java.net.URI;
@@ -43,12 +43,12 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/partners/purchases/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Token " + payLeeProperties.token());
             httpHeaders.add("Content-Type", "application/json");
@@ -56,10 +56,10 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setPrice(detailsRequest.getAmount());
-        request.setRequisitesType(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
         if (Objects.nonNull(detailsRequest.getChatId())) {
             request.setClientId(hashids.encode(detailsRequest.getChatId()));
         }

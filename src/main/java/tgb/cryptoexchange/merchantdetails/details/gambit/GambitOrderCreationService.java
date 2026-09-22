@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitProperties;
 
 import java.net.URI;
@@ -27,12 +27,12 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/orders/init").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
@@ -42,9 +42,9 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setMethod(method);
         request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
         request.setAmount(detailsRequest.getAmount());

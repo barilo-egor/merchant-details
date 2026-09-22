@@ -27,6 +27,12 @@ public class Request {
     @JsonProperty("order_data")
     private OrderData orderData;
 
+    @JsonProperty("redirect_url")
+    private String redirectUrl;
+
+    @JsonProperty("return_url")
+    private String returnUrl;
+
     @Data
     public static class OrderData {
 

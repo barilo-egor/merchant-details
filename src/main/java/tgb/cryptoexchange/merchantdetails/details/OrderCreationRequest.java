@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Slf4j
-public class DetailsRequest {
+public class OrderCreationRequest {
 
     protected String requestId;
 
@@ -40,9 +40,11 @@ public class DetailsRequest {
 
     protected String initiatorApp;
 
+    protected String redirectUrl;
+
     protected List<MerchantMethod> methods;
 
-    protected String currentMerchantMethod;
+    protected String method;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {
@@ -66,7 +68,7 @@ public class DetailsRequest {
 
     }
 
-    public static class KafkaDeserializer implements Deserializer<DetailsRequest> {
+    public static class KafkaDeserializer implements Deserializer<OrderCreationRequest> {
 
         private final ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
@@ -74,10 +76,10 @@ public class DetailsRequest {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
         @Override
-        public DetailsRequest deserialize(String topic, byte[] data) {
+        public OrderCreationRequest deserialize(String topic, byte[] data) {
             try {
                 if (data == null) return null;
-                DetailsRequest request = objectMapper.readValue(data, DetailsRequest.class);
+                OrderCreationRequest request = objectMapper.readValue(data, OrderCreationRequest.class);
                 if (Objects.nonNull(request) && !CollectionUtils.isEmpty(request.getMethods())) {
                     var partitioned = request.getMethods().stream()
                             .collect(Collectors.partitioningBy(method -> Objects.nonNull(method.getMerchant())));

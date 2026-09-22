@@ -17,8 +17,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
 
 import java.util.Collections;
@@ -77,11 +77,11 @@ class CrocoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret, Long dealId) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setId(dealId);
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).methods(Collections.singletonList(method)).build()));
-        detailsRequest.setCurrentMerchantMethod(method);
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         Request request = crocoPayOrderCreationService.body(detailsRequest);

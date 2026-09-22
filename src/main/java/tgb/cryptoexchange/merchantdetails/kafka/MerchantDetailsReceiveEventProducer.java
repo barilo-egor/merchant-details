@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -25,7 +25,7 @@ public class MerchantDetailsReceiveEventProducer {
         this.receiveEventTopicName = receiveEventTopicName;
     }
 
-    public void put(Merchant merchant, DetailsRequest detailsRequest, DetailsResponse detailsResponse) {
+    public void put(Merchant merchant, OrderCreationRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
         event.setDealId(detailsRequest.getId());
         event.setUserId(detailsRequest.getChatId());
@@ -35,7 +35,7 @@ public class MerchantDetailsReceiveEventProducer {
         event.setMerchantOrderId(detailsResponse.getMerchantOrderId());
         event.setRequestedAmount(detailsRequest.getAmount());
         event.setMerchantAmount(detailsResponse.getAmount());
-        event.setMethod(detailsRequest.getCurrentMerchantMethod());
+        event.setMethod(detailsRequest.getMethod());
         event.setDetails(detailsResponse.getDetails());
         event.setPaymentLink(detailsResponse.getQr());
         kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);

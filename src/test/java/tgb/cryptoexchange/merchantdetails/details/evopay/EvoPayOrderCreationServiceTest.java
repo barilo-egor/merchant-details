@@ -21,8 +21,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
@@ -79,7 +79,7 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithLessThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.changeKey()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
@@ -97,7 +97,7 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithMoreThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
@@ -111,10 +111,10 @@ class EvoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
-        detailsRequest.setCurrentMerchantMethod(method);
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertDoesNotThrow(() -> UUID.fromString(request.getCustomId())),
@@ -175,7 +175,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfNoResponse() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn(null);
         assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
@@ -183,7 +183,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingCreateOrderResponse() throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenThrow(JsonProcessingException.class);
@@ -192,7 +192,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfInterruptedExceptionWasThrown() throws JsonProcessingException, InterruptedException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -207,7 +207,7 @@ class EvoPayOrderCreationServiceTest {
     })
     @ParameterizedTest
     void makeRequestShouldMakeRequestToListOrdersUrlWithOrderIdParam(String id) throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -226,7 +226,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingGetOrderResponse() throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -238,7 +238,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfHasNoEntries() throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -252,7 +252,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsNotArray() throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -269,7 +269,7 @@ class EvoPayOrderCreationServiceTest {
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty() throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
@@ -293,7 +293,7 @@ class EvoPayOrderCreationServiceTest {
                     "{\"recipient_phone_number\":null,\"recipient_card_number\":\"4111111111111111\",\"recipient_bank\":\"Tinkoff\"}}"
     })
     void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty(String orderBody) throws JsonProcessingException {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();

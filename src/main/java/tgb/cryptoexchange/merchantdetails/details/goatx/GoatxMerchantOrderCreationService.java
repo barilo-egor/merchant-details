@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxProperties;
 
@@ -31,21 +31,21 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setSum(detailsRequest.getAmount().toString());
         request.setContract(goatxProperties.merchantContractId());
-        request.setWay(parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class));
+        request.setWay(parseMethod(detailsRequest.getMethod(), Method.class));
         request.setInvid(UUID.randomUUID().toString());
         request.setSignature(generateSignature(goatxProperties.login(), request.getSum(), request.getInvid(), goatxProperties.apiKey()));
         return request;

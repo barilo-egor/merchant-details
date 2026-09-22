@@ -11,8 +11,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PaySyncProperties;
 
 import java.net.URI;
@@ -39,7 +39,7 @@ class PaySyncOrderCreationServiceTest {
     @ParameterizedTest
     void shouldCorrectlyConfigureUriBuilder(String clientId) {
         when(paySyncProperties.clientId()).thenReturn(clientId);
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1500);
 
         UriBuilder realUriBuilder = new DefaultUriBuilderFactory("https://paysync.bot").builder();
@@ -54,7 +54,7 @@ class PaySyncOrderCreationServiceTest {
 
     @Test
     void shouldReturnNullForBody() {
-        assertNull(service.body(new DetailsRequest()));
+        assertNull(service.body(new OrderCreationRequest()));
     }
 
     @Test

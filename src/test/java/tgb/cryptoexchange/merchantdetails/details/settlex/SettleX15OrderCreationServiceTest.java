@@ -18,8 +18,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
 
 import java.time.LocalDateTime;
@@ -70,10 +70,10 @@ class SettleX15OrderCreationServiceTest {
             12504,C2C,https://gateway.paysendmmm.online/merchant/settleX,O9GFCTfz8wf7o2Q,cmhhrccre0shany01q8oah3cd,cmhhrcwo40szlny01q71c4djw
             """)
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).methods(Collections.singletonList(method.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethod(method.name());
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         if (Method.SBP.equals(method)) {

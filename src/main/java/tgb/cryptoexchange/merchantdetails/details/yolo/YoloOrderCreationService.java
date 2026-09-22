@@ -9,9 +9,9 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.exception.EmptyResponseBodyException;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 
 import java.net.URI;
@@ -41,13 +41,13 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/client/orders/deposit")
                 .queryParam("accountId", yoloProperties.accountId()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         if (jwtData.getAccessToken() == null || Instant.now().plus(5, ChronoUnit.MINUTES).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
                     webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
@@ -79,11 +79,11 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setExternalId(UUID.randomUUID().toString());
         request.setValue(String.valueOf(detailsRequest.getAmount()));
-        Method method = parseMethod(detailsRequest.getCurrentMerchantMethod(), Method.class);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setUseFastPayment(Method.SBP.equals(method));
         request.setWebhookUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
