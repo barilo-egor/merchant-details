@@ -18,8 +18,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PrimeWalletProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -59,9 +59,9 @@ class PrimeWalletOrderCreationServiceTest {
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setMethods(List.of(DetailsRequest.MerchantMethod.builder().merchant(Merchant.PRIME_WALLET).methods(Collections.singletonList(method.name())).build()));
-        detailsRequest.setCurrentMerchantMethod(method.name());
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.PRIME_WALLET).methods(Collections.singletonList(method.name())).build()));
+        detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(), primeWalletOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
@@ -74,8 +74,8 @@ class PrimeWalletOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(primeWalletProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        DetailsRequest detailsRequest = new DetailsRequest();
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.CARD.name());
         primeWalletOrderCreationService.headers(detailsRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
@@ -88,9 +88,9 @@ class PrimeWalletOrderCreationServiceTest {
     })
     @ParameterizedTest
     void bodyShouldBuildRequestObject(int amount) {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        detailsRequest.setMethod(Method.CARD.name());
         Request actual = primeWalletOrderCreationService.body(detailsRequest);
 
         assertAll(

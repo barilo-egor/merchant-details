@@ -1,18 +1,25 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,12 +31,16 @@ class PayscrowTransgranOrderCreationServiceTest {
     private PayscrowTransgranOrderCreationService service;
 
     private static final String BASE_URL = "https://exchange.test";
+
     @Mock
     private CallbackConfig callbackConfig;
+
     @Mock
     private ObjectMapper objectMapper;
+
     @Mock
     private RequestService requestService;
+
     @Mock
     private WebClient webClient;
 
@@ -57,7 +68,7 @@ class PayscrowTransgranOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldBuildRequestObject(Integer amount, String redirectUrl) {
 
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setRedirectUrl(redirectUrl);
 

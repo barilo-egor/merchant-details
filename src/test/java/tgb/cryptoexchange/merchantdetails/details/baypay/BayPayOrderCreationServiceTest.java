@@ -15,8 +15,8 @@ import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BayPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -34,14 +34,19 @@ import static org.mockito.Mockito.when;
 class BayPayOrderCreationServiceTest {
 
     private final UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
+
     @Mock
     private WebClient webClient;
+
     @Mock
     private BayPayProperties bayPayProperties;
+
     @Mock
     private CallbackConfig callbackConfig;
+
     @Mock
     private RequestService requestService;
+
     @InjectMocks
     private BayPayOrderCreationService service;
 
@@ -57,7 +62,7 @@ class BayPayOrderCreationServiceTest {
 
     @Test
     void shouldBuildCorrectCreationUri() {
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
 
         Function<UriBuilder, URI> builderFunction = service.uriBuilder(detailsRequest);
         URI uri = builderFunction.apply(uriBuilder);
@@ -70,7 +75,7 @@ class BayPayOrderCreationServiceTest {
         when(bayPayProperties.apiKey()).thenReturn("test-secret-api-key");
 
         HttpHeaders headers = new HttpHeaders();
-        Consumer<HttpHeaders> headersConsumer = service.headers(new DetailsRequest(), null);
+        Consumer<HttpHeaders> headersConsumer = service.headers(new OrderCreationRequest(), null);
         headersConsumer.accept(headers);
 
         assertAll(
@@ -84,9 +89,9 @@ class BayPayOrderCreationServiceTest {
         when(callbackConfig.getGatewayUrl()).thenReturn("https://api.exchange.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("cb_secret_xyz");
 
-        DetailsRequest detailsRequest = new DetailsRequest();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(15000);
-        detailsRequest.setCurrentMerchantMethod(Method.CARD.name());
+        detailsRequest.setMethod(Method.CARD.name());
 
         Request actual = service.body(detailsRequest);
 
