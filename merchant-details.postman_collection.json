@@ -595,6 +595,73 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Hesoyam",
+          "item": [
+            {
+              "name": "Список терминалов",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{hesoyam-api-key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://hesoyam.biz/api/v1/terminals",
+                  "protocol": "https",
+                  "host": [
+                    "hesoyam",
+                    "biz"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "terminals"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{hesoyam-api-key}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"type\": \"payin\",\r\n  \"request_unique_amount\": true,\r\n  \"terminal_uid\": \"9acd870b-f47e-44f9-aaf2-3accdaef14e3\",\r\n  \"method_uid\": \"a23f88ed-08e7-404f-9d49-d9a4776eaa67\",\r\n  \"merchant_order_id\": \"ORDER-12345\",\r\n  \"amount\": 5001,\r\n  \"currency\": \"RUB\",\r\n  \"merchant_client_id\": \"CLIENT-123\",\r\n  \"end_user_id\": \"USER-456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://hesoyam.biz/api/v1/orders/init",
+                  "protocol": "https",
+                  "host": [
+                    "hesoyam",
+                    "biz"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "orders",
+                    "init"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
