@@ -44,12 +44,15 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
-        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
-        request.setMethod(method);
+        request.setMethod(parseDetailsMethod(detailsRequest.getMethod()));
         request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
         request.setAmount(detailsRequest.getAmount());
         request.setTerminalUid(gambitProperties.terminal());
         return request;
+    }
+
+    protected Method parseDetailsMethod(String method) {
+        return parseMethod(method, GambitMethod.class);
     }
 
     @Override

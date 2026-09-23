@@ -60,7 +60,7 @@ class GambitImplOrderCreationServiceTest {
             5000, CARD
             10500, SBP
             """)
-    void body(String amount, Method method) {
+    void body(String amount, GambitMethod method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethods(
