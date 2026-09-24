@@ -662,6 +662,48 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "HellBit",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{hellbit_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"2010\",\r\n    \"currency\": \"RUB\",\r\n    \"merchant_transaction_id\": \"55a587e6-c0c9-496b-827d-dcdfb1bc2a32\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.blisstrade.club/api/v1/transactions/card",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "blisstrade",
+                    "club"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "transactions",
+                    "card"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
