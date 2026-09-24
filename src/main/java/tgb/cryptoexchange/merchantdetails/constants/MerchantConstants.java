@@ -362,6 +362,14 @@ public enum MerchantConstants {
     BAY_PAY(
             tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    HELLBIT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    HELLBIT_BT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

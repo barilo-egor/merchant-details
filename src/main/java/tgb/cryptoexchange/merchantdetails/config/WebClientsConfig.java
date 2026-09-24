@@ -390,9 +390,13 @@ public class WebClientsConfig {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(primeWalletProperties.url()).build();
     }
 
-
     @Bean
     public WebClient bayPayWebClient(BayPayProperties bayPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bayPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient hellBitWebClient(HellBitProperties hellBitProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(hellBitProperties.url()).build();
     }
 }

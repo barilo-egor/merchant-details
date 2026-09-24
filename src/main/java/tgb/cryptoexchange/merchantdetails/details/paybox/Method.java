@@ -12,7 +12,8 @@ public enum Method implements MerchantMethod {
     TRANSGRAN_SBP("Трансгран СБП", "transgran-sbp", null),
     QR("QR", "/qr", null),
     SBER_QR("Сбер QR", "/internal-qr", "Сбербанк"),
-    VTB_QR("VTB QR", "/internal-qr", "ВТБ");
+    VTB_QR("VTB QR", "/internal-qr", "ВТБ"),
+    VIET_QR("Вьетнам QR", "/viet-qr", null);
 
     final String description;
 
