@@ -1,43 +1,22 @@
 package tgb.cryptoexchange.merchantdetails.detailsapi.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * Категории методов оплаты (методов запроса реквизитов).
+ * <p>
+ * У разных мерчантов однотипные методы оплаты могут называться по-разному.
+ * Данное перечисление используется для агрегации и унификации этих методов.
+ * Это позволяет абстрагироваться от специфики конкретных интеграций: при запросе
+ * реквизитов указывается одна общая категория вместо перечисления кодов всех мерчантов.
+ */
+@AllArgsConstructor
+@Getter
 public enum RequestMethod {
+    CARD("Карта"),
+    SBP("СБП"),
+    QR("QR");
 
-    C2C,
-    SBP,
-    QR,
-    CARD,
-    SIM,
-    MOBILE,
-    TO_CARD,
-    CROSS_BORDER,
-    MOBILE_TOP_UP,
-    SBP_QR,
-    BANK_CARD,
-    PHONE,
-    SBER_ACCOUNT,
-    ALFA_ALFA,
-    P2P_PHONE,
-    P2P_CARD,
-    OZON_OZON,
-    TRANSGRAN_SBP,
-    ANY_QR,
-    NSPK,
-    SBER_QR,
-    OZON_QR,
-    ALFA_QR,
-    GAZPROM_QR,
-    PSBPAY,
-    YANDEX_TIPS,
-    BEELINE,
-    TRANS_SBP,
-    TRIANGLE,
-    PSB,
-    ALFA,
-    GAZ_PROM,
-    OZON,
-    TRANSGRAN_PHONE,
-    VTB_QR,
-    OTP_QR,
-    PSB_QR
-
+    private final String description;
 }
