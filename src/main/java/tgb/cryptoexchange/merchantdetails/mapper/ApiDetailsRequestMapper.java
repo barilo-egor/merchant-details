@@ -9,6 +9,7 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class ApiDetailsRequestMapper {
@@ -40,6 +41,9 @@ public class ApiDetailsRequestMapper {
         }
         if (grpc.hasWaitTimeout()) {
             apiDetailsRequest.setRequestId(grpc.getRequestId().getValue());
+        }
+        if (grpc.hasOwnerId()) {
+            apiDetailsRequest.setOwnerId(UUID.fromString(grpc.getOwnerId().getValue()));
         }
         List<RequestMethod> methods = grpc.getRequestMethodList().stream()
                 .map(RequestMethod::valueOf)
