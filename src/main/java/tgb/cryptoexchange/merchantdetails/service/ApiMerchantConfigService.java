@@ -76,34 +76,8 @@ public class ApiMerchantConfigService {
         );
     }
 
-    public List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn) {
-        return repository.findAllByIsOnOrderByMerchantOrder(isOn);
-    }
-
-    public List<ApiMerchantConfig> findAllByMethodsAndAmount(List<RequestMethod> requestMethods, Integer amount) {
-        Set<Merchant> sortedMerchantsByMethod = new HashSet<>();
-        Set<String> requestMethodsSet = requestMethods.stream()
-                .map(RequestMethod::name)
-                .collect(Collectors.toSet());
-        Arrays.stream(Merchant.values()).forEach(merchant -> {
-            List<MerchantMethod> merchantMethods = MerchantConstants.getMethods(merchant);
-            sortMerchantByRequestMethod(merchant, merchantMethods, sortedMerchantsByMethod, requestMethodsSet);
-        });
-
-
-        return findAllByIsOnOrderByMerchantOrder(true).stream()
-                .filter(config -> sortedMerchantsByMethod.contains(config.getMerchant()))
-                .filter(config -> amount <= config.getMaxAmount() && amount >= config.getMinAmount())
-                .toList();
-    }
-
-    private void sortMerchantByRequestMethod(Merchant merchant, List<MerchantMethod> merchantMethods,
-                                             Set<Merchant> merchantsByMethod, Set<String> requestMethodNames) {
-        merchantMethods.forEach(method -> {
-            if (requestMethodNames.contains(method.name())) {
-                merchantsByMethod.add(merchant);
-            }
-        });
+    public List<ApiMerchantConfig> findAllTurnedByMerchantsAndOwnerId(Set<Merchant> merchants, UUID ownerId) {
+        return repository.findAllByMerchantInAndOwnerId(merchants, ownerId);
     }
 
     @Transactional

@@ -20,6 +20,7 @@ import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
+import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,18 +42,22 @@ public class ApiMerchantDetailsService {
 
     private final MerchantServiceRegistry merchantServiceRegistry;
 
+    private final RequestMethodService requestMethodService;
+
     public ApiMerchantDetailsService(MeterRegistry meterRegistry, ApiMerchantConfigService merchantConfigService,
-                                     MerchantServiceRegistry merchantServiceRegistry) {
+                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService) {
         this.meterRegistry = meterRegistry;
         this.merchantConfigService = merchantConfigService;
         this.merchantServiceRegistry = merchantServiceRegistry;
+        this.requestMethodService = requestMethodService;
     }
 
     @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")
     public Optional<ApiDetailsResponse> getDetails(ApiDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<ApiDetailsResponse> maybeDetailsResponse;
-        List<ApiMerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getRequestMethods(), request.getAmount());
+        List<ApiMerchantConfig> merchantConfigList = merchantConfigService.findAllTurnedByMerchantsAndOwnerId(
+                requestMethodService.getMerchants(request.getRequestMethods()), request.getOwnerId());
         log.debug("Найденные мерчанты для api-запроса {}: {}", request.getRequestId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
@@ -125,7 +130,7 @@ public class ApiMerchantDetailsService {
             return Optional.empty();
         }
 
-        List<String> merchantMethods = request.getMerchantMethods(merchant);
+        List<String> merchantMethods = requestMethodService.getMerchantMethods(merchant, request.getRequestMethods());
         if (CollectionUtils.isEmpty(merchantMethods)) {
             throw new MerchantMethodNotFoundException("Methods for merchant " + merchant.name() + " not found.");
         }
