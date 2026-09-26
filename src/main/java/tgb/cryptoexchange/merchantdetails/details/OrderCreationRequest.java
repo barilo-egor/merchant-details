@@ -19,4 +19,6 @@ public class OrderCreationRequest {
 
     protected String method;
 
+    protected String redirectUrl;
+
 }

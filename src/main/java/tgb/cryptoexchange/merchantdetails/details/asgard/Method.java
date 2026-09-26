@@ -9,19 +9,27 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("c2c", "Карта"),
-    SBP("sbp", "СБП"),
-    SIM("sim", "Sim");
+    CARD("c2c", "Карта", RequestMethod.CARD),
+    SBP("sbp", "СБП", RequestMethod.SBP),
+    SIM("sim", "Sim", null);
 
     final String methodUid;
 
     final String description;
+
+    final RequestMethod requestMethod;
+
+    public Optional<RequestMethod> getRequestMethod() {
+        return Optional.ofNullable(requestMethod);
+    }
 
     public static Method fromValue(String v) {
         for (Method method : Method.values()) {

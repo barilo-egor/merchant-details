@@ -50,30 +50,30 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
-        Method method = parseMethod(request.getMethod(), Method.class);
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return uriBuilder -> uriBuilder.path(method.getUri()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + honeyMoneyProperties.authToken());
             httpHeaders.add("Content-Type", "application/json");
-            Method method = parseMethod(request.getMethod(), Method.class);
+            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
             httpHeaders.add("X-Signature", signatureService.hmacSHA256(body, URI.create(honeyMoneyProperties.url() + method.getUri()), honeyMoneyProperties.signToken()));
         };
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setAmount(request.getAmount());
-        requestBody.setExtId(UUID.randomUUID().toString());
-        requestBody.setBank(parseMethod(request.getMethod(), Method.class).getBank());
-        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setAmount(detailsRequest.getAmount());
+        request.setExtId(UUID.randomUUID().toString());
+        request.setBank(parseMethod(detailsRequest.getMethod(), Method.class).getBank());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        return requestBody;
+        return request;
     }
 
     @Override

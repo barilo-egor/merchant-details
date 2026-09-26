@@ -31,24 +31,24 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/order/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setSum(request.getAmount().toString());
-        requestBody.setContract(goatxProperties.merchantContractId());
-        requestBody.setWay(parseMethod(request.getMethod(), Method.class));
-        requestBody.setInvid(UUID.randomUUID().toString());
-        requestBody.setSignature(generateSignature(goatxProperties.login(), requestBody.getSum(), requestBody.getInvid(), goatxProperties.apiKey()));
-        return requestBody;
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setSum(detailsRequest.getAmount().toString());
+        request.setContract(goatxProperties.merchantContractId());
+        request.setWay(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setInvid(UUID.randomUUID().toString());
+        request.setSignature(generateSignature(goatxProperties.login(), request.getSum(), request.getInvid(), goatxProperties.apiKey()));
+        return request;
     }
 
     private String generateSignature(String login, String sum, String invid, String apiKey) {

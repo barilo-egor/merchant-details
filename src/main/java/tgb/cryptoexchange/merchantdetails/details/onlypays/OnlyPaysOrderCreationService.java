@@ -36,34 +36,34 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/get_requisite").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> httpHeaders.add("Content-Type", "application/json");
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setApiId(onlyPaysProperties.id());
-        requestBody.setAmount(request.getAmount());
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setMethod(method);
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setApiId(onlyPaysProperties.id());
+        request.setAmount(detailsRequest.getAmount());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setMethod(method);
         if (Method.SIM.equals(method)) {
-            requestBody.setSim(true);
+            request.setSim(true);
         }
         switch (method) {
-            case SIM -> requestBody.setSim(true);
-            case ALFA_ALFA -> requestBody.setBank("Альфа");
-            case OZON_OZON -> requestBody.setBank("Озон");
+            case SIM -> request.setSim(true);
+            case ALFA_ALFA -> request.setBank("Альфа");
+            case OZON_OZON -> request.setBank("Озон");
             default -> {/* не требует действий */}
         }
-        requestBody.setSecretKey(onlyPaysProperties.secret());
-        requestBody.setPersonalId(UUID.randomUUID().toString());
-        return requestBody;
+        request.setSecretKey(onlyPaysProperties.secret());
+        request.setPersonalId(UUID.randomUUID().toString());
+        return request;
     }
 
     @Override

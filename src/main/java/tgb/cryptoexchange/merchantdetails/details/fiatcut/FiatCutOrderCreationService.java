@@ -37,12 +37,12 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/h2h/order").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Accept", "application/json");
             httpHeaders.add("Access-Token", fiatCutProperties.token());
@@ -51,15 +51,15 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setAmount(request.getAmount());
-        requestBody.setMethod(parseMethod(request.getMethod(), Method.class));
-        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setAmount(detailsRequest.getAmount());
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        requestBody.setExternalId(UUID.randomUUID().toString());
-        requestBody.setMerchantId(fiatCutProperties.merchantId());
-        return requestBody;
+        request.setExternalId(UUID.randomUUID().toString());
+        request.setMerchantId(fiatCutProperties.merchantId());
+        return request;
     }
 
     @Override

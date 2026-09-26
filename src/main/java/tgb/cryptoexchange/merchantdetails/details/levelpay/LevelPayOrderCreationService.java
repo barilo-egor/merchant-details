@@ -38,12 +38,12 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/h2h/order").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
@@ -54,20 +54,20 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setMerchantId(levelPayProperties.merchantId());
-        requestBody.setAmount(request.getAmount());
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setPaymentDetailType(method);
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setMerchantId(levelPayProperties.merchantId());
+        request.setAmount(detailsRequest.getAmount());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setPaymentDetailType(method);
         if (Method.ALFA_ALFA.equals(method)) {
-            requestBody.setPaymentGateway("alfa-alfa");
+            request.setPaymentGateway("alfa-alfa");
         }
-        requestBody.setExternalId(UUID.randomUUID().toString());
-        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+        request.setExternalId(UUID.randomUUID().toString());
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        requestBody.setFloatingAmount(true);
-        return requestBody;
+        request.setFloatingAmount(true);
+        return request;
     }
 
     @Override

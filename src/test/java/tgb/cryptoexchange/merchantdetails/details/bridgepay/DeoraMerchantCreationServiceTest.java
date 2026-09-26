@@ -165,7 +165,8 @@ class DeoraMerchantCreationServiceTest {
                 () -> assertEquals(Merchant.DEORA, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
                 () -> assertEquals(Status.NEW.name(), actualResponse.getMerchantOrderStatus()),
-                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
+                () -> assertEquals(requisite, actualResponse.getDetails()),
+                () -> assertEquals(bank.getDisplayName(), actualResponse.getBank())
         );
     }
 

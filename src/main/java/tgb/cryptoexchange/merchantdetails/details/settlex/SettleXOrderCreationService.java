@@ -36,12 +36,12 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/merchant/transactions/in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("x-merchant-api-key", settleXProperties.key());
@@ -49,20 +49,20 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setOrderId(UUID.randomUUID().toString());
-        requestBody.setAmount(request.getAmount());
-        Method method = parseMethod(request.getMethod(), Method.class);
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setOrderId(UUID.randomUUID().toString());
+        request.setAmount(detailsRequest.getAmount());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         if (Method.SBP.equals(method)) {
-            requestBody.setMethod(settleXProperties.sbpId());
+            request.setMethod(settleXProperties.sbpId());
         } else {
-            requestBody.setMethod(settleXProperties.c2cId());
+            request.setMethod(settleXProperties.c2cId());
         }
-        requestBody.setExpiredAt(LocalDateTime.now().plusMinutes(15));
-        requestBody.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+        request.setExpiredAt(LocalDateTime.now().plusMinutes(15));
+        request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        return requestBody;
+        return request;
     }
 
     @Override

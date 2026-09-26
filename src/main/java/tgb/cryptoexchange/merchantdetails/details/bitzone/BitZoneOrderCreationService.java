@@ -47,12 +47,12 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/payment/trading/pay-in").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Content-Type", "application/json");
             httpHeaders.add("Accept", "application/json");
@@ -61,29 +61,30 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setFiatAmount(request.getAmount());
-        requestBody.setMethod(parseMethod(request.getMethod(), Method.class));
-        requestBody.setExtra(new Request.Extra(UUID.randomUUID().toString()));
-        requestBody.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setFiatAmount(detailsRequest.getAmount());
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setExtra(new Request.Extra(UUID.randomUUID().toString()));
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
-        return requestBody;
+        return request;
     }
 
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         String requisite;
         if (Method.SBP.equals(response.getMethod())) {
-            requisite = response.getRequisite().getBank() + " " + response.getRequisite().getSbpNumber();
+            requisite = response.getRequisite().getSbpNumber();
         } else {
-            requisite = response.getRequisite().getBank() + " " + response.getRequisite().getRequisites();
+            requisite = response.getRequisite().getRequisites();
         }
         DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(response.getStatus().name());
         requisiteVO.setMerchantOrderId(response.getId());
         requisiteVO.setDetails(requisite);
+        requisiteVO.setBank(response.getRequisite().getBank());
         return Optional.of(requisiteVO);
     }
 

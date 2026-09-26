@@ -28,12 +28,12 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/order/payin").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
@@ -43,12 +43,12 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setPaymentMethod(method);
-        requestBody.setFiatSum(String.format(Locale.US, "%.2f", request.getAmount().doubleValue()));
-        return requestBody;
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setPaymentMethod(method);
+        request.setFiatSum(String.format(Locale.US, "%.2f", detailsRequest.getAmount().doubleValue()));
+        return request;
     }
 
     @Override

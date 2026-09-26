@@ -111,7 +111,8 @@ class BitZoneOrderCreationServiceTest {
                 () -> assertEquals(Merchant.BIT_ZONE, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
@@ -134,7 +135,8 @@ class BitZoneOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

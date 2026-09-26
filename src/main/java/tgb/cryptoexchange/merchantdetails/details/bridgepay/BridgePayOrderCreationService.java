@@ -58,13 +58,13 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/merchant/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
-        return headers -> addHeaders(headers, parseMethod(request.getMethod(), Method.class), body,
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
+        return headers -> addHeaders(headers, parseMethod(detailsRequest.getMethod(), Method.class), body,
                 bridgePayProperties.url() + "/api/merchant/invoices");
     }
 
@@ -94,17 +94,17 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setAmount(request.getAmount().toString());
-        requestBody.setCurrency(FiatCurrency.RUB.name());
-        requestBody.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setAmount(detailsRequest.getAmount().toString());
+        request.setCurrency(FiatCurrency.RUB.name());
+        request.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
-        requestBody.setNotificationToken(bridgePayProperties.token());
-        requestBody.setInternalId(UUID.randomUUID().toString());
-        requestBody.setPaymentOption(parseMethod(request.getMethod(), Method.class));
-        requestBody.setStartDeal(true);
-        return requestBody;
+        request.setNotificationToken(bridgePayProperties.token());
+        request.setInternalId(UUID.randomUUID().toString());
+        request.setPaymentOption(parseMethod(detailsRequest.getMethod(), Method.class));
+        request.setStartDeal(true);
+        return request;
     }
 
     @Override
@@ -123,8 +123,8 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(dealDTO.getPaymentOption())) {
             requisiteVO.setQr(dealDTO.getQrCodeLink());
         } else {
-            String details = dealDTO.getPaymentMethod() + " " + dealDTO.getRequisites().getRequisites();
-            requisiteVO.setDetails(details);
+            requisiteVO.setDetails(dealDTO.getRequisites().getRequisites());
+            requisiteVO.setBank(dealDTO.getPaymentMethod());
         }
         requisiteVO.setPaymentMethod(Objects.isNull(dealDTO.getPaymentOption()) ? null : dealDTO.getPaymentOption().name());
     }

@@ -34,12 +34,12 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/v2/h2h/invoices").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Client-Id", crocoPayProperties.clientId());
             httpHeaders.add("Client-Secret", crocoPayProperties.clientSecret());

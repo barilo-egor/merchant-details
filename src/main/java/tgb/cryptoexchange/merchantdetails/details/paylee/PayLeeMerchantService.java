@@ -43,12 +43,12 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/partners/purchases/").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Token " + payLeeProperties.token());
             httpHeaders.add("Content-Type", "application/json");
@@ -56,12 +56,12 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request requestBody = new Request();
-        requestBody.setPrice(request.getAmount());
-        requestBody.setRequisitesType(parseMethod(request.getMethod(), Method.class));
-        if (Objects.nonNull(request.getUserId())) {
-            requestBody.setClientId(hashids.encode(Long.parseLong(request.getUserId())));
+        requestBody.setPrice(detailsRequest.getAmount());
+        requestBody.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
+        if (Objects.nonNull(detailsRequest.getUserId())) {
+            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
         }
         return requestBody;
     }

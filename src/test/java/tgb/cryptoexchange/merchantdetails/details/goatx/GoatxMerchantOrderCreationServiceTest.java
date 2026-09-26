@@ -59,8 +59,8 @@ class GoatxMerchantOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String contractId, String method) {
         OrderCreationRequest detailsRequest = spy(new OrderCreationRequest());
-        detailsRequest.setMethod(method);
         detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method);
         when(goatxProperties.merchantContractId()).thenReturn(contractId);
 
         Request result = goatxMerchantOrderCreationService.body(detailsRequest);

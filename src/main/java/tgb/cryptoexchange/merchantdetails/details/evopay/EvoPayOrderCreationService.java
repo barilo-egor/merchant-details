@@ -47,8 +47,8 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Optional<String> makeRequest(OrderCreationRequest request, String body) {
-        Optional<String> createOrderResponse = super.makeRequest(request, body);
+    protected Optional<String> makeRequest(OrderCreationRequest detailsRequest, String body) {
+        Optional<String> createOrderResponse = super.makeRequest(detailsRequest, body);
         if (createOrderResponse.isEmpty()) {
             log.debug("Отсутствует тело ответа при создании ордера мерчанта {}.", getMerchant().name());
             return Optional.empty();
@@ -75,7 +75,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
                 evoPayWebClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
-                this.headers(request, body),
+                this.headers(detailsRequest, body),
                 body
         );
         JsonNode listOrderResponse;
@@ -102,14 +102,14 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/v1/api/order/payin").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
-            httpHeaders.add("x-api-key", getKey(request.getAmount()));
+            httpHeaders.add("x-api-key", getKey(detailsRequest.getAmount()));
             httpHeaders.add("Content-Type", "application/json");
         };
     }
@@ -123,13 +123,13 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setCustomId(UUID.randomUUID().toString());
-        requestBody.setFiatSum(request.getAmount());
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setPaymentMethod(method);
-        return requestBody;
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setCustomId(UUID.randomUUID().toString());
+        request.setFiatSum(detailsRequest.getAmount());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setPaymentMethod(method);
+        return request;
     }
 
     @Override

@@ -27,12 +27,12 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/orders/init").build();
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
@@ -42,14 +42,14 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setMethod(method);
-        requestBody.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
-        requestBody.setAmount(request.getAmount());
-        requestBody.setTerminalUid(gambitProperties.terminal());
-        return requestBody;
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setMethod(method);
+        request.setOrderId(UUID.randomUUID().toString() + System.currentTimeMillis());
+        request.setAmount(detailsRequest.getAmount());
+        request.setTerminalUid(gambitProperties.terminal());
+        return request;
     }
 
     @Override

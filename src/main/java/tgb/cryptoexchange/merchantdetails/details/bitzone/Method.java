@@ -9,16 +9,24 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Getter
 @AllArgsConstructor
 public enum Method implements MerchantMethod {
-    SBP("СБП"),
-    CARD("Карта");
+    SBP("СБП", RequestMethod.SBP),
+    CARD("Карта", RequestMethod.CARD);
 
     private final String description;
+
+    final RequestMethod requestMethod;
+
+    public Optional<RequestMethod> getRequestMethod() {
+        return Optional.ofNullable(requestMethod);
+    }
 
     public static class Serializer extends JsonSerializer<Method> {
 

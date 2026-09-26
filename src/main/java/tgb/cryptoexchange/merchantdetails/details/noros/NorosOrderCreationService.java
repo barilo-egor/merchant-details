@@ -34,7 +34,7 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
     }
 
     @Override
-    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    public Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/transaction").build();
     }
 
@@ -44,18 +44,18 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
     }
 
     @Override
-    public Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    public Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
     @Override
-    public Request body(OrderCreationRequest request) {
+    public Request body(OrderCreationRequest detailsRequest) {
         Request requestBody = new Request();
         requestBody.setOrderId(UUID.randomUUID().toString());
-        requestBody.setAmount(request.getAmount());
-        requestBody.setPaymentMethod(parseMethod(request.getMethod(), Method.class));
-        if (Objects.nonNull(request.getUserId())) {
-            requestBody.setClientId(hashids.encode(Long.parseLong(request.getUserId())));
+        requestBody.setAmount(detailsRequest.getAmount());
+        requestBody.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        if (Objects.nonNull(detailsRequest.getUserId())) {
+            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
         }
         return requestBody;
     }

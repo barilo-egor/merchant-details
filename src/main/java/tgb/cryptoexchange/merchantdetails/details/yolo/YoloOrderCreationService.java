@@ -41,13 +41,13 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/api/client/orders/deposit")
                 .queryParam("accountId", yoloProperties.accountId()).build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         if (jwtData.getAccessToken() == null || Instant.now().plus(5, ChronoUnit.MINUTES).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
                     webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
@@ -79,15 +79,15 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setExternalId(UUID.randomUUID().toString());
-        requestBody.setValue(String.valueOf(request.getAmount()));
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setUseFastPayment(Method.SBP.equals(method));
-        requestBody.setWebhookUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setExternalId(UUID.randomUUID().toString());
+        request.setValue(String.valueOf(detailsRequest.getAmount()));
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setUseFastPayment(Method.SBP.equals(method));
+        request.setWebhookUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        return requestBody;
+        return request;
     }
 
     @Override

@@ -72,7 +72,7 @@ class AsgardImplOrderCreationServiceTest {
     void body_ShouldMapRequestCorrectly() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(5936);
-        detailsRequest.setMethod(Method.CARD.name());
+        detailsRequest.setMethod("CARD");
 
         when(asgardProperties.merchantId()).thenReturn("M-123");
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");

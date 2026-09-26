@@ -42,7 +42,7 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path(CREATE_ORDER_URI).build();
     }
 
@@ -53,17 +53,18 @@ public class CashOutOrderCreationService extends MerchantOrderCreationService<Re
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return this::addHeaders;
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setAmount(request.getAmount());
-        Method method = parseMethod(request.getMethod(), Method.class);
-        requestBody.setMethod(method);
-        return requestBody;
+    protected Request body(OrderCreationRequest detailsRequest) {
+
+        Request request = new Request();
+        request.setAmount(detailsRequest.getAmount());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setMethod(method);
+        return request;
     }
 
     @Override

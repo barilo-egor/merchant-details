@@ -35,12 +35,12 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
         return uriBuilder -> uriBuilder.path("/payments").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return headers -> addHeaders(headers, body);
     }
 
@@ -51,15 +51,15 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
     }
 
     @Override
-    protected Request body(OrderCreationRequest request) {
-        Request requestBody = new Request();
-        requestBody.setOrderId(UUID.randomUUID().toString());
-        requestBody.setMerchantId(asgardProperties.merchantId());
-        requestBody.setAmount(request.getAmount());
-        requestBody.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setOrderId(UUID.randomUUID().toString());
+        request.setMerchantId(asgardProperties.merchantId());
+        request.setAmount(detailsRequest.getAmount());
+        request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
-        requestBody.setMethod(parseMethod(request.getMethod(), Method.class));
-        return requestBody;
+        request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        return request;
     }
 
     @Override
