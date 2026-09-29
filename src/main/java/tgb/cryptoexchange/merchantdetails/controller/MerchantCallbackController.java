@@ -56,7 +56,7 @@ public class MerchantCallbackController extends ApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/{merchant}")
+    @GetMapping(value = "/{merchant}/fetch-status")
     public ResponseEntity<Void> callbackGet(@RequestParam String transactionId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
         if (!this.secret.equals(secret)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);

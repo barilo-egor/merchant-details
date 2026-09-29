@@ -114,7 +114,7 @@ class CubeMerchantServiceTest {
         assertNotNull(request.getExternalId());
         assertDoesNotThrow(() -> UUID.fromString(request.getExternalId()));
 
-        String expectedUrl = "https://api.example.com/merchant-details/callback/CUBE?transactionId="
+        String expectedUrl = "https://api.example.com/merchant-details/callback/CUBE/fetch-status?transactionId="
                 + request.getExternalId() + "&secret=secret123";
 
         assertEquals(expectedUrl, request.getCallbackUrl());

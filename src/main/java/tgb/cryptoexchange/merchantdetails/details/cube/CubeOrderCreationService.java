@@ -60,8 +60,8 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
         return request;
     }
 
-    protected void setCallback(Request request, OrderCreationRequest detailsRequest) {
-        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "?transactionId="
+    protected void setCallback(Request request) {
+        request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback/" + getMerchant() + "/fetch-status?transactionId="
                 + request.getExternalId() + "&secret=" + callbackConfig.getCallbackSecret());
     }
 
@@ -80,7 +80,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
     @Override
     protected Optional<String> makeFetchCallbackData(String transactionId) {
         String response = requestService.request(webClient, HttpMethod.GET,
-                builder -> uriBuilder(null).apply(builder.queryParam("internal_id", transactionId)),
+                builder -> uriBuilder(null).apply(builder.queryParam("external_id", transactionId)),
                 headers(null, null),
                 null
         );
