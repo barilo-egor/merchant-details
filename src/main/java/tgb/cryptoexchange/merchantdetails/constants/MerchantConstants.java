@@ -177,11 +177,11 @@ public enum MerchantConstants {
     ),
     GAMBIT(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
+            tgb.cryptoexchange.merchantdetails.details.gambit.GambitMethod.values()
     ),
     GAMBIT_SIM(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
-            tgb.cryptoexchange.merchantdetails.details.gambit.Method.values()
+            tgb.cryptoexchange.merchantdetails.details.gambit.GambitMethod.values()
     ),
     ASGARD(
             tgb.cryptoexchange.merchantdetails.details.asgard.Status.values(),
@@ -362,6 +362,22 @@ public enum MerchantConstants {
     BAY_PAY(
             tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    HESOYAM(
+            tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.gambit.HesoyamMethod.values()
+    ),
+    HESOYAM_SIM(
+            tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.gambit.HesoyamMethod.values()
+    ),
+    HELLBIT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    HELLBIT_BT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

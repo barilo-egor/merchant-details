@@ -1,33 +1,29 @@
-package tgb.cryptoexchange.merchantdetails.details.buckspay;
+package tgb.cryptoexchange.merchantdetails.details.gambit;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.io.IOException;
 import java.util.Optional;
 
-@Getter
 @AllArgsConstructor
-public enum Method implements MerchantMethod {
-    SBP("SBP", 0, "СБП", RequestMethod.SBP),
-    CARD("Card", 0, "Перевод на карту", RequestMethod.CARD),
-    T_PAY("SBP", 2, "СБП Т-банк — Т-банк", null),
-    NSPK("QRManager", 0, "НСПК", null),
-    SIM("MobileCommerce", 0, "Sim", null),;
+@Getter
+public enum GambitMethod implements Method {
+    CARD("a0e3edeb-725a-4aec-ab9d-756e201659bb", "Карта", RequestMethod.CARD),
+    SBP("a0e3edeb-773d-446d-8a06-48cb102ea182", "СБП", RequestMethod.SBP),
+    MOBILE("a0e3edeb-80f0-4d5d-914e-064a94cde4e3", "Sim", null);
 
-    private final String value;
+    final String methodUid;
 
-    private final Integer bankCode;
-
-    private final String description;
+    final String description;
 
     final RequestMethod requestMethod;
 
+    @Override
     public Optional<RequestMethod> getRequestMethod() {
         return Optional.ofNullable(requestMethod);
     }
@@ -35,8 +31,7 @@ public enum Method implements MerchantMethod {
     public static class Serializer extends JsonSerializer<Method> {
         @Override
         public void serialize(Method method, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeString(method.getValue());
+            jsonGenerator.writeString(method.getMethodUid());
         }
     }
-
 }
