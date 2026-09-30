@@ -360,6 +360,14 @@ prime-wallet-high-check:
 bay-pay:
   url: "bay-pay-url"
   api-key: "bay-pay-api-key"
+hesoyam:
+  url: "hesoyam-url"
+  key: "hesoyam-key"
+  terminal: "hesoyam-terminal"
+hesoyam-sim:
+  url: "hesoyam-sim-url"
+  key: "hesoyam-sim-key"
+  terminal: "hesoyam-sim-terminal"
 #Конфиг приложния
 server:
   servlet:

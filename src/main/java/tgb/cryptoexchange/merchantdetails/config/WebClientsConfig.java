@@ -395,4 +395,9 @@ public class WebClientsConfig {
     public WebClient bayPayWebClient(BayPayProperties bayPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bayPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient hesoyamWebClient(HesoyamImplProperties hesoyamProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(hesoyamProperties.url()).build();
+    }
 }
