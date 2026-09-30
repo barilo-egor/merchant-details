@@ -370,6 +370,14 @@ public enum MerchantConstants {
     HESOYAM_SIM(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.gambit.HesoyamMethod.values()
+    ),
+    HELLBIT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    HELLBIT_BT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
