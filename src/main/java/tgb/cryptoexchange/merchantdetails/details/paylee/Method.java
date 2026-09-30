@@ -10,29 +10,37 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("card", "Карта"),
-    SBP("sbp", "СБП"),
-    ANY_QR("any-qr", "QR"),
-    NSPK("nspk", "НСПК"),
-    SBER_QR("sber-qr", "Сбербанк QR"),
-    OZON_QR("ozon-qr", " Ozon Банк QR"),
-    ALFA_QR("alfa-qr", " Альфа-банк QR"),
-    GAZPROM_QR("gazprom-qr", "Газпромбанк QR"),
-    PSBPAY("psbpay", "ПСБ (форма)"),
-    YANDEX_TIPS("tips", "Яндекс чаевые"),
+    CARD("card", "Карта", RequestMethod.CARD),
+    SBP("sbp", "СБП", RequestMethod.SBP),
+    ANY_QR("any-qr", "QR", null),
+    NSPK("nspk", "НСПК", null),
+    SBER_QR("sber-qr", "Сбербанк QR", null),
+    OZON_QR("ozon-qr", " Ozon Банк QR", null),
+    ALFA_QR("alfa-qr", " Альфа-банк QR", null),
+    GAZPROM_QR("gazprom-qr", "Газпромбанк QR", null),
+    PSBPAY("psbpay", "ПСБ (форма)", null),
+    YANDEX_TIPS("tips", "Яндекс чаевые", null),
     ;
 
     private final String value;
 
     private final String description;
+
+    final RequestMethod requestMethod;
+
+    public Optional<RequestMethod> getRequestMethod() {
+        return Optional.ofNullable(requestMethod);
+    }
 
     public static Method fromValue(String value) {
         for (Method method : Method.values()) {

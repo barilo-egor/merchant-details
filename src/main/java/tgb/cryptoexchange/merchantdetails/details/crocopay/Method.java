@@ -3,13 +3,22 @@ package tgb.cryptoexchange.merchantdetails.details.crocopay;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
+
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    TO_CARD("Карта"),
-    SBP("СБП"),
-    SIM("MOBILE_PHONE");
+    TO_CARD("Карта", RequestMethod.CARD),
+    SBP("СБП",  RequestMethod.SBP),
+    SIM("MOBILE_PHONE", null);
 
     private final String description;
+
+    final RequestMethod requestMethod;
+
+    public Optional<RequestMethod> getRequestMethod() {
+        return Optional.ofNullable(requestMethod);
+    }
 }
