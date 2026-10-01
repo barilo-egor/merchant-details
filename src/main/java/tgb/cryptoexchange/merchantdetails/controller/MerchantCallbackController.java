@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchant-details/callback")
@@ -55,13 +56,23 @@ public class MerchantCallbackController extends ApiController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{merchant}/fetch-status")
+    public ResponseEntity<Void> callbackGet(@RequestParam String transactionId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+        if (!this.secret.equals(secret)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        Optional<String> callbackData =
+                merchantDetailsService.fetchCallbackDataByTransactionId(Merchant.valueOf(merchant), transactionId);
+        callbackData.ifPresent(data -> merchantDetailsService.updateStatus(Merchant.valueOf(merchant), data));
+
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("/{merchant}")
     public ResponseEntity<Void> callbackPost(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
         var merchants = List.of(
-                Merchant.CUBE.name(),
-                Merchant.CUBE_HIGH_CHECK.name(),
-                Merchant.CUBE_LOW_CHECK.name(),
-                Merchant.CUBE_SIM.name(),
                 Merchant.CROCO_PAY.name(),
                 Merchant.BASE_51.name(),
                 Merchant.BASE_51_SIM.name(),
