@@ -393,6 +393,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  grpc:
+    server:
+      host: 0.0.0.0
+      port: 9091
 details:
   executor:
     core-pool-size: 40
