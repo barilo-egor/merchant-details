@@ -10,7 +10,7 @@ import java.util.Currency;
 public class Request {
 
     @JsonProperty("method_uid")
-    @JsonSerialize(using = Method.Serializer.class)
+    @JsonSerialize(using = GambitMethod.Serializer.class)
     private Method method;
 
     private Integer amount;

@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CubePropertiesImpl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -107,7 +108,12 @@ class CubeMerchantServiceTest {
 
         Request request = cubeService.body(detailsRequest);
 
-        String expectedUrl = "https://api.example.com/merchant-details/callback/CUBE?dealId=123456&secret=secret123";
+        assertNotNull(request.getExternalId());
+        assertDoesNotThrow(() -> UUID.fromString(request.getExternalId()));
+
+        String expectedUrl = "https://api.example.com/merchant-details/callback/CUBE/fetch-status?transactionId="
+                + request.getExternalId() + "&secret=secret123";
+
         assertEquals(expectedUrl, request.getCallbackUrl());
     }
 
