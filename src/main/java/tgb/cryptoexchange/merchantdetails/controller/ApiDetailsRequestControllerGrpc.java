@@ -80,7 +80,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
 
     private DetailsResponseGrpc fakeDetails(DetailsRequestGrpc requestGrpc) {
         return DetailsResponseGrpc.newBuilder()
-                .setRequestId(requestGrpc.getRequestId().getValue())
+                .setRequestId(requestGrpc.getRequestId())
                 .setMerchant(Merchant.LOTRIEN.name())
                 .setOrderId(UUID.randomUUID().toString())
                 .setOrderStatus(tgb.cryptoexchange.merchantdetails.details.lotrien.Status.CREATED.name())
@@ -89,7 +89,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
                         .setRequestMethod(requestGrpc.getRequestMethod(0))
                         .setDetails("1111 2222 3n3n3n3n 4444")
                         .build())
-                .setAmount(requestGrpc.getAmount().getValue())
+                .setAmount(requestGrpc.getAmount())
                 .build();
     }
 

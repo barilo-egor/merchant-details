@@ -77,7 +77,7 @@ public class ApiMerchantConfigService {
     }
 
     public List<ApiMerchantConfig> findAllTurnedByMerchantsAndOwnerId(Set<Merchant> merchants, UUID ownerId) {
-        return repository.findAllByMerchantInAndOwnerId(merchants, ownerId);
+        return repository.findAllByMerchantInAndOwnerIdAndIsOnTrue(merchants, ownerId);
     }
 
     @Transactional

@@ -16,41 +16,53 @@ public class ApiDetailsRequestMapper {
 
     public ApiDetailsRequest mapGrpcToDto(DetailsRequestGrpc grpc) {
         ApiDetailsRequest apiDetailsRequest = new ApiDetailsRequest();
-        if (grpc.hasRequestId()) {
-            apiDetailsRequest.setRequestId(grpc.getRequestId().getValue());
+        if (!grpc.getRequestId().isEmpty()) {
+            apiDetailsRequest.setRequestId(grpc.getRequestId());
         } else {
             throwInvalidArgumentException("requestId");
         }
-        if (grpc.hasInternalId()) {
-            apiDetailsRequest.setInternalId(grpc.getInternalId().getValue());
+        if (!grpc.getInternalId().isEmpty()) {
+            apiDetailsRequest.setInternalId(grpc.getInternalId());
         } else {
             throwInvalidArgumentException("internalId");
         }
-        if (grpc.hasUserId()) {
-            apiDetailsRequest.setUserId(grpc.getUserId().getValue());
+        if (grpc.hasUserId() && !grpc.getUserId().isEmpty()) {
+            apiDetailsRequest.setUserId(grpc.getUserId());
         } else {
             throwInvalidArgumentException("userId");
         }
-        if (grpc.hasAmount()) {
-            apiDetailsRequest.setAmount(grpc.getAmount().getValue());
+
+        // 4. amount (int32 -> дефолтное значение 0, проверяем, что передано больше 0)
+        if (grpc.getAmount() > 0) {
+            apiDetailsRequest.setAmount(grpc.getAmount());
         } else {
             throwInvalidArgumentException("amount");
         }
+
+        // 5. request_method (repeated -> проверка на isEmpty)
         if (grpc.getRequestMethodList().isEmpty()) {
             throwInvalidArgumentException("requestMethod");
+        } else {
+            List<RequestMethod> methods = grpc.getRequestMethodList().stream()
+                    .map(RequestMethod::valueOf)
+                    .toList();
+            apiDetailsRequest.setRequestMethods(methods);
         }
-        if (grpc.hasWaitTimeout()) {
-            apiDetailsRequest.setRequestId(grpc.getRequestId().getValue());
+
+        // 6. wait_timeout (int32 -> проверка на дефолтное значение)
+        // Исправлен баг: теперь устанавливается сетер таймаута, а не requestId
+        if (grpc.getWaitTimeout() > 0) {
+            apiDetailsRequest.setWaitTimeout(grpc.getWaitTimeout());
         }
-        if (grpc.hasOwnerId()) {
-            apiDetailsRequest.setOwnerId(UUID.fromString(grpc.getOwnerId().getValue()));
+
+        // 7. owner_id (обычная string -> проверка на isEmpty)
+        if (!grpc.getOwnerId().isEmpty()) {
+            apiDetailsRequest.setOwnerId(UUID.fromString(grpc.getOwnerId()));
         }
-        List<RequestMethod> methods = grpc.getRequestMethodList().stream()
-                .map(RequestMethod::valueOf)
-                .toList();
-        apiDetailsRequest.setRequestMethods(methods);
+
         return apiDetailsRequest;
     }
+
 
     private void throwInvalidArgumentException(String field) {
         throw GrpcValidator.invalidArgument(field, "Should not be empty.");

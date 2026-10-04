@@ -32,6 +32,6 @@ public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantCo
     @Transactional
     void deleteAllByMerchantNotIn(@Param("merchants") List<Merchant> merchants);
 
-    List<ApiMerchantConfig> findAllByMerchantInAndOwnerId(Set<Merchant> merchants, UUID ownerId);
+    List<ApiMerchantConfig> findAllByMerchantInAndOwnerIdAndIsOnTrue(Set<Merchant> merchants, UUID ownerId);
 
 }
