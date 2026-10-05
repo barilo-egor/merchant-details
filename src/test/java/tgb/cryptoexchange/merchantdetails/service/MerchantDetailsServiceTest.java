@@ -111,6 +111,18 @@ class MerchantDetailsServiceTest {
     }
 
     @CsvSource(textBlock = """
+            ALFA_TEAM, order-1, PAID, Оплачено
+            SETTLE_X, order-2, CANCELLED, Отменено
+            """)
+    @ParameterizedTest
+    void updateStatusWithParamsShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String orderId, String status, String statusDescription) {
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
+        merchantDetailsService.updateStatus(merchant, orderId, status, statusDescription);
+        verify(merchantService).updateStatus(orderId, status, statusDescription);
+    }
+
+    @CsvSource(textBlock = """
             ALFA_TEAM,20fb47cc-bbb2-4e39-84db-9f67c0b2900e,CARD
             SETTLE_X,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP
             """)

@@ -2,7 +2,9 @@ package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
@@ -43,6 +45,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private final Class<T> responseType;
 
+    @Getter
     private final Class<P> callbackType;
 
     protected ObjectMapper objectMapper;
@@ -279,6 +282,38 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
 
         deleteReceipt(maybeMerchantOrderId.get(), maybeStatus.get());
+    }
+
+    @Override
+    public void updateStatus(String orderId, String status, String statusDescription) {
+        log.debug("Принят callback от мерчанта {}: orderId={}, status={}, description={}",
+                getMerchant().name(), orderId, status, statusDescription);
+        if (StringUtils.isAnyBlank(orderId, status)) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Невалидные параметры callback мерчанта {}: id={}, status={}, description={}",
+                    currentTime, getMerchant().name(), orderId, status, statusDescription);
+            throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
+        }
+        MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
+        merchantCallbackEvent.setMerchantOrderId(orderId);
+        merchantCallbackEvent.setStatus(status);
+        merchantCallbackEvent.setStatusDescription(StringUtils.isNotBlank(statusDescription) ? statusDescription : status);
+        merchantCallbackEvent.setMerchant(getMerchant());
+        if (Objects.nonNull(callbackKafkaTemplate)) {
+            try {
+                callbackKafkaTemplate.send(
+                        environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
+                        UUID.randomUUID().toString(), merchantCallbackEvent
+                );
+            } catch (Exception e) {
+                long currentTime = System.currentTimeMillis();
+                log.error("{} Ошибка при попытке обновления статуса мерчанта {}. orderId={}, status={}, description={}. Message={}.",
+                        currentTime, getMerchant().name(), orderId, status, statusDescription, e.getMessage(), e);
+                throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
+            }
+        }
+
+        deleteReceipt(orderId, status);
     }
 
     @SuppressWarnings("unused")

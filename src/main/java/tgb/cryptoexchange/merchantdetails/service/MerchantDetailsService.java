@@ -109,6 +109,16 @@ public class MerchantDetailsService {
         }
     }
 
+    public void updateStatus(Merchant merchant, String orderId, String status, String statusDescription) {
+        var maybeCreationService = merchantServiceRegistry.getService(merchant);
+        if (maybeCreationService.isPresent()) {
+            maybeCreationService.get().updateStatus(orderId, status, statusDescription);
+        } else {
+            log.warn("Запрос обновления статуса ордера мерчанта {}, у которого отсутствует реализация: orderId={}, status={}",
+                    merchant.name(), orderId, status);
+        }
+    }
+
     public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
         log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
         var maybeCreationService = merchantServiceRegistry.getService(merchant);

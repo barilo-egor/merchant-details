@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
+import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -8,7 +9,9 @@ import org.slf4j.MDC;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.grpc.generated.*;
+import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
@@ -27,19 +30,62 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
 
     private final ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
 
+    private final MerchantServiceRegistry merchantServiceRegistry;
+
     public ApiDetailsRequestControllerGrpc(ApiDetailsRequestProcessorService processorService,
                                            ThreadPoolTaskExecutor detailsRequestSearchExecutorApi,
-                                           ApiDetailsRequestMapper mapper) {
+                                           ApiDetailsRequestMapper mapper, MerchantServiceRegistry merchantServiceRegistry) {
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.processorService = processorService;
+        this.merchantServiceRegistry = merchantServiceRegistry;
         this.mapper = mapper;
     }
 
     @Override
-    public void merchantCallbackRequest(MerchantCallbackGrpc requestGrpc, StreamObserver<MerchantCallbackGrpc> responseObserver) {
+    public void merchantCallbackRequest(MerchantCallbackGrpc requestGrpc, StreamObserver<Empty> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
-            responseObserver.onNext(requestGrpc);
-            responseObserver.onCompleted();
+            Merchant merchant;
+            try {
+                if (requestGrpc.getMerchant().isBlank()) {
+                    throw new IllegalArgumentException("Merchant name is empty");
+                }
+                merchant = Merchant.valueOf(requestGrpc.getMerchant());
+            } catch (IllegalArgumentException e) {
+                log.error("Некорректный мерчант в callback запросе: '{}'", requestGrpc.getMerchant(), e);
+                responseObserver.onError(Status.INVALID_ARGUMENT
+                        .withDescription("Invalid merchant: " + requestGrpc.getMerchant())
+                        .asRuntimeException());
+                return;
+            }
+
+            var maybeCreationService = merchantServiceRegistry.getService(merchant);
+            if (maybeCreationService.isEmpty()) {
+                log.warn("Сервис для мерчанта {} не найден", merchant);
+                responseObserver.onError(Status.NOT_FOUND
+                        .withDescription("Merchant service not found: " + merchant)
+                        .asRuntimeException());
+                return;
+            }
+
+            try {
+                maybeCreationService.get().updateStatus(
+                        requestGrpc.getMerchantOrderId(),
+                        requestGrpc.getStatus(),
+                        requestGrpc.getStatusDescription()
+                );
+                responseObserver.onNext(Empty.newBuilder().build());
+                responseObserver.onCompleted();
+            } catch (ServiceUnavailableException e) {
+                log.error("Сервис недоступен при обновлении статуса мерчанта {}: {}", merchant, e.getMessage(), e);
+                responseObserver.onError(Status.UNAVAILABLE
+                        .withDescription(e.getMessage())
+                        .asRuntimeException());
+            } catch (Exception e) {
+                log.error("Ошибка при обновлении статуса для мерчанта {}: {}", merchant, e.getMessage(), e);
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription("Internal error: " + e.getMessage())
+                        .asRuntimeException());
+            }
         }
     }
 

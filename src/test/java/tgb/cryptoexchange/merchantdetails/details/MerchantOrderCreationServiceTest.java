@@ -337,4 +337,48 @@ class MerchantOrderCreationServiceTest {
                 () -> assertEquals(Merchant.ALFA_TEAM, actual.getMerchant())
         );
     }
+
+    @CsvSource("""
+            merchant-details-callback-topic,order-123,PAID,Оплачено
+            merchant-details-callback-topic,order-456,CANCELLED,Отменено
+            """)
+    @ParameterizedTest
+    void updateStatusWithParamsShouldSendEvent(String topic, String orderId, String status, String statusDescription) {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn(topic);
+
+        ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
+        ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
+
+        service.updateStatus(orderId, status, statusDescription);
+
+        verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
+        MerchantCallbackEvent actual = eventCaptor.getValue();
+        assertAll(
+                () -> assertDoesNotThrow(() -> UUID.fromString(uuidCaptor.getValue())),
+                () -> assertEquals(orderId, actual.getMerchantOrderId()),
+                () -> assertEquals(status, actual.getStatus()),
+                () -> assertEquals(statusDescription, actual.getStatusDescription()),
+                () -> assertEquals(Merchant.ALFA_TEAM, actual.getMerchant())
+        );
+    }
+
+    @Test
+    void updateStatusWithParamsShouldThrowExceptionIfOrderIdOrStatusIsBlank() {
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("", "PAID", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", "", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(null, "PAID", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", null, "Оплачено"));
+    }
+
+    @Test
+    void updateStatusWithParamsShouldThrowExceptionIfKafkaSendFails() {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn("some-topic");
+        when(callbackKafkaTemplate.send(anyString(), anyString(), any())).thenThrow(new RuntimeException("Kafka error"));
+
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", "PAID", "Оплачено"));
+    }
 }
