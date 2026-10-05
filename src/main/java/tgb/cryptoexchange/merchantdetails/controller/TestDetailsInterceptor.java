@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class TestDetailsInterceptor implements ServerInterceptor {
 
     public static final Metadata.Key<String> TEST_DETAILS_HEADER_KEY =
-            Metadata.Key.of("x-test-details", Metadata.ASCII_STRING_MARSHALLER);
+            Metadata.Key.of("Test-Details", Metadata.ASCII_STRING_MARSHALLER);
 
     public static final Context.Key<String> TEST_DETAILS_CTX_KEY = Context.key("testDetails");
 
