@@ -11,11 +11,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.grpc.generated.*;
-import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
 import tgb.cryptoexchange.merchantdetails.mapper.ApiDetailsRequestMapper;
+import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
@@ -30,15 +30,15 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
 
     private final ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
 
-    private final MerchantServiceRegistry merchantServiceRegistry;
+    private final MerchantDetailsService merchantDetailsService;
 
     public ApiDetailsRequestControllerGrpc(ApiDetailsRequestProcessorService processorService,
                                            ThreadPoolTaskExecutor detailsRequestSearchExecutorApi,
-                                           ApiDetailsRequestMapper mapper, MerchantServiceRegistry merchantServiceRegistry) {
+                                           ApiDetailsRequestMapper mapper, MerchantDetailsService merchantDetailsService) {
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.processorService = processorService;
-        this.merchantServiceRegistry = merchantServiceRegistry;
         this.mapper = mapper;
+        this.merchantDetailsService = merchantDetailsService;
     }
 
     @Override
@@ -58,17 +58,9 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
                 return;
             }
 
-            var maybeCreationService = merchantServiceRegistry.getService(merchant);
-            if (maybeCreationService.isEmpty()) {
-                log.warn("Сервис для мерчанта {} не найден", merchant);
-                responseObserver.onError(Status.NOT_FOUND
-                        .withDescription("Merchant service not found: " + merchant)
-                        .asRuntimeException());
-                return;
-            }
-
             try {
-                maybeCreationService.get().updateStatus(
+                merchantDetailsService.updateStatus(
+                        Merchant.valueOf(requestGrpc.getMerchant()),
                         requestGrpc.getMerchantOrderId(),
                         requestGrpc.getStatus(),
                         requestGrpc.getStatusDescription()

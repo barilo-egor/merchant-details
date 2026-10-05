@@ -18,6 +18,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantService;
 import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
 import tgb.cryptoexchange.merchantdetails.mapper.ApiDetailsRequestMapper;
+import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 
 import java.util.Optional;
 
@@ -38,10 +39,7 @@ class ApiDetailsRequestControllerGrpcTest {
     private ApiDetailsRequestMapper mapper;
 
     @Mock
-    private MerchantServiceRegistry merchantServiceRegistry;
-
-    @Mock
-    private MerchantService merchantService;
+    private MerchantDetailsService merchantDetailsService;
 
     @Mock
     private StreamObserver<Empty> responseObserver;
@@ -54,7 +52,7 @@ class ApiDetailsRequestControllerGrpcTest {
                 processorService,
                 detailsRequestSearchExecutorApi,
                 mapper,
-                merchantServiceRegistry
+                merchantDetailsService
         );
     }
 
@@ -67,11 +65,9 @@ class ApiDetailsRequestControllerGrpcTest {
                 .setStatusDescription("Payment successful")
                 .build();
 
-        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
-
         controller.merchantCallbackRequest(request, responseObserver);
 
-        verify(merchantService).updateStatus("order-123", "PAID", "Payment successful");
+        verify(merchantDetailsService).updateStatus(Merchant.ALFA_TEAM, "order-123", "PAID", "Payment successful");
         verify(responseObserver).onNext(Empty.newBuilder().build());
         verify(responseObserver).onCompleted();
         verify(responseObserver, never()).onError(any());
@@ -112,24 +108,6 @@ class ApiDetailsRequestControllerGrpcTest {
     }
 
     @Test
-    void merchantCallbackRequest_MerchantNotFoundInRegistry() {
-        MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
-                .setMerchant(Merchant.ALFA_TEAM.name())
-                .setMerchantOrderId("order-123")
-                .setStatus("PAID")
-                .build();
-
-        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.empty());
-
-        controller.merchantCallbackRequest(request, responseObserver);
-
-        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
-        verify(responseObserver).onError(errorCaptor.capture());
-        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
-        assertEquals(Status.Code.NOT_FOUND, ex.getStatus().getCode());
-    }
-
-    @Test
     void merchantCallbackRequest_ServiceThrowsServiceUnavailableException() {
         MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
@@ -137,10 +115,8 @@ class ApiDetailsRequestControllerGrpcTest {
                 .setStatus("PAID")
                 .setStatusDescription("desc")
                 .build();
-
-        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
-        doThrow(new ServiceUnavailableException("Kafka down")).when(merchantService)
-                .updateStatus("order-123", "PAID", "desc");
+        doThrow(new ServiceUnavailableException("Kafka down")).when(merchantDetailsService)
+                .updateStatus(Merchant.ALFA_TEAM, "order-123", "PAID", "desc");
 
         controller.merchantCallbackRequest(request, responseObserver);
 
