@@ -29,6 +29,8 @@ public class MerchantDetailsReceiveEventProducer {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
         event.setDealId(detailsRequest.getId());
         event.setUserId(detailsRequest.getChatId());
+        event.setOperationId(detailsRequest.getId().toString());
+        event.setActorId(detailsRequest.getChatId().toString());
         event.setInitiatorApp(detailsRequest.getInitiatorApp());
         event.setCreatedAt(Instant.now());
         event.setMerchant(merchant.name());
