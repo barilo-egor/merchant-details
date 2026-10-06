@@ -19,12 +19,14 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,12 +46,16 @@ public class ApiMerchantDetailsService {
 
     private final RequestMethodService requestMethodService;
 
+    private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
+
     public ApiMerchantDetailsService(MeterRegistry meterRegistry, ApiMerchantConfigService merchantConfigService,
-                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService) {
+                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService,
+                                     MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer) {
         this.meterRegistry = meterRegistry;
         this.merchantConfigService = merchantConfigService;
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.requestMethodService = requestMethodService;
+        this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
     }
 
     @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")
@@ -157,6 +163,9 @@ public class ApiMerchantDetailsService {
                         .build();
                 apiDetailsResponse.setDetails(details);
                 apiDetailsResponse.setAmount(orderResponse.getAmount());
+                if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
+                    merchantDetailsReceiveEventProducer.put(merchant, merchantMethod, request, maybeDetailsResponse.get());
+                }
                 return Optional.of(apiDetailsResponse);
             }
         }

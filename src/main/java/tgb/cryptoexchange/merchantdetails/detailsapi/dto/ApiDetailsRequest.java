@@ -1,11 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.detailsapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Transient;
 import lombok.Data;
-import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
-import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.util.ArrayList;
@@ -14,7 +11,7 @@ import java.util.UUID;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ApiDetailsRequest {
+public class ApiDetailsRequest implements DetailsRequest {
 
     private String requestId;
 
@@ -29,5 +26,15 @@ public class ApiDetailsRequest {
     private List<RequestMethod> requestMethods = new ArrayList<>();
 
     private UUID ownerId;
+
+    @Override
+    public String getId() {
+        return getInternalId();
+    }
+
+    @Override
+    public String getInitiatorApp() {
+        return "processing";
+    }
 
 }

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Slf4j
-public class BotDetailsRequest {
+public class BotDetailsRequest implements DetailsRequest {
 
     protected String requestId;
 
