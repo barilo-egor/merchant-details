@@ -12,16 +12,6 @@ import java.time.Instant;
 public class MerchantDetailsReceiveEvent {
 
     /**
-     * Идентификатор сделки, по которому были запрошены реквизиты
-     */
-    private Long dealId;
-
-    /**
-     * Идентификатор пользователя, для которого были запрошены реквизиты
-     */
-    private Long userId;
-
-    /**
      * Идентификатор операции, по которой были получены реквизиты
      */
     private String operationId;

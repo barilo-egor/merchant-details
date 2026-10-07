@@ -9,6 +9,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,10 +28,8 @@ public class MerchantDetailsReceiveEventProducer {
 
     public void put(Merchant merchant, OrderCreationRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
-        event.setDealId(detailsRequest.getId());
-        event.setUserId(detailsRequest.getChatId());
-        event.setOperationId(detailsRequest.getId().toString());
-        event.setActorId(detailsRequest.getChatId().toString());
+        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId().toString() : null);
+        event.setActorId(Objects.nonNull(detailsRequest.getChatId()) ? detailsRequest.getChatId().toString() : null);
         event.setInitiatorApp(detailsRequest.getInitiatorApp());
         event.setCreatedAt(Instant.now());
         event.setMerchant(merchant.name());
