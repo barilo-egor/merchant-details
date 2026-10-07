@@ -30,8 +30,8 @@ public class MerchantDetailsReceiveEventProducer {
 
     public void put(Merchant merchant, String merchantMethod, DetailsRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
-        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId().toString() : null);
-        event.setActorId(Objects.nonNull(detailsRequest.getUserId()) ? detailsRequest.getUserId().toString() : null);
+        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId() : null);
+        event.setActorId(Objects.nonNull(detailsRequest.getUserId()) ? detailsRequest.getUserId() : null);
         event.setOperationId(detailsRequest.getId());
         event.setActorId(detailsRequest.getUserId());
         event.setInitiatorApp(detailsRequest.getInitiatorApp());
