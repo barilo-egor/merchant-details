@@ -6,9 +6,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,8 +30,8 @@ public class MerchantDetailsReceiveEventProducer {
 
     public void put(Merchant merchant, String merchantMethod, DetailsRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
-        event.setDealId(Long.valueOf(detailsRequest.getId()));
-        event.setUserId(Long.valueOf(detailsRequest.getUserId()));
+        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId().toString() : null);
+        event.setActorId(Objects.nonNull(detailsRequest.getUserId()) ? detailsRequest.getUserId().toString() : null);
         event.setOperationId(detailsRequest.getId());
         event.setActorId(detailsRequest.getUserId());
         event.setInitiatorApp(detailsRequest.getInitiatorApp());

@@ -54,8 +54,8 @@ class MerchantDetailsReceiveEventProducerTest {
         MerchantDetailsReceiveEvent event = eventCaptor.getValue();
         assertAll(
                 () -> assertEquals(topic, topicCaptor.getValue()),
-                () -> assertEquals(dealId, event.getDealId()),
-                () -> assertEquals(userId, event.getUserId()),
+                () -> assertEquals(dealId, Long.valueOf(event.getOperationId())),
+                () -> assertEquals(userId, Long.valueOf(event.getActorId())),
                 () -> assertEquals(appId, event.getInitiatorApp()),
                 () -> assertEquals(merchant.name(), event.getMerchant()),
                 () -> assertEquals(orderId, event.getMerchantOrderId()),
