@@ -22,16 +22,6 @@ public class MerchantDetailsReceiveEvent {
     private String actorId;
 
     /**
-     * Идентификатор операции, по которой были получены реквизиты
-     */
-    private String operationId;
-
-    /**
-     * Идентификатор получаетеля реквизитов
-     */
-    private String actorId;
-
-    /**
      * Идентификатор приложения, запросившее реквизиты
      */
     private String initiatorApp;
