@@ -15,7 +15,6 @@ import tgb.cryptoexchange.merchantdetails.properties.CubeProperties;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -55,7 +54,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
         request.setAmount(detailsRequest.getAmount().toString());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setMethod(method);
-        request.setExternalId(UUID.randomUUID().toString());
+        request.setExternalId(detailsRequest.getId().toString());
         setCallback(request);
         return request;
     }
