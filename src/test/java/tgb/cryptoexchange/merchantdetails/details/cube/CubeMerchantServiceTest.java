@@ -19,7 +19,6 @@ import tgb.cryptoexchange.merchantdetails.properties.CubePropertiesImpl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -87,19 +86,6 @@ class CubeMerchantServiceTest {
     }
 
     @Test
-    void bodyShouldGenerateUniqueExternalId() {
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setAmount(1000);
-        detailsRequest.setMethod("CARD");
-        detailsRequest.setId(123L);
-
-        Request request1 = cubeService.body(detailsRequest);
-        Request request2 = cubeService.body(detailsRequest);
-
-        assertNotEquals(request1.getExternalId(), request2.getExternalId());
-    }
-
-    @Test
     void bodyShouldSetCallbackUrlCorrectly() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
@@ -112,7 +98,7 @@ class CubeMerchantServiceTest {
         Request request = cubeService.body(detailsRequest);
 
         assertNotNull(request.getExternalId());
-        assertDoesNotThrow(() -> UUID.fromString(request.getExternalId()));
+        assertEquals("123456", request.getExternalId());
 
         String expectedUrl = "https://api.example.com/merchant-details/callback/CUBE/fetch-status?transactionId="
                 + request.getExternalId() + "&secret=secret123";
