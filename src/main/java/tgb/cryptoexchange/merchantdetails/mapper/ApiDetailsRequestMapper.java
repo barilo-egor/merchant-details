@@ -60,6 +60,10 @@ public class ApiDetailsRequestMapper {
             apiDetailsRequest.setOwnerId(UUID.fromString(grpc.getOwnerId()));
         }
 
+        if (!grpc.getInitiatorApp().isEmpty()) {
+            apiDetailsRequest.setInitiatorApp(grpc.getInitiatorApp());
+        }
+
         return apiDetailsRequest;
     }
 

@@ -27,14 +27,11 @@ public class ApiDetailsRequest implements DetailsRequest {
 
     private UUID ownerId;
 
+    private String initiatorApp;
+
     @Override
     public String getId() {
         return getInternalId();
-    }
-
-    @Override
-    public String getInitiatorApp() {
-        return "processing";
     }
 
 }
