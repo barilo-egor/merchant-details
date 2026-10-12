@@ -97,7 +97,7 @@ public class ApiMerchantDetailsService {
         Optional<ApiDetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
 
-        final Instant deadline = Instant.now().plusSeconds(request.getWaitTimeout());
+        final Instant deadline = Instant.now().plusSeconds(Math.min(request.getWaitTimeout(), 300));
         while (maybeDetailsResponse.isEmpty() && Instant.now().isBefore(deadline)) {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
