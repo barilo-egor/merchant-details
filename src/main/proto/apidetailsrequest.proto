@@ -6,10 +6,12 @@ option java_multiple_files = true;
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/field_mask.proto";
+import "merchantdetails.proto";
 
 service ApiDetailsRequestService {
   rpc DetailsRequest (DetailsRequestGrpc) returns (DetailsResponseGrpc);
   rpc MerchantCallbackRequest (MerchantCallbackGrpc) returns (google.protobuf.Empty);
+  rpc CancelOrderRequest (CancelOrderRequestGrpc) returns (google.protobuf.Empty);
 }
 
 service ApiMerchantConfigService {

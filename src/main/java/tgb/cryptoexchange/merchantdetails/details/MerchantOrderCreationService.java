@@ -22,7 +22,6 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
-import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 
 import java.net.URI;
 import java.util.Objects;
@@ -227,9 +226,20 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
-        return EnumUtils.valueOf(methodType, value,
-                () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
-                        + getMerchant().name() + " not found."));
+        try {
+            return Enum.valueOf(methodType, value);
+        } catch (IllegalArgumentException ignored) {
+            for (E constant : methodType.getEnumConstants()) {
+                if (constant instanceof MerchantMethod merchantMethod
+                        && merchantMethod.getRequestMethod()
+                        .filter(rm -> rm.name().equalsIgnoreCase(value))
+                        .isPresent()) {
+                    return constant;
+                }
+            }
+            throw new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
+                    + getMerchant().name() + " not found.");
+        }
     }
 
     protected Optional<RequiredReceipt> isRequiredReceipt() {
