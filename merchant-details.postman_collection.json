@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "86eb1cc1-6b64-44af-8039-128189094a56",
+    "_postman_id": "f1902b78-53d1-4190-8c85-9bd0f2c3886b",
     "name": "merchant-details",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51311572",
-    "_collection_link": "https://go.postman.co/collection/51311572-86eb1cc1-6b64-44af-8039-128189094a56?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/51311572-f1902b78-53d1-4190-8c85-9bd0f2c3886b?source=collection_link"
   },
   "item": [
     {
@@ -545,6 +545,51 @@
                     "v1",
                     "transactions",
                     "card"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "SmackPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{smack-pay-api-key}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "1791788403"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"2010\",\r\n    \"currency\": \"RUB\",\r\n    \"phone\": \"+79991234567\",\r\n    \"metadata\": {\"order_id\": \"ORDER-1\"},\r\n    \"return_url\": \"https://merchant.example/success\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.smackpay.at/v1/payments/qr-kyc",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "smackpay",
+                    "at"
+                  ],
+                  "path": [
+                    "v1",
+                    "payments",
+                    "qr-kyc"
                   ]
                 }
               },
