@@ -18,7 +18,7 @@ public enum Status implements MerchantOrderStatus {
     PROCESSING_LINK("processing_link", "Подготовка реквизитов"),
     PENDING("pending", "Ожидание"),
     SUCCEEDED("succeeded", "Успешно"),
-    FAILED("failed", "Не удалось"),
+    FAILED("failed", "Платёж не прошёл"),
     EXPIRED("expired", "Время на оплату истекло");
 
     private final String value;
