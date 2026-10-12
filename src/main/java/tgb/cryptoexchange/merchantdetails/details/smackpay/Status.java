@@ -13,9 +13,13 @@ import java.io.IOException;
 @AllArgsConstructor
 public enum Status implements MerchantOrderStatus {
 
+    AWAITING_KYC("awaiting_kyc", "Подтверждение личности"),
+    KYC_PENDING("kyc_pending", "Проверка личности"),
+    PROCESSING_LINK("processing_link", "Подготовка реквизитов"),
     PENDING("pending", "Ожидание"),
     SUCCEEDED("succeeded", "Успешно"),
-    FAILED("failed", "Не удалось");
+    FAILED("failed", "Не удалось"),
+    EXPIRED("expired", "Время на оплату истекло");
 
     private final String value;
 
