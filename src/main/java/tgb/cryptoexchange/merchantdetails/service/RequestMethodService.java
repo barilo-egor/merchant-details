@@ -6,6 +6,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +41,8 @@ public class RequestMethodService {
 
     /**
      * Получение списка названий методов мерчанта по запрошенным категориям.
-     * @param merchant мерчант, методы которого необходимо получить
+     *
+     * @param merchant       мерчант, методы которого необходимо получить
      * @param requestMethods запрашиваемые категории
      * @return список названий({@link MerchantMethod#name()}) методов мерчантов
      */
@@ -53,7 +55,25 @@ public class RequestMethodService {
     }
 
     /**
+     * Получение названия метода мерчанта по запрошенной категории.
+     *
+     * @param merchant      мерчант, метод которого необходимо получить
+     * @param requestMethod запрашиваемая категория
+     * @return название({@link MerchantMethod#name()}) метода мерчанта
+     * @throws MerchantMethodNotFoundException если метод для мерчанта не найден
+     */
+    public String getMerchantMethod(Merchant merchant, RequestMethod requestMethod) {
+        return Optional.ofNullable(merchantMethods.get(requestMethod))
+                .map(methods -> methods.get(merchant))
+                .map(MerchantMethod::name)
+                .orElseThrow(() -> new MerchantMethodNotFoundException(
+                        "Method not found for merchant " + merchant + " and category " + requestMethod
+                ));
+    }
+
+    /**
      * Получение множества мерчантов, у которых есть методы по запрашиваемым категориям.
+     *
      * @param requestMethods запрашиваемые категории
      * @return множество мерчантов
      */

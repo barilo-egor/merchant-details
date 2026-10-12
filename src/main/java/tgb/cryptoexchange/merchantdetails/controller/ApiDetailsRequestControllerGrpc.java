@@ -15,9 +15,12 @@ import tgb.cryptoexchange.grpc.generated.*;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.mapper.ApiDetailsRequestMapper;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
@@ -35,16 +38,19 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     private final ApiDetailsRequestMapper mapper;
     private final ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
     private final MerchantDetailsService merchantDetailsService;
+    private final RequestMethodService requestMethodService;
 
     public ApiDetailsRequestControllerGrpc(
             ApiDetailsRequestProcessorService processorService,
             @Qualifier("detailsRequestSearchExecutorApi") ThreadPoolTaskExecutor detailsRequestSearchExecutorApi,
             ApiDetailsRequestMapper mapper,
-            MerchantDetailsService merchantDetailsService) {
+            MerchantDetailsService merchantDetailsService,
+            RequestMethodService requestMethodService) {
         this.processorService = processorService;
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.mapper = mapper;
         this.merchantDetailsService = merchantDetailsService;
+        this.requestMethodService = requestMethodService;
     }
 
     @Override
@@ -78,10 +84,15 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
             }
 
             try {
-                CancelOrderRequest domainRequest = toCancelOrderRequest(requestGrpc);
+                CancelOrderRequest domainRequest = toCancelOrderRequest(merchant, requestGrpc);
                 merchantDetailsService.cancelOrder(merchant, domainRequest);
                 responseObserver.onNext(Empty.getDefaultInstance());
                 responseObserver.onCompleted();
+            } catch (MerchantMethodNotFoundException | IllegalArgumentException e) {
+                log.error("Некорректный метод в запросе отмены ордера для мерчанта {}: {}", merchant, e.getMessage(), e);
+                responseObserver.onError(Status.INVALID_ARGUMENT
+                        .withDescription(e.getMessage())
+                        .asRuntimeException());
             } catch (ServiceUnavailableException e) {
                 log.error("Сервис недоступен при отмене ордера мерчанта {}: {}", merchant, e.getMessage(), e);
                 responseObserver.onError(Status.UNAVAILABLE
@@ -181,10 +192,19 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
         return Merchant.valueOf(merchantName);
     }
 
-    private CancelOrderRequest toCancelOrderRequest(CancelOrderRequestGrpc requestGrpc) {
+    private CancelOrderRequest toCancelOrderRequest(Merchant merchant, CancelOrderRequestGrpc requestGrpc) {
+        RequestMethod requestMethod;
+        try {
+            requestMethod = RequestMethod.valueOf(requestGrpc.getMethod());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid request method: " + requestGrpc.getMethod(), e);
+        }
+
+        String methodName = requestMethodService.getMerchantMethod(merchant, requestMethod);
+
         CancelOrderRequest domainRequest = new CancelOrderRequest();
         domainRequest.setOrderId(requestGrpc.getOrderId());
-        domainRequest.setMethod(requestGrpc.getMethod());
+        domainRequest.setMethod(methodName);
         return domainRequest;
     }
 

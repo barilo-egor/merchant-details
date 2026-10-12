@@ -151,7 +151,7 @@ class MerchantOrderCreationServiceTest {
         BotDetailsRequest request = new BotDetailsRequest();
 
         request.setMethods(new ArrayList<>());
-        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("UNKNOWN", Method.class));
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
 
     @Test
@@ -163,13 +163,7 @@ class MerchantOrderCreationServiceTest {
         methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList("method")).build());
         methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList("method")).build());
         request.setMethods(methods);
-        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("UNKNOWN", Method.class));
-    }
-
-    @Test
-    void parseMethodShouldParseFromRequestMethod() {
-        assertEquals(Method.TO_CARD, service.parseMethod("CARD", Method.class));
-        assertEquals(Method.SBP, service.parseMethod("SBP", Method.class));
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
 
     @Test

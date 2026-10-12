@@ -9,6 +9,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +55,19 @@ class RequestMethodServiceTest {
                 () -> assertTrue(merchantMethods.contains(Method.TO_CARD.name())),
                 () -> assertTrue(merchantMethods.contains(Method.SBP.name()))
         );
+    }
+
+    @Test
+    void getMerchantMethod_shouldReturnMethodNameIfExists() {
+        String method = methodService.getMerchantMethod(Merchant.ALFA_TEAM, RequestMethod.CARD);
+
+        assertEquals(Method.TO_CARD.name(), method);
+    }
+
+    @Test
+    void getMerchantMethod_shouldThrowExceptionIfNotExists() {
+        assertThrows(MerchantMethodNotFoundException.class, () ->
+                methodService.getMerchantMethod(null, RequestMethod.CARD));
     }
 
     @ParameterizedTest

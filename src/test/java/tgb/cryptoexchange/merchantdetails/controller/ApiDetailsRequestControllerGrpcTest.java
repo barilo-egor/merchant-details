@@ -16,9 +16,12 @@ import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.grpc.generated.CancelOrderRequestGrpc;
 import tgb.cryptoexchange.grpc.generated.MerchantCallbackGrpc;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
+import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.service.ApiDetailsRequestProcessorService;
+import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.mapper.ApiDetailsRequestMapper;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +44,9 @@ class ApiDetailsRequestControllerGrpcTest {
     private MerchantDetailsService merchantDetailsService;
 
     @Mock
+    private RequestMethodService requestMethodService;
+
+    @Mock
     private StreamObserver<Empty> responseObserver;
 
     private ApiDetailsRequestControllerGrpc controller;
@@ -51,7 +57,8 @@ class ApiDetailsRequestControllerGrpcTest {
                 processorService,
                 detailsRequestSearchExecutorApi,
                 mapper,
-                merchantDetailsService
+                merchantDetailsService,
+                requestMethodService
         );
     }
 
@@ -132,13 +139,15 @@ class ApiDetailsRequestControllerGrpcTest {
                 .setOrderId("order-123")
                 .setMethod("SBP")
                 .build();
+        when(requestMethodService.getMerchantMethod(Merchant.ALFA_TEAM, RequestMethod.SBP))
+                .thenReturn("SBP_MERCHANT");
 
         controller.cancelOrderRequest(request, responseObserver);
 
         ArgumentCaptor<CancelOrderRequest> requestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
         verify(merchantDetailsService).cancelOrder(eq(Merchant.ALFA_TEAM), requestCaptor.capture());
         assertEquals("order-123", requestCaptor.getValue().getOrderId());
-        assertEquals("SBP", requestCaptor.getValue().getMethod());
+        assertEquals("SBP_MERCHANT", requestCaptor.getValue().getMethod());
         verify(responseObserver).onNext(Empty.getDefaultInstance());
         verify(responseObserver).onCompleted();
         verify(responseObserver, never()).onError(any());
@@ -203,6 +212,8 @@ class ApiDetailsRequestControllerGrpcTest {
                 .setOrderId("order-123")
                 .setMethod("SBP")
                 .build();
+        when(requestMethodService.getMerchantMethod(Merchant.ALFA_TEAM, RequestMethod.SBP))
+                .thenReturn("SBP");
         doThrow(new ServiceUnavailableException("Service down")).when(merchantDetailsService)
                 .cancelOrder(eq(Merchant.ALFA_TEAM), any(CancelOrderRequest.class));
 
@@ -212,5 +223,41 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(responseObserver).onError(errorCaptor.capture());
         StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
         assertEquals(Status.Code.UNAVAILABLE, ex.getStatus().getCode());
+    }
+
+    @Test
+    void cancelOrderRequest_InvalidRequestMethod() {
+        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+                .setMerchant(Merchant.ALFA_TEAM.name())
+                .setOrderId("order-123")
+                .setMethod("UNKNOWN_PAYMENT_METHOD")
+                .build();
+
+        controller.cancelOrderRequest(request, responseObserver);
+
+        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
+        verify(responseObserver).onError(errorCaptor.capture());
+        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
+        assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
+        verify(merchantDetailsService, never()).cancelOrder(any(), any());
+    }
+
+    @Test
+    void cancelOrderRequest_MethodNotFound() {
+        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+                .setMerchant(Merchant.ALFA_TEAM.name())
+                .setOrderId("order-123")
+                .setMethod("CARD")
+                .build();
+        when(requestMethodService.getMerchantMethod(Merchant.ALFA_TEAM, RequestMethod.CARD))
+                .thenThrow(new MerchantMethodNotFoundException("Method not found for merchant ALFA_TEAM and category CARD"));
+
+        controller.cancelOrderRequest(request, responseObserver);
+
+        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
+        verify(responseObserver).onError(errorCaptor.capture());
+        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
+        assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
+        verify(merchantDetailsService, never()).cancelOrder(any(), any());
     }
 }
