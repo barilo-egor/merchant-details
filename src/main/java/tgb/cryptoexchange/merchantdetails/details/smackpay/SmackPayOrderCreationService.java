@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SmackPayProperties;
 
 import java.net.URI;
@@ -31,12 +31,12 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Function<UriBuilder, URI> uriBuilder(DetailsRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/payments").build();
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
+        return uriBuilder -> uriBuilder.path("/payments/qr-kyc").build();
     }
 
     @Override
-    protected Consumer<HttpHeaders> headers(DetailsRequest detailsRequest, String body) {
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         return httpHeaders -> {
             httpHeaders.add("Authorization", "Bearer " + smackPayProperties.apiKey());
             httpHeaders.add("Idempotency-Key", UUID.randomUUID().toString());
@@ -45,13 +45,13 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
     }
 
     @Override
-    protected Request body(DetailsRequest detailsRequest) {
+    protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
+        request.setPhone(detailsRequest.getPhone());
 
         Request.Metadata metadata = new Request.Metadata();
         metadata.setOrderId(UUID.randomUUID().toString());
-        metadata.setVisitorId(UUID.randomUUID().toString());
         request.setMetadata(metadata);
 
         request.setReturnUrl(detailsRequest.getRedirectUrl());

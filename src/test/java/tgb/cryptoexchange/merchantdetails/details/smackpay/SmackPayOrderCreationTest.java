@@ -11,8 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SmackPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
@@ -44,7 +44,7 @@ class SmackPayOrderCreationTest {
 
     private SmackPayOrderCreationService smackPayService;
 
-    private DetailsRequest detailsRequest;
+    private OrderCreationRequest detailsRequest;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +55,7 @@ class SmackPayOrderCreationTest {
         smackPayService.setObjectMapper(objectMapper);
         smackPayService.setRequestService(requestService);
 
-        detailsRequest = new DetailsRequest();
+        detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1500);
         detailsRequest.setRedirectUrl("https://mysite.com/payment/return");
     }
@@ -100,7 +100,6 @@ class SmackPayOrderCreationTest {
         assertEquals("RUB", request.getCurrency());
         assertNotNull(request.getMetadata());
         assertNotNull(request.getMetadata().getOrderId());
-        assertNotNull(request.getMetadata().getVisitorId());
     }
 
     @Test

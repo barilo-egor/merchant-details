@@ -8,7 +8,11 @@ public class Request {
 
     @JsonProperty("return_url")
     public String returnUrl;
+
     private Integer amount;
+
+    private String phone;
+
     private Metadata metadata;
 
     @JsonProperty("currency")
@@ -22,7 +26,5 @@ public class Request {
         @JsonProperty("order_id")
         private String orderId;
 
-        @JsonProperty("visitor_id")
-        private String visitorId;
     }
 }
