@@ -404,4 +404,9 @@ public class WebClientsConfig {
     public WebClient hesoyamWebClient(HesoyamImplProperties hesoyamProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(hesoyamProperties.url()).build();
     }
+
+    @Bean
+    public WebClient smackPayWebClient(SmackPayProperties smackPayProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(smackPayProperties.url()).build();
+    }
 }

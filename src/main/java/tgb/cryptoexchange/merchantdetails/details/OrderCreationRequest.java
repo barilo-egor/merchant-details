@@ -46,6 +46,8 @@ public class OrderCreationRequest {
 
     protected String method;
 
+    protected String phone;
+
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {
         for (MerchantMethod merchantMethod : methods) {
