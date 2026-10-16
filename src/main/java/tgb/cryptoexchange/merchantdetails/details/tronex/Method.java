@@ -20,7 +20,7 @@ public enum Method implements MerchantMethod {
     CARD("c2c", null, "Карта", RequestMethod.CARD),
     SBP("sbp", null, "СБП", RequestMethod.SBP),
     SIM("mc", null, "Sim", null),
-    QR("vietqr", "empty", "QR", null),
+    QR("empty", "empty", "QR", null),
     SBER_QR("vietqr", "sber", "Sber QR", null),
     ALFA_QR("vietqr", "alfa", "Alfa QR", null),
     VTB_QR("vietqr", "vtb", "VTB QR", null);
