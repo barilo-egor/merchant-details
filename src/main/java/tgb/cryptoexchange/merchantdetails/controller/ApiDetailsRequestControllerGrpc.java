@@ -76,9 +76,9 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
             }
 
             if (requestGrpc.getMethod().isBlank()) {
-                log.error("Пустой метод мерчанта в запросе отмены ордера для мерчанта {}", merchant);
+                log.error("Пустой request метод в запросе отмены ордера для мерчанта {}", merchant);
                 responseObserver.onError(Status.INVALID_ARGUMENT
-                        .withDescription("Merchant method is empty")
+                        .withDescription("Request method is empty")
                         .asRuntimeException());
                 return;
             }
