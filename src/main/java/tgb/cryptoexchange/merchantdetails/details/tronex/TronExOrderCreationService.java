@@ -18,6 +18,7 @@ import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.TronExProperties;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,6 +61,7 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
         request.setAmount(detailsRequest.getAmount());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setMethod(method);
+        request.setSourceBank(method.getSourceBank());
         request.setCallbackUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         return request;
@@ -69,7 +71,8 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         Response.Data responseData = response.getPlatform();
-        if (Method.QR.equals(responseData.getMethod())) {
+        //По факту всегда будет Method.SBER_QR потому что ответ не возвращает source_bank, а bank_code возвращает vietcon (получателя) а не отправителя
+        if (List.of(Method.SBER_QR, Method.ALFA_QR, Method.VTB_QR).contains(responseData.getMethod())) {
             detailsResponse.setQr(responseData.getPaymentUrl());
         } else {
             detailsResponse.setDetails(responseData.getBank() + " " + responseData.getNumber());
