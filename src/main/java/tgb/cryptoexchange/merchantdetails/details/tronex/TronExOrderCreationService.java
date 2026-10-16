@@ -72,7 +72,7 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
         DetailsResponse detailsResponse = new DetailsResponse();
         Response.Data responseData = response.getPlatform();
         //По факту всегда будет Method.SBER_QR потому что ответ не возвращает source_bank, а bank_code возвращает vietcon (получателя) а не отправителя
-        if (List.of(Method.QR, Method.SBER_QR, Method.ALFA_QR, Method.VTB_QR).contains(responseData.getMethod())) {
+        if (List.of(Method.SBER_QR, Method.ALFA_QR, Method.VTB_QR).contains(responseData.getMethod())) {
             detailsResponse.setQr(responseData.getPaymentUrl());
         } else {
             detailsResponse.setDetails(responseData.getBank() + " " + responseData.getNumber());
