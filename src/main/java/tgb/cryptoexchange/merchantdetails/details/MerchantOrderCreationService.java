@@ -223,6 +223,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         return s -> false;
     }
 
+    protected Predicate<P> isIgnoreCallbackPredicate() {
+        return MerchantCallback::isIgnored;
+    }
+
     protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
         return EnumUtils.valueOf(methodType, value,
                 () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
@@ -248,6 +252,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             log.error("{} Ошибка при попытке преобразования callback мерчанта {}. Тело callback: {}",
                     currentTime, getMerchant().name(), callbackBody, e);
             throw new ServiceUnavailableException("Error occurred while mapping callback: " + currentTime + ".", e);
+        }
+        if (isIgnoreCallbackPredicate().test(callback)) {
+            log.debug("Callback мерчанта {} был проигнорирован: {}", getMerchant().name(), callbackBody);
+            return;
         }
         Optional<String> maybeMerchantOrderId = callback.getMerchantOrderId();
         Optional<String> maybeStatus = callback.getStatusName();
