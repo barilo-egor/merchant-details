@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TronExSimCreationServiceTest {
+class TronExCreationServiceTest {
 
     private static final String TEST_API_KEY = "tronex_sim_secret_key_12345";
 
@@ -150,7 +150,7 @@ class TronExSimCreationServiceTest {
         data.setId("trade-qr-67890");
         data.setAmount("2500");
         data.setPaymentUrl("https://pay.tronex.io/qr/67890");
-        data.setMethod(Method.QR);
+        data.setMethod(Method.SBER_QR);
         response.setPlatform(data);
 
         Optional<DetailsResponse> optionalDetailsResponse = service.buildResponse(response);

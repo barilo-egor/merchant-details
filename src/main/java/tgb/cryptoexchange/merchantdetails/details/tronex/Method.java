@@ -17,12 +17,17 @@ import java.util.Optional;
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("c2c", "Карта", RequestMethod.CARD),
-    SBP("sbp", "СБП", RequestMethod.SBP),
-    SIM("mc", "Sim", null),
-    QR("vietqr", "QR", null);
+    CARD("c2c", null, "Карта", RequestMethod.CARD),
+    SBP("sbp", null, "СБП", RequestMethod.SBP),
+    SIM("mc", null, "Sim", null),
+    QR("empty", "empty", "QR", null),
+    SBER_QR("vietqr", "sber", "Sber QR", null),
+    ALFA_QR("vietqr", "alfa", "Alfa QR", null),
+    VTB_QR("vietqr", "vtb", "VTB QR", null);
 
     final String methodUid;
+
+    final String sourceBank;
 
     final String description;
 

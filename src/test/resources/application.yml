@@ -368,6 +368,9 @@ hesoyam-sim:
   url: "hesoyam-sim-url"
   key: "hesoyam-sim-key"
   terminal: "hesoyam-sim-terminal"
+smack-pay:
+  url: "smack-pay-url"
+  api-key: "smack-pay-api-key"
 #Конфиг приложния
 server:
   servlet:

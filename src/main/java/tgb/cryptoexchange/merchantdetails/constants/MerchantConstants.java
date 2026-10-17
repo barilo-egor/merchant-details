@@ -380,6 +380,10 @@ public enum MerchantConstants {
     HELLBIT_BT(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    SMACK_PAY(
+            tgb.cryptoexchange.merchantdetails.details.smackpay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.smackpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;

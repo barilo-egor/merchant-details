@@ -16,6 +16,9 @@ public class Request {
     @JsonSerialize(using = Method.Serializer.class)
     private Method method;
 
+    @JsonProperty("source_bank")
+    private String sourceBank;
+
     @JsonProperty("callback_url")
     private String callbackUrl;
 
