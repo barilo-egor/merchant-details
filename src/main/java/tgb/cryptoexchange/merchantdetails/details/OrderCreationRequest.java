@@ -1,25 +1,49 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.springframework.util.CollectionUtils;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Data
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class OrderCreationRequest {
-
     protected String requestId;
 
-    protected String id;
+    protected Long id;
 
+    @NotNull
+    @Min(1)
     protected Integer amount;
 
-    protected String userId;
+    protected Long chatId;
+
+    protected String initiatorApp;
+
+    protected String redirectUrl;
+
+    protected List<MerchantMethod> methods;
 
     protected String method;
 
-    protected String redirectUrl;
     protected String phone;
 
     @JsonIgnore
@@ -60,4 +84,21 @@ public class OrderCreationRequest {
                     var partitioned = request.getMethods().stream()
                             .collect(Collectors.partitioningBy(method -> Objects.nonNull(method.getMerchant())));
 
+                    List<MerchantMethod> validMethods = partitioned.get(true);
+                    List<MerchantMethod> invalidMethods = partitioned.get(false);
+
+                    if (!invalidMethods.isEmpty()) {
+                        invalidMethods.forEach(invalidMethod -> log.warn(
+                                "Найден не существующий Merchant enum в топике '{}'",
+                                topic
+                        ));
+                    }
+                    request.setMethods(validMethods);
+                }
+                return request;
+            } catch (Exception e) {
+                throw new DeserializeEventException("Error occurred while deserializer value: " + new String(data, StandardCharsets.UTF_8), e);
+            }
+        }
+    }
 }
