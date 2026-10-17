@@ -32,7 +32,11 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
 
     @Override
     protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
-        return uriBuilder -> uriBuilder.path("/payments/qr-kyc").build();
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        return uriBuilder -> uriBuilder
+                .path("/payments")
+                .pathSegment(method.getUrl())
+                .build();
     }
 
     @Override
@@ -48,7 +52,10 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
-        request.setPhone(detailsRequest.getPhone());
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        if (Method.NSPK_QR.equals(method)) {
+            request.setPhone(detailsRequest.getPhone());
+        }
 
         Request.Metadata metadata = new Request.Metadata();
         metadata.setOrderId(UUID.randomUUID().toString());
@@ -67,7 +74,7 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
 
         detailsResponse.setDetails(response.getPaymentUrl());
 
-        detailsResponse.setAmount(response.getAmount() != null ? response.getAmount() : 0);
+        detailsResponse.setAmount(response.getAmount());
         return Optional.of(detailsResponse);
     }
 

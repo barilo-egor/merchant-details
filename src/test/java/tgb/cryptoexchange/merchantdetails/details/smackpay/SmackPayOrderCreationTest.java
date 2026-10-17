@@ -56,6 +56,7 @@ class SmackPayOrderCreationTest {
         smackPayService.setRequestService(requestService);
 
         detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(Method.NSPK_QR.name());
         detailsRequest.setAmount(1500);
         detailsRequest.setRedirectUrl("https://mysite.com/payment/return");
     }
