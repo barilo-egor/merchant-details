@@ -271,7 +271,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             try {
                 callbackKafkaTemplate.send(
                         environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
-                        UUID.randomUUID().toString(), merchantCallbackEvent
+                        merchantCallbackEvent.getMerchant() + "_" + merchantCallbackEvent.getMerchantOrderId(), merchantCallbackEvent
                 );
             } catch (Exception e) {
                 long currentTime = System.currentTimeMillis();
