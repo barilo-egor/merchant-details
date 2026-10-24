@@ -11,9 +11,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public enum Method implements MerchantMethod {
 
-    NSPK_QR("NSPK QR", null);
+    QR("QR", "", null),
+    NSPK_QR("NSPK QR", "/qr-kyc", null);
 
     private final String description;
+
+    private final String url;
 
     final RequestMethod requestMethod;
 

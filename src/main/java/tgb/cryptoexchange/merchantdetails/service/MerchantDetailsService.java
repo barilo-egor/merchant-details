@@ -164,7 +164,7 @@ public class MerchantDetailsService {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
             try {
-                log.debug("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
+                log.trace("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
                 maybeDetailsResponse = getDetails(merchant, request);
                 sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
@@ -174,7 +174,7 @@ public class MerchantDetailsService {
                 }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
-                        merchant.name(), request.getId(), attemptNumber, e.getMessage(), e);
+                        merchant.name(), request.getId(), attemptNumber, e.getMessage());
                 meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для сделки №{}: {}", request.getId(), responseException.getResponseBodyAsString());
