@@ -20,7 +20,7 @@
             <charset>utf8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/all.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/all.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>30MB</maxFileSize>
             <maxHistory>3</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
@@ -35,7 +35,7 @@
             <charset>utf8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>30MB</maxFileSize>
             <maxHistory>3</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
@@ -50,7 +50,7 @@
             <charset>utf8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/spring.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/spring.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>30MB</maxFileSize>
             <maxHistory>3</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
