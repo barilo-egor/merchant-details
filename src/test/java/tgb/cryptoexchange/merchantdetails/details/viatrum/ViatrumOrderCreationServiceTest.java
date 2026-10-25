@@ -18,8 +18,7 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
 import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -94,4 +93,24 @@ class ViatrumOrderCreationServiceTest {
         assertThrows(BodyMappingException.class, () -> consumer.accept(headers));
     }
 
+
+    @Test
+    void nextNonceShouldBeMillisWithinFiveMinutesInFuture() {
+        long before = System.currentTimeMillis();
+        long nonce = viatrumOrderCreationService.nextNonce();
+        long after = System.currentTimeMillis();
+
+        assertTrue(nonce > after);
+        assertTrue(nonce <= before + 5 * 60_000);
+    }
+
+    @Test
+    void nextNonceShouldStrictlyIncrease() {
+        long previous = viatrumOrderCreationService.nextNonce();
+        for (int i = 0; i < 1000; i++) {
+            long next = viatrumOrderCreationService.nextNonce();
+            assertTrue(next > previous);
+            previous = next;
+        }
+    }
 }
