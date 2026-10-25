@@ -409,4 +409,9 @@ public class WebClientsConfig {
     public WebClient smackPayWebClient(SmackPayProperties smackPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(smackPayProperties.url()).build();
     }
+
+    @Bean
+    public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
+    }
 }
