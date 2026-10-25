@@ -371,6 +371,15 @@ hesoyam-sim:
 smack-pay:
   url: "smack-pay-url"
   api-key: "smack-pay-api-key"
+bit-bolide:
+  url: "bit-bolide-url"
+  token: "bit-bolide-token"
+bit-bolide-wt:
+  url: "bit-bolide-wt-url"
+  token: "bit-bolide-wt-token"
+bit-bolide-deep-link:
+  url: "bit-bolide-deep-link-url"
+  token: "bit-bolide-deep-link-token"
 #Конфиг приложния
 server:
   servlet:
