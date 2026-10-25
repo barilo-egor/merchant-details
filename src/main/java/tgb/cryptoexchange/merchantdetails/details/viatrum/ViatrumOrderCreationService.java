@@ -22,6 +22,7 @@ import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -36,6 +37,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
     private final SignatureService signatureService;
 
     private final CallbackConfig callbackConfig;
+
+    private final AtomicLong lastNonce = new AtomicLong(0);
 
     protected ViatrumOrderCreationService(@Qualifier("viatrumWebClient") WebClient webClient,
                                           ViatrumProperties viatrumProperties, ObjectMapper objectMapper,
@@ -92,7 +95,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setMethod(method);
         request.setCurrencyId(1);
-        Long nonce = System.currentTimeMillis() + 60_000L;
+        long base = System.currentTimeMillis() + 180_000L;
+        long nonce = lastNonce.updateAndGet(prev -> Math.max(base, prev + 1));
         request.setExternalID(String.valueOf(nonce));
         return request;
     }
