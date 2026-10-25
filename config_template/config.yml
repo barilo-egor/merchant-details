@@ -341,6 +341,11 @@ tron-ex-pdf:
 bay-pay:
   url:
   api-key:
+viatrum:
+  url:
+  pub:
+  secret:
+  environment:
 # Конфиг приложение
 springdoc:
   swagger-ui:

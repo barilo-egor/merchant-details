@@ -371,6 +371,11 @@ hesoyam-sim:
 smack-pay:
   url: "smack-pay-url"
   api-key: "smack-pay-api-key"
+viatrum:
+  url: "viatrum-url"
+  pub: "viatrum-pub"
+  secret: "viatrum-secret"
+  environment: "viatrum-environment"
 #Конфиг приложния
 server:
   servlet:

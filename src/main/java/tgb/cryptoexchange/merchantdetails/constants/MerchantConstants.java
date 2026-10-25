@@ -382,6 +382,10 @@ public enum MerchantConstants {
     SMACK_PAY(
             tgb.cryptoexchange.merchantdetails.details.smackpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.smackpay.Method.values()
+    ),
+    VIATRUM(
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
