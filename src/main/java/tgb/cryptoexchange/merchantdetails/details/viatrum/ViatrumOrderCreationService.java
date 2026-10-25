@@ -92,8 +92,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setMethod(method);
         request.setCurrencyId(1);
-        String nonce = System.currentTimeMillis() + "00000";
-        request.setExternalID(nonce);
+        Long nonce = System.currentTimeMillis() + 60_000L;
+        request.setExternalID(String.valueOf(nonce));
         return request;
     }
 
