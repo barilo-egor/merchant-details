@@ -95,10 +95,13 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setMethod(method);
         request.setCurrencyId(1);
-        long base = System.currentTimeMillis() + 180_000L;
-        long nonce = lastNonce.updateAndGet(prev -> Math.max(base, prev + 1));
-        request.setExternalID(String.valueOf(nonce));
+        request.setExternalID(String.valueOf(nextNonce()));
         return request;
+    }
+
+    long nextNonce() {
+        long base = System.currentTimeMillis() + 180_000L;
+        return lastNonce.updateAndGet(prev -> Math.max(base, prev + 1));
     }
 
     @Override
