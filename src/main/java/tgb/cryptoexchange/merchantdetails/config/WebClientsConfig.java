@@ -391,7 +391,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient bayPayWebClient(BayPayProperties bayPayProperties) {
+    public WebClient bayPayWebClient(BayPayImplProperties bayPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bayPayProperties.url()).build();
     }
 
