@@ -35,7 +35,7 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         return uriBuilder -> uriBuilder
                 .path("/payments")
-                .pathSegment(method.getUrl())
+                .path(method.getUrl())
                 .build();
     }
 
