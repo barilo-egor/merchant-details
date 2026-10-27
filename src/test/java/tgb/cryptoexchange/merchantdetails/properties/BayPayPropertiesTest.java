@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BayPayPropertiesTest {
 
     @Autowired
-    private BayPayProperties payProperties;
+    private BayPayImplProperties payProperties;
 
     @Test
     void shouldLoadProperties() {
