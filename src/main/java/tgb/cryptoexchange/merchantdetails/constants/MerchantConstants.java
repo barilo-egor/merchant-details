@@ -363,6 +363,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
     ),
+    BAY_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    BAY_PAY_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
     HESOYAM(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.gambit.HesoyamMethod.values()

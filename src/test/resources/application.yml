@@ -360,6 +360,12 @@ prime-wallet-high-check:
 bay-pay:
   url: "bay-pay-url"
   api-key: "bay-pay-api-key"
+bay-pay-low-check:
+  url: "bay-pay-low-check-url"
+  api-key: "bay-pay-low-check-api-key"
+bay-pay-high-check:
+  url: "bay-pay-high-check-url"
+  api-key: "bay-pay-high-check-api-key"
 hesoyam:
   url: "hesoyam-url"
   key: "hesoyam-key"
