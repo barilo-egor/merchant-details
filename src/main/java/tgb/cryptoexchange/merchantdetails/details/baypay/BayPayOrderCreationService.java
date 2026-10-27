@@ -12,6 +12,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BayPayProperties;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,7 +65,7 @@ public abstract class BayPayOrderCreationService extends MerchantOrderCreationSe
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(data.getStatus().name());
         requisiteVO.setMerchantOrderId(data.getId());
-        requisiteVO.setAmount(Integer.valueOf(data.getAmount()));
+        requisiteVO.setAmount(new BigDecimal(data.getAmount()).intValue());
 
         String requisite = paymentDetail.getBank() + " " + paymentDetail.getDetail();
         requisiteVO.setDetails(requisite);
