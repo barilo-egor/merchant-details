@@ -2,6 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.viatrum;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +20,8 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +80,8 @@ class ViatrumOrderCreationServiceTest {
         assertEquals("test-env", httpHeaders.getFirst("X-Environment"));
         assertEquals(signature, httpHeaders.getFirst("Signature"));
 
-        verify(signatureService).generateHmacSha512Signature(contains(body + nonce), eq("test-secret"));
+        String expectedCanonical = viatrumOrderCreationService.buildCanonicalString(body, nonce);
+        verify(signatureService).generateHmacSha512Signature(eq(expectedCanonical), eq("test-secret"));
     }
 
     @Test
@@ -93,6 +96,27 @@ class ViatrumOrderCreationServiceTest {
         assertThrows(BodyMappingException.class, () -> consumer.accept(headers));
     }
 
+
+    @Test
+    void buildCanonicalString_ShouldFormatCorrectly() {
+        String body = "{\"some\":\"json\"}";
+        String nonce = "12345";
+        String expectedHash = DigestUtils.sha256Hex(body);
+        String expectedCanonical = "POST\n/api/v1/pay-in\n\n" + expectedHash + "\n" + nonce;
+
+        assertEquals(expectedCanonical, viatrumOrderCreationService.buildCanonicalString(body, nonce));
+    }
+
+    @Test
+    void buildCanonicalString_WithNullOrEmptyBody_ShouldUseEmptyStringHash() {
+        String nonce = "12345";
+        String emptyHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+        assertEquals("POST\n/api/v1/pay-in\n\n" + emptyHash + "\n" + nonce,
+                viatrumOrderCreationService.buildCanonicalString("", nonce));
+        assertEquals("POST\n/api/v1/pay-in\n\n" + emptyHash + "\n" + nonce,
+                viatrumOrderCreationService.buildCanonicalString(null, nonce));
+    }
 
     @Test
     void nextNonceShouldBeMillisWithinFiveMinutesInFuture() {
