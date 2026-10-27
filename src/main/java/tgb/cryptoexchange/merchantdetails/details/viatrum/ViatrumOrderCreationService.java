@@ -3,6 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.viatrum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,7 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
             httpHeaders.add("X-Environment", viatrumProperties.environment());
             try {
                 httpHeaders.add("Signature", signatureService.generateHmacSha512Signature(
-                        CREATE_ORDER_URI + body + nonce, viatrumProperties.secret()
+                        buildCanonicalString(body, nonce), viatrumProperties.secret()
                 ));
             } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                 log.error("Ошибка формирования подписи для method={}, body={}", method().name(), body);
@@ -97,6 +98,11 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
         request.setCurrencyId(1);
         request.setExternalID(String.valueOf(nextNonce()));
         return request;
+    }
+
+    String buildCanonicalString(String body, String nonce) {
+        String bodyHash = DigestUtils.sha256Hex(body != null ? body : "");
+        return String.join("\n", method().name(), CREATE_ORDER_URI, "", bodyHash, nonce);
     }
 
     long nextNonce() {
