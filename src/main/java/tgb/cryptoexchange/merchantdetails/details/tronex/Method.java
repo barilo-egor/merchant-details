@@ -23,7 +23,11 @@ public enum Method implements MerchantMethod {
     QR("empty", "empty", "QR", null),
     SBER_QR("vietqr", "sber", "Sber QR", null),
     ALFA_QR("vietqr", "alfa", "Alfa QR", null),
-    VTB_QR("vietqr", "vtb", "VTB QR", null);
+    VTB_QR("vietqr", "vtb", "VTB QR", null),
+    ALFA_SBP_DL("sbp", "alfa", "СБП Альфа DL", null),
+    SBER_SBP_DL("sbp", "sber", "СБП Сбер DL", null),
+    T_BANK_CARD_DL("c2c", "tbank", "Карта Т-Банк DL", null),
+    OZON_CARD_DL("c2c", "ozon", "Карта Озон DL", null);
 
     final String methodUid;
 

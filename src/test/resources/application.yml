@@ -348,6 +348,9 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+tron-ex-dl:
+  dl-url: "tron-ex-dl-dl-url"
+  key: "tron-ex-dl-key"
 prime-wallet:
   url: "prime-wallet-url"
   token: "prime-wallet-token"
@@ -382,6 +385,15 @@ viatrum:
   pub: "viatrum-pub"
   secret: "viatrum-secret"
   environment: "viatrum-environment"
+bit-bolide:
+  url: "bit-bolide-url"
+  token: "bit-bolide-token"
+bit-bolide-wt:
+  url: "bit-bolide-wt-url"
+  token: "bit-bolide-wt-token"
+bit-bolide-deep-link:
+  url: "bit-bolide-deep-link-url"
+  token: "bit-bolide-deep-link-token"
 #Конфиг приложния
 server:
   servlet:

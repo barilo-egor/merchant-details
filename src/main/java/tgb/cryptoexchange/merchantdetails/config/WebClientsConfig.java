@@ -414,4 +414,9 @@ public class WebClientsConfig {
     public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
     }
+
+    @Bean
+    public WebClient bitBolideWebClient(BitBolideProperties bitBolideProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bitBolideProperties.url()).build();
+    }
 }
