@@ -60,7 +60,6 @@ class BitBolideWTOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.BIT_BOLIDE_WT).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
@@ -116,7 +115,7 @@ class BitBolideWTOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.BIT_BOLIDE_WT, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getFullDetails()),
                 () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
@@ -136,7 +135,7 @@ class BitBolideWTOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
+                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getFullDetails())
         );
     }
 

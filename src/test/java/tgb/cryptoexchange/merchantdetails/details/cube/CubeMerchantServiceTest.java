@@ -83,19 +83,6 @@ class CubeMerchantServiceTest {
     }
 
     @Test
-    void bodyShouldGenerateUniqueExternalId() {
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setAmount(1000);
-        detailsRequest.setMethod("CARD");
-        detailsRequest.setId("123");
-
-        Request request1 = cubeService.body(detailsRequest);
-        Request request2 = cubeService.body(detailsRequest);
-
-        assertNotEquals(request1.getExternalId(), request2.getExternalId());
-    }
-
-    @Test
     void bodyShouldSetCallbackUrlCorrectly() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);

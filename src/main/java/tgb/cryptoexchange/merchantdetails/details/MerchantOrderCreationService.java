@@ -28,7 +28,6 @@ import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -315,7 +314,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             try {
                 callbackKafkaTemplate.send(
                         environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
-                        UUID.randomUUID().toString(), merchantCallbackEvent
+                        merchantCallbackEvent.getMerchant() + "_" + merchantCallbackEvent.getMerchantOrderId(), merchantCallbackEvent
                 );
             } catch (Exception e) {
                 long currentTime = System.currentTimeMillis();

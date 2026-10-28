@@ -325,12 +325,12 @@ class MerchantOrderCreationServiceTest {
         when(merchantCallback.getStatusName()).thenReturn(Optional.of(status));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(statusDescription));
         ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
-        ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}");
-        verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
+        verify(callbackKafkaTemplate).send(eq(topic), keyCaptor.capture(), eventCaptor.capture());
         MerchantCallbackEvent actual = eventCaptor.getValue();
         assertAll(
-                () -> assertDoesNotThrow(() -> UUID.fromString(uuidCaptor.getValue())),
+                () -> assertEquals("ALFA_TEAM_" + orderId, keyCaptor.getValue()),
                 () -> assertEquals(orderId, actual.getMerchantOrderId()),
                 () -> assertEquals(status, actual.getStatus()),
                 () -> assertEquals(statusDescription, actual.getStatusDescription()),
@@ -366,14 +366,14 @@ class MerchantOrderCreationServiceTest {
         when(environment.getRequiredProperty(anyString())).thenReturn(topic);
 
         ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
-        ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
 
         service.updateStatus(orderId, status, statusDescription);
 
-        verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
+        verify(callbackKafkaTemplate).send(eq(topic), keyCaptor.capture(), eventCaptor.capture());
         MerchantCallbackEvent actual = eventCaptor.getValue();
         assertAll(
-                () -> assertDoesNotThrow(() -> UUID.fromString(uuidCaptor.getValue())),
+                () -> assertEquals("ALFA_TEAM_" + orderId, keyCaptor.getValue()),
                 () -> assertEquals(orderId, actual.getMerchantOrderId()),
                 () -> assertEquals(status, actual.getStatus()),
                 () -> assertEquals(statusDescription, actual.getStatusDescription()),

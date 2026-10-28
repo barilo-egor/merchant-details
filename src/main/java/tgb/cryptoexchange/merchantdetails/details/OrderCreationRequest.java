@@ -1,104 +1,26 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.springframework.util.CollectionUtils;
-import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Data
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Slf4j
 public class OrderCreationRequest {
+
     protected String requestId;
 
-    protected Long id;
+    protected String id;
 
-    @NotNull
-    @Min(1)
     protected Integer amount;
 
-    protected Long chatId;
-
-    protected String initiatorApp;
-
-    protected String redirectUrl;
-
-    protected List<MerchantMethod> methods;
+    protected String userId;
 
     protected String method;
 
+    protected String redirectUrl;
+
     protected String phone;
 
-    @JsonIgnore
-    public List<String> getMerchantMethod(Merchant merchant) {
-        for (MerchantMethod merchantMethod : methods) {
-            if (merchantMethod.getMerchant().equals(merchant)) {
-                return merchantMethod.getMethods();
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class MerchantMethod {
-
-        private Merchant merchant;
-
-        private List<String> methods;
-
-    }
-
-    public static class KafkaDeserializer implements Deserializer<OrderCreationRequest> {
-
-        private final ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
-
-        @Override
-        public OrderCreationRequest deserialize(String topic, byte[] data) {
-            try {
-                if (data == null) return null;
-                OrderCreationRequest request = objectMapper.readValue(data, OrderCreationRequest.class);
-                if (Objects.nonNull(request) && !CollectionUtils.isEmpty(request.getMethods())) {
-                    var partitioned = request.getMethods().stream()
-                            .collect(Collectors.partitioningBy(method -> Objects.nonNull(method.getMerchant())));
-
-                    List<MerchantMethod> validMethods = partitioned.get(true);
-                    List<MerchantMethod> invalidMethods = partitioned.get(false);
-
-                    if (!invalidMethods.isEmpty()) {
-                        invalidMethods.forEach(invalidMethod -> log.warn(
-                                "Найден не существующий Merchant enum в топике '{}'",
-                                topic
-                        ));
-                    }
-                    request.setMethods(validMethods);
-                }
-                return request;
-            } catch (Exception e) {
-                throw new DeserializeEventException("Error occurred while deserializer value: " + new String(data, StandardCharsets.UTF_8), e);
-            }
-        }
-    }
 }
