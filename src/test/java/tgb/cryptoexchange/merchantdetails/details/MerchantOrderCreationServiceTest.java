@@ -338,6 +338,23 @@ class MerchantOrderCreationServiceTest {
         );
     }
 
+    @Test
+    void isIgnoreCallbackPredicateShouldReturnFalseByDefault() {
+        VoidCallback callback = new VoidCallback();
+        assertFalse(service.isIgnoreCallbackPredicate().test(callback));
+    }
+
+    @Test
+    void updateStatusShouldIgnoreCallbackIfIsIgnoredIsTrue() throws JsonProcessingException {
+        VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
+        when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
+        when(merchantCallback.isIgnored()).thenReturn(true);
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+
+        assertDoesNotThrow(() -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
+        Mockito.verifyNoInteractions(callbackKafkaTemplate);
+    }
+
     @CsvSource("""
             merchant-details-callback-topic,order-123,PAID,Оплачено
             merchant-details-callback-topic,order-456,CANCELLED,Отменено

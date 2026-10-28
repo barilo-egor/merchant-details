@@ -391,7 +391,7 @@ public class WebClientsConfig {
     }
 
     @Bean
-    public WebClient bayPayWebClient(BayPayProperties bayPayProperties) {
+    public WebClient bayPayWebClient(BayPayImplProperties bayPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bayPayProperties.url()).build();
     }
 
@@ -408,5 +408,15 @@ public class WebClientsConfig {
     @Bean
     public WebClient smackPayWebClient(SmackPayProperties smackPayProperties) {
         return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(smackPayProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient viatrumWebClient(ViatrumProperties viatrumProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(viatrumProperties.url()).build();
+    }
+
+    @Bean
+    public WebClient bitBolideWebClient(BitBolideProperties bitBolideProperties) {
+        return get30SecondsResponseTimeoutWebClientBuilder().baseUrl(bitBolideProperties.url()).build();
     }
 }

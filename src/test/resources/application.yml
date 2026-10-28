@@ -348,6 +348,9 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+tron-ex-dl:
+  dl-url: "tron-ex-dl-dl-url"
+  key: "tron-ex-dl-key"
 prime-wallet:
   url: "prime-wallet-url"
   token: "prime-wallet-token"
@@ -360,6 +363,12 @@ prime-wallet-high-check:
 bay-pay:
   url: "bay-pay-url"
   api-key: "bay-pay-api-key"
+bay-pay-low-check:
+  url: "bay-pay-low-check-url"
+  api-key: "bay-pay-low-check-api-key"
+bay-pay-high-check:
+  url: "bay-pay-high-check-url"
+  api-key: "bay-pay-high-check-api-key"
 hesoyam:
   url: "hesoyam-url"
   key: "hesoyam-key"
@@ -371,6 +380,20 @@ hesoyam-sim:
 smack-pay:
   url: "smack-pay-url"
   api-key: "smack-pay-api-key"
+viatrum:
+  url: "viatrum-url"
+  pub: "viatrum-pub"
+  secret: "viatrum-secret"
+  environment: "viatrum-environment"
+bit-bolide:
+  url: "bit-bolide-url"
+  token: "bit-bolide-token"
+bit-bolide-wt:
+  url: "bit-bolide-wt-url"
+  token: "bit-bolide-wt-token"
+bit-bolide-deep-link:
+  url: "bit-bolide-deep-link-url"
+  token: "bit-bolide-deep-link-token"
 #Конфиг приложния
 server:
   servlet:

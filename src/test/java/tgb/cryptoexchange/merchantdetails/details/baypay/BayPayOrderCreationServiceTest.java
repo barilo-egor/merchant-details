@@ -17,7 +17,7 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
-import tgb.cryptoexchange.merchantdetails.properties.BayPayProperties;
+import tgb.cryptoexchange.merchantdetails.properties.BayPayImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
@@ -39,7 +39,7 @@ class BayPayOrderCreationServiceTest {
     private WebClient webClient;
 
     @Mock
-    private BayPayProperties bayPayProperties;
+    private BayPayImplProperties bayPayProperties;
 
     @Mock
     private CallbackConfig callbackConfig;
@@ -48,7 +48,7 @@ class BayPayOrderCreationServiceTest {
     private RequestService requestService;
 
     @InjectMocks
-    private BayPayOrderCreationService service;
+    private BayPayImplOrderCreationService service;
 
     @BeforeEach
     void setUp() {

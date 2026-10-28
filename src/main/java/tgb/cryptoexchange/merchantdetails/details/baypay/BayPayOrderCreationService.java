@@ -1,13 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.baypay;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -15,30 +12,25 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BayPayProperties;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Service
 @Slf4j
-public class BayPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public abstract class BayPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private final BayPayProperties bayPayProperties;
 
     private final CallbackConfig callbackConfig;
 
-    protected BayPayOrderCreationService(@Qualifier("bayPayWebClient") WebClient webClient,
-                                         BayPayProperties bayPayProperties, CallbackConfig callbackConfig) {
+    protected BayPayOrderCreationService(WebClient webClient, BayPayProperties bayPayProperties,
+                                         CallbackConfig callbackConfig) {
         super(webClient, Response.class, Callback.class);
         this.bayPayProperties = bayPayProperties;
         this.callbackConfig = callbackConfig;
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.BAY_PAY;
     }
 
     @Override
@@ -73,7 +65,7 @@ public class BayPayOrderCreationService extends MerchantOrderCreationService<Res
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(data.getStatus().name());
         requisiteVO.setMerchantOrderId(data.getId());
-        requisiteVO.setAmount(Integer.valueOf(data.getAmount()));
+        requisiteVO.setAmount(new BigDecimal(data.getAmount()).intValue());
 
         String requisite = paymentDetail.getBank() + " " + paymentDetail.getDetail();
         requisiteVO.setDetails(requisite);

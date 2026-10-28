@@ -1,7 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface BayPayProperties {
 
-@ConfigurationProperties("bay-pay")
-public record BayPayProperties(String url, String apiKey) {
+    String url();
+
+    String apiKey();
+
 }

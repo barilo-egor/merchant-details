@@ -349,6 +349,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
     ),
+    TRON_EX_DEEP_LINK(
+            tgb.cryptoexchange.merchantdetails.details.tronex.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.tronex.Method.values()
+    ),
     PRIME_WALLET(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
@@ -362,6 +366,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     ),
     BAY_PAY(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    BAY_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    BAY_PAY_HIGH_CHECK(
             tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
     ),
@@ -384,6 +396,22 @@ public enum MerchantConstants {
     SMACK_PAY(
             tgb.cryptoexchange.merchantdetails.details.smackpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.smackpay.Method.values()
+    ),
+    VIATRUM(
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
+    ),
+    BIT_BOLIDE(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    BIT_BOLIDE_DEEP_LINK(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    BIT_BOLIDE_WT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
