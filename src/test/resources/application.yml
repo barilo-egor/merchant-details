@@ -348,6 +348,9 @@ tron-ex-qr:
   key: "tron-ex-qr-key"
 tron-ex-pdf:
   key: "tron-ex-pdf-key"
+tron-ex-dl:
+  dl-url: "tron-ex-dl-dl-url"
+  key: "tron-ex-dl-key"
 prime-wallet:
   url: "prime-wallet-url"
   token: "prime-wallet-token"
