@@ -75,7 +75,8 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
         if (List.of(Method.SBER_QR, Method.ALFA_QR, Method.VTB_QR).contains(responseData.getMethod())) {
             detailsResponse.setQr(responseData.getPaymentUrl());
         } else {
-            detailsResponse.setDetails(responseData.getBank() + " " + responseData.getNumber());
+            detailsResponse.setBank(responseData.getBank());
+            detailsResponse.setDetails(responseData.getNumber());
         }
         detailsResponse.setMerchantOrderId(responseData.getId());
         detailsResponse.setAmount(Integer.valueOf(responseData.getAmount()));

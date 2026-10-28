@@ -56,6 +56,7 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
         if (Method.CROSS_BORDER.equals(dealDTO.getPaymentOption())) {
             requisiteVO.setQr(dealDTO.getQrCodeLink());
             requisiteVO.setDetails(null);
+            requisiteVO.setBank(null);
         }
     }
 

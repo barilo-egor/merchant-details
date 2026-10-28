@@ -71,7 +71,8 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         Response.Data responseData = response.getData();
-        detailsResponse.setDetails(responseData.getBank().getName() + " " + responseData.getRequisite());
+        detailsResponse.setBank(responseData.getBank().getName());
+        detailsResponse.setDetails(responseData.getRequisite());
         detailsResponse.setMerchantOrderId(responseData.getId());
         detailsResponse.setMerchantOrderStatus(responseData.getStatus().name());
         detailsResponse.setMerchant(getMerchant());

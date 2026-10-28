@@ -70,7 +70,8 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getInternalId());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
-        detailsResponse.setDetails(response.getData().getBankName() + " " + response.getData().getReceiver());
+        detailsResponse.setBank(response.getData().getBankName());
+        detailsResponse.setDetails(response.getData().getReceiver());
         detailsResponse.setAmount(response.getData().getAmount().intValue());
 
         return Optional.of(detailsResponse);

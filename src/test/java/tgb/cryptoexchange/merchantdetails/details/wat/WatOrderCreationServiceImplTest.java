@@ -115,7 +115,8 @@ class WatOrderCreationServiceImplTest {
 
         assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("order-wat-777");
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("AWAITING_PAYMENT");
-        assertThat(detailsResponse.getDetails()).isEqualTo("Sberbank +79991234567");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("+79991234567");
         assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.WAT);
     }
 

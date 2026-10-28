@@ -34,7 +34,7 @@ class CubeMerchantServiceTest {
     private CallbackConfig callbackConfig;
 
     @Test
-    void getMerchantShouldReturnPayLee() {
+    void getMerchantShouldReturnCube() {
         assertEquals(Merchant.CUBE, cubeService.getMerchant());
     }
 
@@ -119,5 +119,23 @@ class CubeMerchantServiceTest {
 
         assertTrue(result.isPresent());
         assertEquals(1999, result.get().getAmount());
+    }
+
+    @Test
+    void buildResponseShouldSetBankAndDetails() {
+        Response response = new Response();
+        Response.Data data = new Response.Data();
+        data.setInternalId("INT-123456");
+        data.setStatus(Status.APPEAL);
+        data.setBankName("Test Bank");
+        data.setReceiver("Test Receiver");
+        data.setAmount(1000.0);
+        response.setData(data);
+
+        Optional<DetailsResponse> result = cubeService.buildResponse(response);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Bank", result.get().getBank());
+        assertEquals("Test Receiver", result.get().getDetails());
     }
 }

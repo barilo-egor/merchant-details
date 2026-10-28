@@ -118,7 +118,8 @@ class ExtasyPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.EXTASY_PAY, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(bank, detailsResponse.getBank()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
                 () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
@@ -138,7 +139,8 @@ class ExtasyPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
+                () -> assertEquals("bank", detailsResponse.getBank()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails())
         );
     }
 

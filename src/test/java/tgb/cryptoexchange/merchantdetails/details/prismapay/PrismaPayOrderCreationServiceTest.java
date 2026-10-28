@@ -115,7 +115,8 @@ class PrismaPayOrderCreationServiceTest {
         assertThat(result).isPresent();
         DetailsResponse detailsResponse = result.get();
         assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("123");
-        assertThat(detailsResponse.getDetails()).isEqualTo("Sberbank 4276xxx");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("4276xxx");
         assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.PRISMA_PAY);
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("PENDING");
     }

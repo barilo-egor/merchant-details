@@ -83,14 +83,15 @@ class ManyPayOrderCreationServiceTest {
         assertThat(result).isPresent();
         DetailsResponse detailsResponse = result.get();
 
-        assertThat(detailsResponse.getDetails()).isEqualTo("Sberbank 44445555");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("44445555");
         assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("order-id-999");
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("PENDING");
         assertThat(detailsResponse.getMerchant()).isEqualTo(service.getMerchant());
     }
 
     @Test
-    void getMerchantShouldReturnSettleX() {
+    void getMerchantShouldReturnManyPay() {
         assertEquals(Merchant.MANY_PAY, service.getMerchant());
     }
 

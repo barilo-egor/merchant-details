@@ -107,7 +107,8 @@ class PayLeeMerchantServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertAll(
-                () -> assertEquals(bankName + " " + requisites, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
+                () -> assertEquals(requisites, actual.getDetails()),
                 () -> assertEquals(Merchant.PAY_LEE, actual.getMerchant()),
                 () -> assertEquals(id.toString(), actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
@@ -127,7 +128,8 @@ class PayLeeMerchantServiceTest {
         Optional<DetailsResponse> maybeResponse = payLeeMerchantService.buildResponse(response);
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
-        assertEquals("bankName requisites", actual.getDetails());
+        assertEquals("bankName", actual.getBank());
+        assertEquals("requisites", actual.getDetails());
         assertNull(actual.getQr());
     }
 
@@ -144,6 +146,7 @@ class PayLeeMerchantServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertEquals("requisites", actual.getQr());
+        assertNull(actual.getBank());
         assertNull(actual.getDetails());
     }
 

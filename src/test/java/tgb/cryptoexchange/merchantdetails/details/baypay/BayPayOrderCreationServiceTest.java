@@ -133,7 +133,8 @@ class BayPayOrderCreationServiceTest {
                 () -> assertEquals("ACTIVE", actual.getMerchantOrderStatus()),
                 () -> assertEquals("inv_987456", actual.getMerchantOrderId()),
                 () -> assertEquals(25000, actual.getAmount()),
-                () -> assertEquals("Сбербанк 2202202200001111", actual.getDetails())
+                () -> assertEquals("Сбербанк", actual.getBank()),
+                () -> assertEquals("2202202200001111", actual.getDetails())
         );
     }
 

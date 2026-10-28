@@ -56,10 +56,13 @@ public class ExtasyPayOrderCreationService extends PayBoxOrderCreationService {
 
         if (Objects.nonNull(response.getPaymentUrl())) {
             detailsResponse.setQr(response.getPaymentUrl());
-        } else if (Objects.nonNull(response.getPhoneNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
-        } else if (Objects.nonNull(response.getCardNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
+        } else if (Objects.nonNull(response.getPhoneNumber()) || Objects.nonNull(response.getCardNumber())) {
+            detailsResponse.setBank(response.getBankName());
+            if (Objects.nonNull(response.getPhoneNumber())) {
+                detailsResponse.setDetails(response.getPhoneNumber());
+            } else {
+                detailsResponse.setDetails(response.getCardNumber());
+            }
         } else if (Objects.nonNull(response.getQrImage())) {
             detailsResponse.setQr(response.getQrImage());
         } else {
