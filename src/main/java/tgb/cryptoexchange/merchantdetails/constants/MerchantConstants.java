@@ -363,6 +363,14 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
     ),
+    BAY_PAY_LOW_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
+    BAY_PAY_HIGH_CHECK(
+            tgb.cryptoexchange.merchantdetails.details.baypay.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.baypay.Method.values()
+    ),
     HESOYAM(
             tgb.cryptoexchange.merchantdetails.details.gambit.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.gambit.HesoyamMethod.values()
@@ -382,6 +390,10 @@ public enum MerchantConstants {
     SMACK_PAY(
             tgb.cryptoexchange.merchantdetails.details.smackpay.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.smackpay.Method.values()
+    ),
+    VIATRUM(
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
     ),
     BIT_BOLIDE(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),

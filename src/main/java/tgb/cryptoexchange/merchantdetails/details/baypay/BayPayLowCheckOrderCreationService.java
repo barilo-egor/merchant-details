@@ -1,0 +1,25 @@
+package tgb.cryptoexchange.merchantdetails.details.baypay;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.properties.BayPayLowCheckProperties;
+
+@Service
+@Slf4j
+public class BayPayLowCheckOrderCreationService extends BayPayOrderCreationService {
+
+    protected BayPayLowCheckOrderCreationService(@Qualifier("bayPayWebClient") WebClient webClient,
+                                                 BayPayLowCheckProperties bayPayProperties, CallbackConfig callbackConfig) {
+        super(webClient, bayPayProperties, callbackConfig);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return Merchant.BAY_PAY_LOW_CHECK;
+    }
+
+}
