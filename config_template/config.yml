@@ -338,6 +338,9 @@ tron-ex-qr:
   key:
 tron-ex-pdf:
   key:
+tron-ex-dl:
+  dl-url:
+  key:
 bay-pay:
   url:
   api-key:
