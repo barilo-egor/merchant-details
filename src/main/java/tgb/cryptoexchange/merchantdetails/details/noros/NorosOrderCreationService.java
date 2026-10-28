@@ -50,14 +50,14 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
 
     @Override
     public Request body(OrderCreationRequest detailsRequest) {
-        Request request = new Request();
-        request.setOrderId(UUID.randomUUID().toString());
-        request.setAmount(detailsRequest.getAmount());
-        request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
-        if (Objects.nonNull(detailsRequest.getChatId())) {
-            request.setClientId(hashids.encode(detailsRequest.getChatId()));
+        Request requestBody = new Request();
+        requestBody.setOrderId(UUID.randomUUID().toString());
+        requestBody.setAmount(detailsRequest.getAmount());
+        requestBody.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
+        if (Objects.nonNull(detailsRequest.getUserId())) {
+            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
         }
-        return request;
+        return requestBody;
     }
 
     @Override
@@ -66,7 +66,8 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        detailsResponse.setDetails(response.getBankReceiver() + " " + response.getCard());
+        detailsResponse.setBank(response.getBankReceiver());
+        detailsResponse.setDetails(response.getCard());
         detailsResponse.setAmount(response.getAmount());
 
         return Optional.of(detailsResponse);

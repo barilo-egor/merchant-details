@@ -15,7 +15,9 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnlyPaysProperties;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -56,7 +58,6 @@ class OnlyPaysOrderCreationServiceTest {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(method.name())).build()));
         when(onlyPaysProperties.id()).thenReturn(id);
         when(onlyPaysProperties.secret()).thenReturn(secret);
         Request actual = onlyPaysOrderCreationService.body(detailsRequest);
@@ -74,9 +75,8 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithSimTrueIfMethodSim() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.SIM.name())).build()));
-        detailsRequest.setAmount(1000);
         detailsRequest.setMethod(Method.SIM.name());
+        detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
         Request actual = onlyPaysOrderCreationService.body(detailsRequest);
@@ -89,9 +89,8 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithBankAlfaTrueIfMethodAlfaAlfa() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.ALFA_ALFA.name())).build()));
-        detailsRequest.setAmount(1000);
         detailsRequest.setMethod(Method.ALFA_ALFA.name());
+        detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
         Request actual = onlyPaysOrderCreationService.body(detailsRequest);
@@ -105,9 +104,8 @@ class OnlyPaysOrderCreationServiceTest {
     @Test
     void bodyShouldBuildRequestObjectWithBankOzonTrueIfMethodOzonOzon() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList(Method.OZON_OZON.name())).build()));
-        detailsRequest.setAmount(1000);
         detailsRequest.setMethod(Method.OZON_OZON.name());
+        detailsRequest.setAmount(1000);
         when(onlyPaysProperties.id()).thenReturn("id");
         when(onlyPaysProperties.secret()).thenReturn("secret");
         Request actual = onlyPaysOrderCreationService.body(detailsRequest);
@@ -135,7 +133,8 @@ class OnlyPaysOrderCreationServiceTest {
         DetailsResponse actual = maybeResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.ONLY_PAYS, actual.getMerchant()),
-                () -> assertEquals(bank + " " + requisites, actual.getDetails()),
+                () -> assertEquals(requisites, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(Status.WAITING.name(), actual.getMerchantOrderStatus())
         );

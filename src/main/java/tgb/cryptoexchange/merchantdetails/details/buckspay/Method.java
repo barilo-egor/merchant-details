@@ -18,7 +18,8 @@ public enum Method implements MerchantMethod {
     CARD("Card", 0, "Перевод на карту", RequestMethod.CARD),
     T_PAY("SBP", 2, "СБП Т-банк — Т-банк", null),
     NSPK("QRManager", 0, "НСПК", null),
-    SIM("MobileCommerce", 0, "Sim", null),;
+    SIM("MobileCommerce", 0, "Sim", null),
+    ;
 
     private final String value;
 

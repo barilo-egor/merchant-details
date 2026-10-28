@@ -29,4 +29,6 @@ public class UpdateMerchantConfigDTO {
     private RequiredReceipt requiredReceipt;
 
     private List<AutoConfirmConfigDTO> confirmConfigs;
+
+    private String merchant;
 }

@@ -30,7 +30,10 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -90,8 +93,8 @@ class AlfaTeamMerchantCreationServiceTest {
         when(signatureService.hmacSHA1(dataArgumentCaptor.capture(), secretArgumentCaptor.capture())).thenReturn(sign);
 
         HttpHeaders headers = new HttpHeaders();
-        OrderCreationRequest request = Mockito.mock(OrderCreationRequest.class);
-        when(request.getMethod()).thenReturn(Method.TO_CARD.name());
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod(Method.TO_CARD.name());
         alfaTeamMerchantCreationService.headers(request, expectedBody).accept(headers);
         assertAll(
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()),
@@ -103,8 +106,8 @@ class AlfaTeamMerchantCreationServiceTest {
 
     @Test
     void headersShouldThrowSignatureCreationException() throws NoSuchAlgorithmException, InvalidKeyException {
-        OrderCreationRequest request = Mockito.mock(OrderCreationRequest.class);
-        when(request.getMethod()).thenReturn(Method.TO_CARD.name());
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setMethod(Method.TO_CARD.name());
         when(alfaTeamProperties.url()).thenReturn("");
         when(alfaTeamProperties.secret()).thenReturn("");
         when(signatureService.hmacSHA1(anyString(), anyString())).thenThrow(InvalidKeyException.class);
@@ -121,12 +124,11 @@ class AlfaTeamMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
         when(alfaTeamProperties.token()).thenReturn(token);
-        detailsRequest.setMethod(method);
         Request actual = alfaTeamMerchantCreationService.body(detailsRequest);
 
         assertAll(
@@ -163,7 +165,8 @@ class AlfaTeamMerchantCreationServiceTest {
                 () -> assertEquals(Merchant.ALFA_TEAM, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
                 () -> assertEquals(Status.NEW.name(), actualResponse.getMerchantOrderStatus()),
-                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
+                () -> assertEquals(requisite, actualResponse.getDetails()),
+                () -> assertEquals(bank.getDisplayName(), actualResponse.getBank())
         );
     }
 

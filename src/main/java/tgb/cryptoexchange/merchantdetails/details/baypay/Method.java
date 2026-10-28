@@ -24,10 +24,6 @@ public enum Method implements MerchantMethod {
 
     final RequestMethod requestMethod;
 
-    public Optional<RequestMethod> getRequestMethod() {
-        return Optional.ofNullable(requestMethod);
-    }
-
     public static Method fromValue(String v) {
         for (Method method : Method.values()) {
             if (method.methodUid.equals(v)) {
@@ -35,6 +31,10 @@ public enum Method implements MerchantMethod {
             }
         }
         return null;
+    }
+
+    public Optional<RequestMethod> getRequestMethod() {
+        return Optional.ofNullable(requestMethod);
     }
 
     public static class Serializer extends JsonSerializer<Method> {

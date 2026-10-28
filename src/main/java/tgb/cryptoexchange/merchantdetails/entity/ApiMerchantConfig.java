@@ -1,0 +1,38 @@
+package tgb.cryptoexchange.merchantdetails.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import tgb.cryptoexchange.commons.enums.Merchant;
+
+import java.util.UUID;
+
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
+public class ApiMerchantConfig implements BaseConfig {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private Boolean isOn;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Merchant merchant;
+
+    private Integer maxAmount;
+
+    private Integer minAmount;
+
+    @Column(nullable = false)
+    private Integer merchantOrder;
+
+    @Column
+    private UUID ownerId;
+
+}

@@ -22,9 +22,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 
 import java.util.HashMap;
@@ -99,18 +99,18 @@ public class CommonConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, OrderCreationRequest> consumerFactory(KafkaProperties kafkaProperties) {
+    public ConsumerFactory<String, BotDetailsRequest> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, OrderCreationRequest.KafkaDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, BotDetailsRequest.KafkaDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderCreationRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
-                                                                                                         DetailsRequestErrorService detailsRequestErrorService) {
-        ConcurrentKafkaListenerContainerFactory<String, OrderCreationRequest> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                            DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory(kafkaProperties));
         factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
@@ -145,8 +145,8 @@ public class CommonConfig {
         return kafkaTemplate;
     }
 
-    @Bean(name = "detailsRequestSearchExecutor")
-    public ThreadPoolTaskExecutor detailsRequestSearchExecutor(
+    @Bean(name = "detailsRequestSearchExecutorBot")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorBot(
             @Value("${details.executor.core-pool-size}") Integer corePoolSize,
             @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
             @Value("${details.executor.queue-capacity}") Integer queueCapacity
@@ -155,7 +155,24 @@ public class CommonConfig {
         executor.setCorePoolSize(corePoolSize);
         executor.setMaxPoolSize(maxPoolSize);
         executor.setQueueCapacity(queueCapacity);
-        executor.setThreadNamePrefix("DetailsRequestSearch-");
+        executor.setThreadNamePrefix("DetailsRequestSearchBot-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "detailsRequestSearchExecutorApi")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorApi(
+            @Value("${details.executor.core-pool-size}") Integer corePoolSize,
+            @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
+            @Value("${details.executor.queue-capacity}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("DetailsRequestSearchApi-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
         return executor;
     }

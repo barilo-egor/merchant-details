@@ -24,7 +24,6 @@ import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -79,9 +78,8 @@ class PayLeeMerchantServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.PAY_LEE).methods(Collections.singletonList(method.name())).build()));
-        detailsRequest.setChatId(1231231231L);
         detailsRequest.setMethod(method.name());
+        detailsRequest.setUserId(String.valueOf(1231231231L));
         Request actual = payLeeMerchantService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, actual.getPrice()),

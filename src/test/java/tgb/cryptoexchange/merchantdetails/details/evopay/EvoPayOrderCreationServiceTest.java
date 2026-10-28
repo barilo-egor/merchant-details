@@ -28,7 +28,9 @@ import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,9 +81,9 @@ class EvoPayOrderCreationServiceTest {
     void headersShouldAddRequiredHeadersWithLessThan1000Amount(String key, Integer amount) {
         when(evoPayProperties.changeKey()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setAmount(amount);
-        evoPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setAmount(amount);
+        evoPayOrderCreationService.headers(request, null).accept(headers);
         assertAll(
                 () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
                 () -> assertEquals("application/json", headers.getFirst("Content-Type"))
@@ -113,7 +115,6 @@ class EvoPayOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList(method)).build()));
         detailsRequest.setMethod(method);
         Request request = evoPayOrderCreationService.body(detailsRequest);
         assertAll(
@@ -144,7 +145,8 @@ class EvoPayOrderCreationServiceTest {
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
@@ -169,16 +171,17 @@ class EvoPayOrderCreationServiceTest {
                 () -> assertEquals(Merchant.EVO_PAY, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
     @Test
     void makeRequestShouldReturnEmptyOptionalIfNoResponse() {
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setAmount(2000);
+        OrderCreationRequest request = new OrderCreationRequest();
+        request.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn(null);
-        assertTrue(evoPayOrderCreationService.makeRequest(detailsRequest, "").isEmpty());
+        assertTrue(evoPayOrderCreationService.makeRequest(request, "").isEmpty());
     }
 
     @Test

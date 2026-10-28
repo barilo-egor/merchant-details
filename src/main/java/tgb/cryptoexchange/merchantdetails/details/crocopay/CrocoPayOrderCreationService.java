@@ -64,15 +64,15 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         Response.ResponseData responseData = response.getResponseData();
-        String requisite;
-        if ("any_rub_bank".equals(responseData.getPaymentRequisites().getPaymentMethod())) {
-            requisite = responseData.getPaymentRequisites().getRequisites();
-        } else {
-            requisite = responseData.getPaymentRequisites().getPaymentMethod() + " " + responseData.getPaymentRequisites().getRequisites();
-        }
         DetailsResponse detailsResponse = new DetailsResponse();
+        if ("any_rub_bank".equals(responseData.getPaymentRequisites().getPaymentMethod())) {
+            detailsResponse.setDetails(responseData.getPaymentRequisites().getRequisites());
+        } else {
+            detailsResponse.setBank(responseData.getPaymentRequisites().getPaymentMethod());
+            detailsResponse.setDetails(responseData.getPaymentRequisites().getRequisites());
+        }
+
         detailsResponse.setMerchant(getMerchant());
-        detailsResponse.setDetails(requisite);
         detailsResponse.setMerchantOrderId(responseData.getTransaction().getId());
         detailsResponse.setMerchantOrderStatus(responseData.getTransaction().getStatus().name());
         return Optional.of(detailsResponse);

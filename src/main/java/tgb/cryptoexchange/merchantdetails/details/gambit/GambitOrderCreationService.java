@@ -63,10 +63,11 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(response.getAmount().intValue());
         Response.Requisites requisites = response.getPaymentDetails();
+        detailsResponse.setBank(requisites.getBankName());
         if (Objects.nonNull(response.getPaymentDetails().getPhone())) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getPhone());
+            detailsResponse.setDetails(requisites.getPhone());
         } else {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getCardNumber());
+            detailsResponse.setDetails(requisites.getCardNumber());
         }
         return Optional.of(detailsResponse);
     }

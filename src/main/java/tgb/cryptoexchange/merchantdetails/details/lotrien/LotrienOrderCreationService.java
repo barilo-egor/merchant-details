@@ -59,10 +59,11 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(new BigDecimal(response.getAmount()).intValue());
         Response.Requisites requisites = response.getRequisites();
+        detailsResponse.setBank(requisites.getBank());
         if (List.of(Method.PDF_BANK_CARD, Method.BANK_CARD).contains(response.getPaymentMethod())) {
-            detailsResponse.setDetails(requisites.getBank() + " " + requisites.getCardNumber());
+            detailsResponse.setDetails(requisites.getCardNumber());
         } else {
-            detailsResponse.setDetails(requisites.getBank() + " " + requisites.getPhoneNumber());
+            detailsResponse.setDetails(requisites.getPhoneNumber());
         }
 
         return Optional.of(detailsResponse);

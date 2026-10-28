@@ -37,4 +37,4 @@ out/
 .vscode/
 config/**
 logs/**
-docker/*
+docker/mount/**

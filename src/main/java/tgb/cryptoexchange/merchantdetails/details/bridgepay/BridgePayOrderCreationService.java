@@ -123,8 +123,8 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(dealDTO.getPaymentOption())) {
             requisiteVO.setQr(dealDTO.getQrCodeLink());
         } else {
-            String details = dealDTO.getPaymentMethod() + " " + dealDTO.getRequisites().getRequisites();
-            requisiteVO.setDetails(details);
+            requisiteVO.setDetails(dealDTO.getRequisites().getRequisites());
+            requisiteVO.setBank(dealDTO.getPaymentMethod());
         }
         requisiteVO.setPaymentMethod(Objects.isNull(dealDTO.getPaymentOption()) ? null : dealDTO.getPaymentOption().name());
     }

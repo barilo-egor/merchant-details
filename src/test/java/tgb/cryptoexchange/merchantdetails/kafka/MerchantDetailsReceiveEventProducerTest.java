@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,29 +27,29 @@ class MerchantDetailsReceiveEventProducerTest {
     private KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate;
 
     @CsvSource("""
-            merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,ALFA 79879878787
-            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,Банк развития 1234123412341234
+            merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,79879878787, ALFA
+            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,1234123412341234, Банк развития
             """)
     @ParameterizedTest
     void putShouldSendEventToTopic(String topic, Long dealId, Long userId, String appId, Merchant merchant, String orderId,
-                                   Integer requestedAmount, Integer merchantAmount, String method, String details) {
+                                   Integer requestedAmount, Integer merchantAmount, String method, String details, String bank) {
         var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setId(dealId);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
-        detailsRequest.setAmount(requestedAmount);
-        detailsRequest.setChatId(userId);
-        detailsRequest.setInitiatorApp(appId);
-        detailsRequest.setMethod(method);
+        BotDetailsRequest detailsRequestBot = new BotDetailsRequest();
+        detailsRequestBot.setId(String.valueOf(dealId));
+        detailsRequestBot.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
+        detailsRequestBot.setAmount(requestedAmount);
+        detailsRequestBot.setUserId(String.valueOf(userId));
+        detailsRequestBot.setInitiatorApp(appId);
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(merchant);
         detailsResponse.setDetails(details);
+        detailsResponse.setBank(bank);
         detailsResponse.setMerchantOrderId(orderId);
         detailsResponse.setAmount(merchantAmount);
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MerchantDetailsReceiveEvent> eventCaptor = ArgumentCaptor.forClass(MerchantDetailsReceiveEvent.class);
-        merchantDetailsReceiveEventProducer.put(merchant, detailsRequest, detailsResponse);
+        merchantDetailsReceiveEventProducer.put(merchant, method, detailsRequestBot, detailsResponse);
         verify(kafkaTemplate).send(topicCaptor.capture(), keyCaptor.capture(), eventCaptor.capture());
         MerchantDetailsReceiveEvent event = eventCaptor.getValue();
         assertAll(
@@ -62,7 +62,7 @@ class MerchantDetailsReceiveEventProducerTest {
                 () -> assertEquals(requestedAmount, event.getRequestedAmount()),
                 () -> assertEquals(merchantAmount, event.getMerchantAmount()),
                 () -> assertEquals(method, event.getMethod()),
-                () -> assertEquals(details, event.getDetails()),
+                () -> assertEquals(bank + " " + details, event.getDetails()),
                 () -> assertDoesNotThrow(() -> UUID.fromString(keyCaptor.getValue()))
 
         );

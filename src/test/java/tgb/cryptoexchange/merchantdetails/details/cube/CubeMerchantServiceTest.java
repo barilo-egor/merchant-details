@@ -16,8 +16,6 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CubePropertiesImpl;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -72,9 +70,8 @@ class CubeMerchantServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.CUBE).methods(Collections.singletonList(method.name())).build()));
-        detailsRequest.setChatId(1231231231L);
-        detailsRequest.setId(123456789L);
+        detailsRequest.setId("123456789");
+        detailsRequest.setUserId("1231231231");
         detailsRequest.setMethod(method.name());
         Request actual = cubeService.body(detailsRequest);
         assertAll(
@@ -90,7 +87,7 @@ class CubeMerchantServiceTest {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
         detailsRequest.setMethod("CARD");
-        detailsRequest.setId(123456L);
+        detailsRequest.setId("123456");
 
         when(callbackConfig.getGatewayUrl()).thenReturn("https://api.example.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");

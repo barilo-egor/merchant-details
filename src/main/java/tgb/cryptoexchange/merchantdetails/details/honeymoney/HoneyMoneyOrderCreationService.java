@@ -80,7 +80,8 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         String requisite = Objects.nonNull(response.getPhoneNumber()) ? response.getPhoneNumber() : response.getCardNumber();
-        detailsResponse.setDetails(response.getBankName() + " " + requisite);
+        detailsResponse.setBank(response.getBankName());
+        detailsResponse.setDetails(requisite);
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
         detailsResponse.setMerchantOrderStatus(Status.PENDING.name());

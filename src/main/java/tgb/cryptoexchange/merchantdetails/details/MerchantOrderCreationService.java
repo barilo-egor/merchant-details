@@ -2,7 +2,9 @@ package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
@@ -26,7 +28,6 @@ import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private final Class<T> responseType;
 
+    @Getter
     private final Class<P> callbackType;
 
     protected ObjectMapper objectMapper;
@@ -87,38 +89,38 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         this.callbackKafkaTemplate = callbackKafkaTemplate;
     }
 
-    public Optional<DetailsResponse> createOrder(OrderCreationRequest detailsRequest) {
-        log.debug("Запрос на создание ордера мерчанта {} метода {} по сделке {}.", getMerchant().name(), detailsRequest.getMethod(), detailsRequest.getId());
-        if (!isValidRequestPredicate().test(detailsRequest)) {
-            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", detailsRequest, detailsRequest.getMethod());
+    public Optional<DetailsResponse> createOrder(OrderCreationRequest request) {
+        log.debug("Запрос на создание ордера мерчанта {} метода {} по сделке {}.", getMerchant().name(), request.getMethod(), request.getId());
+        if (!isValidRequestPredicate(request.getMethod()).test(request)) {
+            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", request, request.getMethod());
             return Optional.empty();
         }
-        String body = mapBody(detailsRequest);
+        String body = mapBody(request);
         Optional<String> maybeRawResponse;
         try {
-            maybeRawResponse = makeRequest(detailsRequest, body);
+            maybeRawResponse = makeRequest(request, body);
         } catch (Exception e) {
             if (isNoDetailsExceptionPredicate().test(e)) {
-                logNoDetails(detailsRequest.getId(), detailsRequest.getMethod());
+                logNoDetails(request.getRequestId(), request.getMethod());
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
-            handleRequestException(e, currentTime, detailsRequest, body);
+            handleRequestException(e, currentTime, request, body);
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
         if (maybeRawResponse.isEmpty()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getMethod());
+            logNoDetails(request.getRequestId(), request.getMethod());
             return Optional.empty();
         }
         String rawResponse = maybeRawResponse.get();
         if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getMethod());
+            logNoDetails(request.getRequestId(), request.getMethod());
             return Optional.empty();
         }
         T response = mapResponse(rawResponse, body);
         validateResponse(response, rawResponse, body);
         if (!response.hasDetails()) {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getMethod());
+            logNoDetails(request.getRequestId(), request.getMethod());
             return Optional.empty();
         }
         Optional<DetailsResponse> maybeResponse;
@@ -130,32 +132,32 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while forming response: " + currentTime + ".", e);
         }
         if (maybeResponse.isPresent()) {
-            log.debug("Реквизиты для id={} были найдены: {}", detailsRequest.getId(), maybeResponse.get());
+            log.debug("Реквизиты для id={} были найдены: {}", request.getRequestId(), maybeResponse.get());
         } else {
-            logNoDetails(detailsRequest.getId(), detailsRequest.getMethod());
+            logNoDetails(request.getRequestId(), request.getMethod());
         }
         return maybeResponse;
     }
 
-    private void logNoDetails(Long id, String method) {
-        log.debug("Реквизиты для запроса id={} у мерчанта {}, метод {} получены не были.", id, getMerchant().name(), method);
+    private void logNoDetails(String requestId, String method) {
+        log.debug("Реквизиты для запроса requestId={} у мерчанта {}, метод {} получены не были.", requestId, getMerchant().name(), method);
     }
 
-    private String mapBody(OrderCreationRequest detailsRequest) {
+    private String mapBody(OrderCreationRequest request) {
         try {
-            return objectMapper.writeValueAsString(body(detailsRequest));
+            return objectMapper.writeValueAsString(body(request));
         } catch (JsonProcessingException e) {
             long currentTime = System.currentTimeMillis();
-            log.error("{} Ошибка при маппинге тела запроса(detailsRequest = {}): {}", currentTime, detailsRequest, e.getMessage(), e);
+            log.error("{} Ошибка при маппинге тела запроса(request = {}): {}", currentTime, request, e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
         }
     }
 
-    protected Optional<String> makeRequest(OrderCreationRequest detailsRequest, String body) {
+    protected Optional<String> makeRequest(OrderCreationRequest request, String body) {
         try {
             return Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder(detailsRequest),
-                    headers(detailsRequest, body), body
+                    webClient, method(), uriBuilder(request),
+                    headers(request, body), body
             ));
         } catch (RuntimeException e) {
             if (e.getCause() instanceof TimeoutException) {
@@ -165,20 +167,20 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    private void handleRequestException(Exception e, long currentTime, OrderCreationRequest detailsRequest, String body) {
+    private void handleRequestException(Exception e, long currentTime, OrderCreationRequest request, String body) {
 
         if (e instanceof WebClientResponseException webClientResponseException) {
             String errorBody = webClientResponseException.getResponseBodyAsString();
             log.error("{} Мерчант {} ответил ошибкой на запрос по сделке {}, метод {}: {}. Тело запроса: {}. Тело ответа: {}",
-                    currentTime, getMerchant().name(), detailsRequest.getId(), detailsRequest.getMethod(),
+                    currentTime, getMerchant().name(), request.getId(), request.getMethod(),
                     e.getMessage(), body, errorBody);
         } else if (e instanceof WebClientRequestException) {
             log.error("{} Ошибка соединения с мерчантом {} по сделке {}, метод {}: {}. Тело запроса: {}",
-                    currentTime, getMerchant().name(), detailsRequest.getId(), detailsRequest.getMethod(),
+                    currentTime, getMerchant().name(), request.getId(), request.getMethod(),
                     e.getMessage(), body);
         } else {
             log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
-                    currentTime, getMerchant().name(), detailsRequest.toString(), body, e.getMessage(), e);
+                    currentTime, getMerchant().name(), request.toString(), body, e.getMessage(), e);
         }
     }
 
@@ -203,19 +205,19 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
     }
 
-    protected Predicate<OrderCreationRequest> isValidRequestPredicate() {
-        return detailsRequest -> true;
+    protected Predicate<OrderCreationRequest> isValidRequestPredicate(String merchantMethod) {
+        return request -> true;
     }
 
     protected HttpMethod method() {
         return HttpMethod.POST;
     }
 
-    protected abstract Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest);
+    protected abstract Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request);
 
-    protected abstract Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body);
+    protected abstract Consumer<HttpHeaders> headers(OrderCreationRequest request, String body);
 
-    protected abstract Object body(OrderCreationRequest detailsRequest);
+    protected abstract Object body(OrderCreationRequest request);
 
     protected abstract Optional<DetailsResponse> buildResponse(T response);
 
@@ -280,7 +282,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             try {
                 callbackKafkaTemplate.send(
                         environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
-                        UUID.randomUUID().toString(), merchantCallbackEvent
+                        merchantCallbackEvent.getMerchant() + "_" + merchantCallbackEvent.getMerchantOrderId(), merchantCallbackEvent
                 );
             } catch (Exception e) {
                 long currentTime = System.currentTimeMillis();
@@ -291,6 +293,38 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
 
         deleteReceipt(maybeMerchantOrderId.get(), maybeStatus.get());
+    }
+
+    @Override
+    public void updateStatus(String orderId, String status, String statusDescription) {
+        log.debug("Принят callback от мерчанта {}: orderId={}, status={}, description={}",
+                getMerchant().name(), orderId, status, statusDescription);
+        if (StringUtils.isAnyBlank(orderId, status)) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Невалидные параметры callback мерчанта {}: id={}, status={}, description={}",
+                    currentTime, getMerchant().name(), orderId, status, statusDescription);
+            throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
+        }
+        MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
+        merchantCallbackEvent.setMerchantOrderId(orderId);
+        merchantCallbackEvent.setStatus(status);
+        merchantCallbackEvent.setStatusDescription(StringUtils.isNotBlank(statusDescription) ? statusDescription : status);
+        merchantCallbackEvent.setMerchant(getMerchant());
+        if (Objects.nonNull(callbackKafkaTemplate)) {
+            try {
+                callbackKafkaTemplate.send(
+                        environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
+                        merchantCallbackEvent.getMerchant() + "_" + merchantCallbackEvent.getMerchantOrderId(), merchantCallbackEvent
+                );
+            } catch (Exception e) {
+                long currentTime = System.currentTimeMillis();
+                log.error("{} Ошибка при попытке обновления статуса мерчанта {}. orderId={}, status={}, description={}. Message={}.",
+                        currentTime, getMerchant().name(), orderId, status, statusDescription, e.getMessage(), e);
+                throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
+            }
+        }
+
+        deleteReceipt(orderId, status);
     }
 
     @SuppressWarnings("unused")

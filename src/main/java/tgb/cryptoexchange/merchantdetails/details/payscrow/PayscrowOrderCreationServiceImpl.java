@@ -22,9 +22,9 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
     }
 
     @Override
-    protected Predicate<OrderCreationRequest> isValidRequestPredicate() {
+    protected Predicate<OrderCreationRequest> isValidRequestPredicate(String merchantMethod) {
         return detailsRequest -> {
-            Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+            Method method = parseMethod(merchantMethod, Method.class);
             return !Method.TRIANGLE.equals(method) || detailsRequest.getAmount() < AMOUNT_BOUND;
         };
     }

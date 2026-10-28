@@ -17,3 +17,4 @@ public enum VariableType {
 
     private final String defaultValue;
 }
+

@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
@@ -54,7 +56,7 @@ public class MerchantDetailsService {
         this.meterRegistry = meterRegistry;
     }
 
-    public Optional<DetailsResponse> getDetails(Merchant merchant, OrderCreationRequest request) {
+    public Optional<DetailsResponse> getDetails(Merchant merchant, BotDetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isEmpty()) {
             log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
@@ -66,11 +68,19 @@ public class MerchantDetailsService {
         }
 
         for (String merchantMethod : merchantMethods) {
-            request.setMethod(merchantMethod);
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(request);
+            OrderCreationRequest orderRequest = OrderCreationRequest.builder()
+                    .requestId(request.getRequestId())
+                    .id(request.getId())
+                    .amount(request.getAmount())
+                    .userId(request.getUserId())
+                    .method(merchantMethod).build();
+            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
-                    merchantDetailsReceiveEventProducer.put(merchant, request, maybeDetailsResponse.get());
+                    merchantDetailsReceiveEventProducer.put(merchant, merchantMethod, request, maybeDetailsResponse.get());
+                }
+                if (StringUtils.isBlank(maybeDetailsResponse.get().getPaymentMethod())) {
+                    maybeDetailsResponse.get().setPaymentMethod(merchantMethod);
                 }
                 return maybeDetailsResponse;
             }
@@ -99,6 +109,16 @@ public class MerchantDetailsService {
         }
     }
 
+    public void updateStatus(Merchant merchant, String orderId, String status, String statusDescription) {
+        var maybeCreationService = merchantServiceRegistry.getService(merchant);
+        if (maybeCreationService.isPresent()) {
+            maybeCreationService.get().updateStatus(orderId, status, statusDescription);
+        } else {
+            log.warn("Запрос обновления статуса ордера мерчанта {}, у которого отсутствует реализация: orderId={}, status={}",
+                    merchant.name(), orderId, status);
+        }
+    }
+
     public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
         log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
@@ -111,7 +131,7 @@ public class MerchantDetailsService {
     }
 
     @Timed(value = Metrics.GET_DETAILS, description = "Метрики запросов на получение реквизитов.")
-    public Optional<DetailsResponse> getDetails(OrderCreationRequest request) {
+    public Optional<DetailsResponse> getDetails(BotDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMethodsAndAmount(request.getMethods(), request.getAmount());
@@ -120,7 +140,7 @@ public class MerchantDetailsService {
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
                         .collect(Collectors.joining(","))
         );
-        int attemptsCount = variableService.findByType(VariableType.ATTEMPTS_COUNT).getInt();
+        int attemptsCount = variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT).getInt();
         for (int attemptNumber = 1; attemptNumber <= attemptsCount && !merchantConfigList.isEmpty(); attemptNumber++) {
             if (Thread.currentThread().isInterrupted()) {
                 log.debug("Поиск реквизитов для сделки {} был прерван.", request.getId());
@@ -130,7 +150,7 @@ public class MerchantDetailsService {
             maybeDetailsResponse = tryGetDetails(merchantConfigList, request, attemptNumber);
             long t2 = System.currentTimeMillis();
             if (attemptNumber < attemptsCount && maybeDetailsResponse.isEmpty()) {
-                long leftTime = (variableService.findByType(VariableType.MIN_ATTEMPT_TIME).getInt() * 1000) - (t2 - t1);
+                long leftTime = (variableService.findByTypeAndConfigType(VariableType.MIN_ATTEMPT_TIME, ConfigType.BOT).getInt() * 1000) - (t2 - t1);
                 if (leftTime > 0) {
                     sleepService.sleep(leftTime);
                 }
@@ -155,8 +175,7 @@ public class MerchantDetailsService {
         return maybeDetailsResponse;
     }
 
-    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, OrderCreationRequest
-                                                            request,
+    private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, BotDetailsRequest request,
                                                     int attemptNumber) {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
@@ -184,7 +203,7 @@ public class MerchantDetailsService {
         }
         maybeDetailsResponse.ifPresent(detailsResponse ->
                 log.debug("Реквизиты для пользователя {} получены. Мерчант={}, реквизиты={}.",
-                        request.getChatId(), detailsResponse.getMerchant().name(), detailsResponse)
+                        request.getUserId(), detailsResponse.getMerchant().name(), detailsResponse)
         );
         return maybeDetailsResponse;
     }

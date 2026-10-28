@@ -1,6 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.constants;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
@@ -14,6 +15,7 @@ import java.util.List;
  * Перечисление констант(методов и статусов) мерчантов.
  */
 @AllArgsConstructor
+@Getter
 public enum MerchantConstants {
     ALFA_TEAM(
             Status.values(),

@@ -79,7 +79,8 @@ class CashOutOrderCreationServiceTest {
         assertThat(result).isPresent();
         DetailsResponse dr = result.get();
         assertThat(dr.getMerchantOrderId()).isEqualTo("TX-1");
-        assertThat(dr.getDetails()).isEqualTo("Sber 11112222");
+        assertThat(dr.getDetails()).isEqualTo("11112222");
+        assertThat(dr.getBank()).isEqualTo("Sber");
         assertThat(dr.getAmount()).isEqualTo(500);
     }
 }

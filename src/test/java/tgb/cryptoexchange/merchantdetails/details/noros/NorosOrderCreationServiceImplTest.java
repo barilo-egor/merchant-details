@@ -23,8 +23,6 @@ import tgb.cryptoexchange.merchantdetails.properties.NorosPropertiesImpl;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -84,9 +82,6 @@ class NorosOrderCreationServiceImplTest {
     void shouldCorrectBuildBody() {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(
-                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.NOROS).methods(
-                        Collections.singletonList(Method.CARD.name())).build()));
         detailsRequest.setMethod(Method.CARD.name());
         Request resultBody = norosOrderCreationService.body(detailsRequest);
 
@@ -110,7 +105,8 @@ class NorosOrderCreationServiceImplTest {
         DetailsResponse result = responseOpt.get();
         assertEquals("merchant-123", result.getMerchantOrderId());
         assertEquals("CREATED", result.getMerchantOrderStatus());
-        assertEquals("Tinkoff 22001100", result.getDetails());
+        assertEquals("22001100", result.getDetails());
+        assertEquals("Tinkoff", result.getBank());
         assertEquals(1000, result.getAmount());
     }
 

@@ -67,9 +67,11 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         if (Objects.nonNull(response.getPaymentUrl())) {
             detailsResponse.setQr(response.getPaymentUrl());
         } else if (Objects.nonNull(response.getPhoneNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
+            detailsResponse.setBank(response.getBankName());
+            detailsResponse.setDetails(response.getPhoneNumber());
         } else {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
+            detailsResponse.setBank(response.getBankName());
+            detailsResponse.setDetails(response.getCardNumber());
         }
         detailsResponse.setMerchantOrderStatus(Status.PROCESS.name());
         return Optional.of(detailsResponse);

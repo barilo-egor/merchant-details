@@ -1,18 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
 import com.google.protobuf.Empty;
-import com.google.protobuf.Int32Value;
-import com.google.protobuf.Int64Value;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.grpc.server.service.GrpcService;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.grpc.generated.*;
@@ -21,6 +16,8 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import tgb.cryptoexchange.merchantdetails.mapper.MerchantConfigGrpcMapper;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
@@ -32,8 +29,8 @@ import java.util.List;
 import static tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService.STATUS;
 import static tgb.cryptoexchange.merchantdetails.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
-@GrpcService
 @Slf4j
+@GrpcService
 public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.MerchantDetailsServiceImplBase {
 
     private final MerchantDetailsService merchantDetailsService;
@@ -44,13 +41,16 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     private final MeterRegistry meterRegistry;
 
+    private final MerchantConfigGrpcMapper mapper;
+
     public MerchantDetailsControllerGrpc(MerchantDetailsService merchantDetailsService,
                                          MerchantConfigService merchantConfigService, VariableService variableService,
-                                         MeterRegistry meterRegistry) {
+                                         MeterRegistry meterRegistry, MerchantConfigGrpcMapper mapper) {
         this.merchantDetailsService = merchantDetailsService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
         this.meterRegistry = meterRegistry;
+        this.mapper = mapper;
     }
 
     @Override
@@ -69,86 +69,11 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     @Override
     public void getConfig(MerchantConfigRequestGrpc request,
                           StreamObserver<MerchantConfigResponseGrpc> responseObserver) {
-        int pageNum = request.getPagination().getPage() > 0 ? request.getPagination().getPage() : 0;
-        int pageSize = request.getPagination().getSize() > 0 ? request.getPagination().getSize() : 20;
-        Sort sort = Sort.unsorted();
-        String sortString = request.getPagination().getSort();
-        if (StringUtils.isNotBlank(sortString)) {
-            String[] parts = sortString.split(",");
-            String property = parts[0].trim();
-            Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
-                    ? Sort.Direction.DESC
-                    : Sort.Direction.ASC;
-
-            sort = Sort.by(direction, property);
-        }
-        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Pageable pageable = mapper.createPageable(request.getPagination());
         Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, mapToMerchantConfigRequest(request));
 
         List<MerchantConfigDTOGrpc> grpcData = page.getContent().stream()
-                .map(dto -> {
-                    MerchantConfigDTOGrpc.Builder builder = MerchantConfigDTOGrpc.newBuilder()
-                            .setId(dto.getId())
-                            .setIsOn(dto.getIsOn() != null && dto.getIsOn())
-                            .setIsAutoWithdrawalOn(dto.getIsAutoWithdrawalOn() != null && dto.getIsAutoWithdrawalOn());
-
-                    if (dto.getMerchant() != null) {
-                        builder.setMerchant(dto.getMerchant().name());
-                    }
-
-                    if (dto.getRequiredReceipt() != null) {
-                        builder.setRequiredReceipt(dto.getRequiredReceipt().name());
-                    }
-
-                    if (dto.getMaxAmount() != null) {
-                        builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
-                    }
-                    if (dto.getMinAmount() != null) {
-                        builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
-                    }
-                    if (dto.getMerchantOrder() != null) {
-                        builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
-                    }
-                    if (dto.getGroupChatId() != null) {
-                        builder.setGroupChatId(Int64Value.of(dto.getGroupChatId()));
-                    }
-
-                    if (dto.getStatuses() != null) {
-                        builder.addAllStatuses(dto.getStatuses().stream()
-                                .map(s -> MerchantOrderStatusGrpc.newBuilder()
-                                        .setName(s.name())
-                                        .setDescription(s.getDescription())
-                                        .build())
-                                .toList());
-                    }
-
-                    if (dto.getSuccessStatuses() != null) {
-                        builder.addAllSuccessStatuses(dto.getSuccessStatuses());
-                    }
-
-                    if (dto.getMethods() != null) {
-                        builder.addAllMethods(dto.getMethods().stream()
-                                .map(m -> MerchantMethodGrpc.newBuilder()
-                                        .setName(m.name())
-                                        .setDescription(m.getDescription())
-                                        .build())
-                                .toList());
-                    }
-
-                    if (dto.getConfirmConfigs() != null) {
-                        builder.addAllConfirmConfigs(dto.getConfirmConfigs().stream()
-                                .map(c -> AutoConfirmConfigDTOGrpc.newBuilder()
-                                        .setCryptoCurrency(c.getCryptoCurrency().name())
-                                        .setAutoConfirmType(c.getAutoConfirmType().name())
-                                        .setDeliveryType(c.getDeliveryType().name())
-                                        .build())
-                                .toList());
-                    }
-                    if (dto.getMinDealsCount() != null) {
-                        builder.setMinDealsCount(dto.getMinDealsCount());
-                    }
-                    return builder.build();
-                })
+                .map(mapper::mapToGrpcDto)
                 .toList();
 
         MerchantConfigResponseGrpc response = MerchantConfigResponseGrpc.newBuilder()
@@ -198,7 +123,6 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
                     break;
             }
         }
-
         merchantConfigService.update(dto);
 
         responseObserver.onNext(Empty.newBuilder().build());
@@ -253,8 +177,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     @Override
     public void getVariable(GetVariableRequestGrpc request, StreamObserver<VariableDTOGrpc> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
-
-        var entity = variableService.findByType(type);
+        var entity = variableService.findByTypeAndConfigType(type, ConfigType.valueOf(request.getConfigType().name()));
 
         VariableDTOGrpc response = VariableDTOGrpc.newBuilder()
                 .setType(VariableTypeGrpc.valueOf(type.name()))
@@ -269,8 +192,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void updateVariable(UpdateVariableRequestGrpc request, StreamObserver<Empty> responseObserver) {
         VariableType type = VariableType.valueOf(request.getVariableType().name());
         String newValue = request.getValue();
-
-        variableService.update(type, newValue);
+        variableService.update(type, ConfigType.valueOf(request.getConfigType().name()), newValue);
 
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();

@@ -60,7 +60,6 @@ class BitBolideDeepLinkOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.BIT_BOLIDE_DEEP_LINK).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 

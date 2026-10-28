@@ -13,9 +13,6 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.OnyxPayProperties;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -63,8 +60,7 @@ class OnyxPayMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(String gatewayUrl, String secret) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(1000);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONYX_PAY).methods(Collections.singletonList("SBP")).build()));
-        detailsRequest.setMethod("SBP");
+        detailsRequest.setMethod(Method.SBP.name());
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 

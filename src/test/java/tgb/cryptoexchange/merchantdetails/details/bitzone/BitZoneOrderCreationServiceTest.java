@@ -23,7 +23,9 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,10 +77,9 @@ class BitZoneOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.BIT_ZONE).methods(Collections.singletonList(method)).build()));
+        detailsRequest.setMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
-        detailsRequest.setMethod(method);
         Request request = bitZoneOrderCreationService.body(detailsRequest);
         assertAll(
                 () -> assertEquals(amount, request.getFiatAmount()),
@@ -110,7 +111,8 @@ class BitZoneOrderCreationServiceTest {
                 () -> assertEquals(Merchant.BIT_ZONE, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 
@@ -133,7 +135,8 @@ class BitZoneOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

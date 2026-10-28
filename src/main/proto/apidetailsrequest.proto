@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+option java_package = "tgb.cryptoexchange.grpc.generated";
+option java_multiple_files = true;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/field_mask.proto";
+import "merchantdetails.proto";
+
+service ApiDetailsRequestService {
+  rpc DetailsRequest (DetailsRequestGrpc) returns (DetailsResponseGrpc);
+  rpc MerchantCallbackRequest (MerchantCallbackGrpc) returns (google.protobuf.Empty);
+  rpc CancelOrderRequest (CancelOrderRequestGrpc) returns (google.protobuf.Empty);
+}
+
+service ApiMerchantConfigService {
+  rpc FindAll (FindAllApiMerchantConfigsRequestGrpc) returns (FindAllApiMerchantConfigsResponseGrpc);
+  rpc Update (UpdateApiMerchantConfigItemGrpc) returns (ApiMerchantConfigItemGrpc);
+}
+
+message DetailsRequestGrpc {
+  string request_id = 1;
+  string internal_id = 2;
+  optional string user_id = 3;
+  int32 amount = 4;
+  int32 wait_timeout = 5;
+  repeated string request_method = 6;
+  string owner_id = 7;
+  string initiator_app = 8;
+}
+
+message DetailsResponseGrpc {
+  string request_id = 1;
+  string merchant = 2;
+  string order_id = 3;
+  string order_status = 4;
+  DetailsGrpc details = 5;
+  int32 amount = 6;
+}
+
+message DetailsGrpc {
+  string request_method = 1;
+  string details = 2;
+  string bank = 3;
+}
+
+message MerchantError {
+  string reason = 1;
+  string request_id = 2;
+}
+
+message UpdateApiMerchantConfigItemGrpc {
+  int64 id = 1;
+  google.protobuf.BoolValue is_on = 2;
+  google.protobuf.Int32Value max_amount = 3;
+  google.protobuf.Int32Value min_amount = 4;
+  google.protobuf.Int32Value new_order = 5;
+}
+
+message FindAllApiMerchantConfigsRequestGrpc {
+  string owner_id = 1;
+}
+
+message FindAllApiMerchantConfigsResponseGrpc {
+  repeated ApiMerchantConfigItemGrpc configs = 1;
+}
+
+message ApiMerchantConfigItemGrpc {
+  int64 id = 1;
+  google.protobuf.BoolValue is_on = 2;
+  string merchant = 3;
+  google.protobuf.Int32Value max_amount = 4;
+  google.protobuf.Int32Value min_amount = 5;
+  google.protobuf.Int32Value merchant_order = 6;
+}
+
+message MerchantCallbackGrpc {
+  string merchant_order_id = 1;
+  string status = 2;
+  string status_description = 3;
+  string merchant = 4;
+}

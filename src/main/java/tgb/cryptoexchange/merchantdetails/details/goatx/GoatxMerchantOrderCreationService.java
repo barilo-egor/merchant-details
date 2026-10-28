@@ -75,10 +75,11 @@ public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCre
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
+        detailsResponse.setBank(response.getRequisite().getBank().getName());
         if (Method.CARD.equals(response.getWay())) {
-            detailsResponse.setDetails(response.getRequisite().getBank().getName() + " " + response.getRequisite().getCardNumber());
+            detailsResponse.setDetails(response.getRequisite().getCardNumber());
         } else {
-            detailsResponse.setDetails(response.getRequisite().getBank().getName() + " " + response.getRequisite().getPhoneNumber());
+            detailsResponse.setDetails(response.getRequisite().getPhoneNumber());
         }
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
         return Optional.of(detailsResponse);

@@ -138,13 +138,11 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         detailsResponse.setMerchant(Merchant.EVO_PAY);
         if (Objects.nonNull(response.getRequisites().getRecipientCardNumber())
                 && !response.getRequisites().getRecipientCardNumber().isBlank()) {
-            detailsResponse.setDetails(
-                    response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientCardNumber()
-            );
+            detailsResponse.setBank(response.getRequisites().getRecipientBank());
+            detailsResponse.setDetails(response.getRequisites().getRecipientCardNumber());
         } else {
-            detailsResponse.setDetails(
-                    response.getRequisites().getRecipientBank() + " " + response.getRequisites().getRecipientPhoneNumber()
-            );
+            detailsResponse.setBank(response.getRequisites().getRecipientBank());
+            detailsResponse.setDetails(response.getRequisites().getRecipientPhoneNumber());
         }
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getOrderStatus().name());

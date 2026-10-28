@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.*;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +29,8 @@ import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import tgb.cryptoexchange.merchantdetails.mapper.MerchantConfigGrpcMapper;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -45,6 +48,7 @@ import static org.mockito.Mockito.*;
 
 @WebMvcTest(controllers = MerchantDetailsControllerGrpc.class)
 @ExtendWith(MockitoExtension.class)
+@Import(MerchantConfigGrpcMapper.class)
 class MerchantDetailsControllerGrpcTest {
 
     @MockitoBean
@@ -96,7 +100,7 @@ class MerchantDetailsControllerGrpcTest {
     @Test
     void getConfigShouldReturnEmptyArrayIfConfigNotFound() {
         Page<MerchantConfigDTO> page = Page.empty();
-        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
                 .build();
@@ -128,7 +132,7 @@ class MerchantDetailsControllerGrpcTest {
                 .minAmount(150).maxAmount(5000).merchantOrder(2).isAutoWithdrawalOn(true).build()));
 
         Page<MerchantConfigDTO> page = new PageImpl<>(configs, PageRequest.of(0, 20), 2);
-        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
 
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
@@ -159,7 +163,7 @@ class MerchantDetailsControllerGrpcTest {
     @Test
     void getConfigShouldCallServiceWithCorrectRequest() {
         Page<MerchantConfigDTO> page = Page.empty();
-        when(merchantConfigService.findAll(any(Pageable.class), any())).thenReturn(page);
+        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
 
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
@@ -169,7 +173,7 @@ class MerchantDetailsControllerGrpcTest {
 
         grpcController.getConfig(grpcRequest, responseObserver);
         ArgumentCaptor<MerchantConfigRequest> requestCaptor = ArgumentCaptor.forClass(MerchantConfigRequest.class);
-        verify(merchantConfigService).findAll(any(Pageable.class), requestCaptor.capture());
+        verify(merchantConfigService).findAll(any(), requestCaptor.capture());
 
         MerchantConfigRequest actualRequest = requestCaptor.getValue();
         assertAll(
@@ -286,7 +290,7 @@ class MerchantDetailsControllerGrpcTest {
                 .value(variableType.getDefaultValue())
                 .build();
 
-        when(variableService.findByType(variableType)).thenReturn(mockVariable);
+        when(variableService.findByTypeAndConfigType(variableType, ConfigType.BOT)).thenReturn(mockVariable);
 
         GetVariableRequestGrpc request = GetVariableRequestGrpc.newBuilder()
                 .setVariableType(VariableTypeGrpc.valueOf(variableType.name()))
@@ -321,7 +325,7 @@ class MerchantDetailsControllerGrpcTest {
         StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
         grpcController.updateVariable(request, responseObserver);
 
-        verify(variableService).update(variableType, newValue);
+        verify(variableService).update(variableType, ConfigType.BOT, newValue);
         verify(responseObserver).onNext(any(Empty.class));
         verify(responseObserver).onCompleted();
     }
