@@ -349,6 +349,33 @@ viatrum:
   pub:
   secret:
   environment:
+bit-bolide:
+  url:
+  token:
+  sign-key:
+bit-bolide-wt:
+  token:
+  sign-key:
+bit-bolide-deep-link:
+  token:
+  sign-key:
+prime-wallet:
+  url:
+  token:
+  sign-key:
+prime-wallet-low-check:
+  token:
+  sign-key:
+prime-wallet-high-check:
+  token:
+  sign-key:
+hell-bit:
+  url:
+  token:
+  sign-key:
+hell-bit-bt:
+  token:
+  sign-key:
 # Конфиг приложение
 springdoc:
   swagger-ui:

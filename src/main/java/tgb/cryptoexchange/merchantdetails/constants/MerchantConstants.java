@@ -398,6 +398,18 @@ public enum MerchantConstants {
     VIATRUM(
             tgb.cryptoexchange.merchantdetails.details.viatrum.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.viatrum.Method.values()
+    ),
+    BIT_BOLIDE(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    BIT_BOLIDE_DEEP_LINK(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
+    BIT_BOLIDE_WT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
