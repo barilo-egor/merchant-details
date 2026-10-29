@@ -16,7 +16,7 @@ import java.util.UUID;
 public class ApiMerchantConfig implements BaseConfig {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Boolean isOn;
