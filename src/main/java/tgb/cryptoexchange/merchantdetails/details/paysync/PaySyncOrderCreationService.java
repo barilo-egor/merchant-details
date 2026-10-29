@@ -67,7 +67,8 @@ public class PaySyncOrderCreationService extends MerchantOrderCreationService<Re
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        detailsResponse.setDetails(response.getBank() + " " + response.getCardNumber());
+        detailsResponse.setBank(response.getBank());
+        detailsResponse.setDetails(response.getCardNumber());
 
         return Optional.of(detailsResponse);
     }

@@ -67,7 +67,8 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchantOrderId(String.valueOf(response.getData().getId()));
         detailsResponse.setDetails(
-                response.getData().getPaymentBank() + " " + response.getData().getPaymentDetails());
+                response.getData().getPaymentDetails());
+        detailsResponse.setBank(response.getData().getPaymentBank());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         return Optional.of(detailsResponse);

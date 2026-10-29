@@ -25,7 +25,9 @@ import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,7 +62,6 @@ class ExtasyPayOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.EXTASY_PAY).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
@@ -74,9 +75,9 @@ class ExtasyPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(extasyPayProperties.getToken(any())).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethod(Method.CARD.name());
-        extasyPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        OrderCreationRequest creationRequest = new OrderCreationRequest();
+        creationRequest.setMethod(Method.CARD.name());
+        extasyPayOrderCreationService.headers(creationRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -91,6 +92,7 @@ class ExtasyPayOrderCreationServiceTest {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(Method.CARD.name());
+
         Request actual = extasyPayOrderCreationService.body(detailsRequest);
 
         assertAll(
@@ -116,7 +118,8 @@ class ExtasyPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.EXTASY_PAY, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(bank, detailsResponse.getBank()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
                 () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
@@ -136,7 +139,8 @@ class ExtasyPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
+                () -> assertEquals("bank", detailsResponse.getBank()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails())
         );
     }
 

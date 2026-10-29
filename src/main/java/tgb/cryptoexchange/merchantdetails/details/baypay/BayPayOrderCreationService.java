@@ -67,8 +67,8 @@ public abstract class BayPayOrderCreationService extends MerchantOrderCreationSe
         requisiteVO.setMerchantOrderId(data.getId());
         requisiteVO.setAmount(new BigDecimal(data.getAmount()).intValue());
 
-        String requisite = paymentDetail.getBank() + " " + paymentDetail.getDetail();
-        requisiteVO.setDetails(requisite);
+        requisiteVO.setBank(paymentDetail.getBank());
+        requisiteVO.setDetails(paymentDetail.getDetail());
         return Optional.of(requisiteVO);
     }
 

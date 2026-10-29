@@ -12,12 +12,15 @@ import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.*;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
 import tgb.cryptoexchange.web.ApiResponse;
 
 import java.util.List;
+
+import static tgb.cryptoexchange.merchantdetails.enums.ConfigType.DEFAULT_VALUE;
 
 @RestController
 @RequestMapping("/merchant-details")
@@ -93,17 +96,19 @@ public class MerchantDetailsController extends ApiController {
 
     @GetMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType) {
+    public ResponseEntity<ApiResponse<VariableDTO>> getVariable(@PathVariable VariableType variableType,
+                                                                @RequestParam(defaultValue = DEFAULT_VALUE) ConfigType configType) {
         return new ResponseEntity<>(ApiResponse.success(
-                VariableDTO.fromEntity(variableService.findByType(variableType))),
+                VariableDTO.fromEntity(variableService.findByTypeAndConfigType(variableType, configType))),
                 HttpStatus.OK
         );
     }
 
     @PatchMapping("/variable/{variableType}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateVariable(@PathVariable VariableType variableType, @RequestParam String value) {
-        variableService.update(variableType, value);
+    public void updateVariable(@PathVariable VariableType variableType,
+                               @RequestParam String value, @RequestParam(defaultValue = DEFAULT_VALUE) ConfigType configType) {
+        variableService.update(variableType, configType, value);
     }
 
     @PostMapping("/receipt/{merchant}/{orderId}")

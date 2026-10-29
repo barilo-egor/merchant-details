@@ -105,7 +105,8 @@ class AsgardImplOrderCreationServiceTest {
         DetailsResponse dr = result.get();
         assertEquals("order-1", dr.getMerchantOrderId());
         assertEquals("CREATED", dr.getMerchantOrderStatus());
-        assertEquals("Sber 1234 56xx", dr.getDetails());
+        assertEquals("1234 56xx", dr.getDetails());
+        assertEquals("Sber", dr.getBank());
         assertEquals("CARD", dr.getPaymentMethod());
     }
 

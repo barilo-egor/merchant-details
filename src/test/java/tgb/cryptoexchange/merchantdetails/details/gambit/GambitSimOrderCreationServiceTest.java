@@ -17,8 +17,6 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitSimProperties;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -63,9 +61,6 @@ class GambitSimOrderCreationServiceTest {
     void body(String amount, GambitMethod method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
-        detailsRequest.setMethods(
-                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT_SIM).methods(Collections.singletonList(method.name()))
-                        .build()));
         detailsRequest.setMethod(method.name());
         Request actual = service.body(detailsRequest);
         assertAll(
@@ -94,12 +89,12 @@ class GambitSimOrderCreationServiceTest {
 
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s", operator, phoneValue);
         assertAll(
                 () -> assertEquals(amount.intValue(), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(expectedDetails, actual.getDetails()),
+                () -> assertEquals(operator, actual.getBank()),
+                () -> assertEquals(phoneValue, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );
     }

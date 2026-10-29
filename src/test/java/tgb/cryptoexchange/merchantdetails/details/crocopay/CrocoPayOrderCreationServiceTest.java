@@ -21,8 +21,6 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -78,9 +76,8 @@ class CrocoPayOrderCreationServiceTest {
     @ParameterizedTest
     void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret, Long dealId) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setId(dealId);
+        detailsRequest.setId(String.valueOf(dealId));
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.CROCO_PAY).methods(Collections.singletonList(method)).build()));
         detailsRequest.setMethod(method);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
@@ -144,7 +141,8 @@ class CrocoPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse actual = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

@@ -108,6 +108,7 @@ class RsPayMerchantServiceTest {
         assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("order-123");
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("PENDING");
         assertThat(detailsResponse.getQr()).isEqualTo("https://pay.test.com/link");
+        assertThat(detailsResponse.getBank()).isNull();
         assertThat(detailsResponse.getDetails()).isNull();
     }
 
@@ -131,7 +132,8 @@ class RsPayMerchantServiceTest {
 
         assertThat(result).isPresent();
         DetailsResponse detailsResponse = result.get();
-        assertThat(detailsResponse.getDetails()).isEqualTo("MTS +7-999-123-4567");
+        assertThat(detailsResponse.getBank()).isEqualTo("MTS");
+        assertThat(detailsResponse.getDetails()).isEqualTo("+7-999-123-4567");
         assertThat(detailsResponse.getQr()).isNull();
     }
 
@@ -155,7 +157,8 @@ class RsPayMerchantServiceTest {
 
         assertThat(result).isPresent();
         DetailsResponse detailsResponse = result.get();
-        assertThat(detailsResponse.getDetails()).isEqualTo("Sberbank **** 1234");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("**** 1234");
     }
 
     @Test
@@ -178,7 +181,8 @@ class RsPayMerchantServiceTest {
 
         assertThat(result).isPresent();
         DetailsResponse detailsResponse = result.get();
-        assertThat(detailsResponse.getDetails()).isEqualTo("Tinkoff +7-999-888-7766");
+        assertThat(detailsResponse.getBank()).isEqualTo("Tinkoff");
+        assertThat(detailsResponse.getDetails()).isEqualTo("+7-999-888-7766");
     }
 
 

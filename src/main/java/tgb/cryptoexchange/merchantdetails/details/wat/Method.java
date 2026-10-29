@@ -17,8 +17,8 @@ import java.util.Optional;
 @AllArgsConstructor
 @Getter
 public enum Method implements MerchantMethod {
-    CARD("card", "Карта",  RequestMethod.CARD),
-    SBP("sbp", "СБП",  RequestMethod.SBP),
+    CARD("card", "Карта", RequestMethod.CARD),
+    SBP("sbp", "СБП", RequestMethod.SBP),
     SIM("sim", "Sim", null),
     BT_PDF("bt-pdf", "BT PDF карта", null),
     BT_PDF_SBP("bt-pdf-sbp", "BT PDF СБП", null);

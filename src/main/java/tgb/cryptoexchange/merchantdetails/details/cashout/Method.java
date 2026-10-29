@@ -15,7 +15,8 @@ import java.util.Optional;
 @Getter
 public enum Method implements MerchantMethod {
     CARD("CARD", "Карта", RequestMethod.CARD),
-    SBP("SBP", "СБП",  RequestMethod.SBP),;
+    SBP("SBP", "СБП", RequestMethod.SBP),
+    ;
 
     private final String value;
 

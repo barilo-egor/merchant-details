@@ -17,8 +17,6 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.GambitImplProperties;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -63,9 +61,6 @@ class GambitImplOrderCreationServiceTest {
     void body(String amount, GambitMethod method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
-        detailsRequest.setMethods(
-                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.GAMBIT).methods(Collections.singletonList(method.name()))
-                        .build()));
         detailsRequest.setMethod(method.name());
         Request actual = service.body(detailsRequest);
         assertAll(
@@ -94,12 +89,12 @@ class GambitImplOrderCreationServiceTest {
 
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s", bankName, cardValue);
         assertAll(
                 () -> assertEquals(amount.intValue(), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(expectedDetails, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
+                () -> assertEquals(cardValue, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );
     }
@@ -125,12 +120,12 @@ class GambitImplOrderCreationServiceTest {
 
         DetailsResponse actual = maybeResponse.get();
 
-        String expectedDetails = String.format("%s %s", bankName, phoneValue);
         assertAll(
                 () -> assertEquals(amount.intValue(), actual.getAmount()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(expectedDetails, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
+                () -> assertEquals(phoneValue, actual.getDetails()),
                 () -> assertEquals(service.getMerchant(), actual.getMerchant())
         );
     }

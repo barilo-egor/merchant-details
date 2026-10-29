@@ -68,7 +68,8 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setDetails(response.getRequisites().getBankName() + " " + response.getRequisites().getCardNumber());
+        detailsResponse.setBank(response.getRequisites().getBankName());
+        detailsResponse.setDetails(response.getRequisites().getCardNumber());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantCustomId(response.getOrderId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());

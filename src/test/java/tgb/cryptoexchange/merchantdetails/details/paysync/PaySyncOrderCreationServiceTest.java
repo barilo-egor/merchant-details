@@ -78,6 +78,7 @@ class PaySyncOrderCreationServiceTest {
         assertEquals(Merchant.PAYSYNC, response.getMerchant());
         assertEquals("order-uuid-999", response.getMerchantOrderId());
         assertEquals("PAID", response.getMerchantOrderStatus());
-        assertEquals("Sberbank 4444 4444 4444 4444", response.getDetails());
+        assertEquals("Sberbank", response.getBank());
+        assertEquals("4444 4444 4444 4444", response.getDetails());
     }
 }

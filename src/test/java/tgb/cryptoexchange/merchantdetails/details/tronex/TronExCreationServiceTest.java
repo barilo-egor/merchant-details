@@ -137,7 +137,8 @@ class TronExCreationServiceTest {
         assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("trade-sim-12345");
         assertThat(detailsResponse.getAmount()).isEqualTo(5000);
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("CREATED");
-        assertThat(detailsResponse.getDetails()).isEqualTo("MTS +79991234567");
+        assertThat(detailsResponse.getBank()).isEqualTo("MTS");
+        assertThat(detailsResponse.getDetails()).isEqualTo("+79991234567");
         assertThat(detailsResponse.getQr()).isNull();
         assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.TRON_EX_SIM);
     }
@@ -162,6 +163,7 @@ class TronExCreationServiceTest {
         assertThat(detailsResponse.getAmount()).isEqualTo(2500);
         assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("CREATED");
         assertThat(detailsResponse.getQr()).isEqualTo("https://pay.tronex.io/qr/67890");
+        assertThat(detailsResponse.getBank()).isNull();
         assertThat(detailsResponse.getDetails()).isNull();
         assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.TRON_EX_SIM);
     }

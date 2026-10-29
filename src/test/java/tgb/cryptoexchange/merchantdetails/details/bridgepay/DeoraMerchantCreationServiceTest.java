@@ -30,7 +30,10 @@ import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -121,7 +124,6 @@ class DeoraMerchantCreationServiceTest {
     void bodyShouldBuildRequestObject(Integer amount, String method, String gatewayUrl, String token, String secret) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.DEORA).methods(Collections.singletonList(method)).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
 
@@ -163,7 +165,8 @@ class DeoraMerchantCreationServiceTest {
                 () -> assertEquals(Merchant.DEORA, actualResponse.getMerchant()),
                 () -> assertEquals(id, actualResponse.getMerchantOrderId()),
                 () -> assertEquals(Status.NEW.name(), actualResponse.getMerchantOrderStatus()),
-                () -> assertEquals(bank.getDisplayName() + " " + requisite, actualResponse.getDetails())
+                () -> assertEquals(requisite, actualResponse.getDetails()),
+                () -> assertEquals(bank.getDisplayName(), actualResponse.getBank())
         );
     }
 

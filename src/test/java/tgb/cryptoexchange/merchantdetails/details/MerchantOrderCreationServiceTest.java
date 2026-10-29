@@ -42,6 +42,7 @@ class MerchantOrderCreationServiceTest {
         when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
         OrderCreationRequest request = new OrderCreationRequest();
         request.setMethod("CARD");
+
         ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(request));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping body: "));
     }
@@ -86,6 +87,7 @@ class MerchantOrderCreationServiceTest {
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenThrow(JsonProcessingException.class);
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(detailsRequest));
         assertTrue(ex.getMessage().startsWith("Error occurred while mapping merchant response: "));
     }
@@ -101,6 +103,7 @@ class MerchantOrderCreationServiceTest {
         when(validationResult.isValid()).thenReturn(false);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(
                 ServiceUnavailableException.class,
                 () -> service.createOrder(detailsRequest)
@@ -136,44 +139,36 @@ class MerchantOrderCreationServiceTest {
         when(response.hasDetails()).thenReturn(true);
         when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenReturn(response);
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setId(5234L);
-        detailsRequest.setChatId(3745747545L);
         detailsRequest.setMethod("CARD");
+        detailsRequest.setId(String.valueOf(5234));
+        detailsRequest.setUserId(String.valueOf(3745747545L));
         Optional<DetailsResponse> maybeResponse = service.createOrder(detailsRequest);
         assertTrue(maybeResponse.isPresent());
     }
 
     @Test
     void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethods() {
-        OrderCreationRequest request = new OrderCreationRequest();
-        request.setMethod("CARD");
+        BotDetailsRequest request = new BotDetailsRequest();
+
         request.setMethods(new ArrayList<>());
-        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request.getMethod(), Method.class));
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
 
     @Test
     void parseMethodShouldThrowMerchantMethodNotFoundExceptionIfNoMethodsOfPassedMerchant() {
-        OrderCreationRequest request = new OrderCreationRequest();
-        request.setMethod("CARD");
-        List<OrderCreationRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("method")).build());
-        methods.add(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList("method")).build());
-        methods.add(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList("method")).build());
+        BotDetailsRequest request = new BotDetailsRequest();
+
+        List<BotDetailsRequest.MerchantMethod> methods = new ArrayList<>();
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ONLY_PAYS).methods(Collections.singletonList("method")).build());
+        methods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.EVO_PAY).methods(Collections.singletonList("method")).build());
         request.setMethods(methods);
-        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod(request.getMethod(), Method.class));
+        assertThrows(MerchantMethodNotFoundException.class, () -> service.parseMethod("CARD", Method.class));
     }
 
-    @ParameterizedTest
-    @CsvSource(textBlock = """
-            method1,1000,53355
-            method2,2000,12586
-            """)
-    void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, Long id) {
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
-        detailsRequest.setAmount(amount);
-        detailsRequest.setId(id);
-        assertTrue(service.isValidRequestPredicate().test(detailsRequest));
+    @Test
+    void isValidRequestPredicateShouldReturnTrueIfNullDetailsRequest() {
+        assertTrue(service.isValidRequestPredicate("ALFA").test(null));
     }
 
     @EnumSource(Method.class)
@@ -201,9 +196,17 @@ class MerchantOrderCreationServiceTest {
         assertFalse(service.hasResponseNoDetailsErrorPredicate().test("error"));
     }
 
-    @Test
-    void isValidRequestPredicateShouldReturnTrueIfNullDetailsRequest() {
-        assertTrue(service.isValidRequestPredicate().test(null));
+    @ParameterizedTest
+    @CsvSource(textBlock = """
+            method1,1000,53355
+            method2,2000,12586
+            """)
+    void isValidRequestPredicateShouldReturnTrueIfDetailsRequestNotNull(String method, Integer amount, String id) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod(method);
+        detailsRequest.setAmount(amount);
+        detailsRequest.setId(id);
+        assertTrue(service.isValidRequestPredicate("ALFA").test(detailsRequest));
     }
 
     public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
@@ -218,17 +221,17 @@ class MerchantOrderCreationServiceTest {
         }
 
         @Override
-        protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
+        protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request) {
             return uriBuilder -> uriBuilder.path("path").build();
         }
 
         @Override
-        protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
+        protected Consumer<HttpHeaders> headers(OrderCreationRequest request, String body) {
             return httpHeaders -> httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
         }
 
         @Override
-        protected Request body(OrderCreationRequest detailsRequest) {
+        protected Request body(OrderCreationRequest creationRequest) {
             Request request = new Request();
             request.setAmount("1000");
             return request;
@@ -322,12 +325,12 @@ class MerchantOrderCreationServiceTest {
         when(merchantCallback.getStatusName()).thenReturn(Optional.of(status));
         when(merchantCallback.getStatusDescription()).thenReturn(Optional.of(statusDescription));
         ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
-        ArgumentCaptor<String> uuidCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}");
-        verify(callbackKafkaTemplate).send(eq(topic), uuidCaptor.capture(), eventCaptor.capture());
+        verify(callbackKafkaTemplate).send(eq(topic), keyCaptor.capture(), eventCaptor.capture());
         MerchantCallbackEvent actual = eventCaptor.getValue();
         assertAll(
-                () -> assertDoesNotThrow(() -> UUID.fromString(uuidCaptor.getValue())),
+                () -> assertEquals("ALFA_TEAM_" + orderId, keyCaptor.getValue()),
                 () -> assertEquals(orderId, actual.getMerchantOrderId()),
                 () -> assertEquals(status, actual.getStatus()),
                 () -> assertEquals(statusDescription, actual.getStatusDescription()),
@@ -350,5 +353,49 @@ class MerchantOrderCreationServiceTest {
 
         assertDoesNotThrow(() -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
         Mockito.verifyNoInteractions(callbackKafkaTemplate);
+    }
+
+    @CsvSource("""
+            merchant-details-callback-topic,order-123,PAID,Оплачено
+            merchant-details-callback-topic,order-456,CANCELLED,Отменено
+            """)
+    @ParameterizedTest
+    void updateStatusWithParamsShouldSendEvent(String topic, String orderId, String status, String statusDescription) {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn(topic);
+
+        ArgumentCaptor<MerchantCallbackEvent> eventCaptor = ArgumentCaptor.forClass(MerchantCallbackEvent.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+
+        service.updateStatus(orderId, status, statusDescription);
+
+        verify(callbackKafkaTemplate).send(eq(topic), keyCaptor.capture(), eventCaptor.capture());
+        MerchantCallbackEvent actual = eventCaptor.getValue();
+        assertAll(
+                () -> assertEquals("ALFA_TEAM_" + orderId, keyCaptor.getValue()),
+                () -> assertEquals(orderId, actual.getMerchantOrderId()),
+                () -> assertEquals(status, actual.getStatus()),
+                () -> assertEquals(statusDescription, actual.getStatusDescription()),
+                () -> assertEquals(Merchant.ALFA_TEAM, actual.getMerchant())
+        );
+    }
+
+    @Test
+    void updateStatusWithParamsShouldThrowExceptionIfOrderIdOrStatusIsBlank() {
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("", "PAID", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", "", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus(null, "PAID", "Оплачено"));
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", null, "Оплачено"));
+    }
+
+    @Test
+    void updateStatusWithParamsShouldThrowExceptionIfKafkaSendFails() {
+        service.setCallbackKafkaTemplate(callbackKafkaTemplate);
+        service.setEnvironment(environment);
+        when(environment.getRequiredProperty(anyString())).thenReturn("some-topic");
+        when(callbackKafkaTemplate.send(anyString(), anyString(), any())).thenThrow(new RuntimeException("Kafka error"));
+
+        assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("order-1", "PAID", "Оплачено"));
     }
 }

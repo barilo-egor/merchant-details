@@ -1,0 +1,18 @@
+services:
+  merchant-details:
+    ports:
+      - "9090:9090"
+      - "5555:5005"
+    networks:
+      - processing
+    image: eclipse-temurin:21-jre-jammy
+    container_name: merchant-details
+    volumes:
+      - ./mount/merchant-details:/merchant-details
+    working_dir: /merchant-details
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar merchant-details.jar
+    environment:
+      TZ: "Europe/Moscow"
+networks:
+  processing:
+    driver: bridge

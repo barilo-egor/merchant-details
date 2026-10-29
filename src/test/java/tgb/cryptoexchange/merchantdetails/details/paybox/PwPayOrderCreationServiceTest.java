@@ -25,7 +25,9 @@ import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,9 +63,6 @@ class PwPayOrderCreationServiceTest {
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setMethod(method.name());
-        detailsRequest.setMethods(
-                List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.PW_PAY).methods(Collections.singletonList(method.name()))
-                        .build()));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
 
         assertEquals("/api/v1/transactions" + method.getUri(),
@@ -77,9 +76,9 @@ class PwPayOrderCreationServiceTest {
     void headersShouldSetRequiredHeaders(String token) {
         when(pwPayProperties.token()).thenReturn(token);
         HttpHeaders headers = new HttpHeaders();
-        OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethod(Method.CARD.name());
-        pwPayOrderCreationService.headers(detailsRequest, null).accept(headers);
+        OrderCreationRequest creationRequest = new OrderCreationRequest();
+        creationRequest.setMethod(Method.CARD.name());
+        pwPayOrderCreationService.headers(creationRequest, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + token, Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
@@ -119,7 +118,8 @@ class PwPayOrderCreationServiceTest {
         assertAll(
                 () -> assertEquals(Merchant.PW_PAY, detailsResponse.getMerchant()),
                 () -> assertEquals(id.toString(), detailsResponse.getMerchantOrderId()),
-                () -> assertEquals(bank + " " + requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(bank, detailsResponse.getBank()),
                 () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
         );
     }
@@ -139,7 +139,8 @@ class PwPayOrderCreationServiceTest {
         assertTrue(maybeRequisiteResponse.isPresent());
         DetailsResponse detailsResponse = maybeRequisiteResponse.get();
         assertAll(
-                () -> assertEquals("bank" + " " + requisiteString, detailsResponse.getDetails())
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals("bank", detailsResponse.getBank())
         );
     }
 

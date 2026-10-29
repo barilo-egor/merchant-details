@@ -66,8 +66,8 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         detailsResponse.setMerchantOrderId(response.getData().getOrderId());
-        detailsResponse.setDetails(
-                response.getData().getBankName() + " " + response.getData().getPaymentDetail().getDetail());
+        detailsResponse.setBank(response.getData().getBankName());
+        detailsResponse.setDetails(response.getData().getPaymentDetail().getDetail());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderStatus(response.getData().getStatus().name());
         return Optional.of(detailsResponse);

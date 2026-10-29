@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
+import tgb.cryptoexchange.merchantdetails.details.DetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 
@@ -26,18 +28,20 @@ public class MerchantDetailsReceiveEventProducer {
         this.receiveEventTopicName = receiveEventTopicName;
     }
 
-    public void put(Merchant merchant, OrderCreationRequest detailsRequest, DetailsResponse detailsResponse) {
+    public void put(Merchant merchant, String merchantMethod, DetailsRequest detailsRequest, DetailsResponse detailsResponse) {
         MerchantDetailsReceiveEvent event = new MerchantDetailsReceiveEvent();
-        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId().toString() : null);
-        event.setActorId(Objects.nonNull(detailsRequest.getChatId()) ? detailsRequest.getChatId().toString() : null);
+        event.setOperationId(Objects.nonNull(detailsRequest.getId()) ? detailsRequest.getId() : null);
+        event.setActorId(Objects.nonNull(detailsRequest.getUserId()) ? detailsRequest.getUserId() : null);
+        event.setOperationId(detailsRequest.getId());
+        event.setActorId(detailsRequest.getUserId());
         event.setInitiatorApp(detailsRequest.getInitiatorApp());
         event.setCreatedAt(Instant.now());
         event.setMerchant(merchant.name());
         event.setMerchantOrderId(detailsResponse.getMerchantOrderId());
         event.setRequestedAmount(detailsRequest.getAmount());
         event.setMerchantAmount(detailsResponse.getAmount());
-        event.setMethod(detailsRequest.getMethod());
-        event.setDetails(detailsResponse.getDetails());
+        event.setMethod(merchantMethod);
+        event.setDetails(detailsResponse.getFullDetails());
         event.setPaymentLink(detailsResponse.getQr());
         kafkaTemplate.send(receiveEventTopicName, UUID.randomUUID().toString(), event);
     }

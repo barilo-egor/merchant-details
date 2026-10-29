@@ -100,11 +100,15 @@ public abstract class RSPayOrderCreationService extends MerchantOrderCreationSer
         if (Objects.nonNull(requisites.getPaymentLink())) {
             detailsResponse.setQr(requisites.getPaymentLink());
         } else if (Objects.nonNull(requisites.getMobileProvider())) {
-            detailsResponse.setDetails(requisites.getMobileProvider() + " " + requisites.getPhoneNumber());
-        } else if (Objects.nonNull(requisites.getCardNumber())) {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getCardNumber());
+            detailsResponse.setBank(requisites.getMobileProvider());
+            detailsResponse.setDetails(requisites.getPhoneNumber());
         } else {
-            detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getPhoneNumber());
+            detailsResponse.setBank(requisites.getBankName());
+            if (Objects.nonNull(requisites.getCardNumber())) {
+                detailsResponse.setDetails(requisites.getCardNumber());
+            } else {
+                detailsResponse.setDetails(requisites.getPhoneNumber());
+            }
         }
         return Optional.of(detailsResponse);
     }

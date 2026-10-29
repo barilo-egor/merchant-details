@@ -24,7 +24,9 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,7 +61,6 @@ class HoneyMoneyOrderCreationServiceTest {
     @ParameterizedTest
     void uriBuilderShouldAddPathDependsOnMethod(Method method) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setMethod(method.name());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals(method.getUri(), honeyMoneyOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
@@ -76,7 +77,6 @@ class HoneyMoneyOrderCreationServiceTest {
 
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setMethod(Method.CARD.name());
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(Method.CARD.name())).build()));
         HttpHeaders headers = new HttpHeaders();
         honeyMoneyOrderCreationService.headers(detailsRequest, "body").accept(headers);
         assertAll(
@@ -95,7 +95,6 @@ class HoneyMoneyOrderCreationServiceTest {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
         detailsRequest.setMethod(method.name());
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.HONEY_MONEY).methods(Collections.singletonList(method.name())).build()));
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         Request request = honeyMoneyOrderCreationService.body(detailsRequest);
@@ -124,7 +123,8 @@ class HoneyMoneyOrderCreationServiceTest {
         DetailsResponse actual = maybeResponse.get();
         assertAll(
                 () -> assertEquals(Merchant.HONEY_MONEY, actual.getMerchant()),
-                () -> assertEquals(bankName + " " + phoneNumber, actual.getDetails()),
+                () -> assertEquals(phoneNumber, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
                 () -> assertEquals(id.toString(), actual.getMerchantOrderId()),
                 () -> assertEquals(Status.PENDING.name(), actual.getMerchantOrderStatus())
         );
@@ -144,7 +144,8 @@ class HoneyMoneyOrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertAll(
-                () -> assertEquals("bankName " + cardNumber, actual.getDetails())
+                () -> assertEquals(cardNumber, actual.getDetails()),
+                () -> assertEquals("bankName", actual.getBank())
         );
     }
 

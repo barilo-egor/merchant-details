@@ -23,8 +23,6 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,7 +70,6 @@ class SettleX15OrderCreationServiceTest {
     void body(Integer amount, Method method, String gatewayUrl, String secret, String sbpId, String c2cId) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.SETTLE_X_15).methods(Collections.singletonList(method.name())).build()));
         detailsRequest.setMethod(method.name());
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
         when(callbackConfig.getCallbackSecret()).thenReturn(secret);
@@ -116,7 +113,8 @@ class SettleX15OrderCreationServiceTest {
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertAll(
-                () -> assertEquals(bankName + " " + cardName, actual.getDetails()),
+                () -> assertEquals(cardName, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(orderId, actual.getMerchantCustomId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),

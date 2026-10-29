@@ -75,15 +75,16 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     protected Optional<DetailsResponse> buildResponse(Response response) {
         String requisite;
         if (Method.SBP.equals(response.getMethod())) {
-            requisite = response.getRequisite().getBank() + " " + response.getRequisite().getSbpNumber();
+            requisite = response.getRequisite().getSbpNumber();
         } else {
-            requisite = response.getRequisite().getBank() + " " + response.getRequisite().getRequisites();
+            requisite = response.getRequisite().getRequisites();
         }
         DetailsResponse requisiteVO = new DetailsResponse();
         requisiteVO.setMerchant(getMerchant());
         requisiteVO.setMerchantOrderStatus(response.getStatus().name());
         requisiteVO.setMerchantOrderId(response.getId());
         requisiteVO.setDetails(requisite);
+        requisiteVO.setBank(response.getRequisite().getBank());
         return Optional.of(requisiteVO);
     }
 

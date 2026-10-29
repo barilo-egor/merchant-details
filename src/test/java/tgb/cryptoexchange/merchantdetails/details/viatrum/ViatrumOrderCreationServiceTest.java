@@ -12,11 +12,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.ViatrumProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,6 +128,50 @@ class ViatrumOrderCreationServiceTest {
 
         assertTrue(nonce > after);
         assertTrue(nonce <= before + 5 * 60_000);
+    }
+
+    @Test
+    void buildResponseShouldSetBankAndDetailsForCardReceiver() {
+        Response response = new Response();
+        Response.Data data = new Response.Data();
+        data.setId("viatrum-tx-100");
+        data.setStatus(Status.PENDING);
+        data.setBank("Sberbank");
+        data.setReceiver("2200112233445566");
+        response.setData(data);
+
+        Optional<DetailsResponse> result = viatrumOrderCreationService.buildResponse(response);
+        assertTrue(result.isPresent());
+        DetailsResponse detailsResponse = result.get();
+
+        assertAll(
+                () -> assertEquals("Sberbank", detailsResponse.getBank()),
+                () -> assertEquals("2200112233445566", detailsResponse.getDetails()),
+                () -> assertEquals("viatrum-tx-100", detailsResponse.getMerchantOrderId()),
+                () -> assertEquals(Status.PENDING.name(), detailsResponse.getMerchantOrderStatus()),
+                () -> assertEquals(Merchant.VIATRUM, detailsResponse.getMerchant()),
+                () -> assertNull(detailsResponse.getQr())
+        );
+    }
+
+    @Test
+    void buildResponseShouldSetQrWhenReceiverStartsWithHttps() {
+        Response response = new Response();
+        Response.Data data = new Response.Data();
+        data.setId("viatrum-tx-200");
+        data.setStatus(Status.PENDING);
+        data.setReceiver("https://pay.viatrum.com/qr/12345");
+        response.setData(data);
+
+        Optional<DetailsResponse> result = viatrumOrderCreationService.buildResponse(response);
+        assertTrue(result.isPresent());
+        DetailsResponse detailsResponse = result.get();
+
+        assertAll(
+                () -> assertNull(detailsResponse.getBank()),
+                () -> assertNull(detailsResponse.getDetails()),
+                () -> assertEquals("https://pay.viatrum.com/qr/12345", detailsResponse.getQr())
+        );
     }
 
     @Test

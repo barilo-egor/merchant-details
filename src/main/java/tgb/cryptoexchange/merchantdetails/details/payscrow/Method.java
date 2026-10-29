@@ -21,7 +21,7 @@ public enum Method implements MerchantMethod {
     TRIANGLE("53035abd-b34e-4bd7-9305-e5546320a3b9", "Треугольники", null),
     ALFA("df920cd2-321a-4da0-b1b5-832e32c4da0b", "Альфа-альфа", null),
     PSB("70c73aa1-163b-4721-856a-6e1ed8c5e4cb", "ПСБ-ПСБ", null),
-    GAZ_PROM("9469a889-f5cc-4d86-970f-45cfe30a8f13","Газпром-газпром", null),
+    GAZ_PROM("9469a889-f5cc-4d86-970f-45cfe30a8f13", "Газпром-газпром", null),
     OZON("e556810d-86fd-40fd-bbb4-d67cc59cbcc5", "Озон-озон", null),
     SIM("94eb8ffc-f900-47e1-89dd-ed8974780595", "SIM", null)
     ;

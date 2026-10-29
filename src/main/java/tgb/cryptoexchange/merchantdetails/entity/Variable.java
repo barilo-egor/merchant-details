@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
+import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 
 /**
  * Динамическая переменная
@@ -15,6 +16,12 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "variable", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uc_variable_config_type",
+                columnNames = {"type", "config_type"}
+        )
+})
 public class Variable {
 
     @Id
@@ -25,7 +32,7 @@ public class Variable {
      * Тип переменной
      */
     @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private VariableType type;
 
     /**
@@ -37,4 +44,7 @@ public class Variable {
     public Integer getInt() {
         return Integer.parseInt(value);
     }
+
+    @Enumerated(EnumType.STRING)
+    public ConfigType configType;
 }

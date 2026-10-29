@@ -72,7 +72,8 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
         detailsResponse.setAmount(requisites.getAmount().intValue());
         Method method = requisites.getMethod();
         detailsResponse.setPaymentMethod(method.name());
-        detailsResponse.setDetails(requisites.getBankName() + " " + requisites.getAddress());
+        detailsResponse.setBank(requisites.getBankName());
+        detailsResponse.setDetails(requisites.getAddress());
         return Optional.of(detailsResponse);
     }
 

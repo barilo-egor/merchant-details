@@ -238,13 +238,14 @@ class BucksPayOrderCreationServiceTest {
         DetailsResponse details = result.get();
         assertEquals("tx-100", details.getMerchantOrderId());
         assertEquals("PAID", details.getMerchantOrderStatus());
-        assertEquals("VisaBank 5555********4444", details.getDetails());
+        assertEquals("VisaBank", details.getBank());
+        assertEquals("5555********4444", details.getDetails());
         assertNull(details.getQr());
         assertEquals(Merchant.BUCKS_PAY, details.getMerchant());
     }
 
     @Test
-    void testBuildResponse_WithNSPK_ShouldReturnCardDetails() {
+    void testBuildResponse_WithNSPK_ShouldReturnQr() {
         Response response = new Response();
         response.setId("tx-100");
         response.setStatus(Status.PAID);
@@ -261,6 +262,7 @@ class BucksPayOrderCreationServiceTest {
         assertEquals("tx-100", details.getMerchantOrderId());
         assertEquals("PAID", details.getMerchantOrderStatus());
         assertEquals("https://qr.nspk.ru/", details.getQr());
+        assertNull(details.getBank());
         assertNull(details.getDetails());
         assertEquals(Merchant.BUCKS_PAY, details.getMerchant());
     }
@@ -280,7 +282,8 @@ class BucksPayOrderCreationServiceTest {
 
         assertTrue(result.isPresent());
         DetailsResponse details = result.get();
-        assertEquals("MobileBank +79991112233", details.getDetails());
+        assertEquals("MobileBank", details.getBank());
+        assertEquals("+79991112233", details.getDetails());
         assertNull(details.getQr());
     }
 

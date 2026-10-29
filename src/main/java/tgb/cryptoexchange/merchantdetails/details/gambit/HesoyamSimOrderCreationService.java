@@ -31,7 +31,8 @@ public class HesoyamSimOrderCreationService extends GambitOrderCreationService {
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setAmount(response.getAmount().intValue());
         Response.Requisites requisites = response.getPaymentDetails();
-        detailsResponse.setDetails(requisites.getOperator() + " " + requisites.getPhone());
+        detailsResponse.setBank(requisites.getOperator());
+        detailsResponse.setDetails(requisites.getPhone());
         return Optional.of(detailsResponse);
     }
 

@@ -34,10 +34,13 @@ public class HellBitBtOrderCreationService extends PayBoxOrderCreationService {
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId().toString());
 
-        if (Objects.nonNull(response.getPhoneNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getPhoneNumber());
-        } else if (Objects.nonNull(response.getCardNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getCardNumber());
+        if (Objects.nonNull(response.getPhoneNumber()) || Objects.nonNull(response.getCardNumber())) {
+            detailsResponse.setBank(response.getBankName());
+            if (Objects.nonNull(response.getPhoneNumber())) {
+                detailsResponse.setDetails(response.getPhoneNumber());
+            } else {
+                detailsResponse.setDetails(response.getCardNumber());
+            }
         } else if (Objects.nonNull(response.getPaymentLink())) {
             detailsResponse.setQr(response.getPaymentLink());
         }

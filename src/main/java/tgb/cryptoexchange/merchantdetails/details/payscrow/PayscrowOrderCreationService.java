@@ -64,7 +64,8 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getId());
         detailsResponse.setMerchantOrderStatus(response.getStatus().name());
-        detailsResponse.setDetails(response.getMethodName() + " " + response.getHolderAccount());
+        detailsResponse.setBank(response.getMethodName());
+        detailsResponse.setDetails(response.getHolderAccount());
         if (Objects.nonNull(response.getAmount())) {
             detailsResponse.setAmount(response.getAmount().intValue());
         }

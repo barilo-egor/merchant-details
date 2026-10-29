@@ -57,13 +57,13 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
 
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
-        Request request = new Request();
-        request.setPrice(detailsRequest.getAmount());
-        request.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
-        if (Objects.nonNull(detailsRequest.getChatId())) {
-            request.setClientId(hashids.encode(detailsRequest.getChatId()));
+        Request requestBody = new Request();
+        requestBody.setPrice(detailsRequest.getAmount());
+        requestBody.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
+        if (Objects.nonNull(detailsRequest.getUserId())) {
+            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
         }
-        return request;
+        return requestBody;
     }
 
     @Override
@@ -72,7 +72,8 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
         if (Objects.nonNull(response.getRequisitesType()) && isNeedQR(response.getRequisitesType())) {
             vo.setQr(response.getRequisites());
         } else {
-            vo.setDetails(response.getBankName() + " " + response.getRequisites());
+            vo.setBank(response.getBankName());
+            vo.setDetails(response.getRequisites());
         }
         vo.setMerchant(getMerchant());
         vo.setMerchantOrderId(response.getId().toString());

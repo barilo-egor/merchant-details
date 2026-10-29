@@ -59,7 +59,8 @@ public abstract class ManyPayOrderCreationService extends MerchantOrderCreationS
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
         Response.Data data = response.getData();
-        detailsResponse.setDetails(data.getPaymentDetails().getBankName() + " " + data.getPaymentDetails().getDetails());
+        detailsResponse.setBank(data.getPaymentDetails().getBankName());
+        detailsResponse.setDetails(data.getPaymentDetails().getDetails());
         detailsResponse.setMerchantOrderId(data.getOrderId());
         detailsResponse.setMerchantOrderStatus(data.getStatus().name());
         detailsResponse.setMerchant(getMerchant());

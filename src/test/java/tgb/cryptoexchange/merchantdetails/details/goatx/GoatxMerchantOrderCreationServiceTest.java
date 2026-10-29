@@ -98,7 +98,8 @@ class GoatxMerchantOrderCreationServiceTest {
         assertAll(
             () -> assertEquals(Merchant.GOAT_X, actual.getMerchant()),
             () -> assertEquals(id, actual.getMerchantOrderId()),
-            () -> assertEquals(bankName + " " + requisiteString, actual.getDetails()),
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bankName, actual.getBank()),
             () -> assertEquals(status.name(), actual.getMerchantOrderStatus())
         );
     }
@@ -122,6 +123,7 @@ class GoatxMerchantOrderCreationServiceTest {
         Optional<DetailsResponse> maybeActual = goatxMerchantOrderCreationService.buildResponse(response);
         assertTrue(maybeActual.isPresent());
         DetailsResponse actual = maybeActual.get();
-        assertEquals(bankName + " " + requisiteString, actual.getDetails());
+        assertEquals(requisiteString, actual.getDetails());
+        assertEquals(bankName, actual.getBank());
     }
 }

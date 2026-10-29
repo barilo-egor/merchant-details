@@ -93,10 +93,11 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setBank(response.getBankName());
         if (Objects.nonNull(response.getContactNumber())) {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getContactNumber());
+            detailsResponse.setDetails(response.getContactNumber());
         } else {
-            detailsResponse.setDetails(response.getBankName() + " " + response.getAccountNumber());
+            detailsResponse.setDetails(response.getAccountNumber());
         }
         detailsResponse.setMerchantOrderId(response.getOrderId());
         detailsResponse.setMerchant(getMerchant());

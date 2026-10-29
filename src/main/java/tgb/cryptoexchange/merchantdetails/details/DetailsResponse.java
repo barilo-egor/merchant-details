@@ -1,5 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -8,6 +10,8 @@ import org.apache.kafka.common.serialization.Serializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 
+import java.util.Objects;
+
 @Data
 public class DetailsResponse {
 
@@ -15,7 +19,11 @@ public class DetailsResponse {
 
     private Merchant merchant;
 
+    @JsonIgnore
     private String details;
+
+    @JsonIgnore
+    private String bank;
 
     private String merchantOrderId;
 
@@ -28,6 +36,20 @@ public class DetailsResponse {
     private String paymentMethod;
 
     private String qr;
+
+    @JsonProperty("details")
+    public String getFullDetails() {
+        if (Objects.isNull(this.bank) && Objects.isNull(this.details)) {
+            return null;
+        }
+        if (Objects.isNull(this.bank)) {
+            return this.details;
+        }
+        if (Objects.isNull(this.details)) {
+            return this.bank;
+        }
+        return this.bank + " " + this.details;
+    }
 
     @Slf4j
     public static class KafkaSerializer implements Serializer<DetailsResponse> {

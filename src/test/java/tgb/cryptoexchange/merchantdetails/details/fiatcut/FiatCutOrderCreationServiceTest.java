@@ -16,7 +16,9 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -68,7 +70,6 @@ class FiatCutOrderCreationServiceTest {
     void bodyShouldReturnMappedBody(Integer amount, String gatewayUrl, String method, String secret, String merchantId) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
-        detailsRequest.setMethods(List.of(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.FIAT_CUT).methods(Collections.singletonList(method)).build()));
         detailsRequest.setMethod(method);
         String expectedCallbackUrl = gatewayUrl + "/merchant-details/callback?merchant=FIAT_CUT&secret=" + secret;
         when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
@@ -109,7 +110,8 @@ class FiatCutOrderCreationServiceTest {
                 () -> assertEquals(Merchant.FIAT_CUT, actual.getMerchant()),
                 () -> assertEquals(id, actual.getMerchantOrderId()),
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
-                () -> assertEquals(bank + " " + requisiteString, actual.getDetails())
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
         );
     }
 

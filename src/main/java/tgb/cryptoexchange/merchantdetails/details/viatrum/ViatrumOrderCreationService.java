@@ -119,7 +119,8 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
         if (response.getData().getReceiver().startsWith("https")) {
             detailsResponse.setQr(response.getData().getReceiver());
         } else {
-            detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getReceiver());
+            detailsResponse.setBank(response.getData().getBank());
+            detailsResponse.setDetails(response.getData().getReceiver());
         }
         return Optional.of(detailsResponse);
     }

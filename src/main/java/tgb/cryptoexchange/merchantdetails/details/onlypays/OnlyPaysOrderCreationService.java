@@ -69,7 +69,8 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
     @Override
     protected Optional<DetailsResponse> buildResponse(Response response) {
         DetailsResponse detailsResponse = new DetailsResponse();
-        detailsResponse.setDetails(response.getData().getBank() + " " + response.getData().getRequisite());
+        detailsResponse.setBank(response.getData().getBank());
+        detailsResponse.setDetails(response.getData().getRequisite());
         detailsResponse.setMerchant(getMerchant());
         detailsResponse.setMerchantOrderId(response.getData().getId());
         detailsResponse.setMerchantOrderStatus(Status.WAITING.name());

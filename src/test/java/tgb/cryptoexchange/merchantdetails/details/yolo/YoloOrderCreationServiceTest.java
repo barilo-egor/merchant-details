@@ -23,9 +23,6 @@ import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -153,10 +150,7 @@ class YoloOrderCreationServiceTest {
     void body_ShouldMapCorrectly() {
         OrderCreationRequest request = new OrderCreationRequest();
         request.setAmount(1000);
-        List<OrderCreationRequest.MerchantMethod> methods = new ArrayList<>();
-        methods.add(OrderCreationRequest.MerchantMethod.builder().merchant(Merchant.YOLO).methods(Collections.singletonList("SBP")).build());
-        request.setMethods(methods);
-        request.setMethod("SBP");
+        request.setMethod(Method.SBP.name());
         when(callbackConfig.getGatewayUrl()).thenReturn("https://test.com");
         when(callbackConfig.getCallbackSecret()).thenReturn("secret123");
 
@@ -179,7 +173,8 @@ class YoloOrderCreationServiceTest {
         Optional<DetailsResponse> result = yoloService.buildResponse(response);
 
         assertTrue(result.isPresent());
-        assertEquals("Sber 79991234567", result.get().getDetails());
+        assertEquals("79991234567", result.get().getDetails());
+        assertEquals("Sber", result.get().getBank());
         assertEquals("order_1", result.get().getMerchantOrderId());
     }
 
@@ -194,6 +189,7 @@ class YoloOrderCreationServiceTest {
         Optional<DetailsResponse> result = yoloService.buildResponse(response);
 
         assertTrue(result.isPresent());
-        assertEquals("Tinkoff 123456789", result.get().getDetails());
+        assertEquals("123456789", result.get().getDetails());
+        assertEquals("Tinkoff", result.get().getBank());
     }
 }
