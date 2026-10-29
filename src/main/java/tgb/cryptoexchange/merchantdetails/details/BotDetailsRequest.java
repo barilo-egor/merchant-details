@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,11 +37,16 @@ public class BotDetailsRequest implements DetailsRequest {
     @Min(1)
     protected Integer amount;
 
+    @JsonAlias("chatId")
     protected String userId;
 
     protected List<MerchantMethod> methods;
 
     protected String initiatorApp;
+
+    protected String redirectUrl;
+
+    protected String phone;
 
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {

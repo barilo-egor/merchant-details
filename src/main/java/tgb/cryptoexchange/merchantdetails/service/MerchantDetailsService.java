@@ -73,7 +73,10 @@ public class MerchantDetailsService {
                     .id(request.getId())
                     .amount(request.getAmount())
                     .userId(request.getUserId())
-                    .method(merchantMethod).build();
+                    .method(merchantMethod)
+                    .redirectUrl(request.getRedirectUrl())
+                    .phone(request.getPhone())
+                    .build();
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
                 if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
