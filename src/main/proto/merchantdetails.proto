@@ -35,7 +35,7 @@ message PaginationGrpc {
 
 message MerchantConfigRequestGrpc {
   PaginationGrpc pagination = 1;
-  string merchant = 2;
+  repeated string merchants = 2;
   google.protobuf.Int32Value merchant_order = 3;
   string sort = 4;
 }

@@ -32,14 +32,13 @@ public class GrpcMapUtils {
 
     public static MerchantConfigRequest mapToMerchantConfigRequest(MerchantConfigRequestGrpc grpcRequest) {
         MerchantConfigRequest request = new MerchantConfigRequest();
-        if (StringUtils.isNotBlank(grpcRequest.getMerchant())) {
-            request.setMerchant(Merchant.valueOf(grpcRequest.getMerchant()));
-        }
-
         if (grpcRequest.hasMerchantOrder()) {
             request.setMerchantOrder(grpcRequest.getMerchantOrder().getValue());
         }
         request.setSort(grpcRequest.getSort());
+        if (!grpcRequest.getMerchantsList().isEmpty()) {
+            request.setMerchants(grpcRequest.getMerchantsList().stream().map(Merchant::valueOf).toList());
+        }
         return request;
     }
 
