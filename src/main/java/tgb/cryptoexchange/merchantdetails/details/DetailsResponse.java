@@ -10,6 +10,8 @@ import org.apache.kafka.common.serialization.Serializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 
+import java.util.Objects;
+
 @Data
 public class DetailsResponse {
 
@@ -37,10 +39,16 @@ public class DetailsResponse {
 
     @JsonProperty("details")
     public String getFullDetails() {
-        String result = this.bank;
-        result += " ";
-        result += this.details;
-        return result;
+        if (Objects.isNull(this.bank) && Objects.isNull(this.details)) {
+            return null;
+        }
+        if (Objects.isNull(this.bank)) {
+            return this.details;
+        }
+        if (Objects.isNull(this.details)) {
+            return this.bank;
+        }
+        return this.bank + " " + this.details;
     }
 
     @Slf4j

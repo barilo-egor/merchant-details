@@ -38,7 +38,6 @@ public class Variable {
     /**
      * Значение
      */
-    @Column(name = "variable_value")
     private String value;
 
     @Transient
