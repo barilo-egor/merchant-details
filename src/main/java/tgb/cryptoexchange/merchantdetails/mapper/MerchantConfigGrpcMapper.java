@@ -62,6 +62,12 @@ public class MerchantConfigGrpcMapper {
                             .build())
                     .toList());
         }
+        if (dto.getMinDealsCount() != null) {
+            builder.setMinDealsCount(dto.getMinDealsCount());
+        }
+        if (dto.getRequiredReceipt() != null) {
+            builder.setRequiredReceipt(dto.getRequiredReceipt().name());
+        }
         return builder.build();
     }
 
