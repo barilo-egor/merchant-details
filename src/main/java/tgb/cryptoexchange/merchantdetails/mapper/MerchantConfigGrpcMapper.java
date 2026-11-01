@@ -81,12 +81,19 @@ public class MerchantConfigGrpcMapper {
         if (StringUtils.isBlank(sortString)) {
             return Sort.unsorted();
         }
-        String[] parts = sortString.split(",");
-        String property = parts[0].trim();
-        Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-        return Sort.by(direction, property);
+        String[] orders = sortString.split(";");
+        java.util.List<Sort.Order> sortOrders = new java.util.ArrayList<>();
+        for (String orderStr : orders) {
+            String[] parts = orderStr.split(",");
+            if (parts.length > 0 && StringUtils.isNotBlank(parts[0])) {
+                String property = parts[0].trim();
+                Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC;
+                sortOrders.add(new Sort.Order(direction, property));
+            }
+        }
+        return sortOrders.isEmpty() ? Sort.unsorted() : Sort.by(sortOrders);
     }
 
 }
