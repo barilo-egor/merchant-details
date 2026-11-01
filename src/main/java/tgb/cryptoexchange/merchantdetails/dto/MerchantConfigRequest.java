@@ -4,6 +4,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Data
 public class MerchantConfigRequest {
 
-    private Merchant merchant;
+    private List<Merchant> merchants;
 
     private Integer merchantOrder;
 
@@ -27,8 +28,8 @@ public class MerchantConfigRequest {
         if (Objects.nonNull(merchantOrder)) {
             predicates.add(cb.equal(root.get("merchantOrder"), merchantOrder));
         }
-        if (Objects.nonNull(merchant)) {
-            predicates.add(cb.equal(root.get("merchant"), merchant));
+        if (!CollectionUtils.isEmpty(merchants)) {
+            predicates.add(root.get("merchant").in(merchants));
         }
         if (Objects.nonNull(ownerId)) {
             UUID ownerUuid = UUID.fromString(ownerId);
