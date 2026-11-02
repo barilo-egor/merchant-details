@@ -26,7 +26,6 @@ import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -163,9 +162,6 @@ public class ApiMerchantDetailsService {
                         .build();
                 apiDetailsResponse.setDetails(details);
                 apiDetailsResponse.setAmount(orderResponse.getAmount());
-                if (Objects.nonNull(merchantDetailsReceiveEventProducer)) {
-                    merchantDetailsReceiveEventProducer.put(merchant, merchantMethod, request, maybeDetailsResponse.get());
-                }
                 return Optional.of(apiDetailsResponse);
             }
         }
