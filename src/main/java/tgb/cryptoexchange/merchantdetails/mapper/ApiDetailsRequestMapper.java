@@ -77,8 +77,10 @@ public class ApiDetailsRequestMapper {
                 .setMerchant(response.getMerchant())
                 .setOrderId(response.getOrderId())
                 .setOrderStatus(response.getOrderStatus())
-                .setAmount(response.getAmount())
                 .setDetails(detailsBuilder.build());
+        if (Objects.nonNull(response.getAmount())) {
+            builder.setAmount(response.getAmount());
+        }
         return builder.build();
     }
 }
