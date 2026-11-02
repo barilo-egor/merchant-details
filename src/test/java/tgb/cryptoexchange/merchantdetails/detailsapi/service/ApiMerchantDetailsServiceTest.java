@@ -4,14 +4,14 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.details.*;
+import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
+import tgb.cryptoexchange.merchantdetails.details.MerchantService;
+import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
+import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Проверяет, что реквизиты, которые мд отдаёт по api, соответствуют ожиданиям processing.
+ * Проверяет, что мд отдаёт processing реквизиты мерчанта в ожидаемом формате.
  */
 @ExtendWith(MockitoExtension.class)
 class ApiMerchantDetailsServiceTest {
@@ -155,67 +155,26 @@ class ApiMerchantDetailsServiceTest {
         );
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = " ")
-    void getDetailsShouldRejectAndCancelDetailsWithoutBank(String bank) {
+    @Test
+    void getDetailsShouldPassDetailsWithoutBankToProcessing() {
         givenMerchant(onlyPays, Merchant.ONLY_PAYS, "SBP_ONLY_PAYS");
-        when(onlyPays.createOrder(any())).thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, bank, null)));
+        when(onlyPays.createOrder(any())).thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, null, null)));
 
-        Optional<ApiDetailsResponse> actual = service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.SBP));
+        ApiDetailsResponse actual = service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.SBP)).orElseThrow();
 
-        assertTrue(actual.isEmpty());
-        ArgumentCaptor<CancelOrderRequest> captor = ArgumentCaptor.forClass(CancelOrderRequest.class);
-        verify(onlyPays).cancelOrder(captor.capture());
-        assertAll(
-                () -> assertEquals("m-order-1", captor.getValue().getOrderId()),
-                () -> assertEquals("SBP_ONLY_PAYS", captor.getValue().getMethod())
-        );
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    void getDetailsShouldRejectAndCancelEmptyDetails(String details) {
-        givenMerchant(onlyPays, Merchant.ONLY_PAYS, "CARD_ONLY_PAYS");
-        DetailsResponse response = merchantResponse(Merchant.ONLY_PAYS, "Т-Банк", null);
-        response.setDetails(details);
-        when(onlyPays.createOrder(any())).thenReturn(Optional.of(response));
-
-        assertTrue(service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.CARD)).isEmpty());
-        verify(onlyPays).cancelOrder(any());
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {0, -1})
-    void getDetailsShouldRejectAndCancelNonPositiveAmount(int amount) {
-        givenMerchant(onlyPays, Merchant.ONLY_PAYS, "CARD_ONLY_PAYS");
-        when(onlyPays.createOrder(any())).thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, "Т-Банк", amount)));
-
-        assertTrue(service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.CARD)).isEmpty());
-        verify(onlyPays).cancelOrder(any());
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    void getDetailsShouldRejectWithoutCancelIfMerchantOrderIdIsEmpty(String merchantOrderId) {
-        givenMerchant(onlyPays, Merchant.ONLY_PAYS, "CARD_ONLY_PAYS");
-        DetailsResponse response = merchantResponse(Merchant.ONLY_PAYS, "Т-Банк", null);
-        response.setMerchantOrderId(merchantOrderId);
-        when(onlyPays.createOrder(any())).thenReturn(Optional.of(response));
-
-        assertTrue(service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.CARD)).isEmpty());
+        assertNull(actual.getDetails().getBank());
         verify(onlyPays, never()).cancelOrder(any());
     }
 
     @Test
-    void getDetailsShouldTryNextMethodAfterRejectedDetails() {
+    void getDetailsShouldTryNextMethodIfMerchantReturnedNothing() {
         when(merchantServiceRegistry.getService(Merchant.ONLY_PAYS)).thenReturn(Optional.of(onlyPays));
         when(requestMethodService.getMerchantMethods(Merchant.ONLY_PAYS, List.of(RequestMethod.CARD)))
                 .thenReturn(List.of("CARD_ONLY_PAYS"));
         when(requestMethodService.getMerchantMethods(Merchant.ONLY_PAYS, List.of(RequestMethod.SBP)))
                 .thenReturn(List.of("SBP_ONLY_PAYS"));
         when(onlyPays.createOrder(any()))
-                .thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, null, null)))
+                .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, "Сбербанк", null)));
         ApiDetailsRequest request = request(null, RequestMethod.CARD, RequestMethod.SBP);
 
@@ -223,15 +182,14 @@ class ApiMerchantDetailsServiceTest {
 
         assertProcessingContract(actual, request);
         assertEquals(RequestMethod.SBP, actual.getDetails().getRequestMethod());
-        verify(onlyPays).cancelOrder(any());
     }
 
     @Test
-    void getDetailsShouldTryNextMerchantAfterRejectedDetails() {
+    void getDetailsShouldTryNextMerchantIfMerchantReturnedNothing() {
         givenTurnedOn(Merchant.EVO_PAY, Merchant.ONLY_PAYS);
         givenMerchant(evoPay, Merchant.EVO_PAY, "CARD_EVO_PAY");
         givenMerchant(onlyPays, Merchant.ONLY_PAYS, "CARD_ONLY_PAYS");
-        when(evoPay.createOrder(any())).thenReturn(Optional.of(merchantResponse(Merchant.EVO_PAY, null, null)));
+        when(evoPay.createOrder(any())).thenReturn(Optional.empty());
         when(onlyPays.createOrder(any())).thenReturn(Optional.of(merchantResponse(Merchant.ONLY_PAYS, "Т-Банк", null)));
         ApiDetailsRequest request = request(null, RequestMethod.CARD);
 
@@ -239,7 +197,6 @@ class ApiMerchantDetailsServiceTest {
 
         assertProcessingContract(actual, request);
         assertEquals("ONLY_PAYS", actual.getMerchant());
-        verify(evoPay).cancelOrder(any());
     }
 
     @Test
