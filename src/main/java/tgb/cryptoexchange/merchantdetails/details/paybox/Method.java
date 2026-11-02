@@ -18,7 +18,8 @@ public enum Method implements MerchantMethod {
     VTB_QR("VTB QR", "/internal-qr", "ВТБ", null),
     VIET_QR("Вьетнам QR", "/viet-qr", null, null),
     T_BANK_TRANS_CARD_DL("Трансгран карта Т-Банк DL", "/transgran-card-tbank", null, null),
-    VTB_TRANS_SBP_DL("Трансгран СБП ВТБ DL", "/transgran-sbp-vtb", null, null);
+    VTB_TRANS_SBP_DL("Трансгран СБП ВТБ DL", "/transgran-sbp-vtb", null, null),
+    ACCOUNT_PSB("Счет ПСБ", "/account", "ПромСвязьБанк", null);
 
     final String description;
 
