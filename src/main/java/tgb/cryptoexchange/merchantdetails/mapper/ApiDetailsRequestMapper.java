@@ -9,6 +9,7 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -73,17 +74,23 @@ public class ApiDetailsRequestMapper {
     }
 
     public DetailsResponseGrpc mapToGrpcDto(ApiDetailsResponse response) {
-        return DetailsResponseGrpc.newBuilder()
+        DetailsGrpc.Builder detailsBuilder = DetailsGrpc.newBuilder()
+                .setRequestMethod(response.getDetails().getRequestMethod().name())
+                .setDetails(response.getDetails().getDetails())
+                .setBank(response.getDetails().getBank());
+        if (Objects.nonNull(response.getDetails().getBank())) {
+            detailsBuilder.setBank(response.getDetails().getBank());
+        }
+        DetailsResponseGrpc.Builder builder = DetailsResponseGrpc.newBuilder()
                 .setRequestId(response.getRequestId())
                 .setMerchant(response.getMerchant())
                 .setOrderId(response.getOrderId())
                 .setOrderStatus(response.getOrderStatus())
                 .setAmount(response.getAmount())
-                .setDetails(DetailsGrpc.newBuilder()
-                        .setRequestMethod(response.getDetails().getRequestMethod().name())
-                        .setDetails(response.getDetails().getDetails())
-                        .setBank(response.getDetails().getBank())
-                        .build())
-                .build();
+                .setDetails(detailsBuilder.build());
+        if (Objects.nonNull(response.getRequestId())) {
+            builder.setRequestId(response.getRequestId());
+        }
+        return builder.build();
     }
 }
