@@ -63,7 +63,7 @@ public class ApiMerchantDetailsService {
         Optional<ApiDetailsResponse> maybeDetailsResponse;
         List<ApiMerchantConfig> merchantConfigList = merchantConfigService.findAllTurnedByMerchantsAndOwnerId(
                 requestMethodService.getMerchants(request.getRequestMethods()), request.getOwnerId());
-        log.debug("Найденные мерчанты для api-запроса {}: {}", request.getRequestId(),
+        log.debug("Найденные мерчанты для api-запроса {}: {}", request.getInternalId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
                         .collect(Collectors.joining(","))
@@ -80,7 +80,7 @@ public class ApiMerchantDetailsService {
                     "date", today,
                     "configType", ConfigType.API.name()
             ).increment();
-            log.debug("Реквизиты для api-сделки {} у мерчантов получены не были.", request.getRequestId());
+            log.debug("Реквизиты для api-сделки {} у мерчантов получены не были.", request.getInternalId());
         } else {
             meterRegistry.counter(Metrics.GET_DETAILS_RESULT_API, STATUS, "success",
                     "date", today,
@@ -101,7 +101,7 @@ public class ApiMerchantDetailsService {
             Merchant merchant = merchantConfigList.get(index).getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
             try {
-                log.debug("Попытка мерчанта {} для api-сделки {}.", merchant.name(), request.getRequestId());
+                log.debug("Попытка мерчанта {} для api-сделки {}.", merchant.name(), request.getInternalId());
                 maybeDetailsResponse = getDetails(merchant, request);
                 sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS_API, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
@@ -111,10 +111,10 @@ public class ApiMerchantDetailsService {
                 }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{}: {}",
-                        merchant.name(), request.getRequestId(), e.getMessage(), e);
+                        merchant.name(), request.getInternalId(), e.getMessage(), e);
                 meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
                 if (e instanceof WebClientResponseException responseException) {
-                    log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getRequestId(), responseException.getResponseBodyAsString());
+                    log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getInternalId(), responseException.getResponseBodyAsString());
                 }
             }
 
@@ -143,7 +143,7 @@ public class ApiMerchantDetailsService {
 
             for (String merchantMethod : merchantMethods) {
                 OrderCreationRequest orderRequest = OrderCreationRequest.builder()
-                        .requestId(request.getRequestId())
+                        .requestId(request.getInternalId())
                         .id(request.getInternalId())
                         .amount(request.getAmount())
                         .userId(request.getUserId())
@@ -152,7 +152,6 @@ public class ApiMerchantDetailsService {
                 if (maybeDetailsResponse.isPresent()) {
                     DetailsResponse orderResponse = maybeDetailsResponse.get();
                     ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
-                    apiDetailsResponse.setRequestId(orderResponse.getRequestId());
                     apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
                     apiDetailsResponse.setOrderStatus(orderResponse.getMerchantOrderStatus());
                     apiDetailsResponse.setMerchant(orderResponse.getMerchant().name());
