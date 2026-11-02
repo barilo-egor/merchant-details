@@ -135,36 +135,39 @@ public class ApiMerchantDetailsService {
             return Optional.empty();
         }
 
-        List<String> merchantMethods = requestMethodService.getMerchantMethods(merchant, request.getRequestMethods());
-        if (CollectionUtils.isEmpty(merchantMethods)) {
-            throw new MerchantMethodNotFoundException("Methods for merchant " + merchant.name() + " not found.");
-        }
+        for (RequestMethod requestMethod : request.getRequestMethods()) {
+            List<String> merchantMethods = requestMethodService.getMerchantMethods(merchant, List.of(requestMethod));
+            if (CollectionUtils.isEmpty(merchantMethods)) {
+                throw new MerchantMethodNotFoundException("Methods for merchant " + merchant.name() + " not found.");
+            }
 
-        for (String merchantMethod : merchantMethods) {
-            OrderCreationRequest orderRequest = OrderCreationRequest.builder()
-                    .requestId(request.getRequestId())
-                    .id(request.getInternalId())
-                    .amount(request.getAmount())
-                    .userId(request.getUserId())
-                    .method(merchantMethod).build();
-            Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
-            if (maybeDetailsResponse.isPresent()) {
-                DetailsResponse orderResponse = maybeDetailsResponse.get();
-                ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
-                apiDetailsResponse.setRequestId(orderResponse.getRequestId());
-                apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
-                apiDetailsResponse.setOrderStatus(orderResponse.getMerchantOrderStatus());
-                apiDetailsResponse.setMerchant(orderResponse.getMerchant().name());
-                Details details = Details.builder()
-                        .requestMethod(RequestMethod.valueOf(merchantMethod))
-                        .details(orderResponse.getDetails())
-                        .bank(orderResponse.getBank())
-                        .build();
-                apiDetailsResponse.setDetails(details);
-                apiDetailsResponse.setAmount(orderResponse.getAmount());
-                return Optional.of(apiDetailsResponse);
+            for (String merchantMethod : merchantMethods) {
+                OrderCreationRequest orderRequest = OrderCreationRequest.builder()
+                        .requestId(request.getRequestId())
+                        .id(request.getInternalId())
+                        .amount(request.getAmount())
+                        .userId(request.getUserId())
+                        .method(merchantMethod).build();
+                Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
+                if (maybeDetailsResponse.isPresent()) {
+                    DetailsResponse orderResponse = maybeDetailsResponse.get();
+                    ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
+                    apiDetailsResponse.setRequestId(orderResponse.getRequestId());
+                    apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
+                    apiDetailsResponse.setOrderStatus(orderResponse.getMerchantOrderStatus());
+                    apiDetailsResponse.setMerchant(orderResponse.getMerchant().name());
+                    Details details = Details.builder()
+                            .requestMethod(requestMethod)
+                            .details(orderResponse.getDetails())
+                            .bank(orderResponse.getBank())
+                            .build();
+                    apiDetailsResponse.setDetails(details);
+                    apiDetailsResponse.setAmount(orderResponse.getAmount());
+                    return Optional.of(apiDetailsResponse);
+                }
             }
         }
+
         return Optional.empty();
     }
 
