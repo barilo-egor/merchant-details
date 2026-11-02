@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.details.paybox;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class HellBitReceiptOrderCreationService extends PayBoxOrderCreationService {
+@Slf4j
+public class HellBitReceiptOrderCreationService extends ReceiptOrderCreationService {
 
     protected HellBitReceiptOrderCreationService(@Qualifier("hellBitWebClient") WebClient webClient,
                                                  HellBitReceiptProperties hellBitProperties) {
