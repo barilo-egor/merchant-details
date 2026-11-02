@@ -11,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.NorosProperties;
+import tgb.cryptoexchange.merchantdetails.util.ClientIdUtils;
 
 import java.net.URI;
 import java.util.Objects;
@@ -55,7 +56,7 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
         requestBody.setAmount(detailsRequest.getAmount());
         requestBody.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         if (Objects.nonNull(detailsRequest.getUserId())) {
-            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
+            requestBody.setClientId(ClientIdUtils.encode(hashids, detailsRequest.getUserId()));
         }
         return requestBody;
     }

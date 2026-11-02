@@ -29,8 +29,6 @@ public class ApiDetailsRequestMapper {
         }
         if (grpc.hasUserId() && !grpc.getUserId().isEmpty()) {
             apiDetailsRequest.setUserId(grpc.getUserId());
-        } else {
-            throwInvalidArgumentException("userId");
         }
 
         // 4. amount (int32 -> дефолтное значение 0, проверяем, что передано больше 0)
