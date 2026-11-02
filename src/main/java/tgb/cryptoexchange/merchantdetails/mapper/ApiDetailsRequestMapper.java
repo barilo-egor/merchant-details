@@ -17,11 +17,6 @@ public class ApiDetailsRequestMapper {
 
     public ApiDetailsRequest mapGrpcToDto(DetailsRequestGrpc grpc) {
         ApiDetailsRequest apiDetailsRequest = new ApiDetailsRequest();
-        if (!grpc.getRequestId().isEmpty()) {
-            apiDetailsRequest.setRequestId(grpc.getRequestId());
-        } else {
-            throwInvalidArgumentException("requestId");
-        }
         if (!grpc.getInternalId().isEmpty()) {
             apiDetailsRequest.setInternalId(grpc.getInternalId());
         } else {
@@ -29,8 +24,6 @@ public class ApiDetailsRequestMapper {
         }
         if (grpc.hasUserId() && !grpc.getUserId().isEmpty()) {
             apiDetailsRequest.setUserId(grpc.getUserId());
-        } else {
-            throwInvalidArgumentException("userId");
         }
 
         // 4. amount (int32 -> дефолтное значение 0, проверяем, что передано больше 0)
@@ -76,20 +69,17 @@ public class ApiDetailsRequestMapper {
     public DetailsResponseGrpc mapToGrpcDto(ApiDetailsResponse response) {
         DetailsGrpc.Builder detailsBuilder = DetailsGrpc.newBuilder()
                 .setRequestMethod(response.getDetails().getRequestMethod().name())
-                .setDetails(response.getDetails().getDetails())
-                .setBank(response.getDetails().getBank());
+                .setDetails(response.getDetails().getDetails());
         if (Objects.nonNull(response.getDetails().getBank())) {
             detailsBuilder.setBank(response.getDetails().getBank());
         }
         DetailsResponseGrpc.Builder builder = DetailsResponseGrpc.newBuilder()
-                .setRequestId(response.getRequestId())
                 .setMerchant(response.getMerchant())
                 .setOrderId(response.getOrderId())
                 .setOrderStatus(response.getOrderStatus())
-                .setAmount(response.getAmount())
                 .setDetails(detailsBuilder.build());
-        if (Objects.nonNull(response.getRequestId())) {
-            builder.setRequestId(response.getRequestId());
+        if (Objects.nonNull(response.getAmount())) {
+            builder.setAmount(response.getAmount());
         }
         return builder.build();
     }

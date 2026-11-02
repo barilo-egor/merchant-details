@@ -158,7 +158,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
                 detailsRequestSearchExecutorApi.execute(() -> processDetailsRequest(requestGrpc, responseObserver));
             } catch (RejectedExecutionException e) {
                 log.error("Пул потоков переполнен при обработке запроса реквизитов (requestId='{}')",
-                        requestGrpc.getRequestId(), e);
+                        requestGrpc.getInternalId(), e);
                 responseObserver.onError(Status.RESOURCE_EXHAUSTED
                         .withDescription("Server is overloaded")
                         .asRuntimeException());
@@ -174,11 +174,11 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
             responseObserver.onCompleted();
         } catch (StatusRuntimeException e) {
             log.warn("gRPC ошибка при обработке запроса реквизитов (requestId='{}'): {}",
-                    requestGrpc.getRequestId(), e.getMessage());
+                    requestGrpc.getInternalId(), e.getMessage());
             responseObserver.onError(e);
         } catch (Exception e) {
             log.error("Ошибка при обработке запроса реквизитов (requestId='{}')",
-                    requestGrpc.getRequestId(), e);
+                    requestGrpc.getInternalId(), e);
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Internal error: " + e.getMessage())
                     .asRuntimeException());
@@ -214,7 +214,6 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
                 : "";
 
         return DetailsResponseGrpc.newBuilder()
-                .setRequestId(requestGrpc.getRequestId())
                 .setMerchant(Merchant.LOTRIEN.name())
                 .setOrderId(UUID.randomUUID().toString())
                 .setOrderStatus(CREATED.name())

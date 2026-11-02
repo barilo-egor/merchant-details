@@ -17,6 +17,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
+import tgb.cryptoexchange.merchantdetails.util.ClientIdUtils;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -61,7 +62,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
         requestBody.setPrice(detailsRequest.getAmount());
         requestBody.setRequisitesType(parseMethod(detailsRequest.getMethod(), Method.class));
         if (Objects.nonNull(detailsRequest.getUserId())) {
-            requestBody.setClientId(hashids.encode(Long.parseLong(detailsRequest.getUserId())));
+            requestBody.setClientId(ClientIdUtils.encode(hashids, detailsRequest.getUserId()));
         }
         return requestBody;
     }
