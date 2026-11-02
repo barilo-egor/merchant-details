@@ -69,8 +69,7 @@ public class ApiDetailsRequestMapper {
     public DetailsResponseGrpc mapToGrpcDto(ApiDetailsResponse response) {
         DetailsGrpc.Builder detailsBuilder = DetailsGrpc.newBuilder()
                 .setRequestMethod(response.getDetails().getRequestMethod().name())
-                .setDetails(response.getDetails().getDetails())
-                .setBank(response.getDetails().getBank());
+                .setDetails(response.getDetails().getDetails());
         if (Objects.nonNull(response.getDetails().getBank())) {
             detailsBuilder.setBank(response.getDetails().getBank());
         }
