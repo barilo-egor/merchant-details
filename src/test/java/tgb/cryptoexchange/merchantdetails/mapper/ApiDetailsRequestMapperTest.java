@@ -31,7 +31,7 @@ class ApiDetailsRequestMapperTest {
         DetailsResponseGrpc actual = mapper.mapToGrpcDto(response(null, null));
         assertAll(
                 () -> assertFalse(actual.hasAmount()),
-                () -> assertEquals("", actual.getDetails().getBank()),
+                () -> assertFalse(actual.getDetails().hasBank()),
                 () -> assertEquals("ONLY_PAYS", actual.getMerchant()),
                 () -> assertEquals("1234 1234 1234 1234", actual.getDetails().getDetails())
         );
