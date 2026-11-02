@@ -13,8 +13,6 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiDetailsRequest implements DetailsRequest {
 
-    private String requestId;
-
     private String internalId;
 
     private String userId;

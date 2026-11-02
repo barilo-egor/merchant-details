@@ -36,7 +36,7 @@ public class GrpcValidator {
     public static StatusRuntimeException detailsNotFound(ApiDetailsRequest request) {
         ResourceInfo resourceInfo = ResourceInfo.newBuilder()
                 .setResourceType("ApiDetailsRequest")
-                .setResourceName(request.getRequestId())
+                .setResourceName(request.getInternalId())
                 .setDescription("Реквизиты для api-сделки получены не были")
                 .build();
 

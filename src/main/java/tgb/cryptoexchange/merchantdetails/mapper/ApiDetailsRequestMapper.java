@@ -17,11 +17,6 @@ public class ApiDetailsRequestMapper {
 
     public ApiDetailsRequest mapGrpcToDto(DetailsRequestGrpc grpc) {
         ApiDetailsRequest apiDetailsRequest = new ApiDetailsRequest();
-        if (!grpc.getRequestId().isEmpty()) {
-            apiDetailsRequest.setRequestId(grpc.getRequestId());
-        } else {
-            throwInvalidArgumentException("requestId");
-        }
         if (!grpc.getInternalId().isEmpty()) {
             apiDetailsRequest.setInternalId(grpc.getInternalId());
         } else {
@@ -82,15 +77,11 @@ public class ApiDetailsRequestMapper {
             detailsBuilder.setBank(response.getDetails().getBank());
         }
         DetailsResponseGrpc.Builder builder = DetailsResponseGrpc.newBuilder()
-                .setRequestId(response.getRequestId())
                 .setMerchant(response.getMerchant())
                 .setOrderId(response.getOrderId())
                 .setOrderStatus(response.getOrderStatus())
                 .setAmount(response.getAmount())
                 .setDetails(detailsBuilder.build());
-        if (Objects.nonNull(response.getRequestId())) {
-            builder.setRequestId(response.getRequestId());
-        }
         return builder.build();
     }
 }
