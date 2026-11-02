@@ -92,6 +92,7 @@ class PwPayOrderCreationServiceTest {
     void bodyShouldBuildRequestObject(int amount) {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(Method.CARD.name());
 
         Request actual = pwPayOrderCreationService.body(detailsRequest);
 
