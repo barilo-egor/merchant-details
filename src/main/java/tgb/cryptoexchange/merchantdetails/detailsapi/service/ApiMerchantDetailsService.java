@@ -6,12 +6,11 @@ import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
-import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
-import tgb.cryptoexchange.merchantdetails.details.MerchantServiceRegistry;
-import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.Details;
@@ -26,6 +25,7 @@ import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -151,6 +151,15 @@ public class ApiMerchantDetailsService {
                 Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
                 if (maybeDetailsResponse.isPresent()) {
                     DetailsResponse orderResponse = maybeDetailsResponse.get();
+                    if (!isComplete(orderResponse)) {
+                        log.warn("Мерчант {} вернул неполные реквизиты для api-сделки {} (orderId={}, есть реквизиты={}, " +
+                                        "есть банк={}, сумма={}), ордер мерчанта будет отменён.",
+                                merchant.name(), request.getInternalId(), orderResponse.getMerchantOrderId(),
+                                StringUtils.hasText(orderResponse.getDetails()), StringUtils.hasText(orderResponse.getBank()),
+                                orderResponse.getAmount());
+                        cancelIncomplete(maybeCreationService.get(), orderResponse, merchantMethod);
+                        continue;
+                    }
                     ApiDetailsResponse apiDetailsResponse = new ApiDetailsResponse();
                     apiDetailsResponse.setOrderId(orderResponse.getMerchantOrderId());
                     apiDetailsResponse.setOrderStatus(orderResponse.getMerchantOrderStatus());
@@ -168,6 +177,30 @@ public class ApiMerchantDetailsService {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Проверяет, что ответ мерчанта содержит всё, что processing ожидает от реквизитов:
+     * идентификатор ордера мерчанта, реквизиты, банк (оператор для СБП) и положительную сумму, если она передана.
+     *
+     * @param response ответ мерчанта
+     * @return {@code true}, если реквизиты можно отдать processing
+     */
+    private boolean isComplete(DetailsResponse response) {
+        return StringUtils.hasText(response.getMerchantOrderId())
+                && StringUtils.hasText(response.getDetails())
+                && StringUtils.hasText(response.getBank())
+                && (Objects.isNull(response.getAmount()) || response.getAmount() > 0);
+    }
+
+    private void cancelIncomplete(MerchantService service, DetailsResponse response, String merchantMethod) {
+        if (!StringUtils.hasText(response.getMerchantOrderId())) {
+            return;
+        }
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderId(response.getMerchantOrderId());
+        cancelOrderRequest.setMethod(merchantMethod);
+        service.cancelOrder(cancelOrderRequest);
     }
 
 }
