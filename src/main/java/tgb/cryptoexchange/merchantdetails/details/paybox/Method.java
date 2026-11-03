@@ -12,6 +12,8 @@ import java.util.Optional;
 public enum Method implements MerchantMethod {
     CARD("Карта", "/card", null, RequestMethod.CARD),
     SBP("СБП", "/sbp", null, RequestMethod.SBP),
+    CARD_RECEIPT("Карта (чеки)", "/card-pdf", null, RequestMethod.CARD),
+    SBP_RECEIPT("СБП (чеки)", "/sbp-pdf", null, RequestMethod.SBP),
     TRANSGRAN_SBP("Трансгран СБП", "/transgran-sbp", null, null),
     QR("QR", "/qr", null, null),
     SBER_QR("Сбер QR", "/internal-qr", "Сбербанк", null),
