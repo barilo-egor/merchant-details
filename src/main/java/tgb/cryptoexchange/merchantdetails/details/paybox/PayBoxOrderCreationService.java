@@ -56,6 +56,11 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount());
         request.setMerchantTransactionId(UUID.randomUUID().toString());
+
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        if (Method.ACCOUNT_PSB.equals(method)) {
+            request.setPayerBankName(method.getBankName());
+        }
         return request;
     }
 

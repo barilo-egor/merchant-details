@@ -389,6 +389,10 @@ public enum MerchantConstants {
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
     ),
+    HELLBIT_RECEIPT(
+            tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
+            tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()
+    ),
     HELLBIT_BT(
             tgb.cryptoexchange.merchantdetails.details.paybox.Status.values(),
             tgb.cryptoexchange.merchantdetails.details.paybox.Method.values()

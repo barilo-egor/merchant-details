@@ -8,9 +8,12 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.function.Function;
 
 @Slf4j
 public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationService {
@@ -25,7 +28,7 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
         byte[] fileContent;
         try {
-            bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
+            addOrderIdPart(bodyBuilder, orderId);
             fileContent = multipartFile.getBytes();
             String fileName = multipartFile.getOriginalFilename();
             bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
@@ -34,7 +37,7 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
             requestService.request(
                     webClient,
                     HttpMethod.POST,
-                    uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build(),
+                    receiptUriBuilder(orderId),
                     headers -> {
                         headers.add("Authorization", "Bearer " + payBoxProperties.token());
                     },
@@ -49,19 +52,26 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-        bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
+        addOrderIdPart(bodyBuilder, orderId);
         bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
                 .filename(fileName)
                 .contentType(MediaType.APPLICATION_PDF);
         requestService.request(
                 webClient,
                 HttpMethod.POST,
-                uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build(),
+                receiptUriBuilder(orderId),
                 headers -> headers.add("Authorization", "Bearer " + payBoxProperties.token()),
                 BodyInserters.fromMultipartData(bodyBuilder.build()),
                 t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
         );
     }
 
+    protected Function<UriBuilder, URI> receiptUriBuilder(String orderId) {
+        return uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build();
+    }
+
+    protected void addOrderIdPart(MultipartBodyBuilder bodyBuilder, String orderId) {
+        bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
+    }
 
 }
