@@ -16,6 +16,9 @@ public class Request {
     @JsonProperty("bank_name")
     private String bankName;
 
+    @JsonProperty("payer_bank_name")
+    private String payerBankName;
+
     @JsonProperty("currency")
     public String getCurrency() {
         return "RUB";

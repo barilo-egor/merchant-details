@@ -376,6 +376,9 @@ hell-bit:
 hell-bit-bt:
   token:
   sign-key:
+hell-bit-receipt:
+  token:
+  sign-key:
 # Конфиг приложение
 springdoc:
   swagger-ui:

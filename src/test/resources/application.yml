@@ -394,6 +394,16 @@ bit-bolide-wt:
 bit-bolide-deep-link:
   url: "bit-bolide-deep-link-url"
   token: "bit-bolide-deep-link-token"
+hell-bit:
+  url: "hell-bit-url"
+  token: "hell-bit-token"
+  sign-key: "hell-bit-sign-key"
+hell-bit-bt:
+  token: "hell-bit-bt-token"
+  sign-key: "hell-bit-bt-sign-key"
+hell-bit-receipt:
+  token: "hell-bit-receipt-token"
+  sign-key: "hell-bit-receipt-sign-key"
 #Конфиг приложния
 server:
   servlet:

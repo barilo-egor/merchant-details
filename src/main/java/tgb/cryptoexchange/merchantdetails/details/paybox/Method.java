@@ -12,13 +12,16 @@ import java.util.Optional;
 public enum Method implements MerchantMethod {
     CARD("Карта", "/card", null, RequestMethod.CARD),
     SBP("СБП", "/sbp", null, RequestMethod.SBP),
+    CARD_RECEIPT("Карта (чеки)", "/card-pdf", null, RequestMethod.CARD),
+    SBP_RECEIPT("СБП (чеки)", "/sbp-pdf", null, RequestMethod.SBP),
     TRANSGRAN_SBP("Трансгран СБП", "/transgran-sbp", null, null),
     QR("QR", "/qr", null, null),
     SBER_QR("Сбер QR", "/internal-qr", "Сбербанк", null),
     VTB_QR("VTB QR", "/internal-qr", "ВТБ", null),
     VIET_QR("Вьетнам QR", "/viet-qr", null, null),
     T_BANK_TRANS_CARD_DL("Трансгран карта Т-Банк DL", "/transgran-card-tbank", null, null),
-    VTB_TRANS_SBP_DL("Трансгран СБП ВТБ DL", "/transgran-sbp-vtb", null, null);
+    VTB_TRANS_SBP_DL("Трансгран СБП ВТБ DL", "/transgran-sbp-vtb", null, null),
+    ACCOUNT_PSB("Счет ПСБ", "/account", "ПромСвязьБанк", null);
 
     final String description;
 
