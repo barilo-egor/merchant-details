@@ -95,10 +95,6 @@ payscrow:
 appexbit:
   url: ""
   key: ""
-mobius:
-  url: ""
-  token: ""
-  merchant-id: ""
 geo-transfer:
   url: ""
   token: ""
@@ -380,12 +376,6 @@ hell-bit-receipt:
   token:
   sign-key:
 # Конфиг приложение
-springdoc:
-  swagger-ui:
-    enabled: "true"
-    path: "/swagger"
-  api-docs:
-    path: "/swagger/api-docs"
 server:
   port:
 spring:
