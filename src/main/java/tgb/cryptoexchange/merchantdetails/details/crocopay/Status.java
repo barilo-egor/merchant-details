@@ -1,13 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 @Getter
 @AllArgsConstructor
@@ -29,10 +27,10 @@ public enum Status implements MerchantOrderStatus {
         return null;
     }
 
-    public static class Deserializer extends JsonDeserializer<Status> {
+    public static class Deserializer extends ValueDeserializer<Status> {
 
         @Override
-        public Status deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Status deserialize(JsonParser p, DeserializationContext ctxt) {
             return Status.fromValue(p.getValueAsString().toUpperCase());
         }
     }

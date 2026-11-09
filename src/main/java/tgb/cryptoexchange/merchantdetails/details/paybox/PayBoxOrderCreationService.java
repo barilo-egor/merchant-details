@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.paybox;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +11,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Objects;
@@ -92,18 +92,18 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
                     return isUnableToGetRequisites(response) || isInternalServerError(response);
                 } else if (e instanceof WebClientResponseException.UnprocessableEntity ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
-                    if (response.has("code") && response.get("code").asText().equals("422")
+                    if (response.has("code") && response.get("code").asString().equals("422")
                             && response.has("errors")) {
                         JsonNode errors = response.get("errors");
                         if (errors.has("amount")) {
                             JsonNode amount = errors.get("amount");
                             return amount.isArray() && amount.size() == 1
-                                    && amount.get(0).asText().startsWith("Amount should be");
+                                    && amount.get(0).asString().startsWith("Amount should be");
                         }
                     }
                     return false;
                 }
-            } catch (JsonProcessingException jsonProcessingException) {
+            } catch (JacksonException jsonProcessingException) {
                 return false;
             }
             return false;
@@ -111,14 +111,14 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     }
 
     private boolean isInternalServerError(JsonNode response) {
-        return response.has(MESSAGE_FIELD) && response.get(MESSAGE_FIELD).asText().equals("Internal Server Error");
+        return response.has(MESSAGE_FIELD) && response.get(MESSAGE_FIELD).asString().equals("Internal Server Error");
     }
 
     private boolean isUnableToGetRequisites(JsonNode response) {
         return response.has("code")
                 && response.get("code").asInt() == 1
                 && response.has(MESSAGE_FIELD)
-                && response.get(MESSAGE_FIELD).asText().equals("Unable to get requisites.");
+                && response.get(MESSAGE_FIELD).asString().equals("Unable to get requisites.");
     }
 
     @Override

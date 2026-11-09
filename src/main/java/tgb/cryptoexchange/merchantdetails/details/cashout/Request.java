@@ -2,8 +2,8 @@ package tgb.cryptoexchange.merchantdetails.details.cashout;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 @JsonPropertyOrder(alphabetic = true)

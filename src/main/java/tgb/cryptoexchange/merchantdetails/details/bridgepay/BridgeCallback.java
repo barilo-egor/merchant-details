@@ -1,8 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantCallback;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.viatrum;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +16,8 @@ import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.ViatrumProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -67,7 +67,7 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
             String nonce;
             try {
                 nonce = objectMapper.readValue(body, Request.class).getExternalID();
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 log.error("Ошибка парсинга тела запроса мерчанта {} : {}", getMerchant().name(), body);
                 throw new BodyMappingException("Ошибка парсинга тела запроса.");
             }

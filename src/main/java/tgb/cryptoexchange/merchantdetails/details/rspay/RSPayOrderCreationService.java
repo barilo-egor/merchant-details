@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.rspay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.exception.ReceiptPreparationException;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.core.JacksonException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,7 +124,7 @@ public abstract class RSPayOrderCreationService extends MerchantOrderCreationSer
                     httpHeaders -> addHeaders(httpHeaders, body),
                     body
             );
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new BodyMappingException("Ошибка сериализации JSON", e);
         }
     }

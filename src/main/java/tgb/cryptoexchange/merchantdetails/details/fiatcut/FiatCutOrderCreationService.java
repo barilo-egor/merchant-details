@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.fiatcut;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -80,12 +80,12 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(badRequest.getResponseBodyAsString());
-                } catch (JsonProcessingException exc) {
+                } catch (JacksonException exc) {
                     return false;
                 }
                 return response.has("message")
                         && "Подходящие платежные реквизиты не найдены во всех провайдерах.".equals(
-                        response.get("message").asText());
+                        response.get("message").asString());
             }
             return false;
         };

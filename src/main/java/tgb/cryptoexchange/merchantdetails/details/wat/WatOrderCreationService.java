@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.wat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.WatProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -93,7 +93,7 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
         try {
             Map<String, String> bodyMap = Map.of("receipt_url", linkToReceipt);
             body = objectMapper.writeValueAsString(bodyMap);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new BodyMappingException("Ошибка сериализации JSON", e);
         }
 

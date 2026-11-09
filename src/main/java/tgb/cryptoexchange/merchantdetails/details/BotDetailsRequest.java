@@ -3,9 +3,6 @@ package tgb.cryptoexchange.merchantdetails.details;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,6 +14,9 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.springframework.util.CollectionUtils;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -72,9 +72,9 @@ public class BotDetailsRequest implements DetailsRequest {
 
     public static class KafkaDeserializer implements Deserializer<BotDetailsRequest> {
 
-        private final ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+        private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults()
+                .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .build();
 
         @Override
         public BotDetailsRequest deserialize(String topic, byte[] data) {

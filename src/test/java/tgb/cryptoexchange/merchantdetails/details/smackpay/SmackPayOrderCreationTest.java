@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.smackpay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SmackPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import java.util.function.Consumer;

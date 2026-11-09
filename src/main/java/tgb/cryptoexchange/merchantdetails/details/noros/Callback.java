@@ -1,9 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.details.noros;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +19,9 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -141,7 +141,7 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfMessagePleaseContactSupport() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfMessagePleaseContactSupport() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
@@ -149,12 +149,12 @@ class BitZoneOrderCreationServiceTest {
         when(jsonNode.has("message")).thenReturn(true);
         JsonNode messageNode = Mockito.mock(JsonNode.class);
         when(jsonNode.get("message")).thenReturn(messageNode);
-        when(messageNode.asText()).thenReturn("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+        when(messageNode.asString()).thenReturn("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
         assertTrue(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfMessageNotPleaseContactSupport() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfMessageNotPleaseContactSupport() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
@@ -162,12 +162,12 @@ class BitZoneOrderCreationServiceTest {
         when(jsonNode.has("message")).thenReturn(true);
         JsonNode messageNode = Mockito.mock(JsonNode.class);
         when(jsonNode.get("message")).thenReturn(messageNode);
-        when(messageNode.asText()).thenReturn("SOME_ERROR");
+        when(messageNode.asString()).thenReturn("SOME_ERROR");
         assertFalse(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfNoMessage() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfNoMessage() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
@@ -177,10 +177,10 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @Test
-    void hasResponseNoDetailsErrorPredicateShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+    void hasResponseNoDetailsErrorPredicateShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         Predicate<String> hasResponseNoDetailsErrorPredicate = bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate();
         assertThrows(ServiceUnavailableException.class, () -> hasResponseNoDetailsErrorPredicate.test(""));
     }
@@ -191,7 +191,7 @@ class BitZoneOrderCreationServiceTest {
             "SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT"
     })
     @ParameterizedTest
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsError() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -199,14 +199,14 @@ class BitZoneOrderCreationServiceTest {
         when(response.has("message")).thenReturn(true);
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
-        when(message.asText()).thenReturn("CANT_CREATE_TRADE_FOR_THIS_AMOUNT");
+        when(message.asString()).thenReturn("CANT_CREATE_TRADE_FOR_THIS_AMOUNT");
         WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoMessage() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoMessage() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -218,10 +218,10 @@ class BitZoneOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));

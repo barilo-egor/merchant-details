@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.7'
+	id 'org.springframework.boot' version '4.0.9'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.google.protobuf' version '0.9.6'
 }
@@ -27,7 +27,7 @@ repositories {
 }
 
 ext {
-	set('springCloudVersion', "2025.0.0")
+	set('springCloudVersion', "2025.1.4")
 }
 
 dependencyManagement {
@@ -37,18 +37,18 @@ dependencyManagement {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'commons-codec:commons-codec:1.19.0'
 	implementation 'org.apache.commons:commons-lang3'
 	implementation 'jakarta.validation:jakarta.validation-api'
-	implementation 'org.springframework.kafka:spring-kafka:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.semver4j:semver4j:6.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.micrometer:micrometer-registry-prometheus:1.16.2'
-	implementation platform("org.springframework.grpc:spring-grpc-dependencies:0.12.0")
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation platform("org.springframework.grpc:spring-grpc-dependencies:1.0.3")
 	implementation "org.springframework.grpc:spring-grpc-spring-boot-starter"
 	implementation "io.grpc:grpc-protobuf"
 	implementation "io.grpc:grpc-stub"
@@ -57,6 +57,7 @@ dependencies {
 	compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -71,11 +72,11 @@ dependencies {
 
 protobuf {
 	protoc {
-		artifact = "com.google.protobuf:protoc:4.29.3"
+		artifact = "com.google.protobuf:protoc:4.33.4"
 	}
 	plugins {
 		grpc {
-			artifact = "io.grpc:protoc-gen-grpc-java:1.71.0"
+			artifact = "io.grpc:protoc-gen-grpc-java:1.77.1"
 		}
 	}
 	generateProtoTasks {

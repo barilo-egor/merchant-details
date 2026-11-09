@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +17,9 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -147,7 +147,7 @@ class CrocoPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfRequisiteNotFoundCode() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfRequisiteNotFoundCode() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         crocoPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -155,14 +155,14 @@ class CrocoPayOrderCreationServiceTest {
         when(response.has("code")).thenReturn(true);
         JsonNode code = Mockito.mock(JsonNode.class);
         when(response.get("code")).thenReturn(code);
-        when(code.asText()).thenReturn("REQUISITE_NOT_FOUND");
+        when(code.asString()).thenReturn("REQUISITE_NOT_FOUND");
         var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertTrue(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfCodeNotRequisiteNotFound() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfCodeNotRequisiteNotFound() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         crocoPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -170,14 +170,14 @@ class CrocoPayOrderCreationServiceTest {
         when(response.has("code")).thenReturn(true);
         JsonNode code = Mockito.mock(JsonNode.class);
         when(response.get("code")).thenReturn(code);
-        when(code.asText()).thenReturn("ANOTHER_ERROR");
+        when(code.asString()).thenReturn("ANOTHER_ERROR");
         var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfHasNoCode() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfHasNoCode() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         crocoPayOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -189,10 +189,10 @@ class CrocoPayOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         crocoPayOrderCreationService.setObjectMapper(objectMapper);
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));

@@ -1,10 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Data;
 import org.apache.kafka.common.serialization.Deserializer;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 
@@ -18,8 +18,7 @@ public class StopSearchRequest {
 
     public static class KafkaDeserializer implements Deserializer<StopSearchRequest> {
 
-        private final ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule());
+        private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
         @Override
         public StopSearchRequest deserialize(String topic, byte[] data) {

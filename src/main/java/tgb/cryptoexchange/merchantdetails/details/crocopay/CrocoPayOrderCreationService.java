@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +10,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -85,8 +85,8 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
                 try {
                     JsonNode response = objectMapper.readTree(internalServerError.getResponseBodyAsString());
                     return response.has("code")
-                            && response.get("code").asText().equals("REQUISITE_NOT_FOUND");
-                } catch (JsonProcessingException ex) {
+                            && response.get("code").asString().equals("REQUISITE_NOT_FOUND");
+                } catch (JacksonException ex) {
                     return false;
                 }
             }

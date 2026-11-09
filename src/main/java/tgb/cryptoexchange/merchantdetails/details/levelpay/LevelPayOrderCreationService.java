@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.levelpay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,6 +12,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.LevelPayProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Objects;
@@ -100,7 +100,7 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(ex.getResponseBodyAsString());
-                } catch (JsonProcessingException exc) {
+                } catch (JacksonException exc) {
                     return false;
                 }
                 return response.has("success") && !response.get("success").asBoolean();

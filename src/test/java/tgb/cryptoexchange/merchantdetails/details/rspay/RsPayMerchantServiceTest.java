@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.rspay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +21,7 @@ import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import java.util.function.Consumer;

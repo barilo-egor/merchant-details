@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.prismapay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PrismaPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -97,7 +97,7 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
                     this::addHeaders,
                     jsonBody
             );
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Ошибка сериализации JSON для ордера {}: {}", orderId, e.getMessage(), e);
         }
     }

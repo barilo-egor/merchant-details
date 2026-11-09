@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.tronex;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.TronExProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.List;
@@ -92,7 +92,7 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
         try {
             Map<String, String> bodyMap = Map.of("id", cancelOrderRequest.getOrderId());
             body = objectMapper.writeValueAsString(bodyMap);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new BodyMappingException("Ошибка сериализации JSON", e);
         }
         requestService.request(webClient, HttpMethod.POST,

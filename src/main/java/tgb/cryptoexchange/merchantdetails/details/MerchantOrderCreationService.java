@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +22,8 @@ import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.Objects;
@@ -146,7 +146,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     private String mapBody(OrderCreationRequest request) {
         try {
             return objectMapper.writeValueAsString(body(request));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при маппинге тела запроса(request = {}): {}", currentTime, request, e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
@@ -187,7 +187,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     private T mapResponse(String rawResponse, String requestBody) {
         try {
             return objectMapper.readValue(rawResponse, responseType);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Не удалось разобрать ответ мерчанта {}: {}. Тело запроса: {}. Тело ответа: {}",
                     currentTime, getMerchant().name(), e.getOriginalMessage(), requestBody, rawResponse);
@@ -253,7 +253,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         P callback;
         try {
             callback = objectMapper.readValue(callbackBody, callbackType);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Не удалось разобрать callback мерчанта {}: {}. Тело callback: {}",
                     currentTime, getMerchant().name(), e.getOriginalMessage(), callbackBody);

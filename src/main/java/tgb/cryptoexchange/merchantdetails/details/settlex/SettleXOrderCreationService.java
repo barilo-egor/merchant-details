@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.settlex;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +10,8 @@ import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleXProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -84,8 +84,8 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
                 try {
                     JsonNode response = objectMapper.readTree(conflict.getResponseBodyAsString());
                     return response.has("error")
-                            && response.get("error").asText().equals("NO_REQUISITE");
-                } catch (JsonProcessingException ex) {
+                            && response.get("error").asString().equals("NO_REQUISITE");
+                } catch (JacksonException ex) {
                     return false;
                 }
             }

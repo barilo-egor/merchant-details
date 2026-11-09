@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.evopay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +23,9 @@ import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.Objects;
@@ -185,16 +185,16 @@ class EvoPayOrderCreationServiceTest {
     }
 
     @Test
-    void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingCreateOrderResponse() throws JsonProcessingException {
+    void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingCreateOrderResponse() throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
-        when(objectMapper.readValue(anyString(), eq(Response.class))).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readValue(anyString(), eq(Response.class))).thenThrow(JacksonException.class);
         assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
     }
 
     @Test
-    void makeRequestShouldThrowServiceUnavailableIfInterruptedExceptionWasThrown() throws JsonProcessingException, InterruptedException {
+    void makeRequestShouldThrowServiceUnavailableIfInterruptedExceptionWasThrown() throws JacksonException, InterruptedException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
@@ -209,7 +209,7 @@ class EvoPayOrderCreationServiceTest {
             "8a7e1e35-6ced-41ec-9949-acbdd52076c7"
     })
     @ParameterizedTest
-    void makeRequestShouldMakeRequestToListOrdersUrlWithOrderIdParam(String id) throws JsonProcessingException {
+    void makeRequestShouldMakeRequestToListOrdersUrlWithOrderIdParam(String id) throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
@@ -219,7 +219,7 @@ class EvoPayOrderCreationServiceTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Function<UriBuilder, URI>> captor =
                 (ArgumentCaptor<Function<UriBuilder, URI>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(Function.class);
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
         verify(requestService).request(any(), eq(HttpMethod.GET), captor.capture(), any(), anyString());
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -228,19 +228,19 @@ class EvoPayOrderCreationServiceTest {
     }
 
     @Test
-    void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingGetOrderResponse() throws JsonProcessingException {
+    void makeRequestShouldThrowServiceUnavailableIfJsonProcessingExceptionWasThrownWhileMappingGetOrderResponse() throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = new Response();
         when(objectMapper.readValue(anyString(), eq(Response.class))).thenReturn(response);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         assertThrows(ServiceUnavailableException.class, () -> evoPayOrderCreationService.makeRequest(detailsRequest, ""));
     }
 
     @Test
-    void makeRequestShouldReturnEmptyOptionalIfHasNoEntries() throws JsonProcessingException {
+    void makeRequestShouldReturnEmptyOptionalIfHasNoEntries() throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
@@ -254,7 +254,7 @@ class EvoPayOrderCreationServiceTest {
     }
 
     @Test
-    void makeRequestShouldReturnEmptyOptionalIfEntriesIsNotArray() throws JsonProcessingException {
+    void makeRequestShouldReturnEmptyOptionalIfEntriesIsNotArray() throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
@@ -271,7 +271,7 @@ class EvoPayOrderCreationServiceTest {
     }
 
     @Test
-    void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty() throws JsonProcessingException {
+    void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty() throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
@@ -295,7 +295,7 @@ class EvoPayOrderCreationServiceTest {
             "{\"id\":\"123e4567-e89b-12d3-a456-426614174000\",\"orderStatus\":\"PENDING\",\"requisites\":" +
                     "{\"recipient_phone_number\":null,\"recipient_card_number\":\"4111111111111111\",\"recipient_bank\":\"Tinkoff\"}}"
     })
-    void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty(String orderBody) throws JsonProcessingException {
+    void makeRequestShouldReturnEmptyOptionalIfEntriesIsEmpty(String orderBody) throws JacksonException {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(2000);
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");

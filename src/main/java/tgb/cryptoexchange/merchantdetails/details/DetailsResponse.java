@@ -2,13 +2,14 @@ package tgb.cryptoexchange.merchantdetails.details;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Objects;
 
@@ -54,7 +55,7 @@ public class DetailsResponse {
     @Slf4j
     public static class KafkaSerializer implements Serializer<DetailsResponse> {
 
-        private static final ObjectMapper objectMapper = new ObjectMapper();
+        private static final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
         @Override
         public byte[] serialize(String topic, DetailsResponse detailsResponse) {
@@ -63,7 +64,7 @@ public class DetailsResponse {
                     return new byte[0];
                 }
                 return objectMapper.writeValueAsBytes(detailsResponse);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 log.error("Ошибка сериализации объекта для отправки в топик {}: {}", topic, detailsResponse);
                 throw new BodyMappingException("Error occurred while mapping detailsResponse", e);
             }

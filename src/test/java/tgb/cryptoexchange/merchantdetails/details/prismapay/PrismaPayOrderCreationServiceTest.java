@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.prismapay;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +21,7 @@ import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.properties.PrismaPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.Optional;

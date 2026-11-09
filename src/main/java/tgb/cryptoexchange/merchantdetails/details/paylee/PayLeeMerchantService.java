@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.paylee;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
 import org.springframework.core.io.ByteArrayResource;
@@ -18,6 +16,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeeProperties;
 import tgb.cryptoexchange.merchantdetails.util.ClientIdUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -95,7 +95,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoTrader(response) || isAmountError(response) || isNoDetails(response);
-                } catch (JsonProcessingException jsonProcessingException) {
+                } catch (JacksonException jsonProcessingException) {
                     return false;
                 }
             }
@@ -106,7 +106,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     private boolean isAmountError(JsonNode response) {
         if (response.has("price")) {
             JsonNode price = response.get("price");
-            return price.isArray() && price.size() == 1 && price.get(0).asText().startsWith("Убедитесь, что это значение");
+            return price.isArray() && price.size() == 1 && price.get(0).asString().startsWith("Убедитесь, что это значение");
         }
         return false;
     }
@@ -115,7 +115,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
         return response.has(NON_FIELD_ERRORS)
                 && response.get(NON_FIELD_ERRORS).isArray()
                 && response.get(NON_FIELD_ERRORS).size() == 1
-                && response.get(NON_FIELD_ERRORS).get(0).asText()
+                && response.get(NON_FIELD_ERRORS).get(0).asString()
                 .equals("Нет доступного трейдера для вашего запроса. Попробуйте повторить позже.");
     }
 
@@ -123,7 +123,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
         return response.has(NON_FIELD_ERRORS)
                 && response.get(NON_FIELD_ERRORS).isArray()
                 && response.get(NON_FIELD_ERRORS).size() == 1
-                && response.get(NON_FIELD_ERRORS).get(0).asText()
+                && response.get(NON_FIELD_ERRORS).get(0).asString()
                 .equals("Нет доступных реквизитов. Попробуйте повторить позже.");
     }
 

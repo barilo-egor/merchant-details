@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 
 @Slf4j
 public abstract class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
@@ -59,7 +58,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
             JwtData response;
             try {
                 response = objectMapper.readValue(responseBody, JwtData.class);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 long currentTime = System.currentTimeMillis();
                 log.debug("{} Ошибки преобразования ответа при получении jwt токена {}, body: {}",
                         currentTime, getMerchant().name(), responseBody);
@@ -108,7 +107,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     private String mapBody() {
         try {
             return objectMapper.writeValueAsString(yoloProperties.credentials());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при маппинге тела запроса(credentials = {}): {}", currentTime, yoloProperties.credentials(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);

@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.evopay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +15,8 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.EvoPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Objects;
@@ -57,7 +57,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         Response response;
         try {
              response = objectMapper.readValue(createOrderResponseBody, Response.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа при создании ордера мерчанта {}, body: {}",
                     currentTime, getMerchant().name(), createOrderResponseBody);
@@ -81,7 +81,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
         JsonNode listOrderResponse;
         try {
             listOrderResponse = objectMapper.readTree(listOrderStringResponse);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа списка ордеров мерчанта {}, body: {}", currentTime,
                     getMerchant().name(), createOrderResponseBody);

@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.settlex;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +18,9 @@ import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -128,7 +128,7 @@ class SettleX15OrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoRequisiteError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoRequisiteError() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         service.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -136,14 +136,14 @@ class SettleX15OrderCreationServiceTest {
         when(response.has("error")).thenReturn(true);
         JsonNode error = Mockito.mock(JsonNode.class);
         when(response.get("error")).thenReturn(error);
-        when(error.asText()).thenReturn("NO_REQUISITE");
+        when(error.asString()).thenReturn("NO_REQUISITE");
         WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertTrue(service.isNoDetailsExceptionPredicate().test(conflict));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotNoRequisiteError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotNoRequisiteError() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         service.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -151,14 +151,14 @@ class SettleX15OrderCreationServiceTest {
         when(response.has("error")).thenReturn(true);
         JsonNode error = Mockito.mock(JsonNode.class);
         when(response.get("error")).thenReturn(error);
-        when(error.asText()).thenReturn("ANOTHER_ERROR");
+        when(error.asString()).thenReturn("ANOTHER_ERROR");
         WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(service.isNoDetailsExceptionPredicate().test(conflict));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfHasNoError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfHasNoError() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         service.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
@@ -170,10 +170,10 @@ class SettleX15OrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JacksonException {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         service.setObjectMapper(objectMapper);
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(service.isNoDetailsExceptionPredicate().test(conflict));

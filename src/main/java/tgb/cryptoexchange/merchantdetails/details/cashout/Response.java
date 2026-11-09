@@ -1,9 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.details.cashout;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 

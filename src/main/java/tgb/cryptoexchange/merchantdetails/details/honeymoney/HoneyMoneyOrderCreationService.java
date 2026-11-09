@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.honeymoney;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +14,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Objects;
@@ -95,7 +95,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoDetails(response) || isAmountError(response);
-                } catch (JsonProcessingException jsonProcessingException) {
+                } catch (JacksonException jsonProcessingException) {
                     return false;
                 }
             }
@@ -109,7 +109,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
             if (errors.has("Amount")) {
                 JsonNode amount = errors.get("Amount");
                 if (amount.isArray() && amount.size() == 1) {
-                    return amount.get(0).asText().startsWith("Amount must be");
+                    return amount.get(0).asString().startsWith("Amount must be");
                 }
             }
         }
@@ -118,6 +118,6 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
 
     private boolean isNoDetails(JsonNode response) {
         return response.has("detail")
-                && response.get("detail").asText().equals("No requisites available for the moment. Please try again later.");
+                && response.get("detail").asString().equals("No requisites available for the moment. Please try again later.");
     }
 }

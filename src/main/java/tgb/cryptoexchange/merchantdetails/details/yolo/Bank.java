@@ -1,12 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -254,9 +252,9 @@ public enum Bank {
         return value;
     }
 
-    public static class Deserializer extends JsonDeserializer<String> {
+    public static class Deserializer extends ValueDeserializer<String> {
         @Override
-        public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             return Bank.bankNameFromCode(jsonParser.getValueAsString());
         }
     }

@@ -1,9 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import tgb.cryptoexchange.merchantdetails.serialize.DateSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDateTime;
 

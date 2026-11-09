@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +21,8 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.*;
@@ -38,8 +38,8 @@ import static org.mockito.Mockito.when;
 class MerchantOrderCreationServiceTest {
 
     @Test
-    void createOrderShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileWriteBody() throws JsonProcessingException {
-        when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);
+    void createOrderShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileWriteBody() throws JacksonException {
+        when(objectMapper.writeValueAsString(any())).thenThrow(JacksonException.class);
         OrderCreationRequest request = new OrderCreationRequest();
         request.setMethod("CARD");
 
@@ -69,7 +69,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldThrowUnavailableExceptionIfWebClientExceptionWasThrown() throws JsonProcessingException {
+    void createOrderShouldThrowUnavailableExceptionIfWebClientExceptionWasThrown() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenThrow(RuntimeException.class);
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
@@ -82,10 +82,10 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldThrowUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileReadResponse() throws JsonProcessingException {
+    void createOrderShouldThrowUnavailableExceptionIfJsonProcessingExceptionWasThrownWhileReadResponse() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
-        when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readValue(anyString(), ArgumentMatchers.<Class<Object>>any())).thenThrow(JacksonException.class);
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(ServiceUnavailableException.class, () -> service.createOrder(detailsRequest));
@@ -93,7 +93,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldThrowUnavailableExceptionIfResponseIsInvalid() throws JsonProcessingException {
+    void createOrderShouldThrowUnavailableExceptionIfResponseIsInvalid() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = Mockito.mock(Response.class);
@@ -113,7 +113,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldReturnEmptyOptionalIfResponseHasNoDetails() throws JsonProcessingException {
+    void createOrderShouldReturnEmptyOptionalIfResponseHasNoDetails() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = Mockito.mock(Response.class);
@@ -129,7 +129,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldReturnDetailsResponse() throws JsonProcessingException {
+    void createOrderShouldReturnDetailsResponse() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenReturn("");
         Response response = Mockito.mock(Response.class);
@@ -265,13 +265,13 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void updateStatusShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JsonProcessingException {
-        when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenThrow(JsonProcessingException.class);
+    void updateStatusShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JacksonException {
+        when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenThrow(JacksonException.class);
         assertThrows(ServiceUnavailableException.class, () -> service.updateStatus("{\"someField\":\"someValue\",\"merchant\":\"ALFA_TEAM\"}"));
     }
 
     @Test
-    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoMerchantOrderId() throws JsonProcessingException {
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoMerchantOrderId() throws JacksonException {
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.empty());
@@ -279,7 +279,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatus() throws JsonProcessingException {
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatus() throws JacksonException {
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
@@ -288,7 +288,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatusDescription() throws JsonProcessingException {
+    void updateStatusShouldThrowServiceUnavailableExceptionIfCallbackHasNoStatusDescription() throws JacksonException {
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.getMerchantOrderId()).thenReturn(Optional.of(""));
@@ -298,7 +298,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void updateStatusShouldThrowServiceUnavailableExceptionIfExceptionWasThrownWhileSendMessageToTopic() throws JsonProcessingException {
+    void updateStatusShouldThrowServiceUnavailableExceptionIfExceptionWasThrownWhileSendMessageToTopic() throws JacksonException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
         service.setEnvironment(environment);
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
@@ -315,7 +315,7 @@ class MerchantOrderCreationServiceTest {
             merchant-details-bridgeCallback-v2,a0af4b95-c0be-426d-8a26-94e13562527f,ERROR,Ошибка
             """)
     @ParameterizedTest
-    void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JsonProcessingException {
+    void updateStatusShouldSendEvent(String topic, String orderId, String status, String statusDescription) throws JacksonException {
         service.setCallbackKafkaTemplate(callbackKafkaTemplate);
         service.setEnvironment(environment);
         when(environment.getRequiredProperty(anyString())).thenReturn(topic);
@@ -345,7 +345,7 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void updateStatusShouldIgnoreCallbackIfIsIgnoredIsTrue() throws JsonProcessingException {
+    void updateStatusShouldIgnoreCallbackIfIsIgnoredIsTrue() throws JacksonException {
         VoidCallback merchantCallback = Mockito.mock(VoidCallback.class);
         when(objectMapper.readValue(anyString(), eq(VoidCallback.class))).thenReturn(merchantCallback);
         when(merchantCallback.isIgnored()).thenReturn(true);

@@ -1,14 +1,15 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.exception.CryptoException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -38,10 +39,10 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
         String secret = callbackConfig.getCallbackSecret();
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = JsonMapper.builderWithJackson2Defaults().build();
             JsonNode root = mapper.readTree(jsonString);
 
-            String base64Data = root.get("data").asText();
+            String base64Data = root.get("data").asString();
             byte[] combined = Base64.getDecoder().decode(base64Data);
 
             byte[] nonce = Arrays.copyOfRange(combined, 0, 12);
@@ -61,7 +62,7 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
             byte[] decrypted = cipher.doFinal(encryptedData);
 
             return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (GeneralSecurityException | IllegalArgumentException | JsonProcessingException e) {
+        } catch (GeneralSecurityException | IllegalArgumentException | JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при парсинге {} callback {}: {}", currentTime, getMerchant(), jsonString, e.getMessage(), e);
             throw new CryptoException("Error occurred while parsing YOLO callback: " + currentTime + ".", e);

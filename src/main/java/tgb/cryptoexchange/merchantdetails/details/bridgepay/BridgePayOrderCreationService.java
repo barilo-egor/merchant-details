@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +21,8 @@ import tgb.cryptoexchange.merchantdetails.exception.SignatureCreationException;
 import tgb.cryptoexchange.merchantdetails.properties.BridgePayProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import tgb.cryptoexchange.merchantdetails.service.SleepingService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -139,7 +139,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         Response response;
         try {
             response = objectMapper.readValue(createOrderResponseBody, Response.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа при создании ордера мерчанта {}, body: {}",
                     currentTime, getMerchant().name(), createOrderResponseBody);
@@ -165,7 +165,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
         JsonNode listOrderResponse;
         try {
             listOrderResponse = objectMapper.readTree(listOrderStringResponse);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа списка ордеров мерчанта {}, body: {}", currentTime,
                     getMerchant().name(), createOrderResponseBody);
@@ -184,13 +184,13 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(badRequest.getResponseBodyAsString());
-                } catch (JsonProcessingException ex) {
+                } catch (JacksonException ex) {
                     return false;
                 }
                 if (response.isArray() && response.size() == 1) {
                     JsonNode node = response.get(0);
                     return node.has("message")
-                            && node.get("message").asText().startsWith("Invoice amount should be");
+                            && node.get("message").asString().startsWith("Invoice amount should be");
                 }
             }
             return false;

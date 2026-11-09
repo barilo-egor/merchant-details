@@ -1,6 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.cube;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.CubeProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Optional;
@@ -92,7 +92,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
             callback.setStatus(data.getStatus());
             String callbackData = objectMapper.writeValueAsString(callback);
             return Optional.of(callbackData);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа информации о транзакции мерчанта {}, body: {}", currentTime,
                     getMerchant().name(), response);

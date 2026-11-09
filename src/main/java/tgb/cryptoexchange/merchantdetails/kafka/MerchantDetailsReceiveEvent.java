@@ -1,8 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.kafka;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Data;
 
 import java.time.Instant;
@@ -29,7 +27,6 @@ public class MerchantDetailsReceiveEvent {
     /**
      * Дата и время получения реквизитов
      */
-    @JsonSerialize(using = InstantSerializer.class)
     private Instant createdAt;
 
     /**

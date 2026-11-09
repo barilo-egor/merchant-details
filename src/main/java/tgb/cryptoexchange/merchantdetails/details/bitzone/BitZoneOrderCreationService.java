@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +14,8 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -95,11 +95,11 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                 if (e instanceof WebClientResponseException.Forbidden ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return response.has(MESSAGE)
-                            && isNoDetailsMessage(response.get(MESSAGE).asText());
+                            && isNoDetailsMessage(response.get(MESSAGE).asString());
                 } else if (e instanceof WebClientResponseException.GatewayTimeout) {
                     return true;
                 }
-            } catch (JsonProcessingException jsonProcessingException) {
+            } catch (JacksonException jsonProcessingException) {
                 return false;
             }
             return false;
@@ -118,7 +118,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
             JsonNode response;
             try {
                 response = objectMapper.readTree(rawResponse);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 long currentTime = System.currentTimeMillis();
                 log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
                         currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
@@ -126,7 +126,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                 throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
             }
             return response.has(MESSAGE)
-                    && response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+                    && response.get(MESSAGE).asString().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
         };
     }
 }

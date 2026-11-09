@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 3.5.
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3.
 
 ```bash
 ./gradlew build                       # сборка + тесты
@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, затем копирует jar на сервер и делает `docker rollout merchant-details`. Падение тестов блокирует деплой.
 
-Зависимости `tgb.cryptoexchange:commons` и `tgb.cryptoexchange:common-api` берутся из `mavenLocal()`: без них в `~/.m2` проект не соберётся. Enum `Merchant` (`tgb.cryptoexchange.commons.enums.Merchant`) живёт в `commons`, поэтому новый мерчант сначала добавляется туда.
+Зависимость `tgb.cryptoexchange:commons` берётся из `mavenLocal()`: без неё в `~/.m2` проект не соберётся. Enum `Merchant` (`tgb.cryptoexchange.commons.enums.Merchant`) живёт в `commons`, поэтому новый мерчант сначала добавляется туда.
 
 ## Конфигурация и запуск
 
