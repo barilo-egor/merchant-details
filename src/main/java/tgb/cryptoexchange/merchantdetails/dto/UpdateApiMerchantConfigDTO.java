@@ -17,4 +17,6 @@ public class UpdateApiMerchantConfigDTO {
 
     private Integer newOrder;
 
+    private Boolean swap;
+
 }

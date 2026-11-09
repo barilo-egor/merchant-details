@@ -57,6 +57,9 @@ public class ApiMerchantConfigGrpcMapper {
         if (grpcRequest.hasNewOrder()) {
             request.setNewOrder(grpcRequest.getNewOrder().getValue());
         }
+        if (grpcRequest.hasSwap()) {
+            request.setSwap(grpcRequest.getSwap().getValue());
+        }
         return request;
     }
 
