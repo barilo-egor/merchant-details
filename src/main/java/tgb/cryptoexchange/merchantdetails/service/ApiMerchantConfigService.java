@@ -30,7 +30,7 @@ public class ApiMerchantConfigService {
     public List<ApiMerchantConfigDTO> findAllAndCreateIfNotExist(MerchantConfigRequest request) {
         List<ApiMerchantConfig> configs = findAll(request);
         if (Merchant.values().length != configs.size()) {
-            configs = createApiConfigs(UUID.fromString(request.getOwnerId()));
+            configs.addAll(createApiConfigs(UUID.fromString(request.getOwnerId())));
         }
         return configs.stream()
                 .map(ApiMerchantConfigDTO::fromEntity)
@@ -45,12 +45,12 @@ public class ApiMerchantConfigService {
     }
 
     protected List<ApiMerchantConfig> createApiConfigs(UUID ownerId) {
-        List<ApiMerchantConfig> configs = new ArrayList<>();
+        List<ApiMerchantConfig> newConfigs = new ArrayList<>();
         for (Merchant merchant : Merchant.values()) {
             Optional<ApiMerchantConfig> merchantConfig = getMerchantConfig(ownerId, merchant);
             if (merchantConfig.isEmpty()) {
                 Integer maxValue = repository.findMaxMerchantOrder(ownerId);
-                configs.add(repository.save(
+                newConfigs.add(repository.save(
                         ApiMerchantConfig.builder()
                                 .isOn(false)
                                 .merchant(merchant)
@@ -62,7 +62,7 @@ public class ApiMerchantConfigService {
                 ));
             }
         }
-        return configs;
+        return newConfigs;
     }
 
     public Optional<ApiMerchantConfig> getMerchantConfig(UUID ownerId, Merchant merchant) {
