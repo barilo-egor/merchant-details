@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ResponseTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMappers.create();
     private Response response;
     private Response.Data validData;
 

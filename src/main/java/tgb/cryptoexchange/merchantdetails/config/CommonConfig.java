@@ -45,7 +45,7 @@ public class CommonConfig {
     @Bean
     @Profile("!kafka-disabled")
     public JsonMapper objectMapper() {
-        return JsonMapper.builderWithJackson2Defaults()
+        return JsonMappers.builder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
     }

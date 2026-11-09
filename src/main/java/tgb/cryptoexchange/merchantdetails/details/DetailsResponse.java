@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serializer;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Objects;
 
@@ -55,7 +55,7 @@ public class DetailsResponse {
     @Slf4j
     public static class KafkaSerializer implements Serializer<DetailsResponse> {
 
-        private static final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
+        private static final ObjectMapper objectMapper = JsonMappers.create();
 
         @Override
         public byte[] serialize(String topic, DetailsResponse detailsResponse) {

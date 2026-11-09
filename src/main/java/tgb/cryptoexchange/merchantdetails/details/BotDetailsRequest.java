@@ -13,10 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.springframework.util.CollectionUtils;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.exception.DeserializeEventException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.EnumFeature;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public class BotDetailsRequest implements DetailsRequest {
 
     public static class KafkaDeserializer implements Deserializer<BotDetailsRequest> {
 
-        private final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults()
+        private final ObjectMapper objectMapper = JsonMappers.builder()
                 .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .build();
 

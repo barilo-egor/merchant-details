@@ -4,12 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.exception.CryptoException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -39,7 +39,7 @@ public class YoloCallbackDecryptService implements CallbackDecryptService {
         String secret = callbackConfig.getCallbackSecret();
 
         try {
-            ObjectMapper mapper = JsonMapper.builderWithJackson2Defaults().build();
+            ObjectMapper mapper = JsonMappers.create();
             JsonNode root = mapper.readTree(jsonString);
 
             String base64Data = root.get("data").asString();

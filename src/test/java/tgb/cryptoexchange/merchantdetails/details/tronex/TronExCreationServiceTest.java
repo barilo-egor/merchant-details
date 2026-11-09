@@ -15,6 +15,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -68,7 +69,7 @@ class TronExCreationServiceTest {
     void setUp() {
         service = new TronExSimCreationService(webClient, tronExSimProperties, callbackConfig);
         ReflectionTestUtils.setField(service, "requestService", requestService);
-        ReflectionTestUtils.setField(service, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(service, "objectMapper", JsonMappers.create());
     }
 
     @Test

@@ -19,6 +19,13 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	configureEach {
+		resolutionStrategy.eachDependency {
+			if (requested.group.startsWith('com.fasterxml.jackson') && requested.name != 'jackson-annotations') {
+				throw new GradleException("Jackson 2 запрещён, используйте Jackson 3 (tools.jackson): ${requested.group}:${requested.name}")
+			}
+		}
+	}
 }
 
 repositories {
@@ -58,6 +65,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'

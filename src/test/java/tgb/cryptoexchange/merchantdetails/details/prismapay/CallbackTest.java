@@ -3,6 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.prismapay;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CallbackTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMappers.create();
 
     @Test
     void isIgnoredShouldReturnTrueWhenStatusIsNoRequisites() {
