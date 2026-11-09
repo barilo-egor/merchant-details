@@ -7,9 +7,6 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
-import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
-import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
@@ -18,7 +15,6 @@ import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundExcept
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ApiMerchantConfigService {
@@ -95,7 +91,11 @@ public class ApiMerchantConfigService {
             merchantConfig.setMinAmount(dto.getMinAmount());
         }
         if (Objects.nonNull(dto.getNewOrder())) {
-            changeOrder(merchantConfig, dto.getNewOrder());
+            if (Boolean.TRUE.equals(dto.getSwap())) {
+                swapOrder(merchantConfig, dto.getNewOrder());
+            } else {
+                changeOrder(merchantConfig, dto.getNewOrder());
+            }
         }
         ApiMerchantConfig saved = repository.save(merchantConfig);
         return ApiMerchantConfigDTO.fromEntity(saved);
@@ -127,6 +127,21 @@ public class ApiMerchantConfigService {
         }
         config.setMerchantOrder(newOrder);
         repository.save(config);
+    }
+
+    private void swapOrder(ApiMerchantConfig config, Integer newOrder) {
+        int currentOrder = config.getMerchantOrder();
+        if (currentOrder == newOrder) {
+            return;
+        }
+        ApiMerchantConfig other = repository.findByOwnerIdAndMerchantOrder(config.getOwnerId(), newOrder)
+                .orElseThrow(() -> new MerchantConfigNotFoundException(
+                        "Configuration with order " + newOrder + NOT_FOUND));
+        config.setMerchantOrder(-1);
+        repository.saveAndFlush(config);
+        other.setMerchantOrder(currentOrder);
+        repository.saveAndFlush(other);
+        config.setMerchantOrder(newOrder);
     }
 
 

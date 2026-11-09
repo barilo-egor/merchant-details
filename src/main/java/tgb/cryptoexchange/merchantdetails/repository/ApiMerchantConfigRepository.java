@@ -11,6 +11,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,5 +34,7 @@ public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantCo
     void deleteAllByMerchantNotIn(@Param("merchants") List<Merchant> merchants);
 
     List<ApiMerchantConfig> findAllByMerchantInAndOwnerIdAndIsOnTrue(Set<Merchant> merchants, UUID ownerId);
+
+    Optional<ApiMerchantConfig> findByOwnerIdAndMerchantOrder(UUID ownerId, Integer merchantOrder);
 
 }

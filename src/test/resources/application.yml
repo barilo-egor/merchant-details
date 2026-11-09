@@ -88,10 +88,6 @@ payscrow-transgran:
 appexbit:
   url: "appexbit-url"
   key: "appexbit-key"
-mobius:
-  url: "mobius-url"
-  token: "mobius-token"
-  merchant-id: "mobius-merchant-id"
 geo-transfer:
   url: "geo-transfer-url"
   token: "geo-transfer-token"
