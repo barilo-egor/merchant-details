@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.exception.EmptyResponseBodyException;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
 
 import java.net.URI;
@@ -54,7 +53,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
                     h -> h.add("Content-Type", "application/json"), mapBody()));
             if (jwtResponse.isEmpty()) {
                 log.debug("Yolo jwt ответ пуст!");
-                throw new EmptyResponseBodyException("Error jwt response is empty: " + System.currentTimeMillis());
+                throw new ServiceUnavailableException("Error jwt response is empty: " + System.currentTimeMillis());
             }
             String responseBody = jwtResponse.get();
             JwtData response;

@@ -2,8 +2,8 @@ package tgb.cryptoexchange.merchantdetails.util;
 
 import org.apache.commons.lang3.StringUtils;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.enums.CryptoCurrency;
-import tgb.cryptoexchange.enums.DeliveryType;
+import tgb.cryptoexchange.commons.enums.CryptoCurrency;
+import tgb.cryptoexchange.commons.enums.DeliveryType;
 import tgb.cryptoexchange.grpc.generated.AutoConfirmConfigDTOGrpc;
 import tgb.cryptoexchange.grpc.generated.MerchantConfigRequestGrpc;
 import tgb.cryptoexchange.merchantdetails.constants.AutoConfirmType;

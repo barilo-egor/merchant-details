@@ -38,7 +38,6 @@ dependencyManagement {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'tgb.cryptoexchange:common-api:1.1.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'commons-codec:commons-codec:1.19.0'
 	implementation 'org.apache.commons:commons-lang3'

@@ -16,11 +16,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Request;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Response;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 

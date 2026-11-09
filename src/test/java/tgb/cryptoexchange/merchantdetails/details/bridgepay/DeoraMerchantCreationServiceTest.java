@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.enums.FiatCurrency;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -133,7 +132,7 @@ class DeoraMerchantCreationServiceTest {
 
         assertAll(
                 () -> assertEquals(amount.toString(), actual.getAmount()),
-                () -> assertEquals(FiatCurrency.RUB.name(), actual.getCurrency()),
+                () -> assertEquals("RUB", actual.getCurrency()),
                 () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=DEORA&secret=" + secret,
                         actual.getNotificationUrl()),
                 () -> assertEquals(token, actual.getNotificationToken()),

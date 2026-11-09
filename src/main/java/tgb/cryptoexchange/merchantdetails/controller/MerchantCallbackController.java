@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
@@ -21,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/merchant-details/callback")
 @Slf4j
-public class MerchantCallbackController extends ApiController {
+public class MerchantCallbackController {
 
     private final MerchantDetailsService merchantDetailsService;
 
