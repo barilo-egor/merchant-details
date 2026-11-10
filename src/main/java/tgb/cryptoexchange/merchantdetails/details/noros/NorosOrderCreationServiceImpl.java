@@ -2,16 +2,16 @@ package tgb.cryptoexchange.merchantdetails.details.noros;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.NorosPropertiesImpl;
 
 @Service
 public class NorosOrderCreationServiceImpl extends NorosOrderCreationService {
 
-    protected NorosOrderCreationServiceImpl(@Qualifier("norosWebClient") WebClient webClient,
+    protected NorosOrderCreationServiceImpl(@Qualifier("norosRestClient") RestClient restClient,
             NorosPropertiesImpl norosProperties) {
-        super(webClient, norosProperties);
+        super(restClient, norosProperties);
     }
 
     @Override

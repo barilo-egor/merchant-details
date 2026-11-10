@@ -3,9 +3,9 @@ package tgb.cryptoexchange.merchantdetails.details.levelpay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -30,9 +30,9 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
 
     private final LevelPayProperties levelPayProperties;
 
-    protected LevelPayOrderCreationService(WebClient webClient, CallbackConfig callbackConfig,
+    protected LevelPayOrderCreationService(RestClient restClient, CallbackConfig callbackConfig,
                                            LevelPayProperties levelPayProperties) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.callbackConfig = callbackConfig;
         this.levelPayProperties = levelPayProperties;
     }
@@ -96,7 +96,7 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.BadRequest ex) {
+            if (e instanceof HttpClientErrorException.BadRequest ex) {
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(ex.getResponseBodyAsString());
@@ -111,7 +111,7 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
 
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
-        requestService.request(webClient, HttpMethod.PATCH,
+        requestService.request(restClient, HttpMethod.PATCH,
                 uriBuilder -> uriBuilder.path("/api/h2h/order/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
                 this::addHeaders, null);
     }

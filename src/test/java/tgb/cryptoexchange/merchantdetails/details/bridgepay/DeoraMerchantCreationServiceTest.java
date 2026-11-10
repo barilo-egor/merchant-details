@@ -9,10 +9,11 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -57,7 +58,7 @@ class DeoraMerchantCreationServiceTest {
     private RequestService requestService;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @InjectMocks
     private DeoraMerchantCreationService deoraMerchantCreationService;
@@ -183,7 +184,7 @@ class DeoraMerchantCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(node.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Invoice amount should be");
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertTrue(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -202,7 +203,7 @@ class DeoraMerchantCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(node.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Another error");
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -218,7 +219,7 @@ class DeoraMerchantCreationServiceTest {
         JsonNode node = Mockito.mock(JsonNode.class);
         when(response.get(0)).thenReturn(node);
         when(node.has("message")).thenReturn(false);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -232,7 +233,7 @@ class DeoraMerchantCreationServiceTest {
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.isArray()).thenReturn(true);
         when(response.size()).thenReturn(size);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -244,7 +245,7 @@ class DeoraMerchantCreationServiceTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.isArray()).thenReturn(false);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -254,7 +255,7 @@ class DeoraMerchantCreationServiceTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         deoraMerchantCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
@@ -262,9 +263,9 @@ class DeoraMerchantCreationServiceTest {
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotBadRequestException() {
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+                .test(Mockito.mock(HttpServerErrorException.InternalServerError.class)));
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+                .test(Mockito.mock(HttpClientErrorException.Conflict.class)));
         assertFalse(deoraMerchantCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
     }
@@ -280,7 +281,7 @@ class DeoraMerchantCreationServiceTest {
         cancelOrderRequest.setOrderId(orderId);
         cancelOrderRequest.setMethod(method.name());
         deoraMerchantCreationService.makeCancelRequest(cancelOrderRequest);
-        verify(requestService).request(eq(webClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
+        verify(requestService).request(eq(restClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
                 any(), eq(null));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/api/merchant/invoices/" + orderId + "/cancel", uriBuilderCaptor.getValue().apply(uriBuilder).getPath());

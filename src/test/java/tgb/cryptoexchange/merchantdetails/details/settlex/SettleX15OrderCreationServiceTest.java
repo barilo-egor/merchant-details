@@ -10,9 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -137,7 +138,7 @@ class SettleX15OrderCreationServiceTest {
         JsonNode error = Mockito.mock(JsonNode.class);
         when(response.get("error")).thenReturn(error);
         when(error.asString()).thenReturn("NO_REQUISITE");
-        WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict = Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertTrue(service.isNoDetailsExceptionPredicate().test(conflict));
     }
@@ -152,7 +153,7 @@ class SettleX15OrderCreationServiceTest {
         JsonNode error = Mockito.mock(JsonNode.class);
         when(response.get("error")).thenReturn(error);
         when(error.asString()).thenReturn("ANOTHER_ERROR");
-        WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict = Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(service.isNoDetailsExceptionPredicate().test(conflict));
     }
@@ -164,7 +165,7 @@ class SettleX15OrderCreationServiceTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("error")).thenReturn(false);
-        WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict = Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(service.isNoDetailsExceptionPredicate().test(conflict));
     }
@@ -174,15 +175,15 @@ class SettleX15OrderCreationServiceTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         service.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        WebClientResponseException.Conflict conflict = Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict = Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(service.isNoDetailsExceptionPredicate().test(conflict));
     }
 
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotConflictException() {
-        assertFalse(service.isNoDetailsExceptionPredicate().test(Mockito.mock(WebClientResponseException.BadRequest.class)));
-        assertFalse(service.isNoDetailsExceptionPredicate().test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+        assertFalse(service.isNoDetailsExceptionPredicate().test(Mockito.mock(HttpClientErrorException.BadRequest.class)));
+        assertFalse(service.isNoDetailsExceptionPredicate().test(Mockito.mock(HttpServerErrorException.InternalServerError.class)));
         assertFalse(service.isNoDetailsExceptionPredicate().test(Mockito.mock(RuntimeException.class)));
     }
 }

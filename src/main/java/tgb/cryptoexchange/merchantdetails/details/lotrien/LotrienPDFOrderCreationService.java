@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 
@@ -18,27 +17,27 @@ public class LotrienPDFOrderCreationService extends LotrienOrderCreationService 
 
     private final LotrienProperties lotrienProperties;
 
-    protected LotrienPDFOrderCreationService(@Qualifier("lotrienWebClient") WebClient webClient,
+    protected LotrienPDFOrderCreationService(@Qualifier("lotrienRestClient") RestClient restClient,
                                              LotrienProperties lotrienProperties) {
-        super(webClient, lotrienProperties);
+        super(restClient, lotrienProperties);
         this.lotrienProperties = lotrienProperties;
     }
 
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartFormBuilder builder = new MultipartFormBuilder();
         builder.part("orderId", orderId);
         builder.part("files", new ByteArrayResource(fileContent))
                 .filename(fileName)
                 .contentType(MediaType.APPLICATION_PDF);
 
-        requestService.request(
-                webClient,
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> uriBuilder.pathSegment("order", "payin", "confirm").build(),
                 headers -> headers.add("X-API-Key", lotrienProperties.key()),
-                BodyInserters.fromMultipartData(builder.build()),
+                builder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant(), orderId, t.getMessage(), t)
         );
     }

@@ -10,9 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -143,8 +144,8 @@ class PayscrowOrderCreationServiceImplTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn(messageTest);
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertTrue(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -163,8 +164,8 @@ class PayscrowOrderCreationServiceImplTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Some fatal error");
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -180,8 +181,8 @@ class PayscrowOrderCreationServiceImplTest {
         when(response.get("success")).thenReturn(success);
         when(success.asBoolean()).thenReturn(false);
         when(response.has("message")).thenReturn(false);
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -196,8 +197,8 @@ class PayscrowOrderCreationServiceImplTest {
         JsonNode success = Mockito.mock(JsonNode.class);
         when(response.get("success")).thenReturn(success);
         when(success.asBoolean()).thenReturn(true);
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -209,8 +210,8 @@ class PayscrowOrderCreationServiceImplTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("success")).thenReturn(false);
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -220,8 +221,8 @@ class PayscrowOrderCreationServiceImplTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         payscrowOrderCreationService.setObjectMapper(objectMapper);
-        WebClientResponseException.InternalServerError internalServerError =
-                Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -241,8 +242,8 @@ class PayscrowOrderCreationServiceImplTest {
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Expectation Failed. Amount for the chosen payment method doesn't " +
                 "meet limits. Check payment method limits and try again.");
-        WebClientResponseException.Conflict conflict =
-                Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertTrue(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
     }
@@ -261,8 +262,8 @@ class PayscrowOrderCreationServiceImplTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Another not amount error.");
-        WebClientResponseException.Conflict conflict =
-                Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict conflict =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
         when(conflict.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
     }
@@ -272,8 +273,8 @@ class PayscrowOrderCreationServiceImplTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         payscrowOrderCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        WebClientResponseException.Conflict internalServerError =
-                Mockito.mock(WebClientResponseException.Conflict.class);
+        HttpClientErrorException.Conflict internalServerError =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -281,9 +282,9 @@ class PayscrowOrderCreationServiceImplTest {
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.UnprocessableEntity.class)));
+                .test(Mockito.mock(HttpClientErrorException.UnprocessableEntity.class)));
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.BadGateway.class)));
+                .test(Mockito.mock(HttpServerErrorException.BadGateway.class)));
         assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
     }

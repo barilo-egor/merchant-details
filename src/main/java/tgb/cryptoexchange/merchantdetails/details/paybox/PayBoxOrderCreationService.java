@@ -3,9 +3,10 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -29,8 +30,8 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
 
     protected final PayBoxProperties payBoxProperties;
 
-    protected PayBoxOrderCreationService(WebClient webClient, PayBoxProperties payBoxProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected PayBoxOrderCreationService(RestClient restClient, PayBoxProperties payBoxProperties) {
+        super(restClient, Response.class, Callback.class);
         this.payBoxProperties = payBoxProperties;
     }
 
@@ -87,10 +88,10 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
             try {
-                if (e instanceof WebClientResponseException.InternalServerError ex) {
+                if (e instanceof HttpServerErrorException.InternalServerError ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isUnableToGetRequisites(response) || isInternalServerError(response);
-                } else if (e instanceof WebClientResponseException.UnprocessableEntity ex) {
+                } else if (e instanceof HttpClientErrorException.UnprocessableEntity ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     if (response.has("code") && response.get("code").asString().equals("422")
                             && response.has("errors")) {
@@ -124,7 +125,7 @@ public abstract class PayBoxOrderCreationService extends MerchantOrderCreationSe
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         Method method = parseMethod(cancelOrderRequest.getMethod(), Method.class);
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/api/v1/transactions/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
                 headers -> addHeaders(headers, method), null
         );

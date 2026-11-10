@@ -9,9 +9,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -156,7 +157,7 @@ class CrocoPayOrderCreationServiceTest {
         JsonNode code = Mockito.mock(JsonNode.class);
         when(response.get("code")).thenReturn(code);
         when(code.asString()).thenReturn("REQUISITE_NOT_FOUND");
-        var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        var internalServerError = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertTrue(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -171,7 +172,7 @@ class CrocoPayOrderCreationServiceTest {
         JsonNode code = Mockito.mock(JsonNode.class);
         when(response.get("code")).thenReturn(code);
         when(code.asString()).thenReturn("ANOTHER_ERROR");
-        var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        var internalServerError = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -183,7 +184,7 @@ class CrocoPayOrderCreationServiceTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("code")).thenReturn(false);
-        var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        var internalServerError = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -193,7 +194,7 @@ class CrocoPayOrderCreationServiceTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         crocoPayOrderCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        var internalServerError = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        var internalServerError = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(internalServerError.getResponseBodyAsString()).thenReturn("");
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
     }
@@ -201,9 +202,9 @@ class CrocoPayOrderCreationServiceTest {
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.BadRequest.class)));
+                .test(Mockito.mock(HttpClientErrorException.BadRequest.class)));
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.Conflict.class)));
+                .test(Mockito.mock(HttpClientErrorException.Conflict.class)));
         assertFalse(crocoPayOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
     }

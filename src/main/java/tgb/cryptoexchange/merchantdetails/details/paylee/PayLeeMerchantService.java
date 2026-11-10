@@ -5,12 +5,11 @@ import org.hashids.Hashids;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.MultipartBodyBuilder;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -37,8 +36,8 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
 
     private final Hashids hashids;
 
-    protected PayLeeMerchantService(WebClient webClient, PayLeeProperties payLeeProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected PayLeeMerchantService(RestClient restClient, PayLeeProperties payLeeProperties) {
+        super(restClient, Response.class, Callback.class);
         this.payLeeProperties = payLeeProperties;
         this.hashids = new Hashids(payLeeProperties.clientIdSalt(), 8);
     }
@@ -91,7 +90,7 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.BadRequest ex) {
+            if (e instanceof HttpClientErrorException.BadRequest ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoTrader(response) || isAmountError(response) || isNoDetails(response);
@@ -129,34 +128,37 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
 
     @Override
     public void sendReceipt(String orderId, MultipartFile multipartFile) {
-        requestService.request(
-                webClient,
+        MultipartFormBuilder builder = new MultipartFormBuilder();
+        builder.part("attachment", multipartFile.getResource());
+
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> uriBuilder.pathSegment("partners", "purchases", "{id}", "receipt").build(orderId),
                 headers -> {
                     headers.add("Authorization", "Token " + payLeeProperties.token());
                     headers.add("Content-Type", "multipart/form-data");
                 },
-                BodyInserters.fromMultipartData("attachment", multipartFile),
+                builder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
         );
     }
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartFormBuilder builder = new MultipartFormBuilder();
         builder.part("attachment", new ByteArrayResource(fileContent))
                 .filename(fileName);
 
-        requestService.request(
-                webClient,
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> uriBuilder.pathSegment("partners", "purchases", "{id}", "receipt").build(orderId),
                 headers -> {
                     headers.add("Authorization", "Token " + payLeeProperties.token());
                     headers.add("Content-Type", "multipart/form-data");
                 },
-                BodyInserters.fromMultipartData(builder.build()),
+                builder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
         );
     }

@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -34,15 +34,15 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
 
     private final EvoPayProperties evoPayProperties;
 
-    private final WebClient evoPayWebClient;
+    private final RestClient evoPayRestClient;
 
     private final SleepingService sleepingService;
 
-    protected EvoPayOrderCreationService(@Qualifier("evoPayWebClient") WebClient evoPayWebClient,
+    protected EvoPayOrderCreationService(@Qualifier("evoPayRestClient") RestClient evoPayRestClient,
                                          EvoPayProperties evoPayProperties, SleepingService sleepingService) {
-        super(evoPayWebClient, Response.class, Callback.class);
+        super(evoPayRestClient, Response.class, Callback.class);
         this.evoPayProperties = evoPayProperties;
-        this.evoPayWebClient = evoPayWebClient;
+        this.evoPayRestClient = evoPayRestClient;
         this.sleepingService = sleepingService;
     }
 
@@ -72,7 +72,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
             throw new ServiceUnavailableException("Error occurred while wait: " + currentTime);
         }
         String listOrderStringResponse = requestService.request(
-                evoPayWebClient,
+                evoPayRestClient,
                 HttpMethod.GET,
                 uriBuilder -> uriBuilder.path("/v1/api/order/list").queryParam("order_id", response.getId()).build(),
                 this.headers(detailsRequest, body),
@@ -151,10 +151,10 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return exception -> {
-            if (exception instanceof WebClientResponseException.InternalServerError internalServerError) {
+            if (exception instanceof HttpServerErrorException.InternalServerError internalServerError) {
                 return "Internal Server Error".equals(internalServerError.getResponseBodyAsString());
             }
-            return exception instanceof WebClientResponseException.BadGateway;
+            return exception instanceof HttpServerErrorException.BadGateway;
         };
     }
 }

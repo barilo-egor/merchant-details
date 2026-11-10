@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -47,14 +47,14 @@ class PrismaPayOrderCreationServiceTest {
     @Mock
     private ReceiptService receiptService;
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     private String originalUserDir;
 
     @BeforeEach
     void setUp() {
         originalUserDir = System.getProperty("user.dir");
-        service = new PrismaPayOrderCreationService(webClient, prismaPayProperties, receiptService);
+        service = new PrismaPayOrderCreationService(restClient, prismaPayProperties, receiptService);
         service.setRequestService(requestService);
         service.setObjectMapper(objectMapper);
     }
@@ -127,7 +127,7 @@ class PrismaPayOrderCreationServiceTest {
         CancelOrderRequest cancelRequest = mock(CancelOrderRequest.class);
         service.makeCancelRequest(cancelRequest);
 
-        verify(requestService).request(eq(webClient), eq(HttpMethod.POST), any(), any(), isNull());
+        verify(requestService).request(eq(restClient), eq(HttpMethod.POST), any(), any(), isNull());
     }
 
     @Test
@@ -142,7 +142,7 @@ class PrismaPayOrderCreationServiceTest {
 
         String expectedJson = "{\"link\":\"" + stubbedLink + "\"}";
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),

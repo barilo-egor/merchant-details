@@ -10,9 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.util.MultiValueMap;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
@@ -43,7 +44,7 @@ class TronExCreationServiceTest {
     private static final String CALLBACK_SECRET = "secret_callback_code";
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Mock
     private TronExSimProperties tronExSimProperties;
@@ -67,7 +68,7 @@ class TronExCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TronExSimCreationService(webClient, tronExSimProperties, callbackConfig);
+        service = new TronExSimCreationService(restClient, tronExSimProperties, callbackConfig);
         ReflectionTestUtils.setField(service, "requestService", requestService);
         ReflectionTestUtils.setField(service, "objectMapper", JsonMappers.create());
     }
@@ -180,7 +181,7 @@ class TronExCreationServiceTest {
         service.makeCancelRequest(cancelOrderRequest);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriBuilderCaptor.capture(),
                 headersCaptor.capture(),
@@ -209,12 +210,12 @@ class TronExCreationServiceTest {
 
         service.sendReceipt(orderId, fileContent, fileName);
 
-        verify(requestService).request(
-                eq(webClient),
+        verify(requestService).requestAsync(
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriBuilderCaptor.capture(),
                 headersCaptor.capture(),
-                org.mockito.ArgumentMatchers.<org.springframework.web.reactive.function.BodyInserters.MultipartInserter>any(),
+                org.mockito.ArgumentMatchers.any(MultiValueMap.class),
                 org.mockito.ArgumentMatchers.any()
         );
 

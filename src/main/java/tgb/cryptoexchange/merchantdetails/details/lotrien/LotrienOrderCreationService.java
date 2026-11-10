@@ -2,8 +2,8 @@ package tgb.cryptoexchange.merchantdetails.details.lotrien;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -22,8 +22,8 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
 
     private final LotrienProperties lotrienProperties;
 
-    protected LotrienOrderCreationService(WebClient webClient, LotrienProperties lotrienProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected LotrienOrderCreationService(RestClient restClient, LotrienProperties lotrienProperties) {
+        super(restClient, Response.class, Callback.class);
         this.lotrienProperties = lotrienProperties;
     }
 

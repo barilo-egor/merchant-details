@@ -3,8 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details.manypay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -24,9 +24,9 @@ public abstract class ManyPayOrderCreationService extends MerchantOrderCreationS
 
     protected final CallbackConfig callbackConfig;
 
-    protected ManyPayOrderCreationService(WebClient webClient,
+    protected ManyPayOrderCreationService(RestClient restClient,
                                           ManyPayProperties manyPayProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.manyPayProperties = manyPayProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -69,7 +69,7 @@ public abstract class ManyPayOrderCreationService extends MerchantOrderCreationS
 
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/api/order/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
                 this::addHeaders, null);
     }

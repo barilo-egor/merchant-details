@@ -4,11 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.properties.PayBoxProperties;
 
 import java.io.IOException;
@@ -18,14 +17,14 @@ import java.util.function.Function;
 @Slf4j
 public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationService {
 
-    protected ReceiptOrderCreationService(WebClient webClient,
+    protected ReceiptOrderCreationService(RestClient restClient,
                                           PayBoxProperties receiptProperties) {
-        super(webClient, receiptProperties);
+        super(restClient, receiptProperties);
     }
 
     @Override
     public void sendReceipt(String orderId, MultipartFile multipartFile) {
-        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        MultipartFormBuilder bodyBuilder = new MultipartFormBuilder();
         byte[] fileContent;
         try {
             addOrderIdPart(bodyBuilder, orderId);
@@ -34,14 +33,14 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
             bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
                     .filename(fileName)
                     .contentType(MediaType.parseMediaType(multipartFile.getContentType()));
-            requestService.request(
-                    webClient,
+            requestService.requestAsync(
+                    restClient,
                     HttpMethod.POST,
                     receiptUriBuilder(orderId),
                     headers -> {
                         headers.add("Authorization", "Bearer " + payBoxProperties.token());
                     },
-                    BodyInserters.fromMultipartData(bodyBuilder.build()),
+                    bodyBuilder.build(),
                     t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
             );
         } catch (IOException e) {
@@ -51,17 +50,17 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        MultipartFormBuilder bodyBuilder = new MultipartFormBuilder();
         addOrderIdPart(bodyBuilder, orderId);
         bodyBuilder.part("receipts", new ByteArrayResource(fileContent))
                 .filename(fileName)
                 .contentType(MediaType.APPLICATION_PDF);
-        requestService.request(
-                webClient,
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 receiptUriBuilder(orderId),
                 headers -> headers.add("Authorization", "Bearer " + payBoxProperties.token()),
-                BodyInserters.fromMultipartData(bodyBuilder.build()),
+                bodyBuilder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant().getDisplayName(), orderId, t.getMessage(), t)
         );
     }
@@ -70,7 +69,7 @@ public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationSer
         return uriBuilder -> uriBuilder.pathSegment("api", "v1", "transactions", "attach").build();
     }
 
-    protected void addOrderIdPart(MultipartBodyBuilder bodyBuilder, String orderId) {
+    protected void addOrderIdPart(MultipartFormBuilder bodyBuilder, String orderId) {
         bodyBuilder.part("transaction_id", orderId, MediaType.TEXT_PLAIN);
     }
 

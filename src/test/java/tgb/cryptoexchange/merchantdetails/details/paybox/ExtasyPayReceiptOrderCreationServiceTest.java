@@ -11,10 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpEntity;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayReceiptProperties;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -39,7 +40,7 @@ class ExtasyPayReceiptOrderCreationServiceTest {
     private ExtasyPayReceiptProperties extasyPayReceiptProperties;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Captor
     private ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor;
@@ -48,7 +49,7 @@ class ExtasyPayReceiptOrderCreationServiceTest {
     private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
 
     @Captor
-    private ArgumentCaptor<BodyInserters.MultipartInserter> bodyInserterCaptor;
+    private ArgumentCaptor<MultiValueMap<String, HttpEntity<?>>> bodyInserterCaptor;
 
     @Mock
     private RequestService requestService;
@@ -61,8 +62,8 @@ class ExtasyPayReceiptOrderCreationServiceTest {
 
         extasyPayReceiptOrderCreationService.sendReceipt(orderId, "pdf-content".getBytes(), "receipt.pdf");
 
-        verify(requestService).request(
-                eq(webClient),
+        verify(requestService).requestAsync(
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriBuilderCaptor.capture(),
                 headersCaptor.capture(),

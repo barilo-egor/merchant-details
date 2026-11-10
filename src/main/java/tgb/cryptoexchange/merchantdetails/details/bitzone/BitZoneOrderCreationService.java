@@ -4,9 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -34,9 +35,9 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
 
     private final CallbackConfig callbackConfig;
 
-    protected BitZoneOrderCreationService(@Qualifier("bitZoneWebClient") WebClient webClient,
+    protected BitZoneOrderCreationService(@Qualifier("bitZoneRestClient") RestClient restClient,
                                           BitZoneProperties bitZoneProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.bitZoneProperties = bitZoneProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -92,11 +93,11 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
             try {
-                if (e instanceof WebClientResponseException.Forbidden ex) {
+                if (e instanceof HttpClientErrorException.Forbidden ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return response.has(MESSAGE)
                             && isNoDetailsMessage(response.get(MESSAGE).asString());
-                } else if (e instanceof WebClientResponseException.GatewayTimeout) {
+                } else if (e instanceof HttpServerErrorException.GatewayTimeout) {
                     return true;
                 }
             } catch (JacksonException jsonProcessingException) {

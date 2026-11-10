@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
@@ -48,7 +48,7 @@ class RsPayMerchantServiceTest {
     @Mock
     private RequestService requestService;
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
     @Mock
     private SignatureService signatureService;
     private OrderCreationRequest detailsRequest;
@@ -61,7 +61,7 @@ class RsPayMerchantServiceTest {
     @BeforeEach
     void setUp() {
         rsPayService = new RSPayOrderCreationServiceImpl(
-                webClient,
+                restClient,
                 rsPayProperties,
                 callbackConfig,
                 signatureService
@@ -94,7 +94,7 @@ class RsPayMerchantServiceTest {
 
         String responseJson = "{\"merchant_transaction_id\":\"order-123\",\"status\":\"pending\",\"requisites\":{\"payment_link\":\"https://pay.test.com/link\"}}";
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -122,7 +122,7 @@ class RsPayMerchantServiceTest {
 
         String responseJson = "{\"merchant_transaction_id\":\"order-123\",\"status\":\"pending\",\"requisites\":{\"mobile_provider\":\"MTS\",\"phone_number\":\"+7-999-123-4567\"}}";
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -147,7 +147,7 @@ class RsPayMerchantServiceTest {
 
         String responseJson = "{\"merchant_transaction_id\":\"order-123\",\"status\":\"pending\",\"requisites\":{\"bank_name\":\"Sberbank\",\"card_number\":\"**** 1234\"}}";
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -171,7 +171,7 @@ class RsPayMerchantServiceTest {
 
         String responseJson = "{\"merchant_transaction_id\":\"order-123\",\"status\":\"pending\",\"requisites\":{\"bank_name\":\"Tinkoff\",\"phone_number\":\"+7-999-888-7766\"}}";
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -190,7 +190,7 @@ class RsPayMerchantServiceTest {
     @Test
     void shouldCancelOrderSuccessfully() {
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -200,7 +200,7 @@ class RsPayMerchantServiceTest {
         rsPayService.makeCancelRequest(cancelOrderRequest);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -225,7 +225,7 @@ class RsPayMerchantServiceTest {
         when(signatureService.hmacSHA256(anyString(), eq(SECRET))).thenReturn("cancel-signature");
 
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -237,7 +237,7 @@ class RsPayMerchantServiceTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 headersCaptor.capture(),

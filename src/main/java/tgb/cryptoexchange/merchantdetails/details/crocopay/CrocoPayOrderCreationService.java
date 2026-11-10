@@ -2,9 +2,9 @@ package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -26,9 +26,9 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
 
     protected final CallbackConfig callbackConfig;
 
-    protected CrocoPayOrderCreationService(WebClient webClient, CrocoPayProperties crocoPayProperties,
+    protected CrocoPayOrderCreationService(RestClient restClient, CrocoPayProperties crocoPayProperties,
                                            CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.crocoPayProperties = crocoPayProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -81,7 +81,7 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.InternalServerError internalServerError) {
+            if (e instanceof HttpServerErrorException.InternalServerError internalServerError) {
                 try {
                     JsonNode response = objectMapper.readTree(internalServerError.getResponseBodyAsString());
                     return response.has("code")

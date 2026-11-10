@@ -175,6 +175,22 @@ public class CommonConfig {
         return executor;
     }
 
+    @Bean(name = "asyncRequestExecutor")
+    public ThreadPoolTaskExecutor asyncRequestExecutor(
+            @Value("${async-request.executor.core-pool-size:2}") Integer corePoolSize,
+            @Value("${async-request.executor.max-pool-size:8}") Integer maxPoolSize,
+            @Value("${async-request.executor.queue-capacity:500}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("AsyncRequest-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
     @Bean
     public Map<Long, Future<Void>> activeSearchMap() {
         return new ConcurrentHashMap<>();

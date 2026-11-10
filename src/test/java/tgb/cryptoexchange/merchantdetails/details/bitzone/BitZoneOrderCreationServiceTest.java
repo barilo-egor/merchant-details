@@ -10,9 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -200,7 +201,7 @@ class BitZoneOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("CANT_CREATE_TRADE_FOR_THIS_AMOUNT");
-        WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
     }
@@ -212,7 +213,7 @@ class BitZoneOrderCreationServiceTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("message")).thenReturn(false);
-        WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
     }
@@ -222,7 +223,7 @@ class BitZoneOrderCreationServiceTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         bitZoneOrderCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        WebClientResponseException.Forbidden forbidden = Mockito.mock(WebClientResponseException.Forbidden.class);
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
         when(forbidden.getResponseBodyAsString()).thenReturn("");
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
     }
@@ -230,15 +231,15 @@ class BitZoneOrderCreationServiceTest {
     @Test
     void isNoDetailsExceptionPredicateShouldReturnTrueIfGatewayTimeout() {
         assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.GatewayTimeout.class)));
+                .test(Mockito.mock(HttpServerErrorException.GatewayTimeout.class)));
     }
 
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfNotForbidden() {
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+                .test(Mockito.mock(HttpServerErrorException.InternalServerError.class)));
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
-                .test(Mockito.mock(WebClientResponseException.BadRequest.class)));
+                .test(Mockito.mock(HttpClientErrorException.BadRequest.class)));
         assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
                 .test(Mockito.mock(RuntimeException.class)));
     }

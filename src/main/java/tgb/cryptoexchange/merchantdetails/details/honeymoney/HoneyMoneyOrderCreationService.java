@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -35,10 +35,10 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
 
     private final CallbackConfig callbackConfig;
 
-    protected HoneyMoneyOrderCreationService(@Qualifier("honeyMoneyWebClient") WebClient webClient,
+    protected HoneyMoneyOrderCreationService(@Qualifier("honeyMoneyRestClient") RestClient restClient,
                                              HoneyMoneyProperties honeyMoneyProperties,
                                              SignatureService signatureService, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.honeyMoneyProperties = honeyMoneyProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
@@ -91,7 +91,7 @@ public class HoneyMoneyOrderCreationService extends MerchantOrderCreationService
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.BadRequest ex) {
+            if (e instanceof HttpClientErrorException.BadRequest ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoDetails(response) || isAmountError(response);

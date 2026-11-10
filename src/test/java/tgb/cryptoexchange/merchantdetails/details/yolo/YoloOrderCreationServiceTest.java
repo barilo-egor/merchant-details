@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
@@ -37,7 +37,7 @@ class YoloOrderCreationServiceTest {
 
     private final ObjectMapper objectMapper = JsonMappers.create();
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
     @Mock
     private YoloPropertiesImpl yoloProperties;
     @Mock
@@ -49,7 +49,7 @@ class YoloOrderCreationServiceTest {
 
     @BeforeEach
     void setUp() {
-        yoloService = new YoloOrderCreationServiceImpl(webClient, yoloProperties, callbackConfig);
+        yoloService = new YoloOrderCreationServiceImpl(restClient, yoloProperties, callbackConfig);
         ReflectionTestUtils.setField(yoloService, "requestService", requestService);
         ReflectionTestUtils.setField(yoloService, "objectMapper", objectMapper);
     }
@@ -135,7 +135,7 @@ class YoloOrderCreationServiceTest {
         headersConsumer.accept(new HttpHeaders());
 
         verify(requestService, times(1)).request(
-                eq(webClient),
+                eq(restClient),
                 any(),
                 any(),
                 any(),

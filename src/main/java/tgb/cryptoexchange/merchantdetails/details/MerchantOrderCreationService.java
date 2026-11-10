@@ -10,10 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.ResourceAccessException;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
@@ -26,9 +26,10 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpTimeoutException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,7 +42,7 @@ import java.util.function.Predicate;
 @Slf4j
 public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse, P extends MerchantCallback> implements MerchantService {
 
-    protected final WebClient webClient;
+    protected final RestClient restClient;
 
     private final Class<T> responseType;
 
@@ -58,8 +59,8 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private MerchantConfigService merchantConfigService;
 
-    protected MerchantOrderCreationService(WebClient webClient, Class<T> responseType, Class<P> callbackType) {
-        this.webClient = webClient;
+    protected MerchantOrderCreationService(RestClient restClient, Class<T> responseType, Class<P> callbackType) {
+        this.restClient = restClient;
         this.responseType = responseType;
         this.callbackType = callbackType;
     }
@@ -156,11 +157,11 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     protected Optional<String> makeRequest(OrderCreationRequest request, String body) {
         try {
             return Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder(request),
+                    restClient, method(), uriBuilder(request),
                     headers(request, body), body
             ));
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof TimeoutException) {
+        } catch (ResourceAccessException e) {
+            if (e.getCause() instanceof HttpTimeoutException && !(e.getCause() instanceof HttpConnectTimeoutException)) {
                 return Optional.empty();
             }
             throw e;
@@ -169,12 +170,12 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     private void handleRequestException(Exception e, long currentTime, OrderCreationRequest request, String body) {
 
-        if (e instanceof WebClientResponseException webClientResponseException) {
-            String errorBody = webClientResponseException.getResponseBodyAsString();
+        if (e instanceof RestClientResponseException restClientResponseException) {
+            String errorBody = restClientResponseException.getResponseBodyAsString();
             log.error("{} Мерчант {} ответил ошибкой на запрос по сделке {}, метод {}: {}. Тело запроса: {}. Тело ответа: {}",
                     currentTime, getMerchant().name(), request.getId(), request.getMethod(),
                     e.getMessage(), body, errorBody);
-        } else if (e instanceof WebClientRequestException) {
+        } else if (e instanceof ResourceAccessException) {
             log.error("{} Ошибка соединения с мерчантом {} по сделке {}, метод {}: {}. Тело запроса: {}",
                     currentTime, getMerchant().name(), request.getId(), request.getMethod(),
                     e.getMessage(), body);

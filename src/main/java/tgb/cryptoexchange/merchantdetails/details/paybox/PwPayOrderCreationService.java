@@ -2,16 +2,16 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PwPayProperties;
 
 @Service
 public class PwPayOrderCreationService extends PayBoxOrderCreationService {
 
-    protected PwPayOrderCreationService(@Qualifier("pwPayWebClient") WebClient webClient,
+    protected PwPayOrderCreationService(@Qualifier("pwPayRestClient") RestClient restClient,
                                             PwPayProperties pwPayProperties) {
-        super(webClient, pwPayProperties);
+        super(restClient, pwPayProperties);
     }
 
     @Override

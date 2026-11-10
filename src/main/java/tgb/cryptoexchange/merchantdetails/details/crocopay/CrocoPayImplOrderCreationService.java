@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
@@ -10,9 +10,9 @@ import tgb.cryptoexchange.merchantdetails.properties.CrocoPayImplProperties;
 @Service
 public class CrocoPayImplOrderCreationService extends CrocoPayOrderCreationService {
 
-    protected CrocoPayImplOrderCreationService(@Qualifier("crocoPayWebClient") WebClient webClient,
+    protected CrocoPayImplOrderCreationService(@Qualifier("crocoPayRestClient") RestClient restClient,
                                                CrocoPayImplProperties crocoPayProperties, CallbackConfig callbackConfig) {
-        super(webClient, crocoPayProperties, callbackConfig);
+        super(restClient, crocoPayProperties, callbackConfig);
     }
 
     @Override

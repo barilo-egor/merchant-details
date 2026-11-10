@@ -3,8 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details.yolo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -31,9 +31,9 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
 
     protected final JwtData jwtData = new JwtData();
 
-    protected YoloOrderCreationService(@Qualifier("yoloWebClient") WebClient webClient,
+    protected YoloOrderCreationService(@Qualifier("yoloRestClient") RestClient restClient,
                                        YoloProperties yoloProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.yoloProperties = yoloProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -48,7 +48,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         if (jwtData.getAccessToken() == null || Instant.now().plus(5, ChronoUnit.MINUTES).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
+                    restClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
                     h -> h.add("Content-Type", "application/json"), mapBody()));
             if (jwtResponse.isEmpty()) {
                 log.debug("Yolo jwt ответ пуст!");

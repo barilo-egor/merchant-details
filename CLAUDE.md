@@ -50,15 +50,17 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 
 Каждая интеграция — Spring-бин, реализующий `MerchantService`; `MerchantServiceRegistry` собирает их в `EnumMap<Merchant, MerchantService>` по `getMerchant()`. Почти все наследуют шаблонный `MerchantOrderCreationService<Response, Callback>`, который реализует весь поток (маппинг тела, запрос через `RequestService`, разбор и `validate()` ответа, разбор callback'а и отправку `MerchantCallbackEvent` в Kafka). Наследник переопределяет `uriBuilder`, `headers`, `body`, `buildResponse` и при необходимости хуки: `method()`, `isValidRequestPredicate`, `isNoDetailsExceptionPredicate`, `hasResponseNoDetailsErrorPredicate`, `isIgnoreCallbackPredicate`, `makeCancelRequest`, `makeFetchCallbackData`, `sendReceipt`, `deleteReceipt`.
 
-Типичная структура пакета `details/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` WebClient'а и классом properties.
+Типичная структура пакета `details/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` RestClient'а и классом properties.
 
 Добавление нового мерчанта или варианта затрагивает несколько мест:
 1. значение в enum `Merchant` (библиотека `commons`);
 2. `properties/<Name>Properties` — record с `@ConfigurationProperties(prefix = "...")`, обычно реализующий общий интерфейс провайдера (сканируется `@ConfigurationPropertiesScan`);
-3. бин `<name>WebClient` в `config/WebClientsConfig` (база — `get30SecondsResponseTimeoutWebClientBuilder()`);
+3. бин `<name>RestClient` в `config/RestClientsConfig` (база — `get30SecondsReadTimeoutRestClientBuilder()`);
 4. сервис в `details/<merchant>/`;
 5. ключи в `config_template/config.yml` и фиктивные значения в `src/test/resources/application.yml`;
 6. тесты: `properties/<Name>PropertiesTest` (`@SpringBootTest`) и `details/<merchant>/*Test` (Mockito).
+
+HTTP-запросы к мерчантам идут через `RequestService` на синхронном `RestClient` (webflux в проекте нет). Таймауты соединения и ожидания ответа по 30 секунд; таймаут ожидания ответа при создании ордера считается «нет реквизитов», а не ошибкой. Ошибки мерчанта приходят как `HttpClientErrorException.*`/`HttpServerErrorException.*` (`RestClientResponseException`), ошибки соединения как `ResourceAccessException`. Отправка чеков (`requestAsync`) выполняется в пуле `asyncRequestExecutor` без ожидания ответа, ошибка уходит в переданный обработчик; тело multipart собирается через `util/MultipartFormBuilder` (`MultipartBodyBuilder` из Spring требует reactive-streams).
 
 URL callback'а мерчанту формируется как `callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret()`.
 

@@ -11,8 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Method;
 import tgb.cryptoexchange.merchantdetails.details.bridgepay.Request;
@@ -25,6 +26,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpTimeoutException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -69,9 +72,33 @@ class MerchantOrderCreationServiceTest {
     }
 
     @Test
-    void createOrderShouldThrowUnavailableExceptionIfWebClientExceptionWasThrown() throws JacksonException {
+    void createOrderShouldThrowUnavailableExceptionIfRestClientExceptionWasThrown() throws JacksonException {
         when(objectMapper.writeValueAsString(any())).thenReturn("");
         when(requestService.request(any(), any(), any(), any(), anyString())).thenThrow(RuntimeException.class);
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
+        ServiceUnavailableException ex = assertThrows(
+                ServiceUnavailableException.class,
+                () -> service.createOrder(detailsRequest)
+        );
+        assertTrue(ex.getMessage().startsWith("Error occurred while creating order: "));
+    }
+
+    @Test
+    void createOrderShouldReturnEmptyIfResponseTimeoutExceeded() throws JacksonException {
+        when(objectMapper.writeValueAsString(any())).thenReturn("");
+        when(requestService.request(any(), any(), any(), any(), anyString()))
+                .thenThrow(new ResourceAccessException("timeout", new HttpTimeoutException("request timed out")));
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setMethod("CARD");
+        assertTrue(service.createOrder(detailsRequest).isEmpty());
+    }
+
+    @Test
+    void createOrderShouldThrowUnavailableExceptionIfConnectTimeoutExceeded() throws JacksonException {
+        when(objectMapper.writeValueAsString(any())).thenReturn("");
+        when(requestService.request(any(), any(), any(), any(), anyString()))
+                .thenThrow(new ResourceAccessException("timeout", new HttpConnectTimeoutException("connect timed out")));
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setMethod("CARD");
         ServiceUnavailableException ex = assertThrows(
@@ -211,8 +238,8 @@ class MerchantOrderCreationServiceTest {
 
     public static class TestMerchantOrderCreationService extends MerchantOrderCreationService<Response, VoidCallback> {
 
-        protected TestMerchantOrderCreationService(WebClient webClient) {
-            super(webClient, Response.class, VoidCallback.class);
+        protected TestMerchantOrderCreationService(RestClient restClient) {
+            super(restClient, Response.class, VoidCallback.class);
         }
 
         @Override

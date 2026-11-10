@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayQRProperties;
 
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.ExtasyPayQRProperties;
 @Slf4j
 public class ExtasyPayQROrderCreationService extends PayBoxOrderCreationService {
 
-    protected ExtasyPayQROrderCreationService(@Qualifier("extasyPayQRWebClient") WebClient webClient,
+    protected ExtasyPayQROrderCreationService(@Qualifier("extasyPayQRRestClient") RestClient restClient,
                                               ExtasyPayQRProperties extasyPayQRProperties) {
-        super(webClient, extasyPayQRProperties);
+        super(restClient, extasyPayQRProperties);
     }
 
     @Override

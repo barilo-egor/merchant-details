@@ -2,16 +2,16 @@ package tgb.cryptoexchange.merchantdetails.details.goatx;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.GoatxSimProperties;
 
 @Service
 public class GoatxSimMerchantOrderCreationService extends GoatxMerchantOrderCreationService {
 
-    protected GoatxSimMerchantOrderCreationService(@Qualifier("goatxSimWebClient") WebClient webClient,
+    protected GoatxSimMerchantOrderCreationService(@Qualifier("goatxSimRestClient") RestClient restClient,
                                                    GoatxSimProperties goatxProperties) {
-        super(webClient, goatxProperties);
+        super(restClient, goatxProperties);
     }
 
     @Override

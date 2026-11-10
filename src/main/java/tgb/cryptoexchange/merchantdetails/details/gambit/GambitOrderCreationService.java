@@ -2,8 +2,8 @@ package tgb.cryptoexchange.merchantdetails.details.gambit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
@@ -21,8 +21,8 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
 
     protected final GambitProperties gambitProperties;
 
-    protected GambitOrderCreationService(WebClient webClient, GambitProperties gambitProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected GambitOrderCreationService(RestClient restClient, GambitProperties gambitProperties) {
+        super(restClient, Response.class, Callback.class);
         this.gambitProperties = gambitProperties;
     }
 

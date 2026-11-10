@@ -4,13 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.MultipartBodyBuilder;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -46,10 +45,10 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     private final SleepingService sleepingService;
 
-    protected BridgePayOrderCreationService(WebClient webClient, BridgePayProperties bridgePayProperties,
+    protected BridgePayOrderCreationService(RestClient restClient, BridgePayProperties bridgePayProperties,
                                             SignatureService signatureService, CallbackConfig callbackConfig,
                                             SleepingService sleepingService) {
-        super(webClient, Response.class, BridgeCallback.class);
+        super(restClient, Response.class, BridgeCallback.class);
         this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
@@ -157,7 +156,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
             throw new ServiceUnavailableException("Error occurred while wait: " + currentTime);
         }
         String targetUrl = bridgePayProperties.url() + "/api/merchant/invoices/" + response.getId();
-        String listOrderStringResponse = requestService.request(webClient, HttpMethod.GET,
+        String listOrderStringResponse = requestService.request(restClient, HttpMethod.GET,
                 uriBuilder -> URI.create(targetUrl),
                 headers -> addHeaders(headers, Method.MANUAL_SBP_QR, null, targetUrl, HttpMethod.GET),
                 null
@@ -180,7 +179,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.BadRequest badRequest) {
+            if (e instanceof HttpClientErrorException.BadRequest badRequest) {
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(badRequest.getResponseBodyAsString());
@@ -200,7 +199,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String cancelUrl = "/api/merchant/invoices/" + cancelOrderRequest.getOrderId() + "/cancel";
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path(cancelUrl).build(),
                 headers -> addHeaders(headers, parseMethod(cancelOrderRequest.getMethod(), Method.class), null,
                         bridgePayProperties.url() + cancelUrl),
@@ -210,21 +209,21 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartFormBuilder builder = new MultipartFormBuilder();
         builder.part("attachment", new ByteArrayResource(fileContent))
                 .filename(fileName);
 
         URI fullUri = UriComponentsBuilder.fromUriString(bridgePayProperties.url())
                 .pathSegment("api", "merchant", "invoices", orderId, "confirm-transfer").build().toUri();
-        requestService.request(
-                webClient,
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> fullUri,
                 headers -> {
                     addHeaders(headers, null, null, fullUri.toString());
                     headers.add("Content-Type", "multipart/form-data");
                 },
-                BodyInserters.fromMultipartData(builder.build()),
+                builder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant(), orderId, t.getMessage(), t)
         );
     }

@@ -2,9 +2,9 @@ package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -28,9 +28,9 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
 
     protected final CallbackConfig callbackConfig;
 
-    protected SettleXOrderCreationService(WebClient webClient,
+    protected SettleXOrderCreationService(RestClient restClient,
                                           SettleXProperties settleXProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.settleXProperties = settleXProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -80,7 +80,7 @@ public abstract class SettleXOrderCreationService extends MerchantOrderCreationS
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.Conflict conflict) {
+            if (e instanceof HttpClientErrorException.Conflict conflict) {
                 try {
                     JsonNode response = objectMapper.readTree(conflict.getResponseBodyAsString());
                     return response.has("error")

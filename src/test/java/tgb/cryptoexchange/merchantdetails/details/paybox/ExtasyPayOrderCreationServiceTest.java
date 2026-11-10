@@ -10,10 +10,11 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -45,7 +46,7 @@ class ExtasyPayOrderCreationServiceTest {
     private RequestService requestService;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @InjectMocks
     private ExtasyPayOrderCreationService extasyPayOrderCreationService;
@@ -158,7 +159,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(responseNode.has("message")).thenReturn(true);
         when(responseNode.get("code")).thenReturn(codeNode);
         when(responseNode.get("message")).thenReturn(messageNode);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -174,7 +175,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Internal Server Error");
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -190,7 +191,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(response.get("message")).thenReturn(message);
         when(message.asString()).thenReturn("Another error");
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -202,7 +203,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("message")).thenReturn(false);
         when(response.has("code")).thenReturn(false);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -212,7 +213,7 @@ class ExtasyPayOrderCreationServiceTest {
         ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
         extasyPayOrderCreationService.setObjectMapper(objectMapper);
         when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -220,10 +221,10 @@ class ExtasyPayOrderCreationServiceTest {
     @Test
     void isNoDetailsExceptionPredicateShouldReturnFalseIfExceptionNotInternalServerErrorAndInternalServerError() {
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
-                Mockito.mock(WebClientResponseException.BadRequest.class)
+                Mockito.mock(HttpClientErrorException.BadRequest.class)
         ));
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
-                Mockito.mock(WebClientResponseException.Conflict.class)
+                Mockito.mock(HttpClientErrorException.Conflict.class)
         ));
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(
                 Mockito.mock(RuntimeException.class)
@@ -244,7 +245,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(responseNode.has("message")).thenReturn(true);
         when(responseNode.get("code")).thenReturn(codeNode);
         when(responseNode.get("message")).thenReturn(messageNode);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -260,7 +261,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(responseNode.has("code")).thenReturn(true);
         when(responseNode.has("message")).thenReturn(false);
         when(responseNode.get("code")).thenReturn(codeNode);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -275,7 +276,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(objectMapper.readTree(anyString())).thenReturn(responseNode);
         when(responseNode.has("code")).thenReturn(true);
         when(responseNode.get("code")).thenReturn(codeNode);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -287,7 +288,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode responseNode = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(responseNode);
         when(responseNode.has("code")).thenReturn(false);
-        WebClientResponseException.InternalServerError ex = Mockito.mock(WebClientResponseException.InternalServerError.class);
+        HttpServerErrorException.InternalServerError ex = Mockito.mock(HttpServerErrorException.InternalServerError.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -313,7 +314,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(amount.get(0)).thenReturn(message);
         when(message.asString()).thenReturn("Amount should be grater than 7000.");
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertTrue(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -339,7 +340,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode message = Mockito.mock(JsonNode.class);
         when(amount.get(0)).thenReturn(message);
         when(message.asString()).thenReturn("Another amount error.");
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -363,7 +364,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(errors.get("amount")).thenReturn(amount);
         when(amount.isArray()).thenReturn(true);
         when(amount.size()).thenReturn(size);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -385,7 +386,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode amount = Mockito.mock(JsonNode.class);
         when(errors.get("amount")).thenReturn(amount);
         when(amount.isArray()).thenReturn(false);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -404,7 +405,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode errors = Mockito.mock(JsonNode.class);
         when(response.get("errors")).thenReturn(errors);
         when(errors.has("amount")).thenReturn(false);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -420,7 +421,7 @@ class ExtasyPayOrderCreationServiceTest {
         when(code.asString()).thenReturn("422");
         when(response.get("code")).thenReturn(code);
         when(response.has("errors")).thenReturn(false);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -435,7 +436,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode code = Mockito.mock(JsonNode.class);
         when(code.asString()).thenReturn("421");
         when(response.get("code")).thenReturn(code);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -447,7 +448,7 @@ class ExtasyPayOrderCreationServiceTest {
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("code")).thenReturn(false);
-        WebClientResponseException.UnprocessableEntity ex = Mockito.mock(WebClientResponseException.UnprocessableEntity.class);
+        HttpClientErrorException.UnprocessableEntity ex = Mockito.mock(HttpClientErrorException.UnprocessableEntity.class);
         when(ex.getResponseBodyAsString()).thenReturn("");
         assertFalse(extasyPayOrderCreationService.isNoDetailsExceptionPredicate().test(ex));
     }
@@ -463,7 +464,7 @@ class ExtasyPayOrderCreationServiceTest {
         cancelOrderRequest.setOrderId(orderId);
         cancelOrderRequest.setMethod(method.name());
         extasyPayOrderCreationService.makeCancelRequest(cancelOrderRequest);
-        verify(requestService).request(eq(webClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
+        verify(requestService).request(eq(restClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
                 any(), eq(null));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/api/v1/transactions/" + orderId + "/cancel", uriBuilderCaptor.getValue().apply(uriBuilder).getPath());

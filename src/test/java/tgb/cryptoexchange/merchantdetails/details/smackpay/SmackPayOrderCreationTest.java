@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -35,7 +35,7 @@ class SmackPayOrderCreationTest {
     private final ObjectMapper objectMapper = JsonMappers.create();
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Mock
     private SmackPayProperties smackPayProperties;
@@ -50,7 +50,7 @@ class SmackPayOrderCreationTest {
     @BeforeEach
     void setUp() {
         smackPayService = new TestSmackPayOrderCreationService(
-                webClient,
+                restClient,
                 smackPayProperties
         );
         smackPayService.setObjectMapper(objectMapper);
@@ -74,7 +74,7 @@ class SmackPayOrderCreationTest {
                 """;
 
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -118,7 +118,7 @@ class SmackPayOrderCreationTest {
                 """;
 
         when(requestService.request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 any(),
@@ -130,7 +130,7 @@ class SmackPayOrderCreationTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 any(),
                 headersCaptor.capture(),
@@ -150,9 +150,9 @@ class SmackPayOrderCreationTest {
     }
 
     private static class TestSmackPayOrderCreationService extends SmackPayOrderCreationService {
-        protected TestSmackPayOrderCreationService(WebClient webClient,
+        protected TestSmackPayOrderCreationService(RestClient restClient,
                                                    SmackPayProperties smackPayProperties) {
-            super(webClient, smackPayProperties);
+            super(restClient, smackPayProperties);
         }
     }
 }

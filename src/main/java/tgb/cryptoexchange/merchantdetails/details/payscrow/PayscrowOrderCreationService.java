@@ -2,9 +2,10 @@ package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -30,8 +31,8 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
 
     private final PayscrowProperties payscrowProperties;
 
-    protected PayscrowOrderCreationService(WebClient webClient, PayscrowProperties payscrowProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected PayscrowOrderCreationService(RestClient restClient, PayscrowProperties payscrowProperties) {
+        super(restClient, Response.class, Callback.class);
         this.payscrowProperties = payscrowProperties;
     }
 
@@ -75,14 +76,14 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.InternalServerError ex) {
+            if (e instanceof HttpServerErrorException.InternalServerError ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoDetails(response) || isAmountError(response) || isInternalError(response);
                 } catch (JacksonException jsonProcessingException) {
                     return false;
                 }
-            } else if (e instanceof WebClientResponseException.Conflict ex) {
+            } else if (e instanceof HttpClientErrorException.Conflict ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isAmountError(response);

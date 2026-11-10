@@ -2,10 +2,10 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.client.MultipartBodyBuilder;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.HellBitReceiptProperties;
 
@@ -16,9 +16,9 @@ import java.util.function.Function;
 @Slf4j
 public class HellBitReceiptOrderCreationService extends ReceiptOrderCreationService {
 
-    protected HellBitReceiptOrderCreationService(@Qualifier("hellBitWebClient") WebClient webClient,
+    protected HellBitReceiptOrderCreationService(@Qualifier("hellBitRestClient") RestClient restClient,
                                                  HellBitReceiptProperties hellBitProperties) {
-        super(webClient, hellBitProperties);
+        super(restClient, hellBitProperties);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class HellBitReceiptOrderCreationService extends ReceiptOrderCreationServ
     }
 
     @Override
-    protected void addOrderIdPart(MultipartBodyBuilder bodyBuilder, String orderId) {
+    protected void addOrderIdPart(MultipartFormBuilder bodyBuilder, String orderId) {
     }
 
     @Override

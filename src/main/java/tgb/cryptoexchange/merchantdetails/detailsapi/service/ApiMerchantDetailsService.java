@@ -6,7 +6,7 @@ import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -113,7 +113,7 @@ public class ApiMerchantDetailsService {
                 log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{}: {}",
                         merchant.name(), request.getInternalId(), e.getMessage(), e);
                 meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
-                if (e instanceof WebClientResponseException responseException) {
+                if (e instanceof RestClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getInternalId(), responseException.getResponseBodyAsString());
                 }
             }

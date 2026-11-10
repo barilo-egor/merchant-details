@@ -4,9 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -39,9 +38,9 @@ public abstract class RSPayOrderCreationService extends MerchantOrderCreationSer
 
     private final SignatureService signatureService;
 
-    protected RSPayOrderCreationService(WebClient webClient, RSPayProperties rsPayProperties,
+    protected RSPayOrderCreationService(RestClient restClient, RSPayProperties rsPayProperties,
                                         CallbackConfig callbackConfig, SignatureService signatureService) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.rsPayProperties = rsPayProperties;
         this.callbackConfig = callbackConfig;
         this.signatureService = signatureService;
@@ -119,7 +118,7 @@ public abstract class RSPayOrderCreationService extends MerchantOrderCreationSer
         try {
             Map<String, String> bodyMap = Map.of("transaction_id", cancelOrderRequest.getOrderId());
             String body = objectMapper.writeValueAsString(bodyMap);
-            requestService.request(webClient, HttpMethod.POST,
+            requestService.request(restClient, HttpMethod.POST,
                     uriBuilder -> uriBuilder.path(cancelUrl).build(),
                     httpHeaders -> addHeaders(httpHeaders, body),
                     body
@@ -152,15 +151,15 @@ public abstract class RSPayOrderCreationService extends MerchantOrderCreationSer
 
             byte[] rawMultipartBody = out.toByteArray();
 
-            requestService.request(
-                    webClient,
+            requestService.requestAsync(
+                    restClient,
                     HttpMethod.POST,
                     uriBuilder -> uriBuilder.path("/requisites/receipt/").build(),
                     httpHeaders -> {
                         addReceiptHeaders(httpHeaders, rawMultipartBody);
                         httpHeaders.setContentType(MediaType.parseMediaType("multipart/form-data; boundary=" + fixedBoundary));
                     },
-                    BodyInserters.fromValue(rawMultipartBody),
+                    rawMultipartBody,
                     t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}",
                             getMerchant().getDisplayName(), orderId, t.getMessage(), t)
             );

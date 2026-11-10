@@ -5,8 +5,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -41,10 +41,10 @@ public class ViatrumOrderCreationService extends MerchantOrderCreationService<Re
 
     private final AtomicLong lastNonce = new AtomicLong(0);
 
-    protected ViatrumOrderCreationService(@Qualifier("viatrumWebClient") WebClient webClient,
+    protected ViatrumOrderCreationService(@Qualifier("viatrumRestClient") RestClient restClient,
                                           ViatrumProperties viatrumProperties, ObjectMapper objectMapper,
                                           SignatureService signatureService, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.viatrumProperties = viatrumProperties;
         this.objectMapper = objectMapper;
         this.signatureService = signatureService;

@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.tronex;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.TronExSimProperties;
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.TronExSimProperties;
 public class TronExSimCreationService extends TronExOrderCreationService {
 
 
-    protected TronExSimCreationService(@Qualifier("tronExWebClient") WebClient webClient,
+    protected TronExSimCreationService(@Qualifier("tronExRestClient") RestClient restClient,
                                        TronExSimProperties tronExSimProperties, CallbackConfig callbackConfig) {
-        super(webClient, tronExSimProperties, callbackConfig);
+        super(restClient, tronExSimProperties, callbackConfig);
     }
 
 

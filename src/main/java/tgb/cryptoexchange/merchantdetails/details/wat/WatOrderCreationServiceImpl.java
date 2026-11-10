@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.wat;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.WatPropertiesImpl;
@@ -12,10 +12,10 @@ import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 public class WatOrderCreationServiceImpl extends WatOrderCreationService {
 
 
-    protected WatOrderCreationServiceImpl(@Qualifier("watWebClient") WebClient webClient,
+    protected WatOrderCreationServiceImpl(@Qualifier("watRestClient") RestClient restClient,
                                           WatPropertiesImpl watProperties, CallbackConfig callbackConfig,
                                           ReceiptService receiptService) {
-        super(webClient, watProperties, callbackConfig, receiptService);
+        super(restClient, watProperties, callbackConfig, receiptService);
     }
 
 

@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.HellBitProperties;
@@ -16,9 +16,9 @@ public class HellBitOrderCreationService extends PayBoxOrderCreationService {
 
     private final HellBitProperties hellBitProperties;
 
-    protected HellBitOrderCreationService(@Qualifier("hellBitWebClient") WebClient webClient,
+    protected HellBitOrderCreationService(@Qualifier("hellBitRestClient") RestClient restClient,
                                           HellBitProperties hellBitProperties) {
-        super(webClient, hellBitProperties);
+        super(restClient, hellBitProperties);
         this.hellBitProperties = hellBitProperties;
     }
 

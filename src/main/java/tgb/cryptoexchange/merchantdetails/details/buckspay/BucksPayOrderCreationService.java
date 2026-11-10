@@ -3,8 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details.buckspay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -30,9 +30,9 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
 
     private final SignatureService signatureService;
 
-    protected BucksPayOrderCreationService(WebClient webClient, BucksPayProperties bucksPayProperties,
+    protected BucksPayOrderCreationService(RestClient restClient, BucksPayProperties bucksPayProperties,
                                            CallbackConfig callbackConfig, SignatureService signatureService) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.bucksPayProperties = bucksPayProperties;
         this.callbackConfig = callbackConfig;
         this.signatureService = signatureService;
@@ -118,7 +118,7 @@ public abstract class BucksPayOrderCreationService extends MerchantOrderCreation
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String cancelUrl = "/invoice/" + cancelOrderRequest.getOrderId() + "/cancel";
         Method method = parseMethod(cancelOrderRequest.getMethod(), Method.class);
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path(cancelUrl).build(),
                 httpHeaders -> addHeaders(httpHeaders, method),
                 null
