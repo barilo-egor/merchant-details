@@ -7,6 +7,12 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import java.util.UUID;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uc_api_merchant_config_owner_id_merchant",
+                columnNames = {"owner_id", "merchant"}
+        )
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,7 +38,7 @@ public class ApiMerchantConfig implements BaseConfig {
     @Column(nullable = false)
     private Integer merchantOrder;
 
-    @Column
+    @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 
 }

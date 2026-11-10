@@ -2,13 +2,10 @@ package tgb.cryptoexchange.merchantdetails.mapper;
 
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import tgb.cryptoexchange.grpc.generated.ApiMerchantConfigItemGrpc;
-import tgb.cryptoexchange.grpc.generated.FindAllApiMerchantConfigsRequestGrpc;
 import tgb.cryptoexchange.grpc.generated.UpdateApiMerchantConfigItemGrpc;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
 
 @Component
@@ -32,14 +29,6 @@ public class ApiMerchantConfigGrpcMapper {
             builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
         }
         return builder.build();
-    }
-
-    public MerchantConfigRequest mapToApiMerchantConfigRequest(FindAllApiMerchantConfigsRequestGrpc grpcRequest) {
-        MerchantConfigRequest request = new MerchantConfigRequest();
-        if (StringUtils.isNotBlank(grpcRequest.getOwnerId())) {
-            request.setOwnerId(grpcRequest.getOwnerId());
-        }
-        return request;
     }
 
     public UpdateApiMerchantConfigDTO mapToUpdateMerchantConfigDTO(UpdateApiMerchantConfigItemGrpc grpcRequest) {

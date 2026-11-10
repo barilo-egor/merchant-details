@@ -1,7 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,9 +15,11 @@ import java.util.Set;
 import java.util.UUID;
 
 @Repository
-public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantConfig, Long>, JpaSpecificationExecutor<ApiMerchantConfig> {
+public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantConfig, Long> {
 
     List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn);
+
+    List<ApiMerchantConfig> findAllByOwnerIdOrderByMerchantOrderAsc(UUID ownerId);
 
     @Query("select max(merchantOrder) from ApiMerchantConfig where ownerId=:ownerId")
     Integer findMaxMerchantOrder(UUID ownerId);
