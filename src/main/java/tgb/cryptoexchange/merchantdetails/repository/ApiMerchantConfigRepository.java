@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 
 import java.util.List;
@@ -19,7 +20,9 @@ public interface ApiMerchantConfigRepository extends JpaRepository<ApiMerchantCo
 
     List<ApiMerchantConfig> findAllByIsOnOrderByMerchantOrder(Boolean isOn);
 
-    List<ApiMerchantConfig> findAllByOwnerIdOrderByMerchantOrderAsc(UUID ownerId);
+    List<ApiMerchantConfigDTO> findAllByOwnerIdOrderByMerchantOrderAsc(UUID ownerId);
+
+    Optional<ApiMerchantConfigDTO> findDtoById(Long id);
 
     @Query("select max(merchantOrder) from ApiMerchantConfig where ownerId=:ownerId")
     Integer findMaxMerchantOrder(UUID ownerId);

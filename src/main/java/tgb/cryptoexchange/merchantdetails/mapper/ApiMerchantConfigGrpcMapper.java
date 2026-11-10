@@ -13,20 +13,20 @@ public class ApiMerchantConfigGrpcMapper {
 
     public ApiMerchantConfigItemGrpc mapToGrpcApiMerchantConfigItem(ApiMerchantConfigDTO dto) {
         ApiMerchantConfigItemGrpc.Builder builder = ApiMerchantConfigItemGrpc.newBuilder()
-                .setId(dto.getId())
-                .setIsOn(BoolValue.of(dto.getIsOn()));
+                .setId(dto.id())
+                .setIsOn(BoolValue.of(dto.isOn()));
 
-        if (dto.getMerchant() != null) {
-            builder.setMerchant(dto.getMerchant().name());
+        if (dto.merchant() != null) {
+            builder.setMerchant(dto.merchant().name());
         }
-        if (dto.getMaxAmount() != null) {
-            builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
+        if (dto.maxAmount() != null) {
+            builder.setMaxAmount(Int32Value.of(dto.maxAmount()));
         }
-        if (dto.getMinAmount() != null) {
-            builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
+        if (dto.minAmount() != null) {
+            builder.setMinAmount(Int32Value.of(dto.minAmount()));
         }
-        if (dto.getMerchantOrder() != null) {
-            builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
+        if (dto.merchantOrder() != null) {
+            builder.setMerchantOrder(Int32Value.of(dto.merchantOrder()));
         }
         return builder.build();
     }

@@ -1,84 +1,61 @@
 package tgb.cryptoexchange.merchantdetails.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 @Service
+@Slf4j
 public class ApiMerchantConfigService {
 
     private static final int DEFAULT_MIN_AMOUNT = 1;
     private static final int DEFAULT_MAX_AMOUNT = 5000;
 
     private final ApiMerchantConfigRepository repository;
-    private final TransactionTemplate transactionTemplate;
-    private final ConcurrentHashMap<UUID, OwnerLock> locksByOwnerId = new ConcurrentHashMap<>();
 
-    public ApiMerchantConfigService(ApiMerchantConfigRepository repository,
-                                    PlatformTransactionManager transactionManager) {
+    public ApiMerchantConfigService(ApiMerchantConfigRepository repository) {
         this.repository = repository;
-        this.transactionTemplate = new TransactionTemplate(transactionManager);
-        this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     public List<ApiMerchantConfigDTO> findAllAndCreateIfNotExist(UUID ownerId) {
         Objects.requireNonNull(ownerId, "ownerId must not be null");
-        return withOwnerLock(ownerId, () -> loadOrCreate(ownerId));
-    }
-
-    private <T> T withOwnerLock(UUID ownerId, Supplier<T> action) {
-        OwnerLock lock = locksByOwnerId.compute(ownerId, (id, existing) -> {
-            OwnerLock ownerLock = existing != null ? existing : new OwnerLock();
-            ownerLock.usages++;
-            return ownerLock;
-        });
+        List<ApiMerchantConfigDTO> configs = repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
+        if (configs.size() == Merchant.values().length) {
+            return configs;
+        }
         try {
-            lock.lock();
-            try {
-                return transactionTemplate.execute(status -> action.get());
-            } finally {
-                lock.unlock();
-            }
-        } finally {
-            locksByOwnerId.computeIfPresent(ownerId, (id, existing) ->
-                    --existing.usages == 0 ? null : existing);
+            createMissing(ownerId, configs);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Ошибка при создании конфигов мерчантов для ownerId={}: {}", ownerId, e.getMessage(), e);
         }
+        configs = repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
+        if (configs.size() != Merchant.values().length) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Не удалось создать конфиги мерчантов для ownerId={}", currentTime, ownerId);
+            throw new ServiceUnavailableException(
+                    "Error occurred while creating api merchant configs: " + currentTime + ".");
+        }
+        return configs;
     }
 
-    private List<ApiMerchantConfigDTO> loadOrCreate(UUID ownerId) {
-        List<ApiMerchantConfig> configs = new ArrayList<>(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId));
-        configs.addAll(createMissing(ownerId, configs));
-        return configs.stream()
-                .map(ApiMerchantConfigDTO::fromEntity)
-                .toList();
-    }
-
-    private List<ApiMerchantConfig> createMissing(UUID ownerId, List<ApiMerchantConfig> existing) {
+    private void createMissing(UUID ownerId, List<ApiMerchantConfigDTO> existing) {
         EnumSet<Merchant> missingMerchants = EnumSet.allOf(Merchant.class);
-        Integer maxOrder = null;
-        for (ApiMerchantConfig config : existing) {
-            missingMerchants.remove(config.getMerchant());
-            Integer order = config.getMerchantOrder();
-            if (order != null && (maxOrder == null || order > maxOrder)) {
-                maxOrder = order;
-            }
+        int maxOrder = 0;
+        for (ApiMerchantConfigDTO config : existing) {
+            missingMerchants.remove(config.merchant());
+            maxOrder = Math.max(maxOrder, config.merchantOrder());
         }
-        if (missingMerchants.isEmpty()) {
-            return List.of();
-        }
-        int nextOrder = maxOrder == null ? 1 : maxOrder + 1;
+        int nextOrder = maxOrder + 1;
         List<ApiMerchantConfig> toCreate = new ArrayList<>(missingMerchants.size());
         for (Merchant merchant : missingMerchants) {
             toCreate.add(ApiMerchantConfig.builder()
@@ -90,26 +67,18 @@ public class ApiMerchantConfigService {
                     .ownerId(ownerId)
                     .build());
         }
-        return repository.saveAll(toCreate);
+        repository.saveAll(toCreate);
     }
 
     public List<ApiMerchantConfig> findAllTurnedByMerchantsAndOwnerId(Set<Merchant> merchants, UUID ownerId) {
         return repository.findAllByMerchantInAndOwnerIdAndIsOnTrue(merchants, ownerId);
     }
 
+    @Transactional
     public ApiMerchantConfigDTO update(UpdateApiMerchantConfigDTO dto) {
-        ApiMerchantConfig existing = getByIdOrThrow(dto.getId());
-        return withOwnerLock(existing.getOwnerId(), () -> updateConfig(dto));
-    }
-
-    private ApiMerchantConfig getByIdOrThrow(Long id) {
-        return repository.findById(id)
+        ApiMerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
-                        "Configuration for merchant with id %d not found".formatted(id)));
-    }
-
-    private ApiMerchantConfigDTO updateConfig(UpdateApiMerchantConfigDTO dto) {
-        ApiMerchantConfig merchantConfig = getByIdOrThrow(dto.getId());
+                        "Configuration for merchant with id %d not found".formatted(dto.getId())));
         if (Objects.nonNull(dto.getIsOn())) {
             merchantConfig.setIsOn(dto.getIsOn());
         }
@@ -126,8 +95,8 @@ public class ApiMerchantConfigService {
                 changeOrder(merchantConfig, dto.getNewOrder());
             }
         }
-        ApiMerchantConfig saved = repository.save(merchantConfig);
-        return ApiMerchantConfigDTO.fromEntity(saved);
+        repository.save(merchantConfig);
+        return repository.findDtoById(dto.getId()).orElseThrow();
     }
 
     private void changeOrder(ApiMerchantConfig config, Integer newOrder) {
@@ -168,10 +137,6 @@ public class ApiMerchantConfigService {
         other.setMerchantOrder(currentOrder);
         repository.saveAndFlush(other);
         config.setMerchantOrder(newOrder);
-    }
-
-    private static final class OwnerLock extends ReentrantLock {
-        private int usages;
     }
 
 }

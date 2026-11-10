@@ -6,23 +6,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantConfigNotFoundException;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
 
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,9 +27,6 @@ class ApiMerchantConfigServiceTest {
 
     @Mock
     private ApiMerchantConfigRepository repository;
-
-    @Spy
-    private PlatformTransactionManager transactionManager = new SyncTransactionManager();
 
     @InjectMocks
     private ApiMerchantConfigService service;
@@ -56,6 +46,7 @@ class ApiMerchantConfigServiceTest {
         when(repository.findById(config.getId())).thenReturn(Optional.of(config));
         when(repository.findByOwnerIdAndMerchantOrder(ownerId, newOrder)).thenReturn(Optional.of(other));
         when(repository.save(any(ApiMerchantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        stubFindDtoById(config);
         List<Integer> flushedOrders = new ArrayList<>();
         List<Long> flushedIds = new ArrayList<>();
         when(repository.saveAndFlush(any(ApiMerchantConfig.class))).thenAnswer(invocation -> {
@@ -72,14 +63,16 @@ class ApiMerchantConfigServiceTest {
         ApiMerchantConfigDTO result = service.update(dto);
 
         ArgumentCaptor<ApiMerchantConfig> savedCaptor = ArgumentCaptor.forClass(ApiMerchantConfig.class);
-        verify(repository).save(savedCaptor.capture());
+        InOrder inOrder = inOrder(repository);
+        inOrder.verify(repository).save(savedCaptor.capture());
+        inOrder.verify(repository).findDtoById(config.getId());
         assertAll(
                 () -> assertEquals(List.of(config.getId(), other.getId()), flushedIds),
                 () -> assertEquals(List.of(-1, currentOrder), flushedOrders),
                 () -> assertSame(config, savedCaptor.getValue()),
                 () -> assertEquals(newOrder, config.getMerchantOrder()),
                 () -> assertEquals(currentOrder, other.getMerchantOrder()),
-                () -> assertEquals(newOrder, result.getMerchantOrder())
+                () -> assertEquals(newOrder, result.merchantOrder())
         );
     }
 
@@ -96,6 +89,7 @@ class ApiMerchantConfigServiceTest {
                 .id(30L + order).merchant(Merchant.ALFA_TEAM).merchantOrder(order).ownerId(ownerId).build();
         when(repository.findById(config.getId())).thenReturn(Optional.of(config));
         when(repository.save(any(ApiMerchantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        stubFindDtoById(config);
         UpdateApiMerchantConfigDTO dto = new UpdateApiMerchantConfigDTO();
         dto.setId(config.getId());
         dto.setNewOrder(order);
@@ -124,6 +118,7 @@ class ApiMerchantConfigServiceTest {
         when(repository.findById(config.getId())).thenReturn(Optional.of(config));
         when(repository.findMaxMerchantOrder(ownerId)).thenReturn(maxOrder);
         when(repository.save(any(ApiMerchantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        stubFindDtoById(config);
         UpdateApiMerchantConfigDTO dto = new UpdateApiMerchantConfigDTO();
         dto.setId(config.getId());
         dto.setNewOrder(newOrder);
@@ -152,6 +147,7 @@ class ApiMerchantConfigServiceTest {
         when(repository.findById(config.getId())).thenReturn(Optional.of(config));
         when(repository.findMaxMerchantOrder(ownerId)).thenReturn(maxOrder);
         when(repository.save(any(ApiMerchantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        stubFindDtoById(config);
         List<Integer> flushedOrders = new ArrayList<>();
         when(repository.saveAndFlush(any(ApiMerchantConfig.class))).thenAnswer(invocation -> {
             ApiMerchantConfig saved = invocation.getArgument(0);
@@ -169,11 +165,12 @@ class ApiMerchantConfigServiceTest {
         inOrder.verify(repository).addOffsetToRange(ownerId, firstStart, firstEnd, firstDelta);
         inOrder.verify(repository).addOffsetToRange(ownerId, secondStart, secondEnd, secondDelta);
         inOrder.verify(repository).save(config);
+        inOrder.verify(repository).findDtoById(config.getId());
         verify(repository, never()).findByOwnerIdAndMerchantOrder(any(), any());
         assertAll(
                 () -> assertEquals(List.of(-1), flushedOrders),
                 () -> assertEquals(expectedOrder, config.getMerchantOrder()),
-                () -> assertEquals(expectedOrder, result.getMerchantOrder())
+                () -> assertEquals(expectedOrder, result.merchantOrder())
         );
     }
 
@@ -199,71 +196,51 @@ class ApiMerchantConfigServiceTest {
         assertEquals(currentOrder, config.getMerchantOrder());
     }
 
-    private static List<ApiMerchantConfig> configsForEveryMerchant(UUID ownerId) {
-        List<ApiMerchantConfig> configs = new ArrayList<>();
-        int order = 1;
-        for (Merchant merchant : Merchant.values()) {
-            configs.add(ApiMerchantConfig.builder()
-                    .merchant(merchant)
-                    .merchantOrder(order++)
-                    .ownerId(ownerId)
-                    .isOn(false)
-                    .build());
-        }
-        return configs;
+    private void stubFindDtoById(ApiMerchantConfig config) {
+        when(repository.findDtoById(config.getId())).thenAnswer(invocation -> Optional.of(new ApiMerchantConfigDTO(
+                config.getId(), config.getIsOn(), config.getMerchant(),
+                config.getMaxAmount(), config.getMinAmount(), config.getMerchantOrder())));
     }
 
-    private static void awaitThreadWaitingOnLock(Thread thread) throws InterruptedException {
-        long deadlineNanos = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
-        while (System.nanoTime() < deadlineNanos) {
-            Thread.State state = thread.getState();
-            if (state == Thread.State.WAITING || state == Thread.State.TIMED_WAITING) {
-                return;
-            }
-            TimeUnit.MILLISECONDS.sleep(1);
+    private static List<ApiMerchantConfigDTO> configsForEveryMerchant() {
+        List<ApiMerchantConfigDTO> configs = new ArrayList<>();
+        long id = 1;
+        int order = 1;
+        for (Merchant merchant : Merchant.values()) {
+            configs.add(new ApiMerchantConfigDTO(id++, false, merchant, 5000, 1, order++));
         }
-        fail("Second thread did not enter waiting state on lock within timeout");
+        return configs;
     }
 
     @Test
     void findAllAndCreateIfNotExistReturnsLoadedConfigsWithoutInsert() {
         UUID ownerId = UUID.randomUUID();
-        List<ApiMerchantConfig> existing = configsForEveryMerchant(ownerId);
+        List<ApiMerchantConfigDTO> existing = configsForEveryMerchant();
         when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId)).thenReturn(existing);
 
         List<ApiMerchantConfigDTO> result = service.findAllAndCreateIfNotExist(ownerId);
 
-        assertEquals(existing.size(), result.size());
-        assertEquals(existing.get(0).getMerchant(), result.get(0).getMerchant());
+        assertSame(existing, result);
+        verify(repository).findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
         verify(repository, never()).saveAll(any());
-        verify(repository, never()).save(any());
-        verify(repository, never()).findMaxMerchantOrder(any());
     }
 
     @Test
-    void findAllAndCreateIfNotExistCreatesOnlyMissingFromLoadedConfigs() {
+    void findAllAndCreateIfNotExistCreatesOnlyMissingAndRereadsConfigs() {
         UUID ownerId = UUID.randomUUID();
         Merchant present = Merchant.values()[0];
-        ApiMerchantConfig existing = ApiMerchantConfig.builder()
-                .id(7L)
-                .merchant(present)
-                .merchantOrder(3)
-                .ownerId(ownerId)
-                .isOn(true)
-                .minAmount(10)
-                .maxAmount(20)
-                .build();
-        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId)).thenReturn(List.of(existing));
-        when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        ApiMerchantConfigDTO existing = new ApiMerchantConfigDTO(7L, true, present, 20, 10, 3);
+        List<ApiMerchantConfigDTO> reread = configsForEveryMerchant();
+        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId))
+                .thenReturn(List.of(existing))
+                .thenReturn(reread);
 
         List<ApiMerchantConfigDTO> result = service.findAllAndCreateIfNotExist(ownerId);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ApiMerchantConfig>> createdCaptor = ArgumentCaptor.forClass(List.class);
-        verify(repository).findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
+        verify(repository, times(2)).findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
         verify(repository).saveAll(createdCaptor.capture());
-        verify(repository, never()).save(any());
-        verify(repository, never()).findMaxMerchantOrder(any());
         List<ApiMerchantConfig> created = createdCaptor.getValue();
         List<Merchant> expectedMerchants = new ArrayList<>(List.of(Merchant.values()));
         expectedMerchants.remove(present);
@@ -276,150 +253,34 @@ class ApiMerchantConfigServiceTest {
                                 && Boolean.FALSE.equals(config.getIsOn())
                                 && Integer.valueOf(1).equals(config.getMinAmount())
                                 && Integer.valueOf(5000).equals(config.getMaxAmount()))),
-                () -> assertEquals(Merchant.values().length, result.size()),
-                () -> assertEquals(present, result.get(0).getMerchant()),
-                () -> assertEquals(3, result.get(0).getMerchantOrder()),
-                () -> assertEquals(10, result.get(0).getMinAmount()),
-                () -> assertEquals(expectedMerchants.get(0), result.get(1).getMerchant()),
-                () -> assertEquals(4, result.get(1).getMerchantOrder())
+                () -> assertSame(reread, result)
         );
     }
 
     @Test
-    void findAllAndCreateIfNotExistSerializesConcurrentCreatesForSameOwner() throws Exception {
+    void findAllAndCreateIfNotExistRereadsConfigsWhenConcurrentInsertViolatesUniqueConstraint() {
         UUID ownerId = UUID.randomUUID();
-        List<ApiMerchantConfig> stored = Collections.synchronizedList(new ArrayList<>());
-        AtomicInteger activeReads = new AtomicInteger();
-        AtomicBoolean readsOverlapped = new AtomicBoolean();
-        CountDownLatch firstEnteredRead = new CountDownLatch(1);
-        CountDownLatch allowFirstToFinishRead = new CountDownLatch(1);
-        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId)).thenAnswer(invocation -> {
-            if (activeReads.incrementAndGet() > 1) {
-                readsOverlapped.set(true);
-            }
-            try {
-                if (firstEnteredRead.getCount() > 0) {
-                    firstEnteredRead.countDown();
-                    assertTrue(allowFirstToFinishRead.await(5, TimeUnit.SECONDS));
-                }
-                synchronized (stored) {
-                    return List.copyOf(stored);
-                }
-            } finally {
-                activeReads.decrementAndGet();
-            }
-        });
-        when(repository.saveAll(any())).thenAnswer(invocation -> {
-            List<ApiMerchantConfig> batch = new ArrayList<>();
-            for (ApiMerchantConfig config : invocation.<Iterable<ApiMerchantConfig>>getArgument(0)) {
-                batch.add(config);
-            }
-            synchronized (stored) {
-                stored.addAll(batch);
-            }
-            return batch;
-        });
-        ExecutorService pool = Executors.newFixedThreadPool(2);
-        try {
-            Future<List<ApiMerchantConfigDTO>> first = pool.submit(
-                    () -> service.findAllAndCreateIfNotExist(ownerId)
-            );
-            assertTrue(firstEnteredRead.await(5, TimeUnit.SECONDS));
-            AtomicReference<Thread> secondThreadRef = new AtomicReference<>();
-            CountDownLatch secondStarted = new CountDownLatch(1);
-            Future<List<ApiMerchantConfigDTO>> second = pool.submit(() -> {
-                secondThreadRef.set(Thread.currentThread());
-                secondStarted.countDown();
-                return service.findAllAndCreateIfNotExist(ownerId);
-            });
-            assertTrue(secondStarted.await(5, TimeUnit.SECONDS));
-            awaitThreadWaitingOnLock(secondThreadRef.get());
-            allowFirstToFinishRead.countDown();
+        List<ApiMerchantConfigDTO> createdByOtherInstance = configsForEveryMerchant();
+        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId))
+                .thenReturn(List.of())
+                .thenReturn(createdByOtherInstance);
+        when(repository.saveAll(any())).thenThrow(new DataIntegrityViolationException("duplicate"));
 
-            List<ApiMerchantConfigDTO> firstResult = first.get(5, TimeUnit.SECONDS);
-            List<ApiMerchantConfigDTO> secondResult = second.get(5, TimeUnit.SECONDS);
-            assertAll(
-                    () -> assertFalse(readsOverlapped.get()),
-                    () -> assertEquals(Merchant.values().length, stored.size()),
-                    () -> assertEquals(Merchant.values().length,
-                            stored.stream().map(ApiMerchantConfig::getMerchant).distinct().count()),
-                    () -> assertEquals(Merchant.values().length, firstResult.size()),
-                    () -> assertEquals(Merchant.values().length, secondResult.size())
-            );
-        } finally {
-            pool.shutdownNow();
-        }
-        verify(repository, times(1)).saveAll(any());
+        List<ApiMerchantConfigDTO> result = service.findAllAndCreateIfNotExist(ownerId);
+
+        verify(repository, times(2)).findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
+        verify(repository).saveAll(any());
+        assertSame(createdByOtherInstance, result);
     }
 
     @Test
-    void updateAndFindAllAreSerializedForSameOwner() throws Exception {
+    void findAllAndCreateIfNotExistThrowsWhenConfigsAreStillIncompleteAfterConstraintViolation() {
         UUID ownerId = UUID.randomUUID();
-        ApiMerchantConfig config = ApiMerchantConfig.builder()
-                .id(11L).merchant(Merchant.ALFA_TEAM).merchantOrder(1).ownerId(ownerId).build();
-        when(repository.findById(config.getId())).thenReturn(Optional.of(config));
-        when(repository.findMaxMerchantOrder(ownerId)).thenReturn(3);
-        when(repository.save(any(ApiMerchantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        CountDownLatch updateInTemporaryOrderState = new CountDownLatch(1);
-        CountDownLatch allowUpdateToFinish = new CountDownLatch(1);
-        when(repository.saveAndFlush(any(ApiMerchantConfig.class))).thenAnswer(invocation -> {
-            updateInTemporaryOrderState.countDown();
-            assertTrue(allowUpdateToFinish.await(5, TimeUnit.SECONDS));
-            return invocation.getArgument(0);
-        });
-        AtomicInteger observedOrderDuringFindAll = new AtomicInteger();
-        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId)).thenAnswer(invocation -> {
-            observedOrderDuringFindAll.set(config.getMerchantOrder());
-            return configsForEveryMerchant(ownerId);
-        });
+        when(repository.findAllByOwnerIdOrderByMerchantOrderAsc(ownerId)).thenReturn(List.of());
+        when(repository.saveAll(any())).thenThrow(new DataIntegrityViolationException("not null"));
 
-        UpdateApiMerchantConfigDTO updateDto = new UpdateApiMerchantConfigDTO();
-        updateDto.setId(config.getId());
-        updateDto.setNewOrder(2);
-        updateDto.setSwap(false);
+        assertThrows(ServiceUnavailableException.class, () -> service.findAllAndCreateIfNotExist(ownerId));
 
-        ExecutorService pool = Executors.newFixedThreadPool(2);
-        try {
-            Future<ApiMerchantConfigDTO> updateFuture = pool.submit(() -> service.update(updateDto));
-            assertTrue(updateInTemporaryOrderState.await(5, TimeUnit.SECONDS));
-
-            AtomicReference<Thread> findAllThreadRef = new AtomicReference<>();
-            CountDownLatch findAllStarted = new CountDownLatch(1);
-            Future<List<ApiMerchantConfigDTO>> findAllFuture = pool.submit(() -> {
-                findAllThreadRef.set(Thread.currentThread());
-                findAllStarted.countDown();
-                return service.findAllAndCreateIfNotExist(ownerId);
-            });
-            assertTrue(findAllStarted.await(5, TimeUnit.SECONDS));
-            awaitThreadWaitingOnLock(findAllThreadRef.get());
-            allowUpdateToFinish.countDown();
-
-            updateFuture.get(5, TimeUnit.SECONDS);
-            findAllFuture.get(5, TimeUnit.SECONDS);
-
-            assertEquals(2, observedOrderDuringFindAll.get());
-        } finally {
-            pool.shutdownNow();
-        }
-    }
-
-    private static final class SyncTransactionManager extends AbstractPlatformTransactionManager {
-
-        @Override
-        protected Object doGetTransaction() throws TransactionException {
-            return new Object();
-        }
-
-        @Override
-        protected void doBegin(Object transaction, TransactionDefinition definition) throws TransactionException {
-        }
-
-        @Override
-        protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
-        }
-
-        @Override
-        protected void doRollback(DefaultTransactionStatus status) throws TransactionException {
-        }
+        verify(repository, times(2)).findAllByOwnerIdOrderByMerchantOrderAsc(ownerId);
     }
 }
