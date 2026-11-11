@@ -7,6 +7,8 @@ plugins {
 description = 'merchant-details'
 
 dependencies {
+	implementation project(':md-meta')
+
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'commons-codec:commons-codec:1.19.0'
 	implementation 'org.apache.commons:commons-lang3'

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Пока весь код лежит в модуле `md-app`; по плану он разносится на `md-meta` (DTO, енамы), `md-domain` (сущности, общие для поисков), `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`, всё остальное пока в `md-app`. По плану код разносится дальше на `md-domain` (сущности, общие для поисков), `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
 
 ```bash
 ./gradlew build                       # сборка + тесты
