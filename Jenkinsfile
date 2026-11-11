@@ -17,7 +17,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sshagent([env.SSH_CRED_ID]) {
-                    sh "scp -P ${SSH_PORT} build/libs/merchant-details.jar ${SSH_USER}@${MERCHANT_DETAILS_DEPLOY_HOST}:${MERCHANT_DETAILS_DEPLOY_PATH}/"
+                    sh "scp -P ${SSH_PORT} md-app/build/libs/merchant-details.jar ${SSH_USER}@${MERCHANT_DETAILS_DEPLOY_HOST}:${MERCHANT_DETAILS_DEPLOY_PATH}/"
                     sh "ssh -p ${SSH_PORT} ${SSH_USER}@${MERCHANT_DETAILS_DEPLOY_HOST} 'cd /srv/merchant-details && docker rollout --timeout 120 merchant-details'"
                 }
             }

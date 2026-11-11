@@ -1,1 +1,3 @@
 rootProject.name = 'merchant-details'
+
+include 'md-app'
