@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`, всё остальное пока в `md-app`. По плану код разносится дальше на `md-domain` (сущности, общие для поисков), `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Всё остальное пока в `md-app`. По плану код разносится дальше на `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
 
 ```bash
 ./gradlew build                       # сборка + тесты
@@ -26,7 +26,7 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 - `md-app/src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
 - `md-app/src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
 - Профиль `kafka-disabled` отключает Kafka-листенеры, продюсеры и бины `ObjectMapper`/`KafkaTemplate` из `CommonConfig`; поэтому зависимости от Kafka в сервисах внедряются с `@Autowired(required = false)` и проверяются на `null`.
-- Схема БД ведётся миграциями Flyway в `md-app/src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
+- Схема БД ведётся миграциями Flyway в `md-domain/src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
 - `DdlAutoValidationEnvironmentPostProcessor` (регистрируется в `META-INF/spring.factories`) не даёт запустить приложение без профиля `dev`, если `spring.jpa.hibernate.ddl-auto` не равен `validate`.
 - Jackson 2 запрещён в плагине `md`; исключения — `jackson-bom`, `jackson-annotations`, `jackson-core`, `jackson-databind`, которые нужны Flyway. ArchUnit-тест `JsonMappersArchTest` запрещает нашему коду зависеть от `com.fasterxml.jackson.core` и `databind`.
 - Профиль `clear-merchants` при старте удаляет `MerchantConfig` мерчантов, которых больше нет в enum, и пересчитывает порядок.

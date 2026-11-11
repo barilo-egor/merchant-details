@@ -2,9 +2,8 @@ package tgb.cryptoexchange.merchantdetails.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.merchantdetails.AbstractMySqlTest;
+import tgb.cryptoexchange.merchantdetails.AbstractDataJpaTest;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 
@@ -14,8 +13,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Transactional
-class ApiMerchantConfigRepositoryTest extends AbstractMySqlTest {
+class ApiMerchantConfigRepositoryTest extends AbstractDataJpaTest {
 
     @Autowired
     private ApiMerchantConfigRepository repository;
