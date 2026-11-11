@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.BitBolideWTProperties;
 
@@ -12,9 +12,9 @@ public class BitBolideWTOrderCreationService extends PayBoxOrderCreationService 
 
     private final BitBolideWTProperties bitBolideProperties;
 
-    protected BitBolideWTOrderCreationService(@Qualifier("bitBolideWebClient") WebClient webClient,
+    protected BitBolideWTOrderCreationService(@Qualifier("bitBolideRestClient") RestClient restClient,
                                               BitBolideWTProperties bitBolideProperties) {
-        super(webClient, bitBolideProperties);
+        super(restClient, bitBolideProperties);
         this.bitBolideProperties = bitBolideProperties;
     }
 

@@ -1,8 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {

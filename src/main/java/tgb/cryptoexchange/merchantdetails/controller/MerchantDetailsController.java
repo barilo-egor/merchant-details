@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.dto.*;
@@ -16,7 +15,6 @@ import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
-import tgb.cryptoexchange.web.ApiResponse;
 
 import java.util.List;
 
@@ -24,7 +22,7 @@ import static tgb.cryptoexchange.merchantdetails.enums.ConfigType.DEFAULT_VALUE;
 
 @RestController
 @RequestMapping("/merchant-details")
-public class MerchantDetailsController extends ApiController {
+public class MerchantDetailsController {
 
     private final MerchantDetailsService merchantDetailsService;
 
@@ -46,12 +44,12 @@ public class MerchantDetailsController extends ApiController {
     }
 
     @GetMapping("/config")
-    public ResponseEntity<MerchantConfigResponse> getConfig(@PageableDefault(size = 20) Pageable pageable,
-                                                            @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
+    public ResponseEntity<ApiResponse<List<MerchantConfigDTO>>> getConfig(@PageableDefault(size = 20) Pageable pageable,
+                                                                         @ModelAttribute MerchantConfigRequest merchantConfigRequest) {
         Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, merchantConfigRequest);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(page.getTotalElements()))
-                .body(new MerchantConfigResponse(page.getContent()));
+                .body(ApiResponse.success(page.getContent()));
     }
 
     @PatchMapping("/config")

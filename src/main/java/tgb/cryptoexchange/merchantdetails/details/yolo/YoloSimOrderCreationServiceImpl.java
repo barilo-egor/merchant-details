@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.yolo;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.YoloSimProperties;
@@ -10,9 +10,9 @@ import tgb.cryptoexchange.merchantdetails.properties.YoloSimProperties;
 @Service
 public class YoloSimOrderCreationServiceImpl extends YoloOrderCreationService {
 
-    protected YoloSimOrderCreationServiceImpl(@Qualifier("yoloSimWebClient") WebClient webClient,
+    protected YoloSimOrderCreationServiceImpl(@Qualifier("yoloSimRestClient") RestClient restClient,
                                               YoloSimProperties yoloSimProperties, CallbackConfig callbackConfig) {
-        super(webClient, yoloSimProperties, callbackConfig);
+        super(restClient, yoloSimProperties, callbackConfig);
     }
 
 

@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.manypay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.ManyPayPropertiesImpl;
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.ManyPayPropertiesImpl;
 public class ManyPayOrderCreationServiceImpl extends ManyPayOrderCreationService {
 
 
-    protected ManyPayOrderCreationServiceImpl(@Qualifier("manyPayWebClient") WebClient webClient,
+    protected ManyPayOrderCreationServiceImpl(@Qualifier("manyPayRestClient") RestClient restClient,
                                               ManyPayPropertiesImpl manyPayProperties, CallbackConfig callbackConfig) {
-        super(webClient, manyPayProperties, callbackConfig);
+        super(restClient, manyPayProperties, callbackConfig);
     }
 
 

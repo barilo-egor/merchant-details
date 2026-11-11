@@ -16,7 +16,6 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
@@ -44,9 +43,6 @@ class ApiMerchantDetailsServiceTest {
     private RequestMethodService requestMethodService;
 
     @Mock
-    private MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
-
-    @Mock
     private MerchantService onlyPays;
 
     @Mock
@@ -57,7 +53,7 @@ class ApiMerchantDetailsServiceTest {
     @BeforeEach
     void setUp() {
         service = new ApiMerchantDetailsService(new SimpleMeterRegistry(), merchantConfigService,
-                merchantServiceRegistry, requestMethodService, merchantDetailsReceiveEventProducer);
+                merchantServiceRegistry, requestMethodService);
     }
 
     private ApiDetailsRequest request(String userId, RequestMethod... methods) {

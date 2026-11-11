@@ -388,7 +388,7 @@ spring:
     url: ""
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   grpc:
     server:
       host:

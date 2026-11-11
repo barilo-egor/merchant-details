@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -50,7 +50,7 @@ class BucksPayOrderCreationServiceTest {
     private SignatureService signatureService;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Captor
     private ArgumentCaptor<String> textCaptor;
@@ -61,7 +61,7 @@ class BucksPayOrderCreationServiceTest {
     @BeforeEach
     void setUp() {
         service = new BucksPayOrderCreationServiceImpl(
-                webClient, properties, callbackConfig, signatureService
+                restClient, properties, callbackConfig, signatureService
         );
         service.setRequestService(requestService);
     }
@@ -304,7 +304,7 @@ class BucksPayOrderCreationServiceTest {
         ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriCaptor.capture(),
                 headersCaptor.capture(),
@@ -337,7 +337,7 @@ class BucksPayOrderCreationServiceTest {
         ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriCaptor.capture(),
                 headersCaptor.capture(),
@@ -377,7 +377,7 @@ class BucksPayOrderCreationServiceTest {
         ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriCaptor.capture(),
                 headersCaptor.capture(),

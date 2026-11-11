@@ -12,9 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -42,7 +42,7 @@ class NorosHighCheckOrderCreationServiceImplTest {
     private NorosHighCheckOrderCreationServiceImpl norosHighCheckOrderCreationService;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Mock
     private RequestService requestService;
@@ -121,7 +121,7 @@ class NorosHighCheckOrderCreationServiceImplTest {
         cancelOrderRequest.setOrderId(orderId);
         cancelOrderRequest.setMethod(method.name());
         norosHighCheckOrderCreationService.makeCancelRequest(cancelOrderRequest);
-        verify(requestService).request(eq(webClient), eq(HttpMethod.DELETE), uriBuilderCaptor.capture(),
+        verify(requestService).request(eq(restClient), eq(HttpMethod.DELETE), uriBuilderCaptor.capture(),
                 any(), eq(null));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/transaction/" + orderId, uriBuilderCaptor.getValue().apply(uriBuilder).getPath());

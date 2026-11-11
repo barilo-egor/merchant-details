@@ -1,18 +1,18 @@
 package tgb.cryptoexchange.merchantdetails.details.paysync;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PaySyncProperties;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.util.Optional;
@@ -25,9 +25,9 @@ public class PaySyncOrderCreationService extends MerchantOrderCreationService<Re
 
     private final PaySyncProperties paySyncProperties;
 
-    protected PaySyncOrderCreationService(@Qualifier("paySyncWebClient") WebClient webClient,
+    protected PaySyncOrderCreationService(@Qualifier("paySyncRestClient") RestClient restClient,
                                           PaySyncProperties paySyncProperties, ObjectMapper objectMapper) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.paySyncProperties = paySyncProperties;
         this.objectMapper = objectMapper;
     }

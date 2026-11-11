@@ -1,10 +1,9 @@
 package tgb.cryptoexchange.merchantdetails.serialize;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -13,10 +12,10 @@ public class DateSerializer {
     private DateSerializer() {
     }
 
-    public static class ISO8601 extends JsonSerializer<LocalDateTime> {
+    public static class ISO8601 extends ValueSerializer<LocalDateTime> {
 
         @Override
-        public void serialize(LocalDateTime dateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(LocalDateTime dateTime, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
             jsonGenerator.writeString(dateTime.format(DateTimeFormatter.ISO_DATE_TIME));
         }
     }

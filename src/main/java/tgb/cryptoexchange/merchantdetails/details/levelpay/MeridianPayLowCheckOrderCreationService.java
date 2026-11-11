@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.levelpay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.MeridianPayLowCheckProperties;
@@ -10,10 +10,10 @@ import tgb.cryptoexchange.merchantdetails.properties.MeridianPayLowCheckProperti
 @Service
 public class MeridianPayLowCheckOrderCreationService extends LevelPayOrderCreationService {
 
-    protected MeridianPayLowCheckOrderCreationService(@Qualifier("meridianPayLowCheckWebClient") WebClient webClient,
+    protected MeridianPayLowCheckOrderCreationService(@Qualifier("meridianPayLowCheckRestClient") RestClient restClient,
                                                       MeridianPayLowCheckProperties meridianPayProperties,
                                                       CallbackConfig callbackConfig) {
-        super(webClient, callbackConfig, meridianPayProperties);
+        super(restClient, callbackConfig, meridianPayProperties);
     }
 
     @Override

@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -10,7 +7,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -26,6 +23,8 @@ import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,11 +44,10 @@ public class CommonConfig {
 
     @Bean
     @Profile("!kafka-disabled")
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.registerModule(new Jdk8Module());
-        return objectMapper;
+    public JsonMapper objectMapper() {
+        return JsonMappers.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
     }
 
     @Bean
@@ -172,6 +170,22 @@ public class CommonConfig {
         executor.setMaxPoolSize(maxPoolSize);
         executor.setQueueCapacity(queueCapacity);
         executor.setThreadNamePrefix("DetailsRequestSearchApi-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "asyncRequestExecutor")
+    public ThreadPoolTaskExecutor asyncRequestExecutor(
+            @Value("${async-request.executor.core-pool-size:2}") Integer corePoolSize,
+            @Value("${async-request.executor.max-pool-size:8}") Integer maxPoolSize,
+            @Value("${async-request.executor.queue-capacity:500}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("AsyncRequest-");
         executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
         return executor;

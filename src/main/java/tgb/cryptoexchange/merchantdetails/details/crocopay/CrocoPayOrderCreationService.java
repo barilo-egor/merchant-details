@@ -1,17 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.crocopay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.CrocoPayProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -26,9 +26,9 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
 
     protected final CallbackConfig callbackConfig;
 
-    protected CrocoPayOrderCreationService(WebClient webClient, CrocoPayProperties crocoPayProperties,
+    protected CrocoPayOrderCreationService(RestClient restClient, CrocoPayProperties crocoPayProperties,
                                            CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.crocoPayProperties = crocoPayProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -81,12 +81,12 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.InternalServerError internalServerError) {
+            if (e instanceof HttpServerErrorException.InternalServerError internalServerError) {
                 try {
                     JsonNode response = objectMapper.readTree(internalServerError.getResponseBodyAsString());
                     return response.has("code")
-                            && response.get("code").asText().equals("REQUISITE_NOT_FOUND");
-                } catch (JsonProcessingException ex) {
+                            && response.get("code").asString().equals("REQUISITE_NOT_FOUND");
+                } catch (JacksonException ex) {
                     return false;
                 }
             }

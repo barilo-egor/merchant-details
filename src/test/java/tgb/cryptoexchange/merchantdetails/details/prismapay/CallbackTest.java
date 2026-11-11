@@ -1,16 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.prismapay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CallbackTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMappers.create();
 
     @Test
     void isIgnoredShouldReturnTrueWhenStatusIsNoRequisites() {
@@ -38,7 +39,7 @@ class CallbackTest {
     }
 
     @Test
-    void shouldDeserializeCallbackWithNoRequisitesStatus() throws JsonProcessingException {
+    void shouldDeserializeCallbackWithNoRequisitesStatus() throws JacksonException {
         String json = "{\"id\":\"test-id-123\",\"status\":\"NO_REQUISITES\"}";
 
         Callback callback = objectMapper.readValue(json, Callback.class);
@@ -49,7 +50,7 @@ class CallbackTest {
     }
 
     @Test
-    void shouldDeserializeCallbackWithSuccessStatus() throws JsonProcessingException {
+    void shouldDeserializeCallbackWithSuccessStatus() throws JacksonException {
         String json = "{\"id\":\"test-id-456\",\"status\":\"SUCCESS\"}";
 
         Callback callback = objectMapper.readValue(json, Callback.class);

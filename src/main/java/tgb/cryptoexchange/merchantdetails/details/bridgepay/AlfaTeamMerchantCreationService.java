@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.AlfaTeamProperties;
@@ -12,10 +12,10 @@ import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 @Service
 public class AlfaTeamMerchantCreationService extends BridgePayOrderCreationService {
 
-    protected AlfaTeamMerchantCreationService(@Qualifier("alfaTeamWebClient") WebClient webClient,
+    protected AlfaTeamMerchantCreationService(@Qualifier("alfaTeamRestClient") RestClient restClient,
                                               AlfaTeamProperties alfaTeamProperties, SignatureService signatureService,
                                               CallbackConfig callbackConfig, SleepingService sleepingService) {
-        super(webClient, alfaTeamProperties, signatureService, callbackConfig, sleepingService);
+        super(restClient, alfaTeamProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override

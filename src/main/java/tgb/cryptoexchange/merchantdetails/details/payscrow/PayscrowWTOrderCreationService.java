@@ -2,16 +2,16 @@ package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowWTProperties;
 
 @Service
 public class PayscrowWTOrderCreationService extends PayscrowOrderCreationService {
 
-    protected PayscrowWTOrderCreationService(@Qualifier("payscrowWTWebClient") WebClient webClient,
+    protected PayscrowWTOrderCreationService(@Qualifier("payscrowWTRestClient") RestClient restClient,
                                              PayscrowWTProperties payscrowWTProperties) {
-        super(webClient, payscrowWTProperties);
+        super(restClient, payscrowWTProperties);
     }
 
     @Override

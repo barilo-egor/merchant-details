@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 3.5.
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3.
 
 ```bash
 ./gradlew build                       # сборка + тесты
@@ -17,13 +17,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, затем копирует jar на сервер и делает `docker rollout merchant-details`. Падение тестов блокирует деплой.
 
-Зависимости `tgb.cryptoexchange:commons` и `tgb.cryptoexchange:common-api` берутся из `mavenLocal()`: без них в `~/.m2` проект не соберётся. Enum `Merchant` (`tgb.cryptoexchange.commons.enums.Merchant`) живёт в `commons`, поэтому новый мерчант сначала добавляется туда.
+Тесты с контекстом Spring наследуют `AbstractMySqlTest`: он поднимает один контейнер MySQL (Testcontainers) на весь прогон, схему создают миграции Flyway, Hibernate работает в `validate`. Для тестов нужен запущенный Docker.
+
+Зависимость `tgb.cryptoexchange:commons` берётся из `mavenLocal()`: без неё в `~/.m2` проект не соберётся. Enum `Merchant` (`tgb.cryptoexchange.commons.enums.Merchant`) живёт в `commons`, поэтому новый мерчант сначала добавляется туда.
 
 ## Конфигурация и запуск
 
 - `src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
-- `src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), H2 в памяти и отключённый Spring Cloud Config. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
+- `src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
 - Профиль `kafka-disabled` отключает Kafka-листенеры, продюсеры и бины `ObjectMapper`/`KafkaTemplate` из `CommonConfig`; поэтому зависимости от Kafka в сервисах внедряются с `@Autowired(required = false)` и проверяются на `null`.
+- Схема БД ведётся миграциями Flyway в `src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
+- `DdlAutoValidationEnvironmentPostProcessor` (регистрируется в `META-INF/spring.factories`) не даёт запустить приложение без профиля `dev`, если `spring.jpa.hibernate.ddl-auto` не равен `validate`.
+- Jackson 2 запрещён в `build.gradle`; исключения — `jackson-bom`, `jackson-annotations`, `jackson-core`, `jackson-databind`, которые нужны Flyway. ArchUnit-тест `JsonMappersArchTest` запрещает нашему коду зависеть от `com.fasterxml.jackson.core` и `databind`.
 - Профиль `clear-merchants` при старте удаляет `MerchantConfig` мерчантов, которых больше нет в enum, и пересчитывает порядок.
 - `server.servlet.context-path` = `/merchant-details`.
 
@@ -50,15 +55,17 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 
 Каждая интеграция — Spring-бин, реализующий `MerchantService`; `MerchantServiceRegistry` собирает их в `EnumMap<Merchant, MerchantService>` по `getMerchant()`. Почти все наследуют шаблонный `MerchantOrderCreationService<Response, Callback>`, который реализует весь поток (маппинг тела, запрос через `RequestService`, разбор и `validate()` ответа, разбор callback'а и отправку `MerchantCallbackEvent` в Kafka). Наследник переопределяет `uriBuilder`, `headers`, `body`, `buildResponse` и при необходимости хуки: `method()`, `isValidRequestPredicate`, `isNoDetailsExceptionPredicate`, `hasResponseNoDetailsErrorPredicate`, `isIgnoreCallbackPredicate`, `makeCancelRequest`, `makeFetchCallbackData`, `sendReceipt`, `deleteReceipt`.
 
-Типичная структура пакета `details/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` WebClient'а и классом properties.
+Типичная структура пакета `details/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` RestClient'а и классом properties.
 
 Добавление нового мерчанта или варианта затрагивает несколько мест:
 1. значение в enum `Merchant` (библиотека `commons`);
 2. `properties/<Name>Properties` — record с `@ConfigurationProperties(prefix = "...")`, обычно реализующий общий интерфейс провайдера (сканируется `@ConfigurationPropertiesScan`);
-3. бин `<name>WebClient` в `config/WebClientsConfig` (база — `get30SecondsResponseTimeoutWebClientBuilder()`);
+3. бин `<name>RestClient` в `config/RestClientsConfig` (база — `get30SecondsReadTimeoutRestClientBuilder()`);
 4. сервис в `details/<merchant>/`;
 5. ключи в `config_template/config.yml` и фиктивные значения в `src/test/resources/application.yml`;
 6. тесты: `properties/<Name>PropertiesTest` (`@SpringBootTest`) и `details/<merchant>/*Test` (Mockito).
+
+HTTP-запросы к мерчантам идут через `RequestService` на синхронном `RestClient` (webflux в проекте нет). Таймауты соединения и ожидания ответа по 30 секунд; таймаут ожидания ответа при создании ордера считается «нет реквизитов», а не ошибкой. Ошибки мерчанта приходят как `HttpClientErrorException.*`/`HttpServerErrorException.*` (`RestClientResponseException`), ошибки соединения как `ResourceAccessException`. Отправка чеков (`requestAsync`) выполняется в пуле `asyncRequestExecutor` без ожидания ответа, ошибка уходит в переданный обработчик; тело multipart собирается через `util/MultipartFormBuilder` (`MultipartBodyBuilder` из Spring требует reactive-streams).
 
 URL callback'а мерчанту формируется как `callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret()`.
 

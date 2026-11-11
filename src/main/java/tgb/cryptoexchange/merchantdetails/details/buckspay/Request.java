@@ -1,8 +1,8 @@
 package tgb.cryptoexchange.merchantdetails.details.buckspay;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {

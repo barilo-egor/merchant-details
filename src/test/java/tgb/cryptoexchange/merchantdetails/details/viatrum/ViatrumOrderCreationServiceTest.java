@@ -1,7 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.viatrum;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +15,8 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.ViatrumProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -90,7 +90,7 @@ class ViatrumOrderCreationServiceTest {
     void headers_ShouldThrowException_WhenJsonInvalid() throws Exception {
         String body = "invalid-json";
         when(objectMapper.readValue(anyString(), eq(Request.class)))
-                .thenThrow(new JsonProcessingException("error") {
+                .thenThrow(new JacksonException("error") {
                 });
 
         Consumer<HttpHeaders> consumer = viatrumOrderCreationService.headers(new OrderCreationRequest(), body);

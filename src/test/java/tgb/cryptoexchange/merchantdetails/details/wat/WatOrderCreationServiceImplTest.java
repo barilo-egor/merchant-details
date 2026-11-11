@@ -10,9 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -39,7 +39,7 @@ class WatOrderCreationServiceImplTest {
     private static final String TEST_TOKEN = "wat_secret_token_12345";
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Mock
     private WatPropertiesImpl watProperties;
@@ -63,7 +63,7 @@ class WatOrderCreationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new WatOrderCreationServiceImpl(webClient, watProperties, callbackConfig, receiptService);
+        service = new WatOrderCreationServiceImpl(restClient, watProperties, callbackConfig, receiptService);
         ReflectionTestUtils.setField(service, "requestService", requestService);
     }
 
@@ -132,7 +132,7 @@ class WatOrderCreationServiceImplTest {
         service.makeCancelRequest(cancelOrderRequest);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriBuilderCaptor.capture(),
                 headersCaptor.capture(),

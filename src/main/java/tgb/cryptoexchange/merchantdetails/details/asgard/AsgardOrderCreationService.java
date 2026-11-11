@@ -2,8 +2,8 @@ package tgb.cryptoexchange.merchantdetails.details.asgard;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -26,9 +26,9 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
 
     private final CallbackConfig callbackConfig;
 
-    protected AsgardOrderCreationService(WebClient webClient, AsgardProperties asgardProperties,
+    protected AsgardOrderCreationService(RestClient restClient, AsgardProperties asgardProperties,
                                          SignatureService signatureService, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.asgardProperties = asgardProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;

@@ -1,17 +1,18 @@
 package tgb.cryptoexchange.merchantdetails.details.payscrow;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Objects;
@@ -30,8 +31,8 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
 
     private final PayscrowProperties payscrowProperties;
 
-    protected PayscrowOrderCreationService(WebClient webClient, PayscrowProperties payscrowProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected PayscrowOrderCreationService(RestClient restClient, PayscrowProperties payscrowProperties) {
+        super(restClient, Response.class, Callback.class);
         this.payscrowProperties = payscrowProperties;
     }
 
@@ -75,18 +76,18 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.InternalServerError ex) {
+            if (e instanceof HttpServerErrorException.InternalServerError ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isNoDetails(response) || isAmountError(response) || isInternalError(response);
-                } catch (JsonProcessingException jsonProcessingException) {
+                } catch (JacksonException jsonProcessingException) {
                     return false;
                 }
-            } else if (e instanceof WebClientResponseException.Conflict ex) {
+            } else if (e instanceof HttpClientErrorException.Conflict ex) {
                 try {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return isAmountError(response);
-                } catch (JsonProcessingException jsonProcessingException) {
+                } catch (JacksonException jsonProcessingException) {
                     return false;
                 }
             }
@@ -96,17 +97,17 @@ public abstract class PayscrowOrderCreationService extends MerchantOrderCreation
 
     private boolean isInternalError(JsonNode response) {
         return isNotSuccessAndHasMessage(response)
-                && response.get(MESSAGE_FIELD).asText().equals("Internal server error");
+                && response.get(MESSAGE_FIELD).asString().equals("Internal server error");
     }
 
     private boolean isAmountError(JsonNode response) {
         return isNotSuccessAndHasMessage(response)
-                && response.get(MESSAGE_FIELD).asText().contains("Amount for the chosen payment method doesn't meet limits.");
+                && response.get(MESSAGE_FIELD).asString().contains("Amount for the chosen payment method doesn't meet limits.");
     }
 
     private boolean isNoDetails(JsonNode response) {
         return isNotSuccessAndHasMessage(response)
-                && response.get(MESSAGE_FIELD).asText()
+                && response.get(MESSAGE_FIELD).asString()
                 .equals("No available traders that match order requirements. Please, try again later or change order parameters.");
     }
 

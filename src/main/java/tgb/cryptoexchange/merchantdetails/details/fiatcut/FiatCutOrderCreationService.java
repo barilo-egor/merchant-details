@@ -1,19 +1,19 @@
 package tgb.cryptoexchange.merchantdetails.details.fiatcut;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.FiatCutProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -29,9 +29,9 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
 
     private final CallbackConfig callbackConfig;
 
-    protected FiatCutOrderCreationService(@Qualifier("fiatCutWebClient") WebClient webClient,
+    protected FiatCutOrderCreationService(@Qualifier("fiatCutRestClient") RestClient restClient,
                                           FiatCutProperties fiatCutProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.fiatCutProperties = fiatCutProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -76,16 +76,16 @@ public class FiatCutOrderCreationService extends MerchantOrderCreationService<Re
     @Override
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
-            if (e instanceof WebClientResponseException.BadRequest badRequest) {
+            if (e instanceof HttpClientErrorException.BadRequest badRequest) {
                 JsonNode response;
                 try {
                     response = objectMapper.readTree(badRequest.getResponseBodyAsString());
-                } catch (JsonProcessingException exc) {
+                } catch (JacksonException exc) {
                     return false;
                 }
                 return response.has("message")
                         && "Подходящие платежные реквизиты не найдены во всех провайдерах.".equals(
-                        response.get("message").asText());
+                        response.get("message").asString());
             }
             return false;
         };

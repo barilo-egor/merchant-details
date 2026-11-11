@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.baypay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.BayPayImplProperties;
@@ -12,9 +12,9 @@ import tgb.cryptoexchange.merchantdetails.properties.BayPayImplProperties;
 @Slf4j
 public class BayPayImplOrderCreationService extends BayPayOrderCreationService {
 
-    protected BayPayImplOrderCreationService(@Qualifier("bayPayWebClient") WebClient webClient,
+    protected BayPayImplOrderCreationService(@Qualifier("bayPayRestClient") RestClient restClient,
                                              BayPayImplProperties bayPayProperties, CallbackConfig callbackConfig) {
-        super(webClient, bayPayProperties, callbackConfig);
+        super(restClient, bayPayProperties, callbackConfig);
     }
 
     @Override

@@ -1,12 +1,10 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -264,9 +262,9 @@ public enum Bank {
         return null;
     }
 
-    public static class Deserializer extends JsonDeserializer<Bank> {
+    public static class Deserializer extends ValueDeserializer<Bank> {
         @Override
-        public Bank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public Bank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             return Bank.fromValue(jsonParser.getValueAsString());
         }
     }

@@ -9,7 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +26,7 @@ import tgb.cryptoexchange.merchantdetails.dto.UpdateMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.Variable;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import tgb.cryptoexchange.merchantdetails.exception.BadRequestException;
 import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tgb.cryptoexchange.merchantdetails.service.VariableService;
@@ -190,6 +191,15 @@ class MerchantDetailsControllerTest {
         mockMvc.perform(delete("/merchant-details/config/1/groupChatId"))
                 .andExpect(status().isOk());
         verify(merchantConfigService).deleteField(1L, "groupChatId");
+    }
+
+    @Test
+    void deleteFieldShouldReturnBadRequestIfServiceThrowsBadRequestException() throws Exception {
+        Mockito.doThrow(new BadRequestException("Deleting field \"name\" unsupported."))
+                .when(merchantConfigService).deleteField(1L, "name");
+        mockMvc.perform(delete("/merchant-details/config/1/name"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("detail").value("Deleting field \"name\" unsupported."));
     }
 
     @EnumSource(VariableType.class)

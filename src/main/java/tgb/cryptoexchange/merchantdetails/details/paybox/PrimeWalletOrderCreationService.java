@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.PrimeWalletProperties;
 
@@ -12,9 +12,9 @@ public class PrimeWalletOrderCreationService extends PayBoxOrderCreationService 
 
     private final PrimeWalletProperties primeWalletProperties;
 
-    protected PrimeWalletOrderCreationService(@Qualifier("primeWalletWebClient") WebClient webClient,
+    protected PrimeWalletOrderCreationService(@Qualifier("primeWalletRestClient") RestClient restClient,
                                               PrimeWalletProperties primeWalletProperties) {
-        super(webClient, primeWalletProperties);
+        super(restClient, primeWalletProperties);
         this.primeWalletProperties = primeWalletProperties;
     }
 

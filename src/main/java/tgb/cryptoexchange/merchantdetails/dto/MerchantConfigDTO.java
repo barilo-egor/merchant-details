@@ -1,10 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.MerchantConstants;
@@ -13,8 +9,11 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantSuccessStatus;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,23 +78,23 @@ public class MerchantConfigDTO {
         return merchantConfigDTO;
     }
 
-    public static class MerchantMethodSerializer extends JsonSerializer<MerchantMethod> {
+    public static class MerchantMethodSerializer extends ValueSerializer<MerchantMethod> {
 
         @Override
-        public void serialize(MerchantMethod merchantMethod, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(MerchantMethod merchantMethod, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("name", merchantMethod.name());
-            jsonGenerator.writeStringField("description", merchantMethod.getDescription());
+            jsonGenerator.writeStringProperty("name", merchantMethod.name());
+            jsonGenerator.writeStringProperty("description", merchantMethod.getDescription());
             jsonGenerator.writeEndObject();
         }
     }
 
-    public static class MerchantOrderStatusSerializer extends JsonSerializer<MerchantOrderStatus> {
+    public static class MerchantOrderStatusSerializer extends ValueSerializer<MerchantOrderStatus> {
         @Override
-        public void serialize(MerchantOrderStatus merchantOrderStatus, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(MerchantOrderStatus merchantOrderStatus, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("name", merchantOrderStatus.name());
-            jsonGenerator.writeStringField("description", merchantOrderStatus.getDescription());
+            jsonGenerator.writeStringProperty("name", merchantOrderStatus.name());
+            jsonGenerator.writeStringProperty("description", merchantOrderStatus.getDescription());
             jsonGenerator.writeEndObject();
         }
     }

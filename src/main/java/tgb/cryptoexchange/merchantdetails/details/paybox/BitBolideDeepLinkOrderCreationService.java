@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.paybox;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.BitBolideDeepLinkProperties;
@@ -16,9 +16,9 @@ public class BitBolideDeepLinkOrderCreationService extends PayBoxOrderCreationSe
 
     private final BitBolideDeepLinkProperties bitBolideProperties;
 
-    protected BitBolideDeepLinkOrderCreationService(@Qualifier("bitBolideWebClient") WebClient webClient,
+    protected BitBolideDeepLinkOrderCreationService(@Qualifier("bitBolideRestClient") RestClient restClient,
                                                     BitBolideDeepLinkProperties bitBolideProperties) {
-        super(webClient, bitBolideProperties);
+        super(restClient, bitBolideProperties);
         this.bitBolideProperties = bitBolideProperties;
     }
 

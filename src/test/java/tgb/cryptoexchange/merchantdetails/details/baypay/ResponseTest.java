@@ -1,21 +1,22 @@
 package tgb.cryptoexchange.merchantdetails.details.baypay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResponseTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMappers.create();
     private Response response;
     private Response.Data validData;
 
@@ -157,7 +158,7 @@ class ResponseTest {
     }
 
     @Test
-    void shouldDeserializeCompleteValidJson() throws JsonProcessingException {
+    void shouldDeserializeCompleteValidJson() throws JacksonException {
         String json = """
                 {
                   "success": true,
@@ -192,7 +193,7 @@ class ResponseTest {
 
     @Test
     @DisplayName("Десериализация неизвестного статуса приводит к null и ошибке валидации")
-    void shouldDeserializeUnknownStatusAsNull() throws JsonProcessingException {
+    void shouldDeserializeUnknownStatusAsNull() throws JacksonException {
         String json = """
                 {
                   "success": true,

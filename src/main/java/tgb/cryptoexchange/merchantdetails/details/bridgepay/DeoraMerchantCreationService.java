@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.DeoraProperties;
@@ -12,10 +12,10 @@ import tgb.cryptoexchange.merchantdetails.service.SleepingService;
 @Service
 public class DeoraMerchantCreationService extends BridgePayOrderCreationService {
 
-    protected DeoraMerchantCreationService(@Qualifier("deoraWebClient") WebClient webClient,
+    protected DeoraMerchantCreationService(@Qualifier("deoraRestClient") RestClient restClient,
                                            DeoraProperties deoraProperties, SignatureService signatureService,
                                            CallbackConfig callbackConfig, SleepingService sleepingService) {
-        super(webClient, deoraProperties, signatureService, callbackConfig, sleepingService);
+        super(restClient, deoraProperties, signatureService, callbackConfig, sleepingService);
     }
 
     @Override

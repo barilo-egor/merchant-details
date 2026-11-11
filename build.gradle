@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.7'
+	id 'org.springframework.boot' version '4.0.9'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.google.protobuf' version '0.9.6'
 }
@@ -19,6 +19,14 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	configureEach {
+		resolutionStrategy.eachDependency {
+			if (requested.group.startsWith('com.fasterxml.jackson')
+					&& !(requested.name in ['jackson-bom', 'jackson-annotations', 'jackson-core', 'jackson-databind'])) {
+				throw new GradleException("Jackson 2 запрещён, используйте Jackson 3 (tools.jackson): ${requested.group}:${requested.name}")
+			}
+		}
+	}
 }
 
 repositories {
@@ -27,7 +35,7 @@ repositories {
 }
 
 ext {
-	set('springCloudVersion', "2025.0.0")
+	set('springCloudVersion', "2025.1.4")
 }
 
 dependencyManagement {
@@ -37,19 +45,19 @@ dependencyManagement {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'tgb.cryptoexchange:common-api:1.1.0'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'commons-codec:commons-codec:1.19.0'
 	implementation 'org.apache.commons:commons-lang3'
 	implementation 'jakarta.validation:jakarta.validation-api'
-	implementation 'org.springframework.kafka:spring-kafka:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-flyway'
+	implementation 'org.flywaydb:flyway-mysql'
 	implementation 'org.semver4j:semver4j:6.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.micrometer:micrometer-registry-prometheus:1.16.2'
-	implementation platform("org.springframework.grpc:spring-grpc-dependencies:0.12.0")
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation platform("org.springframework.grpc:spring-grpc-dependencies:1.0.3")
 	implementation "org.springframework.grpc:spring-grpc-spring-boot-starter"
 	implementation "io.grpc:grpc-protobuf"
 	implementation "io.grpc:grpc-stub"
@@ -58,25 +66,27 @@ dependencies {
 	compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testImplementation 'com.h2database:h2'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers-mysql'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.hashids:hashids:1.0.3'
 	implementation 'tgb.cryptoexchange:commons:1.0'
 	implementation 'com.macasaet.fernet:fernet-java8:1.5.0'
 	testImplementation 'io.grpc:grpc-testing'
 	testImplementation 'org.springframework.grpc:spring-grpc-test'
-	implementation 'com.squareup.okhttp3:okhttp:5.3.2'
-	testImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
 }
 
 protobuf {
 	protoc {
-		artifact = "com.google.protobuf:protoc:4.29.3"
+		artifact = "com.google.protobuf:protoc:4.33.4"
 	}
 	plugins {
 		grpc {
-			artifact = "io.grpc:protoc-gen-grpc-java:1.71.0"
+			artifact = "io.grpc:protoc-gen-grpc-java:1.77.1"
 		}
 	}
 	generateProtoTasks {

@@ -1,5 +1,6 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -10,6 +11,7 @@ import tgb.cryptoexchange.merchantdetails.mapper.ApiMerchantConfigGrpcMapper;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @GrpcService
@@ -29,10 +31,18 @@ public class ApiConfigRequestControllerGrpc extends ApiMerchantConfigServiceGrpc
     public void findAll(FindAllApiMerchantConfigsRequestGrpc request,
                         StreamObserver<FindAllApiMerchantConfigsResponseGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
+            UUID ownerId;
+            try {
+                ownerId = parseOwnerId(request.getOwnerId());
+            } catch (IllegalArgumentException e) {
+                log.error("Некорректный ownerId в запросе получения конфигов мерчантов: '{}'", request.getOwnerId(), e);
+                responseObserver.onError(Status.INVALID_ARGUMENT
+                        .withDescription("Invalid ownerId: " + request.getOwnerId())
+                        .asRuntimeException());
+                return;
+            }
 
-            List<ApiMerchantConfigItemGrpc> configList = apiMerchantConfigService.findAllAndCreateIfNotExist(
-                            mapper.mapToApiMerchantConfigRequest(request)
-                    ).stream()
+            List<ApiMerchantConfigItemGrpc> configList = apiMerchantConfigService.findAllAndCreateIfNotExist(ownerId).stream()
                     .map(mapper::mapToGrpcApiMerchantConfigItem)
                     .toList();
 
@@ -43,6 +53,13 @@ public class ApiConfigRequestControllerGrpc extends ApiMerchantConfigServiceGrpc
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
+    }
+
+    private UUID parseOwnerId(String ownerId) {
+        if (ownerId == null || ownerId.isBlank()) {
+            throw new IllegalArgumentException("Owner id is empty");
+        }
+        return UUID.fromString(ownerId);
     }
 
     @Override

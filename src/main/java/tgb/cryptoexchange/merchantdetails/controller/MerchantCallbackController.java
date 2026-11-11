@@ -1,18 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.controller.ApiController;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
 import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/merchant-details/callback")
 @Slf4j
-public class MerchantCallbackController extends ApiController {
+public class MerchantCallbackController {
 
     private final MerchantDetailsService merchantDetailsService;
 
@@ -57,7 +56,7 @@ public class MerchantCallbackController extends ApiController {
     }
 
     @GetMapping(value = "/{merchant}/fetch-status")
-    public ResponseEntity<Void> callbackGet(@RequestParam String transactionId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+    public ResponseEntity<Void> callbackGet(@RequestParam String transactionId, @RequestParam String secret, @PathVariable String merchant) throws JacksonException {
         if (!this.secret.equals(secret)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -71,7 +70,7 @@ public class MerchantCallbackController extends ApiController {
     }
 
     @PostMapping("/{merchant}")
-    public ResponseEntity<Void> callbackPost(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+    public ResponseEntity<Void> callbackPost(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JacksonException {
         var merchants = List.of(
                 Merchant.CROCO_PAY.name(),
                 Merchant.BASE_51.name(),
@@ -89,7 +88,7 @@ public class MerchantCallbackController extends ApiController {
     }
 
     @GetMapping("/{merchant}")
-    public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JsonProcessingException {
+    public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JacksonException {
         return callbackPost(dealId, secret, merchant);
     }
 

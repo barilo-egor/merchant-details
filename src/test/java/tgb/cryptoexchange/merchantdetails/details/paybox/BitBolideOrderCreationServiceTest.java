@@ -13,9 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -43,7 +43,7 @@ class BitBolideOrderCreationServiceTest {
     private RequestService requestService;
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @InjectMocks
     private BitBolideOrderCreationService bitBolideOrderCreationService;
@@ -168,7 +168,7 @@ class BitBolideOrderCreationServiceTest {
         cancelOrderRequest.setOrderId(orderId);
         cancelOrderRequest.setMethod(method.name());
         bitBolideOrderCreationService.makeCancelRequest(cancelOrderRequest);
-        verify(requestService).request(eq(webClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
+        verify(requestService).request(eq(restClient), eq(HttpMethod.POST), uriBuilderCaptor.capture(),
                 any(), eq(null));
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/api/v1/transactions/" + orderId + "/cancel", uriBuilderCaptor.getValue().apply(uriBuilder).getPath());

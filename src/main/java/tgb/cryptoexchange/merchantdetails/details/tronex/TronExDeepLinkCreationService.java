@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.tronex;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -14,9 +14,9 @@ import java.util.Optional;
 public class TronExDeepLinkCreationService extends TronExOrderCreationService {
 
 
-    protected TronExDeepLinkCreationService(@Qualifier("tronExWebClient") WebClient webClient,
+    protected TronExDeepLinkCreationService(@Qualifier("tronExRestClient") RestClient restClient,
                                             TronExDLProperties tronExDlProperties, CallbackConfig callbackConfig) {
-        super(webClient, tronExDlProperties, callbackConfig);
+        super(restClient, tronExDlProperties, callbackConfig);
     }
 
     @Override

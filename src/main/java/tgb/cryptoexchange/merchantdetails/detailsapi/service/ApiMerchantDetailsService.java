@@ -6,7 +6,7 @@ import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -19,7 +19,6 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
@@ -45,16 +44,12 @@ public class ApiMerchantDetailsService {
 
     private final RequestMethodService requestMethodService;
 
-    private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
-
     public ApiMerchantDetailsService(MeterRegistry meterRegistry, ApiMerchantConfigService merchantConfigService,
-                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService,
-                                     MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer) {
+                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService) {
         this.meterRegistry = meterRegistry;
         this.merchantConfigService = merchantConfigService;
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.requestMethodService = requestMethodService;
-        this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
     }
 
     @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")
@@ -113,7 +108,7 @@ public class ApiMerchantDetailsService {
                 log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{}: {}",
                         merchant.name(), request.getInternalId(), e.getMessage(), e);
                 meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
-                if (e instanceof WebClientResponseException responseException) {
+                if (e instanceof RestClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getInternalId(), responseException.getResponseBodyAsString());
                 }
             }

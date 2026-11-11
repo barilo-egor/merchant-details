@@ -1,18 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.paylee;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tgb.cryptoexchange.merchantdetails.details.MerchantMethod;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,17 +50,17 @@ public enum Method implements MerchantMethod {
         return null;
     }
 
-    public static class Serializer extends JsonSerializer<Method> {
+    public static class Serializer extends ValueSerializer<Method> {
         @Override
-        public void serialize(Method payLeeMethod, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(Method payLeeMethod, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
             jsonGenerator.writeString(payLeeMethod.getValue());
         }
     }
 
-    public static class Deserializer extends JsonDeserializer<List<Method>> {
+    public static class Deserializer extends ValueDeserializer<List<Method>> {
 
         @Override
-        public List<Method> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public List<Method> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             List<Method> methods = new ArrayList<>();
             if (jsonParser.currentToken() == JsonToken.START_ARRAY) {
                 while (jsonParser.nextToken() != JsonToken.END_ARRAY) {

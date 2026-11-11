@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.gambit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.GambitImplProperties;
 
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.GambitImplProperties;
 @Slf4j
 public class GambitImplOrderCreationService extends GambitOrderCreationService {
 
-    protected GambitImplOrderCreationService(@Qualifier("gambitWebClient") WebClient gambitWebClient,
+    protected GambitImplOrderCreationService(@Qualifier("gambitRestClient") RestClient gambitRestClient,
                                              GambitImplProperties gambitProperties) {
-        super(gambitWebClient, gambitProperties);
+        super(gambitRestClient, gambitProperties);
     }
 
     @Override

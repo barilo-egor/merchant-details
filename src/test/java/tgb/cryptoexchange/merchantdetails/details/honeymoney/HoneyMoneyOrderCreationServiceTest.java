@@ -1,8 +1,5 @@
 package tgb.cryptoexchange.merchantdetails.details.honeymoney;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,15 +11,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.HoneyMoneyProperties;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -150,40 +151,40 @@ class HoneyMoneyOrderCreationServiceTest {
     }
 
     @Test
-    void isNoDetailsPredicateShouldReturnTrueIfNoRequisitesResponseException() throws JsonProcessingException {
+    void isNoDetailsPredicateShouldReturnTrueIfNoRequisitesResponseException() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         JsonNode jsonNode = Mockito.mock(JsonNode.class);
         when(jsonNode.has("detail")).thenReturn(true);
         JsonNode detailsNode = Mockito.mock(JsonNode.class);
-        when(detailsNode.asText()).thenReturn("No requisites available for the moment. Please try again later.");
+        when(detailsNode.asString()).thenReturn("No requisites available for the moment. Please try again later.");
         when(jsonNode.get("detail")).thenReturn(detailsNode);
         when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
         assertTrue(predicate.test(badRequest));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingWasThrown() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingWasThrown() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
-        when(objectMapper.readTree(anyString())).thenThrow(JsonProcessingException.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
         assertFalse(predicate.test(badRequest));
     }
 
     @Test
     void isNotDetailsPredicateShouldReturnFalseIfExceptionNotBadRequest() {
         Predicate<Exception> predicate = honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate();
-        assertFalse(predicate.test(Mockito.mock(WebClientResponseException.BadGateway.class)));
-        assertFalse(predicate.test(Mockito.mock(WebClientResponseException.InternalServerError.class)));
+        assertFalse(predicate.test(Mockito.mock(HttpServerErrorException.BadGateway.class)));
+        assertFalse(predicate.test(Mockito.mock(HttpServerErrorException.InternalServerError.class)));
         assertFalse(predicate.test(Mockito.mock(RuntimeException.class)));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfAmountError() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
@@ -198,14 +199,14 @@ class HoneyMoneyOrderCreationServiceTest {
         when(amount.size()).thenReturn(1);
         JsonNode message = Mockito.mock(JsonNode.class);
         when(amount.get(0)).thenReturn(message);
-        when(message.asText()).thenReturn("Amount must be between 5000 and 1000000");
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(message.asString()).thenReturn("Amount must be between 5000 and 1000000");
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertTrue(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotAmountError() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotAmountError() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
@@ -220,15 +221,15 @@ class HoneyMoneyOrderCreationServiceTest {
         when(amount.size()).thenReturn(1);
         JsonNode message = Mockito.mock(JsonNode.class);
         when(amount.get(0)).thenReturn(message);
-        when(message.asText()).thenReturn("Another error.");
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        when(message.asString()).thenReturn("Another error.");
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
     @ValueSource(ints = {0, 2, 10})
     @ParameterizedTest
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfAmountSizeNot1(int size) throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfAmountSizeNot1(int size) throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
@@ -241,13 +242,13 @@ class HoneyMoneyOrderCreationServiceTest {
         when(errors.get("Amount")).thenReturn(amount);
         when(amount.isArray()).thenReturn(true);
         when(amount.size()).thenReturn(size);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfAmountNotArray() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfAmountNotArray() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
@@ -259,13 +260,13 @@ class HoneyMoneyOrderCreationServiceTest {
         JsonNode amount = Mockito.mock(JsonNode.class);
         when(errors.get("Amount")).thenReturn(amount);
         when(amount.isArray()).thenReturn(false);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfErrorsHasNoAmount() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfErrorsHasNoAmount() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
@@ -274,19 +275,19 @@ class HoneyMoneyOrderCreationServiceTest {
         JsonNode errors = Mockito.mock(JsonNode.class);
         when(response.get("errors")).thenReturn(errors);
         when(errors.has("Amount")).thenReturn(false);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }
 
     @Test
-    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoErrors() throws JsonProcessingException {
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoErrors() throws JacksonException {
         honeyMoneyOrderCreationService.setObjectMapper(objectMapper);
         JsonNode response = Mockito.mock(JsonNode.class);
         when(objectMapper.readTree(anyString())).thenReturn(response);
         when(response.has("detail")).thenReturn(false);
         when(response.has("errors")).thenReturn(false);
-        WebClientResponseException.BadRequest badRequest = Mockito.mock(WebClientResponseException.BadRequest.class);
+        HttpClientErrorException.BadRequest badRequest = Mockito.mock(HttpClientErrorException.BadRequest.class);
         when(badRequest.getResponseBodyAsString()).thenReturn("");
         assertFalse(honeyMoneyOrderCreationService.isNoDetailsExceptionPredicate().test(badRequest));
     }

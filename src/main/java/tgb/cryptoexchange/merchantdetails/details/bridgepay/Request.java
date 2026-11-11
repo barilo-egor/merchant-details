@@ -1,7 +1,7 @@
 package tgb.cryptoexchange.merchantdetails.details.bridgepay;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {

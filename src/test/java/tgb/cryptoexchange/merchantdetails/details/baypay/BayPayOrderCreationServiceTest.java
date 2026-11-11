@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
@@ -36,7 +36,7 @@ class BayPayOrderCreationServiceTest {
     private final UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
 
     @Mock
-    private WebClient webClient;
+    private RestClient restClient;
 
     @Mock
     private BayPayImplProperties bayPayProperties;
@@ -149,7 +149,7 @@ class BayPayOrderCreationServiceTest {
         ArgumentCaptor<Function<UriBuilder, URI>> uriCaptor = ArgumentCaptor.forClass(Function.class);
 
         verify(requestService).request(
-                eq(webClient),
+                eq(restClient),
                 eq(HttpMethod.POST),
                 uriCaptor.capture(),
                 any(),

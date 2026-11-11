@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -28,8 +28,8 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
 
     private final Hashids hashids;
 
-    protected NorosOrderCreationService(WebClient webClient, NorosProperties norosProperties) {
-        super(webClient, Response.class, Callback.class);
+    protected NorosOrderCreationService(RestClient restClient, NorosProperties norosProperties) {
+        super(restClient, Response.class, Callback.class);
         this.norosProperties = norosProperties;
         this.hashids = new Hashids(norosProperties.clientIdSalt(), 8);
     }
@@ -76,7 +76,7 @@ public abstract class NorosOrderCreationService extends MerchantOrderCreationSer
 
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
-        requestService.request(webClient, HttpMethod.DELETE,
+        requestService.request(restClient, HttpMethod.DELETE,
                 uriBuilder -> uriBuilder.path("/transaction/" + cancelOrderRequest.getOrderId()).build(),
                 this::addHeaders, null);
     }

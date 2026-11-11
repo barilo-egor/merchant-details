@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -27,10 +27,10 @@ public class PayscrowTransgranOrderCreationService extends MerchantOrderCreation
     protected final String baseUrl;
     private final PayscrowProperties payscrowProperties;
 
-    protected PayscrowTransgranOrderCreationService(@Qualifier("payscrowTransgranWebClient") WebClient webClient,
+    protected PayscrowTransgranOrderCreationService(@Qualifier("payscrowTransgranRestClient") RestClient restClient,
                                                     PayscrowTransgranProperties payscrowTransgranProperties,
                                                     @Value("${gateway-url}") String baseUrl) {
-        super(webClient, ResponseTransgran.class, CallbackTransgran.class);
+        super(restClient, ResponseTransgran.class, CallbackTransgran.class);
         this.payscrowProperties = payscrowTransgranProperties;
         this.baseUrl = baseUrl;
     }

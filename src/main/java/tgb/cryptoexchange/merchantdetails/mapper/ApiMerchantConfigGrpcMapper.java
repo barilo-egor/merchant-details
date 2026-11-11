@@ -2,13 +2,10 @@ package tgb.cryptoexchange.merchantdetails.mapper;
 
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Int32Value;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import tgb.cryptoexchange.grpc.generated.ApiMerchantConfigItemGrpc;
-import tgb.cryptoexchange.grpc.generated.FindAllApiMerchantConfigsRequestGrpc;
 import tgb.cryptoexchange.grpc.generated.UpdateApiMerchantConfigItemGrpc;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
-import tgb.cryptoexchange.merchantdetails.dto.MerchantConfigRequest;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
 
 @Component
@@ -16,30 +13,22 @@ public class ApiMerchantConfigGrpcMapper {
 
     public ApiMerchantConfigItemGrpc mapToGrpcApiMerchantConfigItem(ApiMerchantConfigDTO dto) {
         ApiMerchantConfigItemGrpc.Builder builder = ApiMerchantConfigItemGrpc.newBuilder()
-                .setId(dto.getId())
-                .setIsOn(BoolValue.of(dto.getIsOn()));
+                .setId(dto.id())
+                .setIsOn(BoolValue.of(dto.isOn()));
 
-        if (dto.getMerchant() != null) {
-            builder.setMerchant(dto.getMerchant().name());
+        if (dto.merchant() != null) {
+            builder.setMerchant(dto.merchant().name());
         }
-        if (dto.getMaxAmount() != null) {
-            builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));
+        if (dto.maxAmount() != null) {
+            builder.setMaxAmount(Int32Value.of(dto.maxAmount()));
         }
-        if (dto.getMinAmount() != null) {
-            builder.setMinAmount(Int32Value.of(dto.getMinAmount()));
+        if (dto.minAmount() != null) {
+            builder.setMinAmount(Int32Value.of(dto.minAmount()));
         }
-        if (dto.getMerchantOrder() != null) {
-            builder.setMerchantOrder(Int32Value.of(dto.getMerchantOrder()));
+        if (dto.merchantOrder() != null) {
+            builder.setMerchantOrder(Int32Value.of(dto.merchantOrder()));
         }
         return builder.build();
-    }
-
-    public MerchantConfigRequest mapToApiMerchantConfigRequest(FindAllApiMerchantConfigsRequestGrpc grpcRequest) {
-        MerchantConfigRequest request = new MerchantConfigRequest();
-        if (StringUtils.isNotBlank(grpcRequest.getOwnerId())) {
-            request.setOwnerId(grpcRequest.getOwnerId());
-        }
-        return request;
     }
 
     public UpdateApiMerchantConfigDTO mapToUpdateMerchantConfigDTO(UpdateApiMerchantConfigItemGrpc grpcRequest) {

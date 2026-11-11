@@ -1,18 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.yolo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.exception.EmptyResponseBodyException;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.YoloProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -23,7 +22,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-
 @Slf4j
 public abstract class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
@@ -33,9 +31,9 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
 
     protected final JwtData jwtData = new JwtData();
 
-    protected YoloOrderCreationService(@Qualifier("yoloWebClient") WebClient webClient,
+    protected YoloOrderCreationService(@Qualifier("yoloRestClient") RestClient restClient,
                                        YoloProperties yoloProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.yoloProperties = yoloProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -50,17 +48,17 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
         if (jwtData.getAccessToken() == null || Instant.now().plus(5, ChronoUnit.MINUTES).isAfter(jwtData.getExpiresAt())) {
             Optional<String> jwtResponse = Optional.ofNullable(requestService.request(
-                    webClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
+                    restClient, method(), uriBuilder -> uriBuilder.path("/api/client/auth/login").build(),
                     h -> h.add("Content-Type", "application/json"), mapBody()));
             if (jwtResponse.isEmpty()) {
                 log.debug("Yolo jwt ответ пуст!");
-                throw new EmptyResponseBodyException("Error jwt response is empty: " + System.currentTimeMillis());
+                throw new ServiceUnavailableException("Error jwt response is empty: " + System.currentTimeMillis());
             }
             String responseBody = jwtResponse.get();
             JwtData response;
             try {
                 response = objectMapper.readValue(responseBody, JwtData.class);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 long currentTime = System.currentTimeMillis();
                 log.debug("{} Ошибки преобразования ответа при получении jwt токена {}, body: {}",
                         currentTime, getMerchant().name(), responseBody);
@@ -109,7 +107,7 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
     private String mapBody() {
         try {
             return objectMapper.writeValueAsString(yoloProperties.credentials());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.error("{} Ошибка при маппинге тела запроса(credentials = {}): {}", currentTime, yoloProperties.credentials(), e.getMessage(), e);
             throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);

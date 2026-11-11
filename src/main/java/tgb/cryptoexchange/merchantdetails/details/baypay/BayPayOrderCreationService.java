@@ -3,8 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details.baypay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -26,9 +26,9 @@ public abstract class BayPayOrderCreationService extends MerchantOrderCreationSe
 
     private final CallbackConfig callbackConfig;
 
-    protected BayPayOrderCreationService(WebClient webClient, BayPayProperties bayPayProperties,
+    protected BayPayOrderCreationService(RestClient restClient, BayPayProperties bayPayProperties,
                                          CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.bayPayProperties = bayPayProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -76,7 +76,7 @@ public abstract class BayPayOrderCreationService extends MerchantOrderCreationSe
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
         String cancelUrl = "/s2s/invoice/" + cancelOrderRequest.getOrderId() + "/cancel/";
         requestService.request(
-                webClient,
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> uriBuilder.path(cancelUrl).build(),
                 headers(null, null),

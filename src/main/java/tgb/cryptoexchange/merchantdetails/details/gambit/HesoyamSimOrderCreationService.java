@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.gambit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.HesoyamSimProperties;
@@ -14,9 +14,9 @@ import java.util.Optional;
 @Slf4j
 public class HesoyamSimOrderCreationService extends GambitOrderCreationService {
 
-    protected HesoyamSimOrderCreationService(@Qualifier("hesoyamWebClient") WebClient hesoyamWebClient,
+    protected HesoyamSimOrderCreationService(@Qualifier("hesoyamRestClient") RestClient hesoyamRestClient,
                                              HesoyamSimProperties hesoyamSimProperties) {
-        super(hesoyamWebClient, hesoyamSimProperties);
+        super(hesoyamRestClient, hesoyamSimProperties);
     }
 
     protected HesoyamMethod parseDetailsMethod(String method) {

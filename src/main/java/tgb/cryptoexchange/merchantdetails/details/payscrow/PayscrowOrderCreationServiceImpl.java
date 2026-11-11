@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.payscrow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PayscrowPropertiesImpl;
@@ -16,9 +16,9 @@ public class PayscrowOrderCreationServiceImpl extends PayscrowOrderCreationServi
 
     private static final int AMOUNT_BOUND = 10_000;
 
-    protected PayscrowOrderCreationServiceImpl(@Qualifier("payscrowWebClient") WebClient webClient,
+    protected PayscrowOrderCreationServiceImpl(@Qualifier("payscrowRestClient") RestClient restClient,
                                                PayscrowPropertiesImpl payscrowProperties) {
-        super(webClient, payscrowProperties);
+        super(restClient, payscrowProperties);
     }
 
     @Override

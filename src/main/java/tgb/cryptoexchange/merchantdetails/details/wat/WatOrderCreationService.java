@@ -1,12 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.wat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -15,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.WatProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -33,10 +33,10 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
 
     private final ReceiptService receiptService;
 
-    protected WatOrderCreationService(WebClient webClient,
+    protected WatOrderCreationService(RestClient restClient,
                                       WatProperties watProperties, CallbackConfig callbackConfig,
                                       ReceiptService receiptService) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.watProperties = watProperties;
         this.callbackConfig = callbackConfig;
         this.receiptService = receiptService;
@@ -81,7 +81,7 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
 
     @Override
     protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/orders/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
                 this::addHeaders, null);
     }
@@ -93,12 +93,12 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
         try {
             Map<String, String> bodyMap = Map.of("receipt_url", linkToReceipt);
             body = objectMapper.writeValueAsString(bodyMap);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new BodyMappingException("Ошибка сериализации JSON", e);
         }
 
         requestService.request(
-                webClient,
+                restClient,
                 HttpMethod.PATCH,
                 uriBuilder -> uriBuilder.path("/orders/" + orderId).build(),
                 this::addHeaders,

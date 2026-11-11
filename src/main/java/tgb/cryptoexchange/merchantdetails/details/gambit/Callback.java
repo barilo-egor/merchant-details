@@ -1,11 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.gambit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderStatus;
 import tgb.cryptoexchange.merchantdetails.details.UnwrappedCallback;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

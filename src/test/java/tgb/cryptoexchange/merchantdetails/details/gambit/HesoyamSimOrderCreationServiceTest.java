@@ -1,11 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.gambit;
 
+import org.springframework.web.client.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.reactive.function.client.WebClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.properties.HesoyamSimProperties;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HesoyamSimOrderCreationServiceTest {
 
     @Mock
-    private WebClient hesoyamWebClient;
+    private RestClient hesoyamRestClient;
 
     @Mock
     private HesoyamSimProperties hesoyamSimProperties;

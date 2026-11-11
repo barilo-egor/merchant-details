@@ -1,17 +1,17 @@
 package tgb.cryptoexchange.merchantdetails.details.cube;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.CubeProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Optional;
@@ -25,9 +25,9 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
 
     protected final CallbackConfig callbackConfig;
 
-    protected CubeOrderCreationService(WebClient webClient, CubeProperties cubeProperties,
+    protected CubeOrderCreationService(RestClient restClient, CubeProperties cubeProperties,
                                        CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.cubeProperties = cubeProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -79,7 +79,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
 
     @Override
     protected Optional<String> makeFetchCallbackData(String transactionId) {
-        String response = requestService.request(webClient, HttpMethod.GET,
+        String response = requestService.request(restClient, HttpMethod.GET,
                 builder -> uriBuilder(null).apply(builder.queryParam("external_id", transactionId)),
                 headers(null, null),
                 null
@@ -92,7 +92,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
             callback.setStatus(data.getStatus());
             String callbackData = objectMapper.writeValueAsString(callback);
             return Optional.of(callbackData);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             long currentTime = System.currentTimeMillis();
             log.debug("{} Ошибки преобразования ответа информации о транзакции мерчанта {}, body: {}", currentTime,
                     getMerchant().name(), response);

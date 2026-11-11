@@ -1,14 +1,12 @@
 package tgb.cryptoexchange.merchantdetails.details.tronex;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import tgb.cryptoexchange.merchantdetails.util.MultipartFormBuilder;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -16,6 +14,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.exception.BodyMappingException;
 import tgb.cryptoexchange.merchantdetails.properties.TronExProperties;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.List;
@@ -32,9 +31,9 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
 
     protected final CallbackConfig callbackConfig;
 
-    protected TronExOrderCreationService(WebClient webClient,
+    protected TronExOrderCreationService(RestClient restClient,
                                          TronExProperties tronExProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.tronExProperties = tronExProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -92,10 +91,10 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
         try {
             Map<String, String> bodyMap = Map.of("id", cancelOrderRequest.getOrderId());
             body = objectMapper.writeValueAsString(bodyMap);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new BodyMappingException("Ошибка сериализации JSON", e);
         }
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/incoming/payment/cancel").build(),
                 this::addHeaders, body);
 
@@ -103,17 +102,17 @@ public abstract class TronExOrderCreationService extends MerchantOrderCreationSe
 
     @Override
     public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartFormBuilder builder = new MultipartFormBuilder();
         builder.part("id", orderId);
         builder.part("file", new ByteArrayResource(fileContent))
                 .filename(fileName);
 
-        requestService.request(
-                webClient,
+        requestService.requestAsync(
+                restClient,
                 HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/payment/upload/check/").build(),
                 headers -> headers.add("X-Api-Key", tronExProperties.key()),
-                BodyInserters.fromMultipartData(builder.build()),
+                builder.build(),
                 t -> log.error("Ошибка отправки чека мерчанту {} по ордеру {}: {}", getMerchant(), orderId, t.getMessage(), t)
         );
     }

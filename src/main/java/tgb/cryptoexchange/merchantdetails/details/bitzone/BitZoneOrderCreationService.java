@@ -1,21 +1,22 @@
 package tgb.cryptoexchange.merchantdetails.details.bitzone;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import tgb.cryptoexchange.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
+import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
 import tgb.cryptoexchange.merchantdetails.properties.BitZoneProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.util.Optional;
@@ -34,9 +35,9 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
 
     private final CallbackConfig callbackConfig;
 
-    protected BitZoneOrderCreationService(@Qualifier("bitZoneWebClient") WebClient webClient,
+    protected BitZoneOrderCreationService(@Qualifier("bitZoneRestClient") RestClient restClient,
                                           BitZoneProperties bitZoneProperties, CallbackConfig callbackConfig) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.bitZoneProperties = bitZoneProperties;
         this.callbackConfig = callbackConfig;
     }
@@ -92,14 +93,14 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
     protected Predicate<Exception> isNoDetailsExceptionPredicate() {
         return e -> {
             try {
-                if (e instanceof WebClientResponseException.Forbidden ex) {
+                if (e instanceof HttpClientErrorException.Forbidden ex) {
                     JsonNode response = objectMapper.readTree(ex.getResponseBodyAsString());
                     return response.has(MESSAGE)
-                            && isNoDetailsMessage(response.get(MESSAGE).asText());
-                } else if (e instanceof WebClientResponseException.GatewayTimeout) {
+                            && isNoDetailsMessage(response.get(MESSAGE).asString());
+                } else if (e instanceof HttpServerErrorException.GatewayTimeout) {
                     return true;
                 }
-            } catch (JsonProcessingException jsonProcessingException) {
+            } catch (JacksonException jsonProcessingException) {
                 return false;
             }
             return false;
@@ -118,7 +119,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
             JsonNode response;
             try {
                 response = objectMapper.readTree(rawResponse);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 long currentTime = System.currentTimeMillis();
                 log.error("{} Ошибка маппинга ответа мерчанта {}, оригинальный ответ= {}, ошибка: {}",
                         currentTime, getMerchant().name(), rawResponse, e.getMessage(), e
@@ -126,7 +127,7 @@ public class BitZoneOrderCreationService extends MerchantOrderCreationService<Re
                 throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
             }
             return response.has(MESSAGE)
-                    && response.get(MESSAGE).asText().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+                    && response.get(MESSAGE).asString().equals("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
         };
     }
 }

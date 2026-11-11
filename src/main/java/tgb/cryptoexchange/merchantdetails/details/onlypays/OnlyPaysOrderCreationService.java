@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
@@ -24,9 +24,9 @@ public class OnlyPaysOrderCreationService extends MerchantOrderCreationService<R
     
     private final OnlyPaysProperties onlyPaysProperties;
     
-    protected OnlyPaysOrderCreationService(@Qualifier("onlyPaysWebClient") WebClient webClient, 
+    protected OnlyPaysOrderCreationService(@Qualifier("onlyPaysRestClient") RestClient restClient, 
                                            OnlyPaysProperties onlyPaysProperties) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.onlyPaysProperties = onlyPaysProperties;
     }
 

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.constants.Metrics;
 import tgb.cryptoexchange.merchantdetails.constants.VariableType;
@@ -198,7 +198,7 @@ public class MerchantDetailsService {
                 log.debug("Ошибка получения реквизитов мерчанта {} для сделки №{} на попытке №{}: {}",
                         merchant.name(), request.getId(), attemptNumber, e.getMessage());
                 meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "error").increment();
-                if (e instanceof WebClientResponseException responseException) {
+                if (e instanceof RestClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для сделки №{}: {}", request.getId(), responseException.getResponseBodyAsString());
                 }
             }

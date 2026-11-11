@@ -1,14 +1,13 @@
 package tgb.cryptoexchange.merchantdetails.details.prismapay;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
@@ -16,6 +15,7 @@ import tgb.cryptoexchange.merchantdetails.details.MerchantOrderCreationService;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
 import tgb.cryptoexchange.merchantdetails.properties.PrismaPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
+import tools.jackson.core.JacksonException;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -32,9 +32,9 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
 
     private final ReceiptService receiptService;
 
-    protected PrismaPayOrderCreationService(@Qualifier("prismaPayWebClient") WebClient webClient,
+    protected PrismaPayOrderCreationService(@Qualifier("prismaPayRestClient") RestClient restClient,
                                             PrismaPayProperties prismaPayProperties, ReceiptService receiptService) {
-        super(webClient, Response.class, Callback.class);
+        super(restClient, Response.class, Callback.class);
         this.prismaPayProperties = prismaPayProperties;
         this.receiptService = receiptService;
     }
@@ -76,7 +76,7 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
 
     @Override
     public void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
-        requestService.request(webClient, HttpMethod.POST,
+        requestService.request(restClient, HttpMethod.POST,
                 uriBuilder -> uriBuilder.path("/api/orders/{orderId}/cancel")
                         .build(cancelOrderRequest.getOrderId()),
                 this::addHeaders,
@@ -91,13 +91,13 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
             Map<String, String> bodyMap = Map.of("link", linkToReceipt);
             String jsonBody = objectMapper.writeValueAsString(bodyMap);
             requestService.request(
-                    webClient,
+                    restClient,
                     HttpMethod.POST,
                     uriBuilder -> uriBuilder.pathSegment("api", "orders", "{orderId}", "merchant-document").build(orderId),
                     this::addHeaders,
                     jsonBody
             );
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Ошибка сериализации JSON для ордера {}: {}", orderId, e.getMessage(), e);
         }
     }

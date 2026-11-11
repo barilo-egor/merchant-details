@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.lotrien;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.LotrienProperties;
 @Slf4j
 public class LotrienImplOrderCreationService extends LotrienOrderCreationService {
 
-    protected LotrienImplOrderCreationService(@Qualifier("lotrienWebClient") WebClient webClient,
+    protected LotrienImplOrderCreationService(@Qualifier("lotrienRestClient") RestClient restClient,
                                               LotrienProperties lotrienProperties) {
-        super(webClient, lotrienProperties);
+        super(restClient, lotrienProperties);
     }
 
     @Override

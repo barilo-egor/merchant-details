@@ -8,8 +8,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.AbstractMySqlTest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 2. Сервис заполняет либо {@code setQr(...)}, либо пару {@code setBank(...)} + {@code setDetails(...)}.
  * 3. Если вызывается {@code setDetails(...)}, то ОБЯЗАТЕЛЬНО должен быть вызван {@code setBank(...)}.
  */
-@SpringBootTest
-class MerchantRequisitesContractTest {
+class MerchantRequisitesContractTest extends AbstractMySqlTest {
 
     /**
      * Мерчанты-исключения, которые на данный момент передают платёжную ссылку (URL)

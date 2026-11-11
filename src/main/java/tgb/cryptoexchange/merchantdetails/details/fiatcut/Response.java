@@ -1,11 +1,11 @@
 package tgb.cryptoexchange.merchantdetails.details.fiatcut;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import tgb.cryptoexchange.merchantdetails.details.MerchantDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.ValidationResult;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 

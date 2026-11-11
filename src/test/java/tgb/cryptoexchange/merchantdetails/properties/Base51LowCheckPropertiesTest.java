@@ -2,13 +2,12 @@ package tgb.cryptoexchange.merchantdetails.properties;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import tgb.cryptoexchange.merchantdetails.AbstractMySqlTest;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
-class Base51LowCheckPropertiesTest {
+class Base51LowCheckPropertiesTest extends AbstractMySqlTest {
 
     @Autowired
     private Base51LowCheckProperties base51Properties;

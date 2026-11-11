@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.settlex;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
@@ -11,9 +11,9 @@ import tgb.cryptoexchange.merchantdetails.properties.SettleX15Properties;
 public class SettleX15OrderCreationService extends SettleXOrderCreationService {
 
 
-    protected SettleX15OrderCreationService(@Qualifier("settleX15WebClient") WebClient webClient,
+    protected SettleX15OrderCreationService(@Qualifier("settleX15RestClient") RestClient restClient,
                                             SettleX15Properties settleX15Properties, CallbackConfig callbackConfig) {
-        super(webClient, settleX15Properties, callbackConfig);
+        super(restClient, settleX15Properties, callbackConfig);
     }
 
 

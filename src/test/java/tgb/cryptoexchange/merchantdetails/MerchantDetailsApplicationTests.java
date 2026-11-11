@@ -1,10 +1,8 @@
 package tgb.cryptoexchange.merchantdetails;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class MerchantDetailsApplicationTests {
+class MerchantDetailsApplicationTests extends AbstractMySqlTest {
 
     @Test
     void contextLoads() {

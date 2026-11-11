@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.cube;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.CubeHighCheckProperties;
@@ -12,9 +12,9 @@ import tgb.cryptoexchange.merchantdetails.properties.CubeHighCheckProperties;
 @Slf4j
 public class CubeHighCheckOrderCreationService extends CubeOrderCreationService {
 
-    protected CubeHighCheckOrderCreationService(@Qualifier("cubeWebClient") WebClient cubeWebClient,
+    protected CubeHighCheckOrderCreationService(@Qualifier("cubeRestClient") RestClient cubeRestClient,
                                                 CubeHighCheckProperties cubeProperties, CallbackConfig callbackConfig) {
-        super(cubeWebClient, cubeProperties, callbackConfig);
+        super(cubeRestClient, cubeProperties, callbackConfig);
     }
 
     @Override

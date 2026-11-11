@@ -3,7 +3,7 @@ package tgb.cryptoexchange.merchantdetails.details.crocopay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.Base51LowCheckProperties;
@@ -12,9 +12,9 @@ import tgb.cryptoexchange.merchantdetails.properties.Base51LowCheckProperties;
 @Slf4j
 public class Base51LowCheckOrderCreationService extends CrocoPayOrderCreationService {
 
-    protected Base51LowCheckOrderCreationService(@Qualifier("base51LowCheckWebClient") WebClient webClient,
+    protected Base51LowCheckOrderCreationService(@Qualifier("base51LowCheckRestClient") RestClient restClient,
                                                  Base51LowCheckProperties base51LowCheckProperties, CallbackConfig callbackConfig) {
-        super(webClient, base51LowCheckProperties, callbackConfig);
+        super(restClient, base51LowCheckProperties, callbackConfig);
     }
 
     @Override

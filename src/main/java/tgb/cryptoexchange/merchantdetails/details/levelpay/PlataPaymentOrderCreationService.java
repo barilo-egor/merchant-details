@@ -2,7 +2,7 @@ package tgb.cryptoexchange.merchantdetails.details.levelpay;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.config.CallbackConfig;
 import tgb.cryptoexchange.merchantdetails.properties.PlataPaymentProperties;
@@ -10,9 +10,9 @@ import tgb.cryptoexchange.merchantdetails.properties.PlataPaymentProperties;
 @Service
 public class PlataPaymentOrderCreationService extends LevelPayOrderCreationService {
 
-    protected PlataPaymentOrderCreationService(@Qualifier("plataPaymentWebClient") WebClient webClient,
+    protected PlataPaymentOrderCreationService(@Qualifier("plataPaymentRestClient") RestClient restClient,
                                                CallbackConfig callbackConfig, PlataPaymentProperties plataPaymentProperties) {
-        super(webClient, callbackConfig, plataPaymentProperties);
+        super(restClient, callbackConfig, plataPaymentProperties);
     }
 
     @Override
