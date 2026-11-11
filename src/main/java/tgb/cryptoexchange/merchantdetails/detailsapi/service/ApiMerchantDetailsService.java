@@ -19,7 +19,6 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
@@ -45,16 +44,12 @@ public class ApiMerchantDetailsService {
 
     private final RequestMethodService requestMethodService;
 
-    private final MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer;
-
     public ApiMerchantDetailsService(MeterRegistry meterRegistry, ApiMerchantConfigService merchantConfigService,
-                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService,
-                                     MerchantDetailsReceiveEventProducer merchantDetailsReceiveEventProducer) {
+                                     MerchantServiceRegistry merchantServiceRegistry, RequestMethodService requestMethodService) {
         this.meterRegistry = meterRegistry;
         this.merchantConfigService = merchantConfigService;
         this.merchantServiceRegistry = merchantServiceRegistry;
         this.requestMethodService = requestMethodService;
-        this.merchantDetailsReceiveEventProducer = merchantDetailsReceiveEventProducer;
     }
 
     @Timed(value = Metrics.GET_DETAILS_API, description = "Метрики api запросов на получение реквизитов.")

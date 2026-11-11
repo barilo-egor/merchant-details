@@ -5,3 +5,7 @@ spring:
     import: "file:config/config.yml"
   jackson:
     use-jackson2-defaults: true
+  flyway:
+    locations: "classpath:database/migration"
+    baseline-on-migrate: true
+    baseline-version: 1

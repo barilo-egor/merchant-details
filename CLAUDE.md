@@ -17,13 +17,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, затем копирует jar на сервер и делает `docker rollout merchant-details`. Падение тестов блокирует деплой.
 
+Тесты с контекстом Spring наследуют `AbstractMySqlTest`: он поднимает один контейнер MySQL (Testcontainers) на весь прогон, схему создают миграции Flyway, Hibernate работает в `validate`. Для тестов нужен запущенный Docker.
+
 Зависимость `tgb.cryptoexchange:commons` берётся из `mavenLocal()`: без неё в `~/.m2` проект не соберётся. Enum `Merchant` (`tgb.cryptoexchange.commons.enums.Merchant`) живёт в `commons`, поэтому новый мерчант сначала добавляется туда.
 
 ## Конфигурация и запуск
 
 - `src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
-- `src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), H2 в памяти и отключённый Spring Cloud Config. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
+- `src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
 - Профиль `kafka-disabled` отключает Kafka-листенеры, продюсеры и бины `ObjectMapper`/`KafkaTemplate` из `CommonConfig`; поэтому зависимости от Kafka в сервисах внедряются с `@Autowired(required = false)` и проверяются на `null`.
+- Схема БД ведётся миграциями Flyway в `src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
+- `DdlAutoValidationEnvironmentPostProcessor` (регистрируется в `META-INF/spring.factories`) не даёт запустить приложение без профиля `dev`, если `spring.jpa.hibernate.ddl-auto` не равен `validate`.
+- Jackson 2 запрещён в `build.gradle`; исключения — `jackson-bom`, `jackson-annotations`, `jackson-core`, `jackson-databind`, которые нужны Flyway. ArchUnit-тест `JsonMappersArchTest` запрещает нашему коду зависеть от `com.fasterxml.jackson.core` и `databind`.
 - Профиль `clear-merchants` при старте удаляет `MerchantConfig` мерчантов, которых больше нет в enum, и пересчитывает порядок.
 - `server.servlet.context-path` = `/merchant-details`.
 

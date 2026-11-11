@@ -18,7 +18,7 @@ import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
 @Builder
 @Table(name = "variable", uniqueConstraints = {
         @UniqueConstraint(
-                name = "uc_variable_config_type",
+                name = "uk_variable_type_config_type",
                 columnNames = {"type", "config_type"}
         )
 })

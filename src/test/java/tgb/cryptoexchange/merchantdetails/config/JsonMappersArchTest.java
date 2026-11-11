@@ -29,4 +29,10 @@ class JsonMappersArchTest {
             .should().callMethodWhere(JavaCall.Predicates.<JavaCall<?>>target(owner(assignableTo(ObjectMapper.class)))
                     .and(target(nameMatching("builder|builderWithJackson2Defaults|shared"))))
             .because(REASON);
+
+    @ArchTest
+    static final ArchRule jackson2ShouldNotBeUsed = noClasses()
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("com.fasterxml.jackson.core..", "com.fasterxml.jackson.databind..")
+            .because("Jackson 2 подключён только как зависимость Flyway, используйте Jackson 3 (tools.jackson)");
 }

@@ -2,9 +2,9 @@ package tgb.cryptoexchange.merchantdetails.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.AbstractMySqlTest;
 import tgb.cryptoexchange.merchantdetails.dto.ApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.dto.UpdateApiMerchantConfigDTO;
 import tgb.cryptoexchange.merchantdetails.repository.ApiMerchantConfigRepository;
@@ -14,9 +14,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class ApiMerchantConfigServiceIntegrationTest {
+class ApiMerchantConfigServiceIntegrationTest extends AbstractMySqlTest {
 
     @Autowired
     private ApiMerchantConfigService service;
