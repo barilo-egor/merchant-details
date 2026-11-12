@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.util.Optional;
@@ -46,16 +45,6 @@ class PlatformServiceTest {
         when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.empty());
 
         assertDoesNotThrow(() -> platformService.cancelOrder(Merchant.ALFA_TEAM, new CancelOrderRequest()));
-    }
-
-    @Test
-    void sendReceiptShouldSendFileToPlatform() {
-        MockMultipartFile file = new MockMultipartFile("receipt", "receipt.pdf", "application/pdf", new byte[]{1});
-        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
-
-        platformService.sendReceipt(Merchant.ALFA_TEAM, "order-1", file);
-
-        verify(merchantService).sendReceipt("order-1", file);
     }
 
     @Test

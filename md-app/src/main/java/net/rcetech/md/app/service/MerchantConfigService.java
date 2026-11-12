@@ -130,13 +130,6 @@ public class MerchantConfigService {
     }
 
     @Transactional
-    public void changeMinDealsCount(Merchant merchant, Integer minDealsCount) {
-        MerchantConfig config = getMerchantConfigElseNotFound(merchant);
-        config.setMinDealsCount(minDealsCount);
-        repository.save(config);
-    }
-
-    @Transactional
     public void changeOrder(Merchant merchant, Integer newOrder) {
         MerchantConfig config = getMerchantConfigElseNotFound(merchant);
         int currentOrder = config.getMerchantOrder();

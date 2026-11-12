@@ -40,9 +40,8 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 ### Входные точки
 
 - Kafka: `DetailsRequestTopicListener` (топик `kafka.topic.merchant-details.request`) → `DetailsRequestProcessorService` запускает поиск в пуле `detailsRequestSearchExecutor` и хранит `Future` в `activeSearchMap` по id сделки (повторный запрос по той же сделке игнорируется). Результат (или пустой `DetailsResponse`) уходит в топик `...response`. `StopDetailsSearchTopicListener` (`...stop-search`) отменяет поиск через `Future.cancel(true)`, поэтому код поиска проверяет `Thread.currentThread().isInterrupted()`.
-- REST `MerchantDetailsController`: конфиги мерчантов, переменные, загрузка чеков.
 - REST `MerchantCallbackController` (`/merchant-details/callback?merchant=...&secret=...`): callback'и мерчантов, проверяются по `callback-secret`. Для части мерчантов тело сначала расшифровывается через `CallbackDecryptService` (map собирается в `MerchantCallbackConfig`). Дальше `MerchantCallbackService` просит площадку разобрать тело (`parseCallback`), отправляет статус `MerchantCallbackEvent` в Kafka и вызывает у площадки `deleteReceipt`.
-- gRPC `MerchantDetailsControllerGrpc` реализует `md-app/src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `net.rcetech.md.app.grpc.generated`) и во многом дублирует REST-контроллер.
+- gRPC `MerchantDetailsControllerGrpc` реализует `md-app/src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `net.rcetech.md.app.grpc.generated`): конфиги мерчантов, переменные, отмена ордера и отправка чеков.
 
 ### Поиск реквизитов
 
@@ -81,4 +80,4 @@ URL callback'а мерчанту формируется как `callbackConfig.g
 ## Прочее
 
 - Логи и сообщения в коде пишутся на русском; при ошибке в лог пишется `System.currentTimeMillis()`, а наружу бросается `ServiceUnavailableException` с этим же таймстампом для поиска по логам.
-- `merchant-details.postman_collection.json` — коллекция запросов к REST API сервиса.
+- `merchant-details.postman_collection.json` — коллекция запросов к API площадок.
