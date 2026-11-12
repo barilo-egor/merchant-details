@@ -1,4 +1,4 @@
-package net.rcetech.md.app.detailsapi.service;
+package net.rcetech.md.search.service;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,7 @@ import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantService;
 import net.rcetech.md.integrations.platform.MerchantServiceRegistry;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
 import net.rcetech.md.domain.entity.ApiMerchantConfig;

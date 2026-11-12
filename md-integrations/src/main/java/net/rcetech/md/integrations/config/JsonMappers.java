@@ -9,7 +9,7 @@ import tools.jackson.databind.json.JsonMapper;
  * в Kafka, запросах к мерчантам и REST не зависел от изменённых дефолтов Jackson 3
  * (даты числом, порядок полей как в классе, enum по имени).
  * Создавать мапперы напрямую через {@code new ObjectMapper()} или {@code JsonMapper.builder()} запрещено,
- * это проверяет {@code JsonMappersArchTest}. Там, где доступен Spring-контекст, нужно внедрять бин из {@link CommonConfig}.
+ * это проверяет {@code JsonMappersArchTest}. Там, где доступен Spring-контекст, нужно внедрять бин из {@code MetaConfig}.
  */
 public final class JsonMappers {
 

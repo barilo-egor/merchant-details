@@ -12,10 +12,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import net.rcetech.md.app.detailsapi.service.ApiDetailsRequestProcessorService;
+import net.rcetech.md.app.mapper.GrpcValidator;
+import net.rcetech.md.search.service.ApiMerchantDetailsService;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.app.mapper.ApiDetailsRequestMapper;
@@ -34,19 +35,19 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     private static final String MDC_KEY_LOG_DEST = "logDest";
     private static final String MDC_VALUE_API = "api";
 
-    private final ApiDetailsRequestProcessorService processorService;
+    private final ApiMerchantDetailsService merchantDetailsService;
     private final ApiDetailsRequestMapper mapper;
     private final ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
     private final PlatformService platformService;
     private final RequestMethodService requestMethodService;
 
     public ApiDetailsRequestControllerGrpc(
-            ApiDetailsRequestProcessorService processorService,
+            ApiMerchantDetailsService merchantDetailsService,
             @Qualifier("detailsRequestSearchExecutorApi") ThreadPoolTaskExecutor detailsRequestSearchExecutorApi,
             ApiDetailsRequestMapper mapper,
             PlatformService platformService,
             RequestMethodService requestMethodService) {
-        this.processorService = processorService;
+        this.merchantDetailsService = merchantDetailsService;
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.mapper = mapper;
         this.platformService = platformService;
@@ -132,7 +133,8 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     private void processDetailsRequest(DetailsRequestGrpc requestGrpc, StreamObserver<DetailsResponseGrpc> responseObserver) {
         try {
             ApiDetailsRequest detailsRequest = mapper.mapGrpcToDto(requestGrpc);
-            ApiDetailsResponse response = processorService.process(detailsRequest);
+            ApiDetailsResponse response = merchantDetailsService.getDetails(detailsRequest)
+                    .orElseThrow(() -> GrpcValidator.detailsNotFound(detailsRequest));
             responseObserver.onNext(mapper.mapToGrpcDto(response));
             responseObserver.onCompleted();
         } catch (StatusRuntimeException e) {

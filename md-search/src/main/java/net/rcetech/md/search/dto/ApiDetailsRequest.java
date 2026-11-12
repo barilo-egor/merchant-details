@@ -1,4 +1,4 @@
-package net.rcetech.md.app.detailsapi.dto;
+package net.rcetech.md.search.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

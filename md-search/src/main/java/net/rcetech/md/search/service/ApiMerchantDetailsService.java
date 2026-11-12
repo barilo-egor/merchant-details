@@ -1,4 +1,4 @@
-package net.rcetech.md.app.detailsapi.service;
+package net.rcetech.md.search.service;
 
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -12,7 +12,7 @@ import net.rcetech.md.meta.constants.Metrics;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantServiceRegistry;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.dto.Details;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
