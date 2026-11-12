@@ -26,7 +26,6 @@ import net.rcetech.md.app.util.GrpcMapUtils;
 
 import java.util.List;
 
-import static net.rcetech.md.app.service.MerchantDetailsService.STATUS;
 import static net.rcetech.md.app.util.GrpcMapUtils.mapToMerchantConfigRequest;
 
 @Slf4j
@@ -224,7 +223,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void requisiteIssuanceFailure(RequisiteIssuanceFailureGrpc request,
                                          StreamObserver<RequisiteFailureResponseGrpc> responseObserver) {
         Counter counter = meterRegistry.find(Metrics.GET_DETAILS_RESULT)
-                .tag(STATUS, "empty")
+                .tag(Metrics.TAG_STATUS, "empty")
                 .tag("initiatorApp", request.getInitiatorApp())
                 .tag("date", request.getDate())
                 .counter();

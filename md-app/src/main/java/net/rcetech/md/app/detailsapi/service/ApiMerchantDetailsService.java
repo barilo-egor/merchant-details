@@ -29,13 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static net.rcetech.md.app.service.MerchantDetailsService.MERCHANT;
-
 @Service
 @Slf4j
 public class ApiMerchantDetailsService {
-
-    public static final String STATUS = "status";
 
     private final MeterRegistry meterRegistry;
 
@@ -72,13 +68,13 @@ public class ApiMerchantDetailsService {
         if (!hasDetails) {
             meterRegistry.counter(
                     Metrics.GET_DETAILS_RESULT_API,
-                    STATUS, "empty",
+                    Metrics.TAG_STATUS, "empty",
                     "date", today,
                     "configType", ConfigType.API.name()
             ).increment();
             log.debug("Реквизиты для api-сделки {} у мерчантов получены не были.", request.getInternalId());
         } else {
-            meterRegistry.counter(Metrics.GET_DETAILS_RESULT_API, STATUS, "success",
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT_API, Metrics.TAG_STATUS, "success",
                     "date", today,
                     "configType", ConfigType.API.name()).increment();
         }
@@ -99,16 +95,16 @@ public class ApiMerchantDetailsService {
             try {
                 log.debug("Попытка мерчанта {} для api-сделки {}.", merchant.name(), request.getInternalId());
                 maybeDetailsResponse = getDetails(merchant, request);
-                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS_API, MERCHANT, merchant.name()));
+                sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS_API, Metrics.TAG_MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "success").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, Metrics.TAG_MERCHANT, merchant.name(), Metrics.TAG_STATUS, "success").increment();
                 } else {
-                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "empty").increment();
+                    meterRegistry.counter(Metrics.MERCHANT_RESULT_API, Metrics.TAG_MERCHANT, merchant.name(), Metrics.TAG_STATUS, "empty").increment();
                 }
             } catch (Exception e) {
                 log.debug("Ошибка получения реквизитов мерчанта {} для api-сделки №{}: {}",
                         merchant.name(), request.getInternalId(), e.getMessage(), e);
-                meterRegistry.counter(Metrics.MERCHANT_RESULT_API, MERCHANT, merchant.name(), STATUS, "error").increment();
+                meterRegistry.counter(Metrics.MERCHANT_RESULT_API, Metrics.TAG_MERCHANT, merchant.name(), Metrics.TAG_STATUS, "error").increment();
                 if (e instanceof RestClientResponseException responseException) {
                     log.debug("Тело ответа ошибки для api-сделки №{}: {}", request.getInternalId(), responseException.getResponseBodyAsString());
                 }
