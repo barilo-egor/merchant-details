@@ -108,43 +108,6 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     }
 
     @Override
-    public void merchantCallbackRequest(MerchantCallbackGrpc requestGrpc, StreamObserver<Empty> responseObserver) {
-        try (var ignored = MDC.putCloseable(MDC_KEY_LOG_DEST, MDC_VALUE_API)) {
-            Merchant merchant;
-            try {
-                merchant = parseMerchant(requestGrpc.getMerchant());
-            } catch (IllegalArgumentException e) {
-                log.error("Некорректный мерчант в callback запросе: '{}'", requestGrpc.getMerchant(), e);
-                responseObserver.onError(Status.INVALID_ARGUMENT
-                        .withDescription("Invalid merchant: " + requestGrpc.getMerchant())
-                        .asRuntimeException());
-                return;
-            }
-
-            try {
-                merchantDetailsService.updateStatus(
-                        merchant,
-                        requestGrpc.getMerchantOrderId(),
-                        requestGrpc.getStatus(),
-                        requestGrpc.getStatusDescription()
-                );
-                responseObserver.onNext(Empty.getDefaultInstance());
-                responseObserver.onCompleted();
-            } catch (ServiceUnavailableException e) {
-                log.error("Сервис недоступен при обновлении статуса мерчанта {}: {}", merchant, e.getMessage(), e);
-                responseObserver.onError(Status.UNAVAILABLE
-                        .withDescription(e.getMessage())
-                        .asRuntimeException());
-            } catch (Exception e) {
-                log.error("Ошибка при обновлении статуса для мерчанта {}: {}", merchant, e.getMessage(), e);
-                responseObserver.onError(Status.INTERNAL
-                        .withDescription("Internal error: " + e.getMessage())
-                        .asRuntimeException());
-            }
-        }
-    }
-
-    @Override
     public void detailsRequest(DetailsRequestGrpc requestGrpc, StreamObserver<DetailsResponseGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable(MDC_KEY_LOG_DEST, MDC_VALUE_API)) {
             String testEnv = TestDetailsInterceptor.TEST_DETAILS_CTX_KEY.get();

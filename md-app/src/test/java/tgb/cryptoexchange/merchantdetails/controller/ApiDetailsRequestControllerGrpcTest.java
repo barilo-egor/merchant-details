@@ -21,7 +21,6 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.grpc.generated.CancelOrderRequestGrpc;
 import tgb.cryptoexchange.grpc.generated.DetailsRequestGrpc;
 import tgb.cryptoexchange.grpc.generated.DetailsResponseGrpc;
-import tgb.cryptoexchange.grpc.generated.MerchantCallbackGrpc;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.ProcessingContract;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
@@ -80,76 +79,6 @@ class ApiDetailsRequestControllerGrpcTest {
                 merchantDetailsService,
                 requestMethodService
         );
-    }
-
-    @Test
-    void merchantCallbackRequest_Success() {
-        MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
-                .setMerchant(Merchant.ALFA_TEAM.name())
-                .setMerchantOrderId("order-123")
-                .setStatus("PAID")
-                .setStatusDescription("Payment successful")
-                .build();
-
-        controller.merchantCallbackRequest(request, responseObserver);
-
-        verify(merchantDetailsService).updateStatus(Merchant.ALFA_TEAM, "order-123", "PAID", "Payment successful");
-        verify(responseObserver).onNext(Empty.getDefaultInstance());
-        verify(responseObserver).onCompleted();
-        verify(responseObserver, never()).onError(any());
-    }
-
-    @Test
-    void merchantCallbackRequest_InvalidMerchant() {
-        MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
-                .setMerchant("UNKNOWN_MERCHANT")
-                .setMerchantOrderId("order-123")
-                .setStatus("PAID")
-                .build();
-
-        controller.merchantCallbackRequest(request, responseObserver);
-
-        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
-        verify(responseObserver).onError(errorCaptor.capture());
-        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
-        assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-        verify(responseObserver, never()).onNext(any());
-        verify(responseObserver, never()).onCompleted();
-    }
-
-    @Test
-    void merchantCallbackRequest_BlankMerchant() {
-        MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
-                .setMerchant("")
-                .setMerchantOrderId("order-123")
-                .setStatus("PAID")
-                .build();
-
-        controller.merchantCallbackRequest(request, responseObserver);
-
-        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
-        verify(responseObserver).onError(errorCaptor.capture());
-        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
-        assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-    }
-
-    @Test
-    void merchantCallbackRequest_ServiceThrowsServiceUnavailableException() {
-        MerchantCallbackGrpc request = MerchantCallbackGrpc.newBuilder()
-                .setMerchant(Merchant.ALFA_TEAM.name())
-                .setMerchantOrderId("order-123")
-                .setStatus("PAID")
-                .setStatusDescription("desc")
-                .build();
-        doThrow(new ServiceUnavailableException("Kafka down")).when(merchantDetailsService)
-                .updateStatus(Merchant.ALFA_TEAM, "order-123", "PAID", "desc");
-
-        controller.merchantCallbackRequest(request, responseObserver);
-
-        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
-        verify(responseObserver).onError(errorCaptor.capture());
-        StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
-        assertEquals(Status.Code.UNAVAILABLE, ex.getStatus().getCode());
     }
 
     @Test

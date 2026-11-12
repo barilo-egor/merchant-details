@@ -13,8 +13,6 @@ public interface MerchantService {
 
     void updateStatus(String callbackBody);
 
-    void updateStatus(String orderId, String status, String statusDescription);
-
     Optional<String> fetchCallbackDataByTransactionId(String transactionId);
 
     void cancelOrder(CancelOrderRequest cancelOrderRequest);
