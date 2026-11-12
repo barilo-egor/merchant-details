@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.constants.VariableType;
 import tgb.cryptoexchange.merchantdetails.details.*;
 import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.kafka.MerchantDetailsReceiveEventProducer;
 
@@ -56,7 +57,7 @@ public class MerchantDetailsService {
         this.meterRegistry = meterRegistry;
     }
 
-    public Optional<DetailsResponse> getDetails(Merchant merchant, BotDetailsRequest request) {
+    public Optional<DetailsResponse> getDetails(Merchant merchant, RequiredReceipt requiredReceipt, BotDetailsRequest request) {
         var maybeCreationService = merchantServiceRegistry.getService(merchant);
         if (maybeCreationService.isEmpty()) {
             log.warn("Запрос получения реквизитов мерчанта {}, у которого отсутствует реализация: {}", merchant.name(), request.toString());
@@ -76,6 +77,7 @@ public class MerchantDetailsService {
                     .method(merchantMethod)
                     .redirectUrl(request.getRedirectUrl())
                     .phone(request.getPhone())
+                    .requiredReceipt(requiredReceipt)
                     .build();
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
@@ -183,11 +185,12 @@ public class MerchantDetailsService {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         int index = 0;
         while (maybeDetailsResponse.isEmpty() && index < merchantConfigList.size()) {
-            Merchant merchant = merchantConfigList.get(index).getMerchant();
+            MerchantConfig merchantConfig = merchantConfigList.get(index);
+            Merchant merchant = merchantConfig.getMerchant();
             Timer.Sample sample = Timer.start(meterRegistry);
             try {
                 log.trace("Попытка №{} мерчанта {} для сделки {}.", attemptNumber, merchant.name(), request.getId());
-                maybeDetailsResponse = getDetails(merchant, request);
+                maybeDetailsResponse = getDetails(merchant, merchantConfig.getRequiredReceipt(), request);
                 sample.stop(meterRegistry.timer(Metrics.MERCHANT_GET_DETAILS, MERCHANT, merchant.name()));
                 if (maybeDetailsResponse.isPresent()) {
                     meterRegistry.counter(Metrics.MERCHANT_RESULT, MERCHANT, merchant.name(), STATUS, "success").increment();

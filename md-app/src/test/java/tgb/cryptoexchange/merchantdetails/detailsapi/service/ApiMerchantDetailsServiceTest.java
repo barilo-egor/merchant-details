@@ -16,6 +16,7 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsRequest;
 import tgb.cryptoexchange.merchantdetails.detailsapi.dto.ApiDetailsResponse;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
 
@@ -123,6 +124,18 @@ class ApiMerchantDetailsServiceTest {
                 () -> assertEquals(2003, actual.getAmount())
         );
         verify(onlyPays, never()).cancelOrder(any());
+    }
+
+    @Test
+    void getDetailsShouldNotRequireReceipt() {
+        givenMerchant(onlyPays, Merchant.ONLY_PAYS, "SBP_ONLY_PAYS");
+        when(onlyPays.createOrder(any())).thenReturn(Optional.empty());
+
+        service.getDetails(Merchant.ONLY_PAYS, request(null, RequestMethod.SBP));
+
+        ArgumentCaptor<OrderCreationRequest> captor = ArgumentCaptor.forClass(OrderCreationRequest.class);
+        verify(onlyPays).createOrder(captor.capture());
+        assertEquals(RequiredReceipt.NOT_REQUIRED, captor.getValue().getRequiredReceipt());
     }
 
     @Test

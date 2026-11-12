@@ -16,10 +16,8 @@ import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
-import tgb.cryptoexchange.merchantdetails.entity.MerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.properties.RSPayImplProperties;
-import tgb.cryptoexchange.merchantdetails.service.MerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.service.SignatureService;
 import tools.jackson.databind.ObjectMapper;
@@ -54,9 +52,6 @@ class RsPayMerchantServiceTest {
     private OrderCreationRequest detailsRequest;
     private Response response;
     private CancelOrderRequest cancelOrderRequest;
-    @Mock
-    private MerchantConfigService merchantConfigService;
-    private MerchantConfig merchantConfig;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +63,6 @@ class RsPayMerchantServiceTest {
         );
         rsPayService.setObjectMapper(objectMapper);
         rsPayService.setRequestService(requestService);
-        rsPayService.setMerchantConfigService(merchantConfigService);
 
         detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(100);
@@ -80,9 +74,6 @@ class RsPayMerchantServiceTest {
 
         cancelOrderRequest = new CancelOrderRequest();
         cancelOrderRequest.setOrderId("order-123");
-
-        merchantConfig = new MerchantConfig();
-        merchantConfig.setRequiredReceipt(RequiredReceipt.PDF);
     }
 
     @Test
@@ -210,7 +201,7 @@ class RsPayMerchantServiceTest {
 
     @Test
     void shouldSetReceiptToTrue_WhenRequiredReceiptIsPdf() {
-        when(merchantConfigService.getMerchantConfig(any(Merchant.class))).thenReturn(Optional.of(merchantConfig));
+        detailsRequest.setRequiredReceipt(RequiredReceipt.PDF);
 
         Request result = rsPayService.body(detailsRequest);
 

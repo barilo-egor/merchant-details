@@ -18,6 +18,7 @@ import tgb.cryptoexchange.merchantdetails.detailsapi.dto.Details;
 import tgb.cryptoexchange.merchantdetails.detailsapi.enums.RequestMethod;
 import tgb.cryptoexchange.merchantdetails.entity.ApiMerchantConfig;
 import tgb.cryptoexchange.merchantdetails.enums.ConfigType;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.service.ApiMerchantConfigService;
 import tgb.cryptoexchange.merchantdetails.service.RequestMethodService;
@@ -142,7 +143,9 @@ public class ApiMerchantDetailsService {
                         .id(request.getInternalId())
                         .amount(request.getAmount())
                         .userId(request.getUserId())
-                        .method(merchantMethod).build();
+                        .method(merchantMethod)
+                        .requiredReceipt(RequiredReceipt.NOT_REQUIRED)
+                        .build();
                 Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
                 if (maybeDetailsResponse.isPresent()) {
                     DetailsResponse orderResponse = maybeDetailsResponse.get();

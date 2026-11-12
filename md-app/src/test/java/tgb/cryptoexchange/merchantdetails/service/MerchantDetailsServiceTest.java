@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tgb.cryptoexchange.merchantdetails.enums.RequiredReceipt;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -59,7 +60,7 @@ class MerchantDetailsServiceTest {
     @Test
     void getDetailsShouldReturnEmptyOptionalIfMerchantServiceNotImplemented() {
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.empty());
-        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, new BotDetailsRequest()).isEmpty());
+        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, null, new BotDetailsRequest()).isEmpty());
     }
 
     @Test
@@ -69,7 +70,7 @@ class MerchantDetailsServiceTest {
         MerchantService merchantService = Mockito.mock(MerchantService.class);
         when(merchantServiceRegistry.getService(any())).thenReturn(Optional.of(merchantService));
         when(merchantService.createOrder(any())).thenReturn(Optional.empty());
-        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, detailsRequest).isEmpty());
+        assertTrue(merchantDetailsService.getDetails(Merchant.ALFA_TEAM, null, detailsRequest).isEmpty());
     }
 
     @Test
@@ -86,7 +87,7 @@ class MerchantDetailsServiceTest {
         ArgumentCaptor<Merchant> merchantCaptor = ArgumentCaptor.forClass(Merchant.class);
         ArgumentCaptor<BotDetailsRequest> detailsRequestCaptor = ArgumentCaptor.forClass(BotDetailsRequest.class);
         ArgumentCaptor<DetailsResponse> detailsResponseCaptor = ArgumentCaptor.forClass(DetailsResponse.class);
-        Optional<DetailsResponse> maybeResponse = merchantDetailsService.getDetails(Merchant.ALFA_TEAM, detailsRequest);
+        Optional<DetailsResponse> maybeResponse = merchantDetailsService.getDetails(Merchant.ALFA_TEAM, null, detailsRequest);
         assertTrue(maybeResponse.isPresent());
         DetailsResponse actual = maybeResponse.get();
         assertEquals(Merchant.ALFA_TEAM, actual.getMerchant());
@@ -214,6 +215,30 @@ class MerchantDetailsServiceTest {
         assertTrue(maybeDetailsResponse.isPresent());
         assertEquals(expectedId, maybeDetailsResponse.get().getMerchantOrderId());
         assertEquals(Merchant.ALFA_TEAM, maybeDetailsResponse.get().getMerchant());
+    }
+
+    @Test
+    void getDetailsShouldPassRequiredReceiptFromMerchantConfigToOrderRequest() {
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        detailsRequest.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM)
+                .methods(List.of(Method.TO_CARD.name())).build()));
+        detailsRequest.setAmount(1000);
+        detailsRequest.setInitiatorApp("bot");
+        when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(List.of(MerchantConfig.builder()
+                .merchant(Merchant.ALFA_TEAM)
+                .requiredReceipt(RequiredReceipt.ANY)
+                .build()));
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("1").build());
+        MerchantService merchantService = Mockito.mock(MerchantService.class);
+        when(merchantServiceRegistry.getService(Merchant.ALFA_TEAM)).thenReturn(Optional.of(merchantService));
+        when(merchantService.createOrder(any())).thenReturn(Optional.empty());
+
+        merchantDetailsService.getDetails(detailsRequest);
+
+        ArgumentCaptor<OrderCreationRequest> captor = ArgumentCaptor.forClass(OrderCreationRequest.class);
+        verify(merchantService).createOrder(captor.capture());
+        assertEquals(RequiredReceipt.ANY, captor.getValue().getRequiredReceipt());
     }
 
     @Test
