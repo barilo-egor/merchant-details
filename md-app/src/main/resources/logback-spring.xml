@@ -59,6 +59,11 @@
     <!-- НАСТРОЙКИ ЛОГГЕРОВ -->
 
     <!-- Application логи идут в application.log и консоль -->
+    <logger name="net.rcetech.md" additivity="false" level="DEBUG">
+        <appender-ref ref="APPLICATION_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
     <logger name="tgb.cryptoexchange" additivity="false" level="DEBUG">
         <appender-ref ref="APPLICATION_FILE"/>
         <appender-ref ref="CONSOLE"/>

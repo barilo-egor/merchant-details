@@ -1,0 +1,81 @@
+package net.rcetech.md.integrations.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import net.rcetech.md.meta.exception.DeleteReceiptException;
+import net.rcetech.md.meta.exception.SaveReceiptException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+@Service
+@Slf4j
+public class ReceiptService {
+
+    private final String baseUrl;
+
+    public static final String RECEIPT_FOLDER = "receipts";
+
+    public ReceiptService(@Value("${gateway-url}") String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String saveReceipt(byte[] fileContent, String fileName, String folderName) {
+        try {
+            String jarPath = System.getProperty("user.dir");
+            Path directoryPath = Paths.get(jarPath, RECEIPT_FOLDER, folderName);
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+            File targetFile = directoryPath.resolve(fileName).toFile();
+            try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                fos.write(fileContent);
+            }
+            return generateExternalUrl(fileName, folderName);
+        } catch (IOException e) {
+            String errorMsg = "Ошибка при попытке сохранить чек " + fileName;
+            log.error(errorMsg, e);
+            throw new SaveReceiptException(errorMsg, e);
+        }
+    }
+
+    public void deleteReceipt(String fileName, String folderName) {
+        String jarPath = System.getProperty("user.dir");
+        Path folderPath = Paths.get(jarPath, RECEIPT_FOLDER, folderName);
+
+        if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
+            log.warn("Папка {} не существует", folderName);
+            return;
+        }
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(folderPath, fileName + ".*")) {
+            boolean deleted = false;
+            for (Path path : stream) {
+                if (Files.isRegularFile(path)) {
+                    Files.delete(path);
+                    log.debug("Чек {} успешно удален из папки {}", path.getFileName(), folderName);
+                    deleted = true;
+                }
+            }
+
+            if (!deleted) {
+                log.warn("Не удалось удалить чек {}: файл не найден в папке {}", fileName, folderName);
+            }
+        } catch (IOException e) {
+            String errorMsg = String.format("Ошибка при попытке удалить чек %s из папки %s", fileName, folderName);
+            log.error(errorMsg, e);
+            throw new DeleteReceiptException(errorMsg, e);
+        }
+    }
+
+    private String generateExternalUrl(String fileName, String folderName) {
+        return baseUrl + "/merchant-details/" + RECEIPT_FOLDER + "/" + folderName + "/" + fileName;
+    }
+
+}

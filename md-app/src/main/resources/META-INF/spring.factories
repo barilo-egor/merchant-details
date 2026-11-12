@@ -1,2 +1,2 @@
 org.springframework.boot.EnvironmentPostProcessor=\
-tgb.cryptoexchange.merchantdetails.config.DdlAutoValidationEnvironmentPostProcessor
+net.rcetech.md.app.config.DdlAutoValidationEnvironmentPostProcessor

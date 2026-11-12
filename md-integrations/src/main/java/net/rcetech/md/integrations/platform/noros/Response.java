@@ -1,0 +1,52 @@
+package net.rcetech.md.integrations.platform.noros;
+
+import lombok.Data;
+import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
+import net.rcetech.md.integrations.platform.ValidationResult;
+import tools.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.Objects;
+
+@Data
+public class Response implements MerchantDetailsResponse {
+
+    private String id;
+
+    @JsonDeserialize(using = Status.Deserializer.class)
+    private Status status;
+
+    private String bankReceiver;
+
+    private String card;
+
+    private Integer amount;
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult result = new ValidationResult();
+        if (Objects.isNull(id)) {
+            result.notNull("id");
+        }
+        if (Objects.isNull(status)) {
+            result.notNull("status");
+        }
+        if (!hasDetails()) {
+            if (Objects.isNull(bankReceiver)) {
+                result.notNull("bankReceiver");
+            }
+            if (Objects.isNull(card)) {
+                result.notNull("card");
+            }
+        }
+
+        if (Objects.isNull(amount)) {
+            result.notNull("amount");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean hasDetails() {
+        return Objects.nonNull(bankReceiver) && Objects.nonNull(card);
+    }
+}

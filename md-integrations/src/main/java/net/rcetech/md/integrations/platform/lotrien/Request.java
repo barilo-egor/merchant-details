@@ -1,0 +1,25 @@
+package net.rcetech.md.integrations.platform.lotrien;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+@Data
+public class Request {
+
+    @JsonProperty("paymentMethods")
+    @JsonSerialize(using = Method.Serializer.class)
+    private Method paymentMethod;
+
+    private String fiatSum;
+
+    @JsonProperty("fiatCurrencyCode")
+    public String getFiatCurrencyCode() {
+        return "RUB";
+    }
+
+    @JsonProperty("cryptoCurrencyCode")
+    public String getCryptoCurrencyCode() {
+        return "USDT";
+    }
+}

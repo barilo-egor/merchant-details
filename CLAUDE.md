@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Интеграции с площадками (`details/`, `properties/`, `RestClientsConfig`, `RequestService`, `SignatureService`, `ReceiptService`, `RequestMethodService` и т. п.) лежат в `md-integrations`, общие для них бины объявлены в `IntegrationsConfig`. Приём callback'ов (`MerchantCallbackController`, `MerchantCallbackService`, `MerchantCallbackEvent` и его отправка в Kafka, `MerchantCallbackConfig`) лежит в `md-callback`. Всё остальное пока в `md-app`. По плану код разносится дальше на `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Пакеты: класс приложения `MerchantDetailsApplication` лежит в корне `net.rcetech.md`, чтобы сканирование видело все модули, а код каждого модуля — в `net.rcetech.md.<модуль>` (`md-integrations` → `net.rcetech.md.integrations`, `md-app` → `net.rcetech.md.app` и т. д.). Енамы и DTO из библиотеки `commons` остаются в `tgb.cryptoexchange.commons`. Логгер `net.rcetech.md` в `logback-spring.xml` пишет DEBUG в `application.log`. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Интеграции с площадками (`platform/`, `properties/`, `RestClientsConfig`, `RequestService`, `SignatureService`, `ReceiptService`, `RequestMethodService` и т. п.) лежат в `md-integrations`, общие для них бины объявлены в `IntegrationsConfig`. Приём callback'ов (`MerchantCallbackController`, `MerchantCallbackService`, `MerchantCallbackEvent` и его отправка в Kafka, `MerchantCallbackConfig`) лежит в `md-callback`. Всё остальное пока в `md-app`. По плану код разносится дальше на `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
 
 ```bash
 ./gradlew build                       # сборка + тесты
 ./gradlew test                        # все тесты
-./gradlew test --tests 'tgb.cryptoexchange.merchantdetails.details.asgard.AsgardSimOrderCreationServiceTest'
+./gradlew :md-integrations:test --tests 'net.rcetech.md.integrations.platform.asgard.AsgardSimOrderCreationServiceTest'
 ./gradlew test --tests '*AsgardSim*'  # по маске
 ./gradlew bootJar                     # md-app/build/libs/merchant-details.jar
 ./gradlew generateProto               # перегенерировать gRPC-классы из md-app/src/main/proto
@@ -42,7 +42,7 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 - Kafka: `DetailsRequestTopicListener` (топик `kafka.topic.merchant-details.request`) → `DetailsRequestProcessorService` запускает поиск в пуле `detailsRequestSearchExecutor` и хранит `Future` в `activeSearchMap` по id сделки (повторный запрос по той же сделке игнорируется). Результат (или пустой `DetailsResponse`) уходит в топик `...response`. `StopDetailsSearchTopicListener` (`...stop-search`) отменяет поиск через `Future.cancel(true)`, поэтому код поиска проверяет `Thread.currentThread().isInterrupted()`.
 - REST `MerchantDetailsController`: конфиги мерчантов, переменные, загрузка чеков.
 - REST `MerchantCallbackController` (`/merchant-details/callback?merchant=...&secret=...`): callback'и мерчантов, проверяются по `callback-secret`. Для части мерчантов тело сначала расшифровывается через `CallbackDecryptService` (map собирается в `MerchantCallbackConfig`). Дальше `MerchantCallbackService` просит площадку разобрать тело (`parseCallback`), отправляет статус `MerchantCallbackEvent` в Kafka и вызывает у площадки `deleteReceipt`.
-- gRPC `MerchantDetailsControllerGrpc` реализует `md-app/src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `tgb.cryptoexchange.grpc.generated`) и во многом дублирует REST-контроллер.
+- gRPC `MerchantDetailsControllerGrpc` реализует `md-app/src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `net.rcetech.md.app.grpc.generated`) и во многом дублирует REST-контроллер.
 
 ### Поиск реквизитов
 
@@ -56,15 +56,15 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 
 Каждая интеграция — Spring-бин, реализующий `MerchantService`; `MerchantServiceRegistry` собирает их в `EnumMap<Merchant, MerchantService>` по `getMerchant()`. Почти все наследуют шаблонный `MerchantOrderCreationService<Response, Callback>`, который реализует весь поток (маппинг тела, запрос через `RequestService`, разбор и `validate()` ответа, разбор callback'а в `CallbackStatus`). Интеграция в основном занимается запросами к площадке и разбором её ответов, а инфраструктуру вроде Kafka и БД по возможности оставляет вызывающему коду: нужные данные приходят в параметрах (например, `requiredReceipt` в `OrderCreationRequest`). Наследник переопределяет `uriBuilder`, `headers`, `body`, `buildResponse` и при необходимости хуки: `method()`, `isValidRequestPredicate`, `isNoDetailsExceptionPredicate`, `hasResponseNoDetailsErrorPredicate`, `isIgnoreCallbackPredicate`, `makeCancelRequest`, `makeFetchCallbackData`, `sendReceipt`, `deleteReceipt`.
 
-Типичная структура пакета `details/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` RestClient'а и классом properties.
+Типичная структура пакета `platform/<merchant>/`: `Request`, `Response` (implements `MerchantDetailsResponse`), `Callback` (implements `MerchantCallback`), `Method`, `Status` (implements `MerchantOrderStatus`/`MerchantMethod`), абстрактный `<Merchant>OrderCreationService` и конкретные подклассы под разные аккаунты/варианты одного провайдера (`Impl`, `Sim`, `HighCheck`, `LowCheck`, `WT`, `Pdf`, `QR` и т. д.). Подклассы отличаются только `getMerchant()`, `@Qualifier` RestClient'а и классом properties.
 
 Добавление нового мерчанта или варианта затрагивает несколько мест:
 1. значение в enum `Merchant` (библиотека `commons`);
 2. `properties/<Name>Properties` — record с `@ConfigurationProperties(prefix = "...")`, обычно реализующий общий интерфейс провайдера (сканируется `@ConfigurationPropertiesScan`);
 3. бин `<name>RestClient` в `config/RestClientsConfig` (база — `get30SecondsReadTimeoutRestClientBuilder()`);
-4. сервис в `details/<merchant>/`;
+4. сервис в `platform/<merchant>/`;
 5. ключи в `config_template/config.yml` и фиктивные значения в `md-integrations/src/testFixtures/resources/integrations-test.yml`;
-6. тесты в `md-integrations`: `properties/<Name>PropertiesTest` (наследует `AbstractIntegrationsContextTest`) и `details/<merchant>/*Test` (Mockito).
+6. тесты в `md-integrations`: `properties/<Name>PropertiesTest` (наследует `AbstractIntegrationsContextTest`) и `platform/<merchant>/*Test` (Mockito).
 
 HTTP-запросы к мерчантам идут через `RequestService` на синхронном `RestClient` (webflux в проекте нет). Таймауты соединения и ожидания ответа по 30 секунд; таймаут ожидания ответа при создании ордера считается «нет реквизитов», а не ошибкой. Ошибки мерчанта приходят как `HttpClientErrorException.*`/`HttpServerErrorException.*` (`RestClientResponseException`), ошибки соединения как `ResourceAccessException`. Отправка чеков (`requestAsync`) выполняется в пуле `asyncRequestExecutor` без ожидания ответа, ошибка уходит в переданный обработчик; тело multipart собирается через `util/MultipartFormBuilder` (`MultipartBodyBuilder` из Spring требует reactive-streams).
 

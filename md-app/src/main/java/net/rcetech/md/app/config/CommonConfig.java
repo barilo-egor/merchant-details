@@ -1,0 +1,174 @@
+package net.rcetech.md.app.config;
+
+import net.rcetech.md.integrations.config.JsonMappers;
+import net.rcetech.md.integrations.config.MdcTaskDecorator;
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.backoff.FixedBackOff;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.app.details.BotDetailsRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.app.kafka.*;
+import net.rcetech.md.callback.kafka.*;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+
+@Configuration
+@EnableAsync
+public class CommonConfig {
+
+    @Bean
+    public TimedAspect timedAspect(MeterRegistry registry) {
+        return new TimedAspect(registry);
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public JsonMapper objectMapper() {
+        return JsonMappers.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, MerchantDetailsReceiveEvent> merchantHistoryProducerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MerchantDetailsReceiveEventSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate(MerchantDetailsReceiveProducerListener merchantDetailsReceiveProducerListener,
+                                                                            KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory(kafkaProperties));
+        kafkaTemplate.setProducerListener(merchantDetailsReceiveProducerListener);
+        return kafkaTemplate;
+    }
+
+    @Bean
+    public ConsumerFactory<String, BotDetailsRequest> consumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, BotDetailsRequestDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> kafkaListenerContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                            DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, BotDetailsRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(kafkaProperties));
+        factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
+        return factory;
+    }
+
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(DetailsRequestErrorService detailsRequestErrorService) {
+        return new DefaultErrorHandler(
+                detailsRequestErrorService::handle,
+                new FixedBackOff(60000, 1)
+        );
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public ProducerFactory<String, DetailsResponse> detailsResponseProducerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DetailsResponseSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    @Profile("!kafka-disabled")
+    public KafkaTemplate<String, DetailsResponse> detailsResponseKafkaTemplate(DetailsReponseFoundProducerListener detailsReponseFoundProducerListener,
+                                                                               KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, DetailsResponse> kafkaTemplate = new KafkaTemplate<>(detailsResponseProducerFactory(kafkaProperties));
+        kafkaTemplate.setProducerListener(detailsReponseFoundProducerListener);
+        return kafkaTemplate;
+    }
+
+    @Bean(name = "detailsRequestSearchExecutorBot")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorBot(
+            @Value("${details.executor.core-pool-size}") Integer corePoolSize,
+            @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
+            @Value("${details.executor.queue-capacity}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("DetailsRequestSearchBot-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "detailsRequestSearchExecutorApi")
+    public ThreadPoolTaskExecutor detailsRequestSearchExecutorApi(
+            @Value("${details.executor.core-pool-size}") Integer corePoolSize,
+            @Value("${details.executor.max-pool-size}") Integer maxPoolSize,
+            @Value("${details.executor.queue-capacity}") Integer queueCapacity
+    ) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("DetailsRequestSearchApi-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public Map<Long, Future<Void>> activeSearchMap() {
+        return new ConcurrentHashMap<>();
+    }
+
+    @Bean
+    public ConsumerFactory<String, StopSearchRequest> stopSearchRequestConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StopSearchRequest.KafkaDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, StopSearchRequest> stopSearchRequestContainerFactory(KafkaProperties kafkaProperties,
+                                                                                                             DetailsRequestErrorService detailsRequestErrorService) {
+        ConcurrentKafkaListenerContainerFactory<String, StopSearchRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(stopSearchRequestConsumerFactory(kafkaProperties));
+        factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
+        return factory;
+    }
+}

@@ -1,0 +1,71 @@
+package net.rcetech.md.app.kafka;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.TestPropertySource;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.app.details.BotDetailsRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"kafka.topic.merchant-details.receive=test-topic"})
+class MerchantDetailsReceiveEventProducerTest {
+
+    @Mock
+    private KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate;
+
+    @CsvSource("""
+            merchant-details-receive-v1,17551592595,398395786,banan,ALFA_TEAM,b9519d18-7ecf-47fd-ae74-0eca84d8656e,2500,2502,SBP,79879878787, ALFA
+            merchant-details-receive-v2,17551564636,8050468384,money,SETTLE_X,869b6ba4-fc34-4df5-910c-cf69a05027b9,25300,25301,CARD,1234123412341234, Банк развития
+            """)
+    @ParameterizedTest
+    void putShouldSendEventToTopic(String topic, Long dealId, Long userId, String appId, Merchant merchant, String orderId,
+                                   Integer requestedAmount, Integer merchantAmount, String method, String details, String bank) {
+        var merchantDetailsReceiveEventProducer = new MerchantDetailsReceiveEventProducer(kafkaTemplate, topic);
+        BotDetailsRequest detailsRequestBot = new BotDetailsRequest();
+        detailsRequestBot.setId(String.valueOf(dealId));
+        detailsRequestBot.setMethods(List.of(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(method)).build()));
+        detailsRequestBot.setAmount(requestedAmount);
+        detailsRequestBot.setUserId(String.valueOf(userId));
+        detailsRequestBot.setInitiatorApp(appId);
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(merchant);
+        detailsResponse.setDetails(details);
+        detailsResponse.setBank(bank);
+        detailsResponse.setMerchantOrderId(orderId);
+        detailsResponse.setAmount(merchantAmount);
+        ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<MerchantDetailsReceiveEvent> eventCaptor = ArgumentCaptor.forClass(MerchantDetailsReceiveEvent.class);
+        merchantDetailsReceiveEventProducer.put(merchant, method, detailsRequestBot, detailsResponse);
+        verify(kafkaTemplate).send(topicCaptor.capture(), keyCaptor.capture(), eventCaptor.capture());
+        MerchantDetailsReceiveEvent event = eventCaptor.getValue();
+        assertAll(
+                () -> assertEquals(topic, topicCaptor.getValue()),
+                () -> assertEquals(dealId, Long.valueOf(event.getOperationId())),
+                () -> assertEquals(userId, Long.valueOf(event.getActorId())),
+                () -> assertEquals(appId, event.getInitiatorApp()),
+                () -> assertEquals(merchant.name(), event.getMerchant()),
+                () -> assertEquals(orderId, event.getMerchantOrderId()),
+                () -> assertEquals(requestedAmount, event.getRequestedAmount()),
+                () -> assertEquals(merchantAmount, event.getMerchantAmount()),
+                () -> assertEquals(method, event.getMethod()),
+                () -> assertEquals(bank + " " + details, event.getDetails()),
+                () -> assertDoesNotThrow(() -> UUID.fromString(keyCaptor.getValue()))
+
+        );
+    }
+
+}

@@ -3,7 +3,7 @@ plugins {
     id 'io.spring.dependency-management'
 }
 
-group = 'tgb.cryptoexchange'
+group = 'net.rcetech'
 version = '0.31.0'
 
 repositories {

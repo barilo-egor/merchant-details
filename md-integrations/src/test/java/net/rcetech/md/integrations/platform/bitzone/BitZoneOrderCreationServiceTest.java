@@ -1,0 +1,246 @@
+package net.rcetech.md.integrations.platform.bitzone;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.integrations.config.CallbackConfig;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.meta.exception.ServiceUnavailableException;
+import net.rcetech.md.integrations.properties.BitZoneProperties;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Predicate;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class BitZoneOrderCreationServiceTest {
+
+    @Mock
+    private BitZoneProperties bitZoneProperties;
+
+    @Mock
+    private CallbackConfig callbackConfig;
+
+    @InjectMocks
+    private BitZoneOrderCreationService bitZoneOrderCreationService;
+
+    @Test
+    void getMerchantShouldReturnBitZoneMerchant() {
+        assertEquals(Merchant.BIT_ZONE, bitZoneOrderCreationService.getMerchant());
+    }
+
+    @Test
+    void uriBuilderShouldAddUriPath() {
+        UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        assertEquals("/payment/trading/pay-in", bitZoneOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath());
+    }
+
+    @ValueSource(strings = {
+            "JQX1BI3Vs36UnMB", "y701U9erXYfOAdX", "k531JZgj6dsh7uT"
+    })
+    @ParameterizedTest
+    void headersShouldAddRequiredHeaders(String key) {
+        when(bitZoneProperties.key()).thenReturn(key);
+        HttpHeaders headers = new HttpHeaders();
+        bitZoneOrderCreationService.headers(null, "").accept(headers);
+        assertAll(
+                () -> assertEquals(key, Objects.requireNonNull(headers.get("x-api-key")).getFirst()),
+                () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst())
+        );
+    }
+
+    @CsvSource({
+            "2100,CARD,https://gateway.paysendmmm.online,13NFHS8pzxsFwZr",
+            "2100,SBP,https://bulba.paysendmmm.online,SP9HHlNKw0MIKas"
+    })
+    @ParameterizedTest
+    void bodyShouldReturnMappedBody(Integer amount, String method, String gatewayUrl, String secret) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method);
+        when(callbackConfig.getGatewayUrl()).thenReturn(gatewayUrl);
+        when(callbackConfig.getCallbackSecret()).thenReturn(secret);
+        Request request = bitZoneOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(amount, request.getFiatAmount()),
+                () -> assertEquals(Method.valueOf(method), request.getMethod()),
+                () -> assertDoesNotThrow(() -> UUID.fromString(request.getExtra().getExternalTransactionId())),
+                () -> assertEquals(gatewayUrl + "/merchant-details/callback?merchant=BIT_ZONE&secret=" + secret, request.getCallbackUrl())
+        );
+    }
+
+    @CsvSource({
+            "7cc259a2-67a2-4a67-8e7e-e0342c08da81,PENDING,1234123412341234,ALFA",
+            "418adf2c-c382-42f4-8bbc-0d0ea008f701,ACTIVE,9876987654325432,SBER"
+    })
+    @ParameterizedTest
+    void buildResponseShouldBuildRequisiteResponseWithCard(String id, Status status, String requisiteString, String bank) {
+        Response response = new Response();
+        response.setId(id);
+        response.setStatus(status);
+        response.setMethod(Method.CARD);
+        Response.Requisite requisite = new Response.Requisite();
+        requisite.setBank(bank);
+        requisite.setRequisites(requisiteString);
+        response.setRequisite(requisite);
+
+        Optional<DetailsResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
+        assertTrue(maybeRequisiteResponse.isPresent());
+        DetailsResponse actual = maybeRequisiteResponse.get();
+        assertAll(
+                () -> assertEquals(Merchant.BIT_ZONE, actual.getMerchant()),
+                () -> assertEquals(id, actual.getMerchantOrderId()),
+                () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
+        );
+    }
+
+    @CsvSource({
+            "79284565465,ALFA",
+            "147896541,SBER"
+    })
+    @ParameterizedTest
+    void buildResponseShouldBuildRequisiteResponseWithSbp(String requisiteString, String bank) {
+        Response response = new Response();
+        response.setId("id");
+        response.setStatus(Status.ACTIVE);
+        response.setMethod(Method.SBP);
+        Response.Requisite requisite = new Response.Requisite();
+        requisite.setBank(bank);
+        requisite.setSbpNumber(requisiteString);
+        response.setRequisite(requisite);
+
+        Optional<DetailsResponse> maybeRequisiteResponse = bitZoneOrderCreationService.buildResponse(response);
+        assertTrue(maybeRequisiteResponse.isPresent());
+        DetailsResponse actual = maybeRequisiteResponse.get();
+        assertAll(
+                () -> assertEquals(requisiteString, actual.getDetails()),
+                () -> assertEquals(bank, actual.getBank())
+        );
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnTrueIfMessagePleaseContactSupport() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(true);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(jsonNode.get("message")).thenReturn(messageNode);
+        when(messageNode.asString()).thenReturn("SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT");
+        assertTrue(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfMessageNotPleaseContactSupport() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(true);
+        JsonNode messageNode = Mockito.mock(JsonNode.class);
+        when(jsonNode.get("message")).thenReturn(messageNode);
+        when(messageNode.asString()).thenReturn("SOME_ERROR");
+        assertFalse(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldReturnFalseIfNoMessage() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode jsonNode = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(jsonNode);
+        when(jsonNode.has("message")).thenReturn(false);
+        assertFalse(bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate().test(""));
+    }
+
+    @Test
+    void hasResponseNoDetailsErrorPredicateShouldThrowServiceUnavailableExceptionIfJsonProcessingExceptionWasThrown() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
+        Predicate<String> hasResponseNoDetailsErrorPredicate = bitZoneOrderCreationService.hasResponseNoDetailsErrorPredicate();
+        assertThrows(ServiceUnavailableException.class, () -> hasResponseNoDetailsErrorPredicate.test(""));
+    }
+
+    @ValueSource(strings = {
+            "CANT_CREATE_TRADE_FOR_THIS_AMOUNT",
+            "MIN_FIAT_AMOUNT_SHOULD_BE_MORE_THAN_1000",
+            "SBP_METHOD_DISABLED_PLEASE_CONTACT_SUPPORT"
+    })
+    @ParameterizedTest
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoDetailsError() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asString()).thenReturn("CANT_CREATE_TRADE_FOR_THIS_AMOUNT");
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
+        when(forbidden.getResponseBodyAsString()).thenReturn("");
+        assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoMessage() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("message")).thenReturn(false);
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
+        when(forbidden.getResponseBodyAsString()).thenReturn("");
+        assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        bitZoneOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
+        HttpClientErrorException.Forbidden forbidden = Mockito.mock(HttpClientErrorException.Forbidden.class);
+        when(forbidden.getResponseBodyAsString()).thenReturn("");
+        assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate().test(forbidden));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfGatewayTimeout() {
+        assertTrue(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(HttpServerErrorException.GatewayTimeout.class)));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotForbidden() {
+        assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(HttpServerErrorException.InternalServerError.class)));
+        assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(HttpClientErrorException.BadRequest.class)));
+        assertFalse(bitZoneOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(RuntimeException.class)));
+    }
+}

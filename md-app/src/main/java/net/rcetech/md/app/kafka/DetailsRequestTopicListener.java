@@ -1,0 +1,27 @@
+package net.rcetech.md.app.kafka;
+
+import org.slf4j.MDC;
+import org.springframework.context.annotation.Profile;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
+import net.rcetech.md.app.details.BotDetailsRequest;
+
+@Service
+@Profile("!kafka-disabled")
+public class DetailsRequestTopicListener {
+
+    private final DetailsRequestProcessorService detailsRequestProcessorService;
+
+    public DetailsRequestTopicListener(DetailsRequestProcessorService detailsRequestProcessorService) {
+        this.detailsRequestProcessorService = detailsRequestProcessorService;
+    }
+
+    @KafkaListener(topics = "${kafka.topic.merchant-details.request}", groupId = "${kafka.group-id}",
+            containerFactory = "kafkaListenerContainerFactory")
+    public void receive(@Payload BotDetailsRequest request) {
+        try (var ignored = MDC.putCloseable("logDest", "bot")) {
+            detailsRequestProcessorService.process(request);
+        }
+    }
+}

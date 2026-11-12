@@ -1,0 +1,44 @@
+package net.rcetech.md.integrations.platform.gambit;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.properties.HesoyamSimProperties;
+
+import java.util.Optional;
+
+@Service
+@Slf4j
+public class HesoyamSimOrderCreationService extends GambitOrderCreationService {
+
+    protected HesoyamSimOrderCreationService(@Qualifier("hesoyamRestClient") RestClient hesoyamRestClient,
+                                             HesoyamSimProperties hesoyamSimProperties) {
+        super(hesoyamRestClient, hesoyamSimProperties);
+    }
+
+    protected HesoyamMethod parseDetailsMethod(String method) {
+        return parseMethod(method, HesoyamMethod.class);
+    }
+
+    @Override
+    protected Optional<DetailsResponse> buildResponse(Response response) {
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchantOrderId(response.getId());
+        detailsResponse.setMerchantOrderStatus(response.getStatus().name());
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setAmount(response.getAmount().intValue());
+        Response.Requisites requisites = response.getPaymentDetails();
+        detailsResponse.setBank(requisites.getOperator());
+        detailsResponse.setDetails(requisites.getPhone());
+        return Optional.of(detailsResponse);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return Merchant.HESOYAM_SIM;
+    }
+
+}
