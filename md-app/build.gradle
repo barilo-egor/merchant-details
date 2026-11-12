@@ -10,6 +10,7 @@ dependencies {
 	implementation project(':md-meta')
 	implementation project(':md-domain')
 	implementation project(':md-integrations')
+	implementation project(':md-callback')
 	testImplementation testFixtures(project(':md-integrations'))
 
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'

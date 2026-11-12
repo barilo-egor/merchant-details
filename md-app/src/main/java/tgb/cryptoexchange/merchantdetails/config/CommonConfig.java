@@ -20,18 +20,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.BotDetailsRequest;
-import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.kafka.*;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableAsync
@@ -66,25 +63,6 @@ public class CommonConfig {
                                                                             KafkaProperties kafkaProperties) {
         KafkaTemplate<String, MerchantDetailsReceiveEvent> kafkaTemplate = new KafkaTemplate<>(merchantHistoryProducerFactory(kafkaProperties));
         kafkaTemplate.setProducerListener(merchantDetailsReceiveProducerListener);
-        return kafkaTemplate;
-    }
-
-    @Bean
-    @Profile("!kafka-disabled")
-    public ProducerFactory<String, MerchantCallbackEvent> merchantCallbackProducerFactory(KafkaProperties kafkaProperties) {
-        Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MerchantCallbackSerializer.class);
-        return new DefaultKafkaProducerFactory<>(configProps);
-    }
-
-    @Bean
-    @Profile("!kafka-disabled")
-    public KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate(MerchantCallbackProducerListener merchantCallbackProducerListener,
-                                                                              KafkaProperties kafkaProperties) {
-        KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = new KafkaTemplate<>(merchantCallbackProducerFactory(kafkaProperties));
-        kafkaTemplate.setProducerListener(merchantCallbackProducerListener);
         return kafkaTemplate;
     }
 
@@ -189,14 +167,5 @@ public class CommonConfig {
         factory.setConsumerFactory(stopSearchRequestConsumerFactory(kafkaProperties));
         factory.setCommonErrorHandler(defaultErrorHandler(detailsRequestErrorService));
         return factory;
-    }
-
-    @Bean
-    public Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap(List<CallbackDecryptService> services) {
-        return services.stream()
-                .collect(Collectors.toMap(
-                        CallbackDecryptService::getMerchant,
-                        service -> service
-                ));
     }
 }

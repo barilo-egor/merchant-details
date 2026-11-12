@@ -1,0 +1,12 @@
+plugins {
+    id 'md'
+}
+
+dependencies {
+    api project(':md-integrations')
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+
+    testImplementation testFixtures(project(':md-integrations'))
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+}
