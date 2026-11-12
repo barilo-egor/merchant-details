@@ -99,18 +99,6 @@ class MerchantDetailsServiceTest {
         );
     }
 
-    @CsvSource(delimiter = ';', textBlock = """
-            ALFA_TEAM;{"someField":"someValue","merchant":"ALFA_TEAM"}
-            SETTLE_X;{"someField":"someValue","merchant":"SETTLE_X"}
-            """)
-    @ParameterizedTest
-    void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String body) {
-        MerchantService merchantService = Mockito.mock(MerchantService.class);
-        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
-        merchantDetailsService.updateStatus(merchant, body);
-        verify(merchantService).updateStatus(body);
-    }
-
     @CsvSource(textBlock = """
             ALFA_TEAM,20fb47cc-bbb2-4e39-84db-9f67c0b2900e,CARD
             SETTLE_X,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP

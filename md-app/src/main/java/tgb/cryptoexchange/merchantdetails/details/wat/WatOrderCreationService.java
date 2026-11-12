@@ -107,7 +107,7 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
     }
 
     @Override
-    protected void deleteReceipt(String orderId, String orderStatus) {
+    public void deleteReceipt(String orderId, String orderStatus) {
         if (!Arrays.asList(Status.FINISHED.name(), Status.CANCELED.name()).contains(orderStatus)) {
             return;
         }

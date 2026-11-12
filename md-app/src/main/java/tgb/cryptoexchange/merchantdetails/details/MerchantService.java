@@ -11,7 +11,9 @@ public interface MerchantService {
 
     Optional<DetailsResponse> createOrder(OrderCreationRequest detailsRequest);
 
-    void updateStatus(String callbackBody);
+    Optional<CallbackStatus> parseCallback(String callbackBody);
+
+    void deleteReceipt(String orderId, String orderStatus);
 
     Optional<String> fetchCallbackDataByTransactionId(String transactionId);
 

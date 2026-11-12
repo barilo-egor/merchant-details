@@ -93,27 +93,6 @@ public class MerchantDetailsService {
         return Optional.empty();
     }
 
-    public Optional<String> fetchCallbackDataByTransactionId(Merchant merchant, String transactionId) {
-        var maybeCreationService = merchantServiceRegistry.getService(merchant);
-        if (maybeCreationService.isPresent()) {
-            return maybeCreationService.get().fetchCallbackDataByTransactionId(transactionId);
-        } else {
-            log.warn("Запрос получения статуса ордера мерчанта {}, у которого отсутствует реализация: {}",
-                    merchant.name(), transactionId);
-        }
-        return Optional.empty();
-    }
-
-    public void updateStatus(Merchant merchant, String callbackBody) {
-        var maybeCreationService = merchantServiceRegistry.getService(merchant);
-        if (maybeCreationService.isPresent()) {
-            maybeCreationService.get().updateStatus(callbackBody);
-        } else {
-            log.warn("Запрос обновления статуса ордера мерчанта {}, у которого отсутствует реализация: {}",
-                    merchant.name(), callbackBody);
-        }
-    }
-
     public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
         log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
         var maybeCreationService = merchantServiceRegistry.getService(merchant);

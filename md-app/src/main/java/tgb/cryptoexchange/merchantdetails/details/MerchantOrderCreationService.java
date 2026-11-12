@@ -3,11 +3,8 @@ package tgb.cryptoexchange.merchantdetails.details;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
@@ -15,7 +12,6 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.ResourceAccessException;
 import tgb.cryptoexchange.merchantdetails.exception.MerchantMethodNotFoundException;
 import tgb.cryptoexchange.merchantdetails.exception.ServiceUnavailableException;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
 import tgb.cryptoexchange.merchantdetails.util.EnumUtils;
 import tools.jackson.core.JacksonException;
@@ -24,7 +20,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,19 +44,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
 
     protected RequestService requestService;
 
-    protected KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate;
-
-    private Environment environment;
-
     protected MerchantOrderCreationService(RestClient restClient, Class<T> responseType, Class<P> callbackType) {
         this.restClient = restClient;
         this.responseType = responseType;
         this.callbackType = callbackType;
-    }
-
-    @Autowired
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     @Autowired
@@ -72,11 +58,6 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     @Autowired
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-    }
-
-    @Autowired(required = false)
-    public void setCallbackKafkaTemplate(@Qualifier("callbackKafkaTemplate") KafkaTemplate<String, MerchantCallbackEvent> callbackKafkaTemplate) {
-        this.callbackKafkaTemplate = callbackKafkaTemplate;
     }
 
     public Optional<DetailsResponse> createOrder(OrderCreationRequest request) {
@@ -230,10 +211,10 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
     }
 
     @Override
-    public void updateStatus(String callbackBody) {
+    public Optional<CallbackStatus> parseCallback(String callbackBody) {
         log.debug("Принят callback от мерчанта {}: {}", getMerchant().name(), callbackBody);
         if (callbackBody.isBlank() || callbackBody.equals("{}")) {
-            return;
+            return Optional.empty();
         }
         P callback;
         try {
@@ -246,7 +227,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         }
         if (isIgnoreCallbackPredicate().test(callback)) {
             log.debug("Callback мерчанта {} был проигнорирован: {}", getMerchant().name(), callbackBody);
-            return;
+            return Optional.empty();
         }
         Optional<String> maybeMerchantOrderId = callback.getMerchantOrderId();
         Optional<String> maybeStatus = callback.getStatusName();
@@ -258,30 +239,12 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
                     maybeStatus.isPresent(), maybeStatusDescription.isPresent(), callbackBody);
             throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
         }
-        MerchantCallbackEvent merchantCallbackEvent = new MerchantCallbackEvent();
-        merchantCallbackEvent.setMerchantOrderId(maybeMerchantOrderId.get());
-        merchantCallbackEvent.setStatus(maybeStatus.get());
-        merchantCallbackEvent.setStatusDescription(maybeStatusDescription.get());
-        merchantCallbackEvent.setMerchant(getMerchant());
-        if (Objects.nonNull(callbackKafkaTemplate)) {
-            try {
-                callbackKafkaTemplate.send(
-                        environment.getRequiredProperty("kafka.topic.merchant-details.callback"),
-                        merchantCallbackEvent.getMerchant() + "_" + merchantCallbackEvent.getMerchantOrderId(), merchantCallbackEvent
-                );
-            } catch (Exception e) {
-                long currentTime = System.currentTimeMillis();
-                log.error("{} Ошибка при попытке обновления статуса мерчанта {}. Callback объект={}, оригинальное тело={}. Message={}.",
-                        currentTime, getMerchant().name(), callback, callbackBody, e.getMessage(), e);
-                throw new ServiceUnavailableException("callback cannot be processed: " + currentTime);
-            }
-        }
-
-        deleteReceipt(maybeMerchantOrderId.get(), maybeStatus.get());
+        return Optional.of(new CallbackStatus(maybeMerchantOrderId.get(), maybeStatus.get(), maybeStatusDescription.get()));
     }
 
+    @Override
     @SuppressWarnings("unused")
-    protected void deleteReceipt(String orderId, String orderStatus) {
+    public void deleteReceipt(String orderId, String orderStatus) {
         log.trace("Реализация удаления чека для ордера {} мерчанту {} отсутствует.", orderId, getMerchant().name());
     }
 

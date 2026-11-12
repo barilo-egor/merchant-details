@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.properties.PayLeePropertiesImpl;
-import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
+import tgb.cryptoexchange.merchantdetails.callback.MerchantCallbackService;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ class MerchantCallbackControllerTest {
     private Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap;
 
     @MockitoBean
-    private MerchantDetailsService merchantDetailsService;
+    private MerchantCallbackService merchantCallbackService;
 
     @MockitoBean
     private PayLeePropertiesImpl payLeeProperties;
@@ -62,7 +62,7 @@ class MerchantCallbackControllerTest {
                         .queryParam("secret", "test-callback-secret")
                         .content(body))
                 .andExpect(status().isOk());
-        verify(merchantDetailsService).updateStatus(merchant, body);
+        verify(merchantCallbackService).updateStatus(merchant, body);
     }
 
     @ValueSource(strings = {
@@ -89,7 +89,7 @@ class MerchantCallbackControllerTest {
                         .content(body))
                 .andExpect(status().isOk());
         ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
-        verify(merchantDetailsService).updateStatus(eq(Merchant.CROCO_PAY), bodyCaptor.capture());
+        verify(merchantCallbackService).updateStatus(eq(Merchant.CROCO_PAY), bodyCaptor.capture());
         assertEquals("{\"id\":\"" + dealId + "\",\"status\":\"SUCCESS\"}", bodyCaptor.getValue());
     }
 }

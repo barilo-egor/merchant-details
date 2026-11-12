@@ -103,7 +103,7 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
     }
 
     @Override
-    protected void deleteReceipt(String orderId, String orderStatus) {
+    public void deleteReceipt(String orderId, String orderStatus) {
         if (!Arrays.asList(Status.SUCCESS.name(), Status.CANCELLED.name()).contains(orderStatus)) {
             return;
         }

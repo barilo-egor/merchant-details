@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -18,7 +17,6 @@ import tgb.cryptoexchange.merchantdetails.config.JsonMappers;
 import tgb.cryptoexchange.merchantdetails.details.CancelOrderRequest;
 import tgb.cryptoexchange.merchantdetails.details.DetailsResponse;
 import tgb.cryptoexchange.merchantdetails.details.OrderCreationRequest;
-import tgb.cryptoexchange.merchantdetails.kafka.MerchantCallbackEvent;
 import tgb.cryptoexchange.merchantdetails.properties.PrismaPayProperties;
 import tgb.cryptoexchange.merchantdetails.service.ReceiptService;
 import tgb.cryptoexchange.merchantdetails.service.RequestService;
@@ -30,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -157,15 +154,10 @@ class PrismaPayOrderCreationServiceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void updateStatusShouldIgnoreWhenStatusIsNoRequisites() {
-        KafkaTemplate<String, MerchantCallbackEvent> kafkaTemplate = mock(KafkaTemplate.class);
-        service.setCallbackKafkaTemplate(kafkaTemplate);
-
+    void parseCallbackShouldIgnoreWhenStatusIsNoRequisites() {
         String callbackJson = "{\"id\":\"123\",\"status\":\"NO_REQUISITES\"}";
 
-        assertDoesNotThrow(() -> service.updateStatus(callbackJson));
-        verifyNoInteractions(kafkaTemplate);
+        assertEquals(Optional.empty(), service.parseCallback(callbackJson));
     }
 
 }

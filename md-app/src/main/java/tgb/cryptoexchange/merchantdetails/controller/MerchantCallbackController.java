@@ -6,23 +6,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tgb.cryptoexchange.merchantdetails.callback.MerchantCallbackService;
 import tgb.cryptoexchange.merchantdetails.details.CallbackDecryptService;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Callback;
 import tgb.cryptoexchange.merchantdetails.details.crocopay.Status;
-import tgb.cryptoexchange.merchantdetails.service.MerchantDetailsService;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchant-details/callback")
 @Slf4j
 public class MerchantCallbackController {
 
-    private final MerchantDetailsService merchantDetailsService;
+    private final MerchantCallbackService merchantCallbackService;
 
     private final String secret;
 
@@ -30,10 +29,10 @@ public class MerchantCallbackController {
 
     private final ObjectMapper objectMapper;
 
-    public MerchantCallbackController(MerchantDetailsService merchantDetailsService,
+    public MerchantCallbackController(MerchantCallbackService merchantCallbackService,
                                       @Value("${callback-secret}") String secret, ObjectMapper objectMapper,
                                       Map<Merchant, CallbackDecryptService> callbackDecryptServiceMap) {
-        this.merchantDetailsService = merchantDetailsService;
+        this.merchantCallbackService = merchantCallbackService;
         this.secret = secret;
         this.callbackDecryptServiceMap = callbackDecryptServiceMap;
         this.objectMapper = objectMapper;
@@ -51,7 +50,7 @@ public class MerchantCallbackController {
             callbackBody = callbackDecryptServiceMap.get(merchant).decrypt(callbackBody);
         }
 
-        merchantDetailsService.updateStatus(merchant, callbackBody);
+        merchantCallbackService.updateStatus(merchant, callbackBody);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -61,9 +60,7 @@ public class MerchantCallbackController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        Optional<String> callbackData =
-                merchantDetailsService.fetchCallbackDataByTransactionId(Merchant.valueOf(merchant), transactionId);
-        callbackData.ifPresent(data -> merchantDetailsService.updateStatus(Merchant.valueOf(merchant), data));
+        merchantCallbackService.fetchStatus(Merchant.valueOf(merchant), transactionId);
 
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -83,7 +80,7 @@ public class MerchantCallbackController {
         Callback callback = new Callback();
         callback.setId(dealId.toString());
         callback.setStatus(Status.SUCCESS);
-        merchantDetailsService.updateStatus(Merchant.valueOf(merchant), objectMapper.writeValueAsString(callback));
+        merchantCallbackService.updateStatus(Merchant.valueOf(merchant), objectMapper.writeValueAsString(callback));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
