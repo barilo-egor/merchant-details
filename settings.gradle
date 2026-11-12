@@ -1,1 +1,5 @@
 rootProject.name = 'merchant-details'
+
+include 'md-meta'
+include 'md-domain'
+include 'md-app'

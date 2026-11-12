@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3.
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Всё остальное пока в `md-app`. По плану код разносится дальше на `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
 
 ```bash
 ./gradlew build                       # сборка + тесты
 ./gradlew test                        # все тесты
 ./gradlew test --tests 'tgb.cryptoexchange.merchantdetails.details.asgard.AsgardSimOrderCreationServiceTest'
 ./gradlew test --tests '*AsgardSim*'  # по маске
-./gradlew bootJar                     # build/libs/merchant-details.jar
-./gradlew generateProto               # перегенерировать gRPC-классы из src/main/proto
+./gradlew bootJar                     # md-app/build/libs/merchant-details.jar
+./gradlew generateProto               # перегенерировать gRPC-классы из md-app/src/main/proto
 ```
 
 CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, затем копирует jar на сервер и делает `docker rollout merchant-details`. Падение тестов блокирует деплой.
@@ -23,12 +23,12 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 
 ## Конфигурация и запуск
 
-- `src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
-- `src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
+- `md-app/src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
+- `md-app/src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
 - Профиль `kafka-disabled` отключает Kafka-листенеры, продюсеры и бины `ObjectMapper`/`KafkaTemplate` из `CommonConfig`; поэтому зависимости от Kafka в сервисах внедряются с `@Autowired(required = false)` и проверяются на `null`.
-- Схема БД ведётся миграциями Flyway в `src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
+- Схема БД ведётся миграциями Flyway в `md-domain/src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
 - `DdlAutoValidationEnvironmentPostProcessor` (регистрируется в `META-INF/spring.factories`) не даёт запустить приложение без профиля `dev`, если `spring.jpa.hibernate.ddl-auto` не равен `validate`.
-- Jackson 2 запрещён в `build.gradle`; исключения — `jackson-bom`, `jackson-annotations`, `jackson-core`, `jackson-databind`, которые нужны Flyway. ArchUnit-тест `JsonMappersArchTest` запрещает нашему коду зависеть от `com.fasterxml.jackson.core` и `databind`.
+- Jackson 2 запрещён в плагине `md`; исключения — `jackson-bom`, `jackson-annotations`, `jackson-core`, `jackson-databind`, которые нужны Flyway. ArchUnit-тест `JsonMappersArchTest` запрещает нашему коду зависеть от `com.fasterxml.jackson.core` и `databind`.
 - Профиль `clear-merchants` при старте удаляет `MerchantConfig` мерчантов, которых больше нет в enum, и пересчитывает порядок.
 - `server.servlet.context-path` = `/merchant-details`.
 
@@ -41,7 +41,7 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 - Kafka: `DetailsRequestTopicListener` (топик `kafka.topic.merchant-details.request`) → `DetailsRequestProcessorService` запускает поиск в пуле `detailsRequestSearchExecutor` и хранит `Future` в `activeSearchMap` по id сделки (повторный запрос по той же сделке игнорируется). Результат (или пустой `DetailsResponse`) уходит в топик `...response`. `StopDetailsSearchTopicListener` (`...stop-search`) отменяет поиск через `Future.cancel(true)`, поэтому код поиска проверяет `Thread.currentThread().isInterrupted()`.
 - REST `MerchantDetailsController`: конфиги мерчантов, переменные, загрузка чеков.
 - REST `MerchantCallbackController` (`/merchant-details/callback?merchant=...&secret=...`): callback'и мерчантов, проверяются по `callback-secret`. Для части мерчантов тело сначала расшифровывается через `CallbackDecryptService` (map собирается в `CommonConfig`).
-- gRPC `MerchantDetailsControllerGrpc` реализует `src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `tgb.cryptoexchange.grpc.generated`) и во многом дублирует REST-контроллер.
+- gRPC `MerchantDetailsControllerGrpc` реализует `md-app/src/main/proto/merchantdetails.proto` (сгенерированные классы в пакете `tgb.cryptoexchange.grpc.generated`) и во многом дублирует REST-контроллер.
 
 ### Поиск реквизитов
 
@@ -62,7 +62,7 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 2. `properties/<Name>Properties` — record с `@ConfigurationProperties(prefix = "...")`, обычно реализующий общий интерфейс провайдера (сканируется `@ConfigurationPropertiesScan`);
 3. бин `<name>RestClient` в `config/RestClientsConfig` (база — `get30SecondsReadTimeoutRestClientBuilder()`);
 4. сервис в `details/<merchant>/`;
-5. ключи в `config_template/config.yml` и фиктивные значения в `src/test/resources/application.yml`;
+5. ключи в `config_template/config.yml` и фиктивные значения в `md-app/src/test/resources/application.yml`;
 6. тесты: `properties/<Name>PropertiesTest` (`@SpringBootTest`) и `details/<merchant>/*Test` (Mockito).
 
 HTTP-запросы к мерчантам идут через `RequestService` на синхронном `RestClient` (webflux в проекте нет). Таймауты соединения и ожидания ответа по 30 секунд; таймаут ожидания ответа при создании ордера считается «нет реквизитов», а не ошибкой. Ошибки мерчанта приходят как `HttpClientErrorException.*`/`HttpServerErrorException.*` (`RestClientResponseException`), ошибки соединения как `ResourceAccessException`. Отправка чеков (`requestAsync`) выполняется в пуле `asyncRequestExecutor` без ожидания ответа, ошибка уходит в переданный обработчик; тело multipart собирается через `util/MultipartFormBuilder` (`MultipartBodyBuilder` из Spring требует reactive-streams).

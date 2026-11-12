@@ -1,0 +1,117 @@
+plugins {
+	id 'md'
+	id 'org.springframework.boot'
+	id 'com.google.protobuf'
+}
+
+description = 'merchant-details'
+
+dependencies {
+	implementation project(':md-meta')
+	implementation project(':md-domain')
+
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'commons-codec:commons-codec:1.19.0'
+	implementation 'org.apache.commons:commons-lang3'
+	implementation 'jakarta.validation:jakarta.validation-api'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
+	implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+	implementation 'org.semver4j:semver4j:6.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation platform("org.springframework.grpc:spring-grpc-dependencies:1.0.3")
+	implementation "org.springframework.grpc:spring-grpc-spring-boot-starter"
+	implementation "io.grpc:grpc-protobuf"
+	implementation "io.grpc:grpc-stub"
+	implementation 'org.springframework.cloud:spring-cloud-config-client'
+	compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.1'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers-mysql'
+	implementation 'org.hashids:hashids:1.0.3'
+	implementation 'com.macasaet.fernet:fernet-java8:1.5.0'
+	testImplementation 'io.grpc:grpc-testing'
+	testImplementation 'org.springframework.grpc:spring-grpc-test'
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:4.33.4"
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:1.77.1"
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
+}
+
+tasks.named('bootRun') {
+	workingDir = rootDir
+}
+
+tasks.named('jar') {
+	enabled = false
+}
+
+tasks.named("bootJar") {
+	archiveFileName = 'merchant-details.jar'
+	mustRunAfter("clean")
+}
+
+tasks.register('copyJarToDockerDir', Copy) {
+	from(layout.buildDirectory.dir('libs'))
+	include('merchant-details.jar')
+	into(new File(rootDir, 'docker/mount/merchant-details'))
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	mustRunAfter('bootJar')
+}
+
+tasks.register('copyConfigToDockerDir', Copy) {
+	from(rootDir)
+	include('config/**')
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	into(new File(rootDir, 'docker/mount/merchant-details'))
+}
+
+tasks.register('merchantDetailsStartUp', Exec) {
+	workingDir file("${rootDir}/docker")
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'up', '-d', '--build'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'up', '-d', '--build'
+	}
+	dependsOn('clean', 'bootJar', 'copyJarToDockerDir', 'copyConfigToDockerDir')
+}
+
+tasks.register('merchantDetailsShutdown', Exec) {
+	workingDir file("${rootDir}/docker")
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'down'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'down'
+	}
+}
+
+tasks.register('merchantDetailsRedeployJar', Exec) {
+	workingDir file("${rootDir}/docker")
+
+	if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+		executable 'cmd'
+		args '/c', 'docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate', 'merchant-details'
+	} else {
+		executable '/usr/local/bin/docker'
+		args 'compose', 'up', '-d', '--no-deps', '--force-recreate', 'merchant-details'
+	}
+	dependsOn('clean', 'bootJar', 'copyJarToDockerDir', 'copyConfigToDockerDir')
+}
