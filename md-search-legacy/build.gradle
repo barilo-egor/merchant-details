@@ -1,0 +1,15 @@
+plugins {
+    id 'md'
+}
+
+dependencies {
+    api project(':md-integrations')
+    api project(':md-domain')
+    api 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'jakarta.validation:jakarta.validation-api'
+    implementation 'io.micrometer:micrometer-core'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    testImplementation testFixtures(project(':md-integrations'))
+}

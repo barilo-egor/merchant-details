@@ -7,39 +7,32 @@ import tgb.cryptoexchange.commons.enums.DeliveryType;
 import net.rcetech.md.app.grpc.generated.AutoConfirmConfigDTOGrpc;
 import net.rcetech.md.app.grpc.generated.MerchantConfigRequestGrpc;
 import net.rcetech.md.meta.constants.AutoConfirmType;
-import net.rcetech.md.app.dto.AutoConfirmConfigDTO;
-import net.rcetech.md.app.dto.MerchantConfigRequest;
+import net.rcetech.md.meta.dto.AutoConfirmConfigDTO;
+import net.rcetech.md.meta.dto.MerchantConfigFilter;
 
 public class GrpcMapUtils {
 
     public static AutoConfirmConfigDTO mapToAutoConfirmConfigDTO(AutoConfirmConfigDTOGrpc configDTOGrpc) {
-        AutoConfirmConfigDTO configDTO = new AutoConfirmConfigDTO();
-
+        AutoConfirmConfigDTO.AutoConfirmConfigDTOBuilder builder = AutoConfirmConfigDTO.builder();
         if (StringUtils.isNotBlank(configDTOGrpc.getCryptoCurrency())) {
-            configDTO.setCryptoCurrency(CryptoCurrency.valueOf(configDTOGrpc.getCryptoCurrency()));
+            builder.cryptoCurrency(CryptoCurrency.valueOf(configDTOGrpc.getCryptoCurrency()));
         }
-
         if (StringUtils.isNotBlank(configDTOGrpc.getAutoConfirmType())) {
-            configDTO.setAutoConfirmType(AutoConfirmType.valueOf(configDTOGrpc.getAutoConfirmType()));
+            builder.autoConfirmType(AutoConfirmType.valueOf(configDTOGrpc.getAutoConfirmType()));
         }
-
         if (StringUtils.isNotBlank(configDTOGrpc.getDeliveryType())) {
-            configDTO.setDeliveryType(DeliveryType.valueOf(configDTOGrpc.getDeliveryType()));
+            builder.deliveryType(DeliveryType.valueOf(configDTOGrpc.getDeliveryType()));
         }
-
-        return configDTO;
+        return builder.build();
     }
 
-    public static MerchantConfigRequest mapToMerchantConfigRequest(MerchantConfigRequestGrpc grpcRequest) {
-        MerchantConfigRequest request = new MerchantConfigRequest();
-        if (grpcRequest.hasMerchantOrder()) {
-            request.setMerchantOrder(grpcRequest.getMerchantOrder().getValue());
-        }
-        request.setSort(grpcRequest.getSort());
-        if (!grpcRequest.getMerchantsList().isEmpty()) {
-            request.setMerchants(grpcRequest.getMerchantsList().stream().map(Merchant::valueOf).toList());
-        }
-        return request;
+    public static MerchantConfigFilter mapToMerchantConfigFilter(MerchantConfigRequestGrpc grpcRequest) {
+        return new MerchantConfigFilter(
+                grpcRequest.getMerchantsList().isEmpty()
+                        ? null
+                        : grpcRequest.getMerchantsList().stream().map(Merchant::valueOf).toList(),
+                grpcRequest.hasMerchantOrder() ? grpcRequest.getMerchantOrder().getValue() : null
+        );
     }
 
 }

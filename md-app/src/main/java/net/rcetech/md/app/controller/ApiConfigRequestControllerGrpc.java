@@ -8,7 +8,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.meta.dto.ApiMerchantConfigDTO;
 import net.rcetech.md.app.mapper.ApiMerchantConfigGrpcMapper;
-import net.rcetech.md.app.service.ApiMerchantConfigService;
+import net.rcetech.md.domain.service.ApiMerchantConfigService;
 
 import java.util.List;
 import java.util.UUID;

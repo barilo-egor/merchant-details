@@ -24,16 +24,17 @@ import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.meta.constants.AutoConfirmType;
 import net.rcetech.md.meta.constants.VariableType;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
-import net.rcetech.md.app.dto.MerchantConfigDTO;
-import net.rcetech.md.app.dto.MerchantConfigRequest;
-import net.rcetech.md.app.dto.UpdateMerchantConfigDTO;
+import net.rcetech.md.meta.dto.MerchantConfigFilter;
+import net.rcetech.md.meta.dto.UpdateMerchantConfigDTO;
+import net.rcetech.md.meta.projection.MerchantConfigProjection;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import net.rcetech.md.domain.entity.MerchantConfig;
 import net.rcetech.md.domain.entity.Variable;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.mapper.MerchantConfigGrpcMapper;
-import net.rcetech.md.app.service.MerchantConfigService;
+import net.rcetech.md.domain.service.MerchantConfigService;
 import net.rcetech.md.integrations.platform.PlatformService;
-import net.rcetech.md.app.service.VariableService;
+import net.rcetech.md.domain.service.VariableService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @Import(MerchantConfigGrpcMapper.class)
 class MerchantDetailsControllerGrpcTest {
+
+    private static final SpelAwareProxyProjectionFactory PROJECTIONS = new SpelAwareProxyProjectionFactory();
 
     @MockitoBean
     private PlatformService platformService;
@@ -99,8 +102,8 @@ class MerchantDetailsControllerGrpcTest {
 
     @Test
     void getConfigShouldReturnEmptyArrayIfConfigNotFound() {
-        Page<MerchantConfigDTO> page = Page.empty();
-        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
+        Page<MerchantConfigProjection> page = Page.empty();
+        when(merchantConfigService.findAll(any(), any(), eq(MerchantConfigProjection.class))).thenReturn(page);
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
                 .build();
@@ -123,16 +126,16 @@ class MerchantDetailsControllerGrpcTest {
 
     @Test
     void getConfigShouldReturnConfigArray() {
-        List<MerchantConfigDTO> configs = new ArrayList<>();
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+        List<MerchantConfigProjection> configs = new ArrayList<>();
+        configs.add(PROJECTIONS.createProjection(MerchantConfigProjection.class, MerchantConfig.builder()
                 .id(150L).merchant(Merchant.ALFA_TEAM).isOn(true)
                 .minAmount(100).maxAmount(200).merchantOrder(5).isAutoWithdrawalOn(true).build()));
-        configs.add(MerchantConfigDTO.fromEntity(MerchantConfig.builder()
+        configs.add(PROJECTIONS.createProjection(MerchantConfigProjection.class, MerchantConfig.builder()
                 .id(152346L).merchant(Merchant.SETTLE_X).isOn(false)
                 .minAmount(150).maxAmount(5000).merchantOrder(2).isAutoWithdrawalOn(true).build()));
 
-        Page<MerchantConfigDTO> page = new PageImpl<>(configs, PageRequest.of(0, 20), 2);
-        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
+        Page<MerchantConfigProjection> page = new PageImpl<>(configs, PageRequest.of(0, 20), 2);
+        when(merchantConfigService.findAll(any(), any(), eq(MerchantConfigProjection.class))).thenReturn(page);
 
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
@@ -162,8 +165,8 @@ class MerchantDetailsControllerGrpcTest {
 
     @Test
     void getConfigShouldCallServiceWithCorrectRequest() {
-        Page<MerchantConfigDTO> page = Page.empty();
-        when(merchantConfigService.findAll(any(), any())).thenReturn(page);
+        Page<MerchantConfigProjection> page = Page.empty();
+        when(merchantConfigService.findAll(any(), any(), eq(MerchantConfigProjection.class))).thenReturn(page);
 
         MerchantConfigRequestGrpc grpcRequest = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(PaginationGrpc.newBuilder().setPage(0).setSize(20).build())
@@ -172,10 +175,10 @@ class MerchantDetailsControllerGrpcTest {
         StreamObserver<MerchantConfigResponseGrpc> responseObserver = mock(StreamObserver.class);
 
         grpcController.getConfig(grpcRequest, responseObserver);
-        ArgumentCaptor<MerchantConfigRequest> requestCaptor = ArgumentCaptor.forClass(MerchantConfigRequest.class);
-        verify(merchantConfigService).findAll(any(), requestCaptor.capture());
+        ArgumentCaptor<MerchantConfigFilter> requestCaptor = ArgumentCaptor.forClass(MerchantConfigFilter.class);
+        verify(merchantConfigService).findAll(requestCaptor.capture(), any(), eq(MerchantConfigProjection.class));
 
-        MerchantConfigRequest actualRequest = requestCaptor.getValue();
+        MerchantConfigFilter actualRequest = requestCaptor.getValue();
         assertAll(
                 () -> assertNotNull(actualRequest),
                 () -> verify(responseObserver).onNext(any(MerchantConfigResponseGrpc.class)),
@@ -200,8 +203,8 @@ class MerchantDetailsControllerGrpcTest {
 
         UpdateMerchantConfigDTO actual = dtoCaptor.getValue();
         assertAll(
-                () -> assertEquals(25552, actual.getId()),
-                () -> assertTrue(actual.getIsOn()),
+                () -> assertEquals(25552, actual.id()),
+                () -> assertTrue(actual.isOn()),
                 () -> verify(responseObserver).onNext(any(Empty.class)),
                 () -> verify(responseObserver).onCompleted()
         );
@@ -227,11 +230,11 @@ class MerchantDetailsControllerGrpcTest {
         ArgumentCaptor<UpdateMerchantConfigDTO> dtoCaptor = ArgumentCaptor.forClass(UpdateMerchantConfigDTO.class);
         verify(merchantConfigService).update(dtoCaptor.capture());
 
-        var actualConfig = dtoCaptor.getValue().getConfirmConfigs().getFirst();
+        var actualConfig = dtoCaptor.getValue().confirmConfigs().getFirst();
         assertAll(
-                () -> assertEquals(1001, dtoCaptor.getValue().getId()),
-                () -> assertEquals("BITCOIN", actualConfig.getCryptoCurrency().name()),
-                () -> assertEquals("AUTO_WITHDRAWAL", actualConfig.getAutoConfirmType().name()),
+                () -> assertEquals(1001, dtoCaptor.getValue().id()),
+                () -> assertEquals("BITCOIN", actualConfig.cryptoCurrency().name()),
+                () -> assertEquals("AUTO_WITHDRAWAL", actualConfig.autoConfirmType().name()),
                 () -> verify(responseObserver).onCompleted()
         );
     }
@@ -403,13 +406,13 @@ class MerchantDetailsControllerGrpcTest {
         MerchantConfigRequestGrpc request = MerchantConfigRequestGrpc.newBuilder()
                 .setPagination(pagination)
                 .build();
-        when(merchantConfigService.findAll(any(Pageable.class), any()))
+        when(merchantConfigService.findAll(any(), any(Pageable.class), eq(MerchantConfigProjection.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
         StreamRecorder<MerchantConfigResponseGrpc> responseObserver = StreamRecorder.create();
         grpcController.getConfig(request, responseObserver);
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(merchantConfigService).findAll(pageableCaptor.capture(), any());
+        verify(merchantConfigService).findAll(any(), pageableCaptor.capture(), eq(MerchantConfigProjection.class));
 
         Pageable captured = pageableCaptor.getValue();
         assertThat(captured.getSort().getOrderFor(sortField)).isNotNull();

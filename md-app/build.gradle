@@ -11,6 +11,7 @@ dependencies {
 	implementation project(':md-domain')
 	implementation project(':md-integrations')
 	implementation project(':md-callback')
+	implementation project(':md-search-legacy')
 	testImplementation testFixtures(project(':md-integrations'))
 
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'

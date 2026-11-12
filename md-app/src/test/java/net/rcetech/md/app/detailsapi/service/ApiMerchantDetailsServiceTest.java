@@ -17,7 +17,7 @@ import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
 import net.rcetech.md.domain.entity.ApiMerchantConfig;
 import net.rcetech.md.meta.enums.RequiredReceipt;
-import net.rcetech.md.app.service.ApiMerchantConfigService;
+import net.rcetech.md.domain.service.ApiMerchantConfigService;
 import net.rcetech.md.integrations.service.RequestMethodService;
 
 import java.util.*;

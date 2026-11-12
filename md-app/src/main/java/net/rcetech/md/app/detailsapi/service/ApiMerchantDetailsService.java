@@ -20,7 +20,7 @@ import net.rcetech.md.domain.entity.ApiMerchantConfig;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.meta.enums.RequiredReceipt;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
-import net.rcetech.md.app.service.ApiMerchantConfigService;
+import net.rcetech.md.domain.service.ApiMerchantConfigService;
 import net.rcetech.md.integrations.service.RequestMethodService;
 
 import java.time.Instant;
