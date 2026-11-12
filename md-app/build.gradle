@@ -9,13 +9,13 @@ description = 'merchant-details'
 dependencies {
 	implementation project(':md-meta')
 	implementation project(':md-domain')
+	implementation project(':md-integrations')
+	testImplementation testFixtures(project(':md-integrations'))
 
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation 'commons-codec:commons-codec:1.19.0'
 	implementation 'org.apache.commons:commons-lang3'
 	implementation 'jakarta.validation:jakarta.validation-api'
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
-	implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 	implementation 'org.semver4j:semver4j:6.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
@@ -30,8 +30,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-mysql'
-	implementation 'org.hashids:hashids:1.0.3'
-	implementation 'com.macasaet.fernet:fernet-java8:1.5.0'
 	testImplementation 'io.grpc:grpc-testing'
 	testImplementation 'org.springframework.grpc:spring-grpc-test'
 }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Сборка и тесты
 
-Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Всё остальное пока в `md-app`. По плану код разносится дальше на `md-integrations` (площадки), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
+Проект на Gradle (wrapper), Java 21, Spring Boot 4.0, Jackson 3. Многомодульный: модули подключают общий convention-плагин `md` из `buildSrc/src/main/groovy/md.gradle` (Java 21, `-parameters`, репозитории, BOM Spring Boot и Spring Cloud, Lombok, JUnit, запрет Jackson 2). Енамы, константы, исключения и DTO без зависимостей от остального кода лежат в `md-meta`. Сущности, репозитории и миграции Flyway лежат в `md-domain`; его тесты репозиториев наследуют `AbstractDataJpaTest` (`@DataJpaTest` на своём контейнере MySQL). Интеграции с площадками (`details/`, `properties/`, `RestClientsConfig`, `RequestService`, `SignatureService`, `ReceiptService`, `RequestMethodService` и т. п.) лежат в `md-integrations`, общие для них бины объявлены в `IntegrationsConfig`. Всё остальное пока в `md-app`. По плану код разносится дальше на `md-callback` (приём callback'ов), `md-search-legacy` (поиск для ботов), `md-search` (поиск для процессинга) и `md-app` (приложение).
 
 ```bash
 ./gradlew build                       # сборка + тесты
@@ -24,7 +24,8 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 ## Конфигурация и запуск
 
 - `md-app/src/main/resources/application.yml` импортирует `file:config/config.yml`. Каталог `config/` в `.gitignore`; шаблон с пустыми значениями лежит в `config_template/config.yml`.
-- `md-app/src/test/resources/application.yml` содержит фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), путь к миграциям Flyway и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём. Тесты `properties/*PropertiesTest` сверяют именно эти значения.
+- Фиктивные значения для каждого мерчанта (`<prefix>-url`, `<prefix>-token` и т. п.), `callback-secret` и `gateway-url` лежат в test fixtures модуля `md-integrations` (`md-integrations/src/testFixtures/resources/integrations-test.yml`). Тестовые `application.yml` обоих модулей импортируют его через `spring.config.import`. Тесты `properties/*PropertiesTest` сверяют именно эти значения; они и другие тесты `md-integrations` с контекстом Spring наследуют `AbstractIntegrationsContextTest` (контекст без БД и Kafka).
+- `md-app/src/test/resources/application.yml` содержит путь к миграциям Flyway, Kafka-топики и отключённый Spring Cloud Config. Он перекрывает основной `application.yml`, поэтому общие настройки (например, `spring.flyway.locations`) нужно дублировать в нём.
 - Профиль `kafka-disabled` отключает Kafka-листенеры, продюсеры и бины `ObjectMapper`/`KafkaTemplate` из `CommonConfig`; поэтому зависимости от Kafka в сервисах внедряются с `@Autowired(required = false)` и проверяются на `null`.
 - Схема БД ведётся миграциями Flyway в `md-domain/src/main/resources/database/migration`. Новую миграцию добавляют следующим номером `V<n>__<описание>.sql`, уже применённые не меняют. `baseline-on-migrate` с `baseline-version: 1` нужен для баз, созданных до Flyway: на них V1 не выполняется.
 - `DdlAutoValidationEnvironmentPostProcessor` (регистрируется в `META-INF/spring.factories`) не даёт запустить приложение без профиля `dev`, если `spring.jpa.hibernate.ddl-auto` не равен `validate`.
@@ -62,8 +63,8 @@ CI (Jenkinsfile) запускает `./gradlew clean test bootJar --no-daemon`, 
 2. `properties/<Name>Properties` — record с `@ConfigurationProperties(prefix = "...")`, обычно реализующий общий интерфейс провайдера (сканируется `@ConfigurationPropertiesScan`);
 3. бин `<name>RestClient` в `config/RestClientsConfig` (база — `get30SecondsReadTimeoutRestClientBuilder()`);
 4. сервис в `details/<merchant>/`;
-5. ключи в `config_template/config.yml` и фиктивные значения в `md-app/src/test/resources/application.yml`;
-6. тесты: `properties/<Name>PropertiesTest` (`@SpringBootTest`) и `details/<merchant>/*Test` (Mockito).
+5. ключи в `config_template/config.yml` и фиктивные значения в `md-integrations/src/testFixtures/resources/integrations-test.yml`;
+6. тесты в `md-integrations`: `properties/<Name>PropertiesTest` (наследует `AbstractIntegrationsContextTest`) и `details/<merchant>/*Test` (Mockito).
 
 HTTP-запросы к мерчантам идут через `RequestService` на синхронном `RestClient` (webflux в проекте нет). Таймауты соединения и ожидания ответа по 30 секунд; таймаут ожидания ответа при создании ордера считается «нет реквизитов», а не ошибкой. Ошибки мерчанта приходят как `HttpClientErrorException.*`/`HttpServerErrorException.*` (`RestClientResponseException`), ошибки соединения как `ResourceAccessException`. Отправка чеков (`requestAsync`) выполняется в пуле `asyncRequestExecutor` без ожидания ответа, ошибка уходит в переданный обработчик; тело multipart собирается через `util/MultipartFormBuilder` (`MultipartBodyBuilder` из Spring требует reactive-streams).
 

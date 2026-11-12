@@ -1,0 +1,15 @@
+plugins {
+    id 'md'
+    id 'java-test-fixtures'
+}
+
+dependencies {
+    api project(':md-meta')
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-jackson'
+    api 'org.springframework:spring-web'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'commons-codec:commons-codec:1.19.0'
+    implementation 'org.hashids:hashids:1.0.3'
+    implementation 'com.macasaet.fernet:fernet-java8:1.5.0'
+}
