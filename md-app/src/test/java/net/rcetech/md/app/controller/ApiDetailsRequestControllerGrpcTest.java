@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.app.grpc.generated.CancelOrderRequestGrpc;
+import net.rcetech.md.app.grpc.generated.ApiCancelOrderRequestGrpc;
 import net.rcetech.md.app.grpc.generated.DetailsRequestGrpc;
 import net.rcetech.md.app.grpc.generated.DetailsResponseGrpc;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
@@ -83,7 +83,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_Success() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("order-123")
                 .setMethod("SBP")
@@ -104,7 +104,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_InvalidMerchant() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant("UNKNOWN_MERCHANT")
                 .setOrderId("order-123")
                 .setMethod("SBP")
@@ -122,7 +122,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_BlankOrderId() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("")
                 .setMethod("SBP")
@@ -139,7 +139,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_BlankMethod() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("order-123")
                 .setMethod("")
@@ -156,7 +156,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_ServiceThrowsServiceUnavailableException() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("order-123")
                 .setMethod("SBP")
@@ -176,7 +176,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_InvalidRequestMethod() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("order-123")
                 .setMethod("UNKNOWN_PAYMENT_METHOD")
@@ -193,7 +193,7 @@ class ApiDetailsRequestControllerGrpcTest {
 
     @Test
     void cancelOrderRequest_MethodNotFound() {
-        CancelOrderRequestGrpc request = CancelOrderRequestGrpc.newBuilder()
+        ApiCancelOrderRequestGrpc request = ApiCancelOrderRequestGrpc.newBuilder()
                 .setMerchant(Merchant.ALFA_TEAM.name())
                 .setOrderId("order-123")
                 .setMethod("CARD")

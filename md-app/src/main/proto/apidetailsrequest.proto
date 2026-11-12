@@ -6,11 +6,10 @@ option java_multiple_files = true;
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/field_mask.proto";
-import "merchantdetails.proto";
 
 service ApiDetailsRequestService {
   rpc DetailsRequest (DetailsRequestGrpc) returns (DetailsResponseGrpc);
-  rpc CancelOrderRequest (CancelOrderRequestGrpc) returns (google.protobuf.Empty);
+  rpc CancelOrderRequest (ApiCancelOrderRequestGrpc) returns (google.protobuf.Empty);
 }
 
 service ApiMerchantConfigService {
@@ -71,4 +70,10 @@ message ApiMerchantConfigItemGrpc {
   google.protobuf.Int32Value max_amount = 4;
   google.protobuf.Int32Value min_amount = 5;
   google.protobuf.Int32Value merchant_order = 6;
+}
+
+message ApiCancelOrderRequestGrpc {
+  string merchant = 1;
+  string order_id = 2;
+  string method = 3;
 }

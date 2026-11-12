@@ -54,7 +54,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     }
 
     @Override
-    public void cancelOrderRequest(CancelOrderRequestGrpc requestGrpc, StreamObserver<Empty> responseObserver) {
+    public void cancelOrderRequest(ApiCancelOrderRequestGrpc requestGrpc, StreamObserver<Empty> responseObserver) {
         try (var ignored = MDC.putCloseable(MDC_KEY_LOG_DEST, MDC_VALUE_API)) {
             Merchant merchant;
             try {
@@ -155,7 +155,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
         return Merchant.valueOf(merchantName);
     }
 
-    private CancelOrderRequest toCancelOrderRequest(Merchant merchant, CancelOrderRequestGrpc requestGrpc) {
+    private CancelOrderRequest toCancelOrderRequest(Merchant merchant, ApiCancelOrderRequestGrpc requestGrpc) {
         RequestMethod requestMethod;
         try {
             requestMethod = RequestMethod.valueOf(requestGrpc.getMethod());

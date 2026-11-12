@@ -1,6 +1,5 @@
 package net.rcetech.md.app.details;
 
-
 /**
  * Общий контракт для запросов на получение реквизитов из различных источников системы.
  * <p>
@@ -9,11 +8,7 @@ package net.rcetech.md.app.details;
  * отправляющего событие об успешной выдаче реквизитов).
  * </p>
  * <p>
- * Основные реализации:
- * <ul>
- *     <li>{@link BotDetailsRequest} — запрос реквизитов от телеграм-ботов (через Kafka).</li>
- *     <li>{@link net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest} — запрос реквизитов через внешний API / gRPC.</li>
- * </ul>
+ * Реализация: {@link BotDetailsRequest} — запрос реквизитов от телеграм-ботов (через Kafka).
  */
 public interface DetailsRequest {
 
