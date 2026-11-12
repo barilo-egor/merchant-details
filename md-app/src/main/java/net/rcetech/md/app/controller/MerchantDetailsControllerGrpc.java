@@ -20,7 +20,7 @@ import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.mapper.MerchantConfigGrpcMapper;
 import net.rcetech.md.meta.enums.RequiredReceipt;
 import net.rcetech.md.app.service.MerchantConfigService;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.app.service.VariableService;
 import net.rcetech.md.app.util.GrpcMapUtils;
 
@@ -33,7 +33,7 @@ import static net.rcetech.md.app.util.GrpcMapUtils.mapToMerchantConfigRequest;
 @GrpcService
 public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.MerchantDetailsServiceImplBase {
 
-    private final MerchantDetailsService merchantDetailsService;
+    private final PlatformService platformService;
 
     private final MerchantConfigService merchantConfigService;
 
@@ -43,10 +43,10 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     private final MerchantConfigGrpcMapper mapper;
 
-    public MerchantDetailsControllerGrpc(MerchantDetailsService merchantDetailsService,
+    public MerchantDetailsControllerGrpc(PlatformService platformService,
                                          MerchantConfigService merchantConfigService, VariableService variableService,
                                          MeterRegistry meterRegistry, MerchantConfigGrpcMapper mapper) {
-        this.merchantDetailsService = merchantDetailsService;
+        this.platformService = platformService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
         this.meterRegistry = meterRegistry;
@@ -60,7 +60,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
         domainRequest.setOrderId(request.getOrderId());
         domainRequest.setMethod(request.getMethod());
 
-        merchantDetailsService.cancelOrder(merchant, domainRequest);
+        platformService.cancelOrder(merchant, domainRequest);
 
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
@@ -202,7 +202,7 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void sendReceipt(SendReceiptRequestGrpc request, StreamObserver<Empty> responseObserver) {
         try {
             Merchant merchant = Merchant.valueOf(request.getMerchant());
-            merchantDetailsService.sendReceipt(
+            platformService.sendReceipt(
                     merchant,
                     request.getOrderId(),
                     request.getReceiptData().toByteArray(),

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.client.RestClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.meta.constants.Metrics;
@@ -94,17 +93,6 @@ public class MerchantDetailsService {
         return Optional.empty();
     }
 
-    public void cancelOrder(Merchant merchant, CancelOrderRequest cancelOrderRequest) {
-        log.debug("Запрос на отмену ордера мерчанта {}: {}", merchant.name(), cancelOrderRequest.toString());
-        var maybeCreationService = merchantServiceRegistry.getService(merchant);
-        if (maybeCreationService.isPresent()) {
-            maybeCreationService.get().cancelOrder(cancelOrderRequest);
-        } else {
-            log.warn("Запрос отмены ордера мерчанта {}, у которого отсутствует реализация: {}",
-                    merchant.name(), cancelOrderRequest);
-        }
-    }
-
     @Timed(value = Metrics.GET_DETAILS, description = "Метрики запросов на получение реквизитов.")
     public Optional<DetailsResponse> getDetails(BotDetailsRequest request) {
         log.debug("Получение реквизитов: {}", request.toString());
@@ -183,23 +171,4 @@ public class MerchantDetailsService {
         );
         return maybeDetailsResponse;
     }
-
-    public void sendReceipt(Merchant merchant, String orderId, MultipartFile file) {
-        Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
-        if (maybeMerchantService.isPresent()) {
-            maybeMerchantService.get().sendReceipt(orderId, file);
-        } else {
-            log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
-        }
-    }
-
-    public void sendReceipt(Merchant merchant, String orderId, byte[] fileContent, String fileName) {
-        Optional<MerchantService> maybeMerchantService = merchantServiceRegistry.getService(merchant);
-        if (maybeMerchantService.isPresent()) {
-            maybeMerchantService.get().sendReceipt(orderId, fileContent, fileName);
-        } else {
-            log.debug("Отсутствует реализация для мерчанта {}. Чек по ордеру {} отправлен не будет", merchant.name(), orderId);
-        }
-    }
-
 }

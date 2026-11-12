@@ -14,7 +14,7 @@ import net.rcetech.md.app.dto.*;
 import net.rcetech.md.meta.dto.*;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.service.MerchantConfigService;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.app.service.VariableService;
 
 import java.util.List;
@@ -25,15 +25,15 @@ import static net.rcetech.md.meta.enums.ConfigType.DEFAULT_VALUE;
 @RequestMapping("/merchant-details")
 public class MerchantDetailsController {
 
-    private final MerchantDetailsService merchantDetailsService;
+    private final PlatformService platformService;
 
     private final MerchantConfigService merchantConfigService;
 
     private final VariableService variableService;
 
-    public MerchantDetailsController(MerchantDetailsService merchantDetailsService,
+    public MerchantDetailsController(PlatformService platformService,
                                      MerchantConfigService merchantConfigService, VariableService variableService) {
-        this.merchantDetailsService = merchantDetailsService;
+        this.platformService = platformService;
         this.merchantConfigService = merchantConfigService;
         this.variableService = variableService;
     }
@@ -41,7 +41,7 @@ public class MerchantDetailsController {
     @PatchMapping("/{merchant}")
     @ResponseStatus(HttpStatus.OK)
     public void cancel(@PathVariable Merchant merchant, @ModelAttribute CancelOrderRequest cancelOrderRequest) {
-        merchantDetailsService.cancelOrder(merchant, cancelOrderRequest);
+        platformService.cancelOrder(merchant, cancelOrderRequest);
     }
 
     @GetMapping("/config")
@@ -114,7 +114,7 @@ public class MerchantDetailsController {
     @ResponseStatus(HttpStatus.OK)
     public void receipt(@PathVariable Merchant merchant, @PathVariable String orderId,
                         @RequestParam MultipartFile receipt) {
-        merchantDetailsService.sendReceipt(merchant, orderId, receipt);
+        platformService.sendReceipt(merchant, orderId, receipt);
     }
 
 }

@@ -32,7 +32,7 @@ import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.app.mapper.ApiDetailsRequestMapper;
 import net.rcetech.md.app.mapper.GrpcValidator;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.integrations.service.RequestMethodService;
 
 import java.util.List;
@@ -57,7 +57,7 @@ class ApiDetailsRequestControllerGrpcTest {
     private ApiDetailsRequestMapper mapper;
 
     @Mock
-    private MerchantDetailsService merchantDetailsService;
+    private PlatformService platformService;
 
     @Mock
     private RequestMethodService requestMethodService;
@@ -76,7 +76,7 @@ class ApiDetailsRequestControllerGrpcTest {
                 processorService,
                 detailsRequestSearchExecutorApi,
                 mapper,
-                merchantDetailsService,
+                platformService,
                 requestMethodService
         );
     }
@@ -94,7 +94,7 @@ class ApiDetailsRequestControllerGrpcTest {
         controller.cancelOrderRequest(request, responseObserver);
 
         ArgumentCaptor<CancelOrderRequest> requestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
-        verify(merchantDetailsService).cancelOrder(eq(Merchant.ALFA_TEAM), requestCaptor.capture());
+        verify(platformService).cancelOrder(eq(Merchant.ALFA_TEAM), requestCaptor.capture());
         assertEquals("order-123", requestCaptor.getValue().getOrderId());
         assertEquals("SBP_MERCHANT", requestCaptor.getValue().getMethod());
         verify(responseObserver).onNext(Empty.getDefaultInstance());
@@ -134,7 +134,7 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(responseObserver).onError(errorCaptor.capture());
         StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
         assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-        verify(merchantDetailsService, never()).cancelOrder(any(), any());
+        verify(platformService, never()).cancelOrder(any(), any());
     }
 
     @Test
@@ -151,7 +151,7 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(responseObserver).onError(errorCaptor.capture());
         StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
         assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-        verify(merchantDetailsService, never()).cancelOrder(any(), any());
+        verify(platformService, never()).cancelOrder(any(), any());
     }
 
     @Test
@@ -163,7 +163,7 @@ class ApiDetailsRequestControllerGrpcTest {
                 .build();
         when(requestMethodService.getMerchantMethod(Merchant.ALFA_TEAM, RequestMethod.SBP))
                 .thenReturn("SBP");
-        doThrow(new ServiceUnavailableException("Service down")).when(merchantDetailsService)
+        doThrow(new ServiceUnavailableException("Service down")).when(platformService)
                 .cancelOrder(eq(Merchant.ALFA_TEAM), any(CancelOrderRequest.class));
 
         controller.cancelOrderRequest(request, responseObserver);
@@ -188,7 +188,7 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(responseObserver).onError(errorCaptor.capture());
         StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
         assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-        verify(merchantDetailsService, never()).cancelOrder(any(), any());
+        verify(platformService, never()).cancelOrder(any(), any());
     }
 
     @Test
@@ -207,7 +207,7 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(responseObserver).onError(errorCaptor.capture());
         StatusRuntimeException ex = (StatusRuntimeException) errorCaptor.getValue();
         assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-        verify(merchantDetailsService, never()).cancelOrder(any(), any());
+        verify(platformService, never()).cancelOrder(any(), any());
     }
 
     private ApiDetailsRequestControllerGrpc controllerWithRealMapper() {
@@ -216,7 +216,7 @@ class ApiDetailsRequestControllerGrpcTest {
             return null;
         }).when(detailsRequestSearchExecutorApi).execute(any(Runnable.class));
         return new ApiDetailsRequestControllerGrpc(processorService, detailsRequestSearchExecutorApi,
-                new ApiDetailsRequestMapper(), merchantDetailsService, requestMethodService);
+                new ApiDetailsRequestMapper(), platformService, requestMethodService);
     }
 
     private ApiDetailsResponse detailsResponse(String bank) {

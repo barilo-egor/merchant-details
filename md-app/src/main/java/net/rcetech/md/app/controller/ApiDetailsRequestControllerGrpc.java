@@ -19,7 +19,7 @@ import net.rcetech.md.app.detailsapi.service.ApiDetailsRequestProcessorService;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.app.mapper.ApiDetailsRequestMapper;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.integrations.service.RequestMethodService;
 
 import java.util.UUID;
@@ -37,19 +37,19 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
     private final ApiDetailsRequestProcessorService processorService;
     private final ApiDetailsRequestMapper mapper;
     private final ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
-    private final MerchantDetailsService merchantDetailsService;
+    private final PlatformService platformService;
     private final RequestMethodService requestMethodService;
 
     public ApiDetailsRequestControllerGrpc(
             ApiDetailsRequestProcessorService processorService,
             @Qualifier("detailsRequestSearchExecutorApi") ThreadPoolTaskExecutor detailsRequestSearchExecutorApi,
             ApiDetailsRequestMapper mapper,
-            MerchantDetailsService merchantDetailsService,
+            PlatformService platformService,
             RequestMethodService requestMethodService) {
         this.processorService = processorService;
         this.detailsRequestSearchExecutorApi = detailsRequestSearchExecutorApi;
         this.mapper = mapper;
-        this.merchantDetailsService = merchantDetailsService;
+        this.platformService = platformService;
         this.requestMethodService = requestMethodService;
     }
 
@@ -85,7 +85,7 @@ public class ApiDetailsRequestControllerGrpc extends ApiDetailsRequestServiceGrp
 
             try {
                 CancelOrderRequest domainRequest = toCancelOrderRequest(merchant, requestGrpc);
-                merchantDetailsService.cancelOrder(merchant, domainRequest);
+                platformService.cancelOrder(merchant, domainRequest);
                 responseObserver.onNext(Empty.getDefaultInstance());
                 responseObserver.onCompleted();
             } catch (MerchantMethodNotFoundException | IllegalArgumentException e) {

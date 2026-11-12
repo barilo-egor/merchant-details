@@ -100,21 +100,6 @@ class MerchantDetailsServiceTest {
         );
     }
 
-    @CsvSource(textBlock = """
-            ALFA_TEAM,20fb47cc-bbb2-4e39-84db-9f67c0b2900e,CARD
-            SETTLE_X,4e995450-91f6-4b59-b952-7c02ce7b6fdc,SBP
-            """)
-    @ParameterizedTest
-    void updateStatusShouldCallMerchantServiceUpdateStatusMethod(Merchant merchant, String orderId, String method) {
-        MerchantService merchantService = Mockito.mock(MerchantService.class);
-        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
-        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
-        cancelOrderRequest.setOrderId(orderId);
-        cancelOrderRequest.setMethod(method);
-        merchantDetailsService.cancelOrder(merchant, cancelOrderRequest);
-        verify(merchantService).cancelOrder(cancelOrderRequest);
-    }
-
     @Test
     void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
         when(merchantConfigService.findAllByMethodsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
@@ -584,23 +569,5 @@ class MerchantDetailsServiceTest {
         verify(onlyPaysMerchantService, times(2)).createOrder(creationRequest);
         verify(evoPayMerchantService, times(2)).createOrder(creationRequest);
         verify(honeyMoneyMerchantService, times(2)).createOrder(creationRequest);
-    }
-
-
-    @CsvSource("""
-            ALFA_TEAM, c2b38482-3901-44e4-a2ee-ef706bdea3e6
-            BIT_ZONE, 54907906-cb06-471f-8a10-7506803f3354
-            """)
-    @ParameterizedTest
-    void sendReceiptShouldCallMerchantServiceMethod(Merchant merchant, String orderId) {
-        MerchantService merchantService = mock(MerchantService.class);
-        byte[] fileContent = "test content".getBytes();
-        String fileName = "receipt.jpg";
-
-        when(merchantServiceRegistry.getService(merchant)).thenReturn(Optional.of(merchantService));
-
-        merchantDetailsService.sendReceipt(merchant, orderId, fileContent, fileName);
-
-        verify(merchantService).sendReceipt(eq(orderId), eq(fileContent), eq(fileName));
     }
 }

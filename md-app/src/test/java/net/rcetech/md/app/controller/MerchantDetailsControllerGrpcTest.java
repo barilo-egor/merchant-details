@@ -32,7 +32,7 @@ import net.rcetech.md.domain.entity.Variable;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.mapper.MerchantConfigGrpcMapper;
 import net.rcetech.md.app.service.MerchantConfigService;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.app.service.VariableService;
 
 import java.nio.charset.StandardCharsets;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 class MerchantDetailsControllerGrpcTest {
 
     @MockitoBean
-    private MerchantDetailsService merchantDetailsService;
+    private PlatformService platformService;
 
     @MockitoBean
     private MerchantConfigService merchantConfigService;
@@ -85,7 +85,7 @@ class MerchantDetailsControllerGrpcTest {
         grpcController.cancelOrder(grpcRequest, responseObserver);
 
         ArgumentCaptor<CancelOrderRequest> cancelOrderRequestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
-        verify(merchantDetailsService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
+        verify(platformService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
 
         CancelOrderRequest actual = cancelOrderRequestCaptor.getValue();
 
@@ -377,7 +377,7 @@ class MerchantDetailsControllerGrpcTest {
         StreamObserver<Empty> responseObserver = mock(StreamObserver.class);
         grpcController.sendReceipt(request, responseObserver);
 
-        verify(merchantDetailsService).sendReceipt(
+        verify(platformService).sendReceipt(
                 eq(merchant),
                 eq(orderId),
                 argThat(bytes -> Arrays.equals(pdfBytes, bytes)),

@@ -28,7 +28,7 @@ import net.rcetech.md.domain.entity.Variable;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.meta.exception.BadRequestException;
 import net.rcetech.md.app.service.MerchantConfigService;
-import net.rcetech.md.app.service.MerchantDetailsService;
+import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.app.service.VariableService;
 
 import java.nio.charset.StandardCharsets;
@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MerchantDetailsControllerTest {
 
     @MockitoBean
-    private MerchantDetailsService merchantDetailsService;
+    private PlatformService platformService;
 
     @MockitoBean
     private MerchantConfigService merchantConfigService;
@@ -70,7 +70,7 @@ class MerchantDetailsControllerTest {
                 .queryParam("method", method)
         ).andExpect(status().isOk());
         ArgumentCaptor<CancelOrderRequest> cancelOrderRequestCaptor = ArgumentCaptor.forClass(CancelOrderRequest.class);
-        verify(merchantDetailsService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
+        verify(platformService).cancelOrder(eq(merchant), cancelOrderRequestCaptor.capture());
         CancelOrderRequest actual = cancelOrderRequestCaptor.getValue();
         assertAll(
                 () -> assertEquals(orderId, actual.getOrderId()),
@@ -266,6 +266,6 @@ class MerchantDetailsControllerTest {
         mockMvc.perform(multipart("/merchant-details/receipt/" + merchant.name() + "/" + orderId)
                         .file(multipartFile))
                 .andExpect(status().isOk());
-        verify(merchantDetailsService).sendReceipt(eq(merchant), eq(orderId), any(MultipartFile.class));
+        verify(platformService).sendReceipt(eq(merchant), eq(orderId), any(MultipartFile.class));
     }
 }
