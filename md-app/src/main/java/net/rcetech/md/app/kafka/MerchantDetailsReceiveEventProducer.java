@@ -1,14 +1,12 @@
 package net.rcetech.md.app.kafka;
 
+import net.rcetech.md.app.details.DetailsRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.app.details.DetailsRequest;
-import net.rcetech.md.app.details.DetailsRequest;
-import net.rcetech.md.integrations.platform.DetailsResponse;
-import net.rcetech.md.integrations.platform.OrderCreationRequest;
 
 import java.time.Instant;
 import java.util.Objects;

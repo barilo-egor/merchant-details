@@ -1,7 +1,5 @@
-package net.rcetech.md.app.kafka;
+package net.rcetech.md.callback.kafka;
 
-import net.rcetech.md.callback.kafka.MerchantCallbackEvent;
-import net.rcetech.md.callback.kafka.MerchantCallbackSerializer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
