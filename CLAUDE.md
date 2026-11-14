@@ -81,3 +81,7 @@ URL callback'а мерчанту формируется как `callbackConfig.g
 
 - Логи и сообщения в коде пишутся на русском; при ошибке в лог пишется `System.currentTimeMillis()`, а наружу бросается `ServiceUnavailableException` с этим же таймстампом для поиска по логам.
 - `merchant-details.postman_collection.json` — коллекция запросов к API площадок.
+
+## Задачи в Planka
+
+Просьбы «создай карточку», «создай задачу», «перемести задачу», «запиши оплату» относятся к Planka. Как работать с карточками, описано в [docs/planka.md](docs/planka.md).
