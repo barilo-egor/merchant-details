@@ -1,5 +1,7 @@
 package net.rcetech.md.callback.controller;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,13 +16,16 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.CallbackDecryptService;
 import net.rcetech.md.integrations.properties.PayLeePropertiesImpl;
 import net.rcetech.md.callback.callback.MerchantCallbackService;
+import net.rcetech.md.meta.exception.BadRequestException;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MerchantCallbackController.class)
@@ -91,5 +96,19 @@ class MerchantCallbackControllerTest {
         ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
         verify(merchantCallbackService).updateStatus(eq(Merchant.CROCO_PAY), bodyCaptor.capture());
         assertEquals("{\"id\":\"" + dealId + "\",\"status\":\"SUCCESS\"}", bodyCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("BadRequestException должен превращаться в ответ 400 с текстом ошибки.")
+    void callbackShouldReturn400IfBadRequestException() throws Exception {
+        doThrow(new BadRequestException("Некорректный callback")).when(merchantCallbackService)
+                .updateStatus(Merchant.ALFA_TEAM, "body");
+
+        mockMvc.perform(post("/merchant-details/callback")
+                        .queryParam("merchant", Merchant.ALFA_TEAM.name())
+                        .queryParam("secret", "test-callback-secret")
+                        .content("body"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Некорректный callback"));
     }
 }
