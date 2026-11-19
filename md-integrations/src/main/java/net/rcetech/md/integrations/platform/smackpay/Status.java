@@ -12,6 +12,7 @@ import tools.jackson.databind.ValueDeserializer;
 public enum Status implements MerchantOrderStatus {
 
     AWAITING_KYC("awaiting_kyc", "Подтверждение личности"),
+    AWAITING_EMAIL("awaiting_email", "Укажите e-mail"),
     KYC_PENDING("kyc_pending", "Проверка личности"),
     PROCESSING_LINK("processing_link", "Подготовка реквизитов"),
     PENDING("pending", "Ожидание"),

@@ -1,5 +1,10 @@
 package net.rcetech.md.integrations.platform.smackpay;
 
+import net.rcetech.md.integrations.config.JsonMappers;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.SmackPayProperties;
+import net.rcetech.md.integrations.service.RequestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,27 +15,24 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.config.JsonMappers;
-import net.rcetech.md.integrations.platform.DetailsResponse;
-import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.integrations.properties.SmackPayProperties;
-import net.rcetech.md.integrations.service.RequestService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SmackPayOrderCreationTest {
 
     private static final String API_KEY = "test-api-key";
+    private static final String USER_ID = "123456789";
+    private static final String CLIENT_ID = "987654321";
 
     private final ObjectMapper objectMapper = JsonMappers.create();
 
@@ -43,6 +45,9 @@ class SmackPayOrderCreationTest {
     @Mock
     private RequestService requestService;
 
+    @Mock
+    private SmackPayClientIds clientIds;
+
     private SmackPayOrderCreationService smackPayService;
 
     private OrderCreationRequest detailsRequest;
@@ -51,7 +56,8 @@ class SmackPayOrderCreationTest {
     void setUp() {
         smackPayService = new TestSmackPayOrderCreationService(
                 restClient,
-                smackPayProperties
+                smackPayProperties,
+                clientIds
         );
         smackPayService.setObjectMapper(objectMapper);
         smackPayService.setRequestService(requestService);
@@ -60,6 +66,7 @@ class SmackPayOrderCreationTest {
         detailsRequest.setMethod(Method.NSPK_QR.name());
         detailsRequest.setAmount(1500);
         detailsRequest.setRedirectUrl("https://mysite.com/payment/return");
+        detailsRequest.setUserId(USER_ID);
     }
 
     @Test
@@ -94,14 +101,37 @@ class SmackPayOrderCreationTest {
 
     @Test
     void shouldBuildCorrectRequestBody() {
+        when(clientIds.findOrAssignClientId(USER_ID)).thenReturn(Optional.of(CLIENT_ID));
+
         Request request = smackPayService.body(detailsRequest);
 
         assertNotNull(request);
         assertEquals(1500, request.getAmount());
         assertEquals("https://mysite.com/payment/return", request.getReturnUrl());
         assertEquals("RUB", request.getCurrency());
+        assertEquals(CLIENT_ID, request.getClientId());
         assertNotNull(request.getMetadata());
         assertNotNull(request.getMetadata().getOrderId());
+    }
+
+    @Test
+    void shouldNotQueryClientIdsWhenUserIdAbsent() {
+        detailsRequest.setUserId(null);
+
+        Request request = smackPayService.body(detailsRequest);
+
+        assertNull(request.getClientId());
+        verifyNoInteractions(clientIds);
+    }
+
+    @Test
+    void shouldNotSetClientIdWhenNoClientIdAvailable() {
+        when(clientIds.findOrAssignClientId("555555555")).thenReturn(Optional.empty());
+        detailsRequest.setUserId("555555555");
+
+        Request request = smackPayService.body(detailsRequest);
+
+        assertNull(request.getClientId());
     }
 
     @Test
@@ -151,8 +181,9 @@ class SmackPayOrderCreationTest {
 
     private static class TestSmackPayOrderCreationService extends SmackPayOrderCreationService {
         protected TestSmackPayOrderCreationService(RestClient restClient,
-                                                   SmackPayProperties smackPayProperties) {
-            super(restClient, smackPayProperties);
+                                                   SmackPayProperties smackPayProperties,
+                                                   SmackPayClientIds clientIds) {
+            super(restClient, smackPayProperties, clientIds);
         }
     }
 }
