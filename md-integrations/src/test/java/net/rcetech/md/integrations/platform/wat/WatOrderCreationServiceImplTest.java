@@ -1,5 +1,12 @@
 package net.rcetech.md.integrations.platform.wat;
 
+import net.rcetech.md.integrations.config.CallbackConfig;
+import net.rcetech.md.integrations.platform.CancelOrderRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.WatPropertiesImpl;
+import net.rcetech.md.integrations.service.ReceiptService;
+import net.rcetech.md.integrations.service.RequestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,28 +17,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
-import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.config.CallbackConfig;
-import net.rcetech.md.integrations.platform.CancelOrderRequest;
-import net.rcetech.md.integrations.platform.DetailsResponse;
-import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.integrations.properties.WatPropertiesImpl;
-import net.rcetech.md.integrations.service.ReceiptService;
-import net.rcetech.md.integrations.service.RequestService;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class WatOrderCreationServiceImplTest {
@@ -58,6 +57,9 @@ class WatOrderCreationServiceImplTest {
 
     @Captor
     private ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor;
+
+    @Captor
+    private ArgumentCaptor<Collection<String>> folderNamesCaptor;
 
     private WatOrderCreationServiceImpl service;
 
@@ -146,6 +148,29 @@ class WatOrderCreationServiceImplTest {
         HttpHeaders headers = new HttpHeaders();
         headersCaptor.getValue().accept(headers);
         assertThat(headers.get("Authorization")).containsExactly("Bearer " + TEST_TOKEN);
+    }
+
+    @Test
+    void deleteReceipt_FinalStatus_ShouldDeleteReceiptFromAllFamilyFolders() {
+        service.deleteReceipt("order-wat-777", Status.FINISHED.name());
+
+        verify(receiptService).deleteReceipt(eq("order-wat-777"), folderNamesCaptor.capture());
+        assertThat(folderNamesCaptor.getValue()).containsExactlyInAnyOrder("wat", "wat_pdf", "wat_sim");
+    }
+
+    @Test
+    void deleteReceipt_CanceledStatus_ShouldDeleteReceiptFromAllFamilyFolders() {
+        service.deleteReceipt("order-wat-777", Status.CANCELED.name());
+
+        verify(receiptService).deleteReceipt(eq("order-wat-777"), anyCollection());
+    }
+
+    @Test
+    void deleteReceipt_NonFinalStatus_ShouldNotDeleteReceipt() {
+        service.deleteReceipt("order-wat-777", Status.CLAIM.name());
+
+        verify(receiptService, never()).deleteReceipt(anyString(), anyString());
+        verify(receiptService, never()).deleteReceipt(anyString(), anyCollection());
     }
 
 }

@@ -1,28 +1,27 @@
 package net.rcetech.md.integrations.platform.wat;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.client.RestClient;
 import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.meta.exception.BodyMappingException;
 import net.rcetech.md.integrations.properties.WatProperties;
 import net.rcetech.md.integrations.service.ReceiptService;
+import net.rcetech.md.meta.exception.BodyMappingException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.commons.enums.MerchantFamily;
 import tools.jackson.core.JacksonException;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class WatOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
@@ -106,13 +105,19 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
         );
     }
 
+    /**
+     * Чек сохраняется в папку варианта, через который создан ордер, а callback приходит от одного мерчанта
+     * семейства, поэтому чек ищется во всех папках вариантов семейства.
+     */
     @Override
     public void deleteReceipt(String orderId, String orderStatus) {
         if (!Arrays.asList(Status.FINISHED.name(), Status.CANCELED.name()).contains(orderStatus)) {
             return;
         }
-        String folderName = StringUtils.lowerCase(getMerchant().name());
-        receiptService.deleteReceipt(orderId, folderName);
+        Set<String> folderNames = MerchantFamily.of(getMerchant()).getMerchants().stream()
+                .map(merchant -> StringUtils.lowerCase(merchant.name()))
+                .collect(Collectors.toSet());
+        receiptService.deleteReceipt(orderId, folderNames);
     }
 
 

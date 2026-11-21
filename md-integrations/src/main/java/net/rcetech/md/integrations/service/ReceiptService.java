@@ -1,10 +1,10 @@
 package net.rcetech.md.integrations.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import net.rcetech.md.meta.exception.DeleteReceiptException;
 import net.rcetech.md.meta.exception.SaveReceiptException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +13,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -46,31 +48,41 @@ public class ReceiptService {
     }
 
     public void deleteReceipt(String fileName, String folderName) {
+        deleteReceipt(fileName, List.of(folderName));
+    }
+
+    /**
+     * Удаляет чек из каждой перечисленной папки. Отсутствующая папка не считается ошибкой: папка варианта
+     * появляется только после первого сохранённого чека.
+     */
+    public void deleteReceipt(String fileName, Collection<String> folderNames) {
         String jarPath = System.getProperty("user.dir");
-        Path folderPath = Paths.get(jarPath, RECEIPT_FOLDER, folderName);
+        for (String folderName : folderNames) {
+            Path folderPath = Paths.get(jarPath, RECEIPT_FOLDER, folderName);
 
-        if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
-            log.warn("Папка {} не существует", folderName);
-            return;
-        }
+            if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
+                log.debug("Папка {} не существует", folderName);
+                continue;
+            }
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(folderPath, fileName + ".*")) {
-            boolean deleted = false;
-            for (Path path : stream) {
-                if (Files.isRegularFile(path)) {
-                    Files.delete(path);
-                    log.debug("Чек {} успешно удален из папки {}", path.getFileName(), folderName);
-                    deleted = true;
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(folderPath, fileName + ".*")) {
+                boolean deleted = false;
+                for (Path path : stream) {
+                    if (Files.isRegularFile(path)) {
+                        Files.delete(path);
+                        log.debug("Чек {} успешно удален из папки {}", path.getFileName(), folderName);
+                        deleted = true;
+                    }
                 }
-            }
 
-            if (!deleted) {
-                log.warn("Не удалось удалить чек {}: файл не найден в папке {}", fileName, folderName);
+                if (!deleted) {
+                    log.warn("Не удалось удалить чек {}: файл не найден в папке {}", fileName, folderName);
+                }
+            } catch (IOException e) {
+                String errorMsg = String.format("Ошибка при попытке удалить чек %s из папки %s", fileName, folderName);
+                log.error(errorMsg, e);
+                throw new DeleteReceiptException(errorMsg, e);
             }
-        } catch (IOException e) {
-            String errorMsg = String.format("Ошибка при попытке удалить чек %s из папки %s", fileName, folderName);
-            log.error(errorMsg, e);
-            throw new DeleteReceiptException(errorMsg, e);
         }
     }
 

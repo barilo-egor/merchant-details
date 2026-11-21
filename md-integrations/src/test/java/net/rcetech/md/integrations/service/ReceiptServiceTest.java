@@ -8,6 +8,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,6 +72,29 @@ class ReceiptServiceTest {
         String folderName = "unknown_folder";
 
         assertDoesNotThrow(() -> receiptService.deleteReceipt(fileName, folderName));
+    }
+
+    @Test
+    void deleteReceipt_FolderCollection_ShouldDeleteFileFromExistingFolder() throws IOException {
+        String fileName = "delete_me";
+        String existingFolder = "wat_pdf";
+        String missingFolder = "wat";
+
+        Path fileFolder = tempDir.resolve(ReceiptService.RECEIPT_FOLDER).resolve(existingFolder);
+        Files.createDirectories(fileFolder);
+        Path targetFile = fileFolder.resolve(fileName + ".pdf");
+        Files.createFile(targetFile);
+
+        assertDoesNotThrow(() -> receiptService.deleteReceipt(fileName, List.of(existingFolder, missingFolder)));
+
+        assertFalse(Files.exists(targetFile), "Файл должен быть удален");
+    }
+
+    @Test
+    void deleteReceipt_FolderCollection_AllFoldersMissing_ShouldNotThrowException() {
+        String fileName = "non_existent.pdf";
+
+        assertDoesNotThrow(() -> receiptService.deleteReceipt(fileName, List.of("wat", "wat_pdf", "wat_sim")));
     }
 
 }
