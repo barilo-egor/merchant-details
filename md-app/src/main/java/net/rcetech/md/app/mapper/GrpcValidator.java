@@ -7,7 +7,7 @@ import com.google.rpc.ResourceInfo;
 import com.google.rpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.protobuf.StatusProto;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 
 public class GrpcValidator {
 

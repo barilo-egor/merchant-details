@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import net.rcetech.md.app.grpc.generated.DetailsGrpc;
 import net.rcetech.md.app.grpc.generated.DetailsRequestGrpc;
 import net.rcetech.md.app.grpc.generated.DetailsResponseGrpc;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
 

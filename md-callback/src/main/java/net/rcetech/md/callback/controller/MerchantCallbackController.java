@@ -3,6 +3,7 @@ package net.rcetech.md.callback.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -10,6 +11,7 @@ import net.rcetech.md.callback.callback.MerchantCallbackService;
 import net.rcetech.md.integrations.platform.CallbackDecryptService;
 import net.rcetech.md.integrations.platform.crocopay.Callback;
 import net.rcetech.md.integrations.platform.crocopay.Status;
+import net.rcetech.md.meta.exception.BadRequestException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -87,6 +89,11 @@ public class MerchantCallbackController {
     @GetMapping("/{merchant}")
     public ResponseEntity<Void> callbackGet(@RequestParam Long dealId, @RequestParam String secret, @PathVariable String merchant) throws JacksonException {
         return callbackPost(dealId, secret, merchant);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ProblemDetail handleBadRequestException(BadRequestException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
 }

@@ -8,12 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import net.rcetech.md.app.grpc.generated.*;
-import net.rcetech.md.app.dto.MerchantConfigDTO;
+import net.rcetech.md.integrations.constants.MerchantConstants;
+import net.rcetech.md.meta.projection.MerchantConfigProjection;
+import net.rcetech.md.meta.projection.MerchantSuccessStatusProjection;
 
 @Component
 public class MerchantConfigGrpcMapper {
 
-    public MerchantConfigDTOGrpc mapToGrpcDto(MerchantConfigDTO dto) {
+    public MerchantConfigDTOGrpc mapToGrpcDto(MerchantConfigProjection dto) {
         MerchantConfigDTOGrpc.Builder builder = MerchantConfigDTOGrpc.newBuilder()
                 .setId(dto.getId())
                 .setIsOn(dto.getIsOn() != null && dto.getIsOn())
@@ -34,8 +36,8 @@ public class MerchantConfigGrpcMapper {
         if (dto.getGroupChatId() != null) {
             builder.setGroupChatId(Int64Value.of(dto.getGroupChatId()));
         }
-        if (dto.getStatuses() != null) {
-            builder.addAllStatuses(dto.getStatuses().stream()
+        if (dto.getMerchant() != null) {
+            builder.addAllStatuses(MerchantConstants.getStatuses(dto.getMerchant()).stream()
                     .map(s -> MerchantOrderStatusGrpc.newBuilder()
                             .setName(s.name())
                             .setDescription(s.getDescription())
@@ -43,10 +45,12 @@ public class MerchantConfigGrpcMapper {
                     .toList());
         }
         if (dto.getSuccessStatuses() != null) {
-            builder.addAllSuccessStatuses(dto.getSuccessStatuses());
+            builder.addAllSuccessStatuses(dto.getSuccessStatuses().stream()
+                    .map(MerchantSuccessStatusProjection::getStatus)
+                    .toList());
         }
-        if (dto.getMethods() != null) {
-            builder.addAllMethods(dto.getMethods().stream()
+        if (dto.getMerchant() != null) {
+            builder.addAllMethods(MerchantConstants.getMethods(dto.getMerchant()).stream()
                     .map(m -> MerchantMethodGrpc.newBuilder()
                             .setName(m.name())
                             .setDescription(m.getDescription())

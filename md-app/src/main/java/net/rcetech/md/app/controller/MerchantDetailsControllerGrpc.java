@@ -14,19 +14,19 @@ import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.meta.constants.Metrics;
 import net.rcetech.md.meta.constants.VariableType;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
-import net.rcetech.md.app.dto.MerchantConfigDTO;
-import net.rcetech.md.app.dto.UpdateMerchantConfigDTO;
+import net.rcetech.md.meta.dto.UpdateMerchantConfigDTO;
+import net.rcetech.md.meta.projection.MerchantConfigProjection;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.mapper.MerchantConfigGrpcMapper;
 import net.rcetech.md.meta.enums.RequiredReceipt;
-import net.rcetech.md.app.service.MerchantConfigService;
+import net.rcetech.md.domain.service.MerchantConfigService;
 import net.rcetech.md.integrations.platform.PlatformService;
-import net.rcetech.md.app.service.VariableService;
+import net.rcetech.md.domain.service.VariableService;
 import net.rcetech.md.app.util.GrpcMapUtils;
 
 import java.util.List;
 
-import static net.rcetech.md.app.util.GrpcMapUtils.mapToMerchantConfigRequest;
+import static net.rcetech.md.app.util.GrpcMapUtils.mapToMerchantConfigFilter;
 
 @Slf4j
 @GrpcService
@@ -69,7 +69,8 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
     public void getConfig(MerchantConfigRequestGrpc request,
                           StreamObserver<MerchantConfigResponseGrpc> responseObserver) {
         Pageable pageable = mapper.createPageable(request.getPagination());
-        Page<MerchantConfigDTO> page = merchantConfigService.findAll(pageable, mapToMerchantConfigRequest(request));
+        Page<MerchantConfigProjection> page = merchantConfigService.findAll(mapToMerchantConfigFilter(request), pageable,
+                MerchantConfigProjection.class);
 
         List<MerchantConfigDTOGrpc> grpcData = page.getContent().stream()
                 .map(mapper::mapToGrpcDto)
@@ -87,42 +88,41 @@ public class MerchantDetailsControllerGrpc extends MerchantDetailsServiceGrpc.Me
 
     @Override
     public void updateConfig(UpdateMerchantConfigRequestGrpc request, StreamObserver<Empty> responseObserver) {
-        UpdateMerchantConfigDTO dto = new UpdateMerchantConfigDTO();
-        dto.setId(request.getId());
+        UpdateMerchantConfigDTO.UpdateMerchantConfigDTOBuilder builder = UpdateMerchantConfigDTO.builder().id(request.getId());
         for (String path : request.getUpdateMask().getPathsList()) {
             switch (path) {
                 case "is_on":
-                    dto.setIsOn(request.getIsOn().getValue());
+                    builder.isOn(request.getIsOn().getValue());
                     break;
                 case "is_auto_withdrawal_on":
-                    dto.setIsAutoWithdrawalOn(request.getIsAutoWithdrawalOn().getValue());
+                    builder.isAutoWithdrawalOn(request.getIsAutoWithdrawalOn().getValue());
                     break;
                 case "success_statuses":
-                    dto.setSuccessStatuses(request.getSuccessStatusesList());
+                    builder.successStatuses(request.getSuccessStatusesList());
                     break;
                 case "max_amount":
-                    dto.setMaxAmount(request.getMaxAmount().getValue());
+                    builder.maxAmount(request.getMaxAmount().getValue());
                     break;
                 case "min_amount":
-                    dto.setMinAmount(request.getMinAmount().getValue());
+                    builder.minAmount(request.getMinAmount().getValue());
                     break;
                 case "group_chat_id":
-                    dto.setGroupChatId(request.getGroupChatId().getValue());
+                    builder.groupChatId(request.getGroupChatId().getValue());
                     break;
                 case "required_receipt":
-                    dto.setRequiredReceipt(RequiredReceipt.valueOf(request.getRequiredReceipt()));
+                    builder.requiredReceipt(RequiredReceipt.valueOf(request.getRequiredReceipt()));
                     break;
                 case "confirm_configs":
-                    dto.setConfirmConfigs(request.getConfirmConfigsList().stream()
+                    builder.confirmConfigs(request.getConfirmConfigsList().stream()
                             .map(GrpcMapUtils::mapToAutoConfirmConfigDTO)
                             .toList());
                     break;
                 case "min_deals_count":
-                    dto.setMinDealsCount(request.getMinDealsCount());
+                    builder.minDealsCount(request.getMinDealsCount());
                     break;
             }
         }
-        merchantConfigService.update(dto);
+        merchantConfigService.update(builder.build());
 
         responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();

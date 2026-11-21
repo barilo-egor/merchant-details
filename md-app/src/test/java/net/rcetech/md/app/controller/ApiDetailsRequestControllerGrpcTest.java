@@ -23,19 +23,19 @@ import net.rcetech.md.app.grpc.generated.DetailsRequestGrpc;
 import net.rcetech.md.app.grpc.generated.DetailsResponseGrpc;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.app.detailsapi.ProcessingContract;
-import net.rcetech.md.app.detailsapi.dto.ApiDetailsRequest;
+import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.dto.Details;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import net.rcetech.md.app.detailsapi.service.ApiDetailsRequestProcessorService;
+import net.rcetech.md.search.service.ApiMerchantDetailsService;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.app.mapper.ApiDetailsRequestMapper;
-import net.rcetech.md.app.mapper.GrpcValidator;
 import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.integrations.service.RequestMethodService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.RejectedExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 class ApiDetailsRequestControllerGrpcTest {
 
     @Mock
-    private ApiDetailsRequestProcessorService processorService;
+    private ApiMerchantDetailsService merchantDetailsService;
 
     @Mock
     private ThreadPoolTaskExecutor detailsRequestSearchExecutorApi;
@@ -73,7 +73,7 @@ class ApiDetailsRequestControllerGrpcTest {
     @BeforeEach
     void setUp() {
         controller = new ApiDetailsRequestControllerGrpc(
-                processorService,
+                merchantDetailsService,
                 detailsRequestSearchExecutorApi,
                 mapper,
                 platformService,
@@ -215,7 +215,7 @@ class ApiDetailsRequestControllerGrpcTest {
             invocation.<Runnable>getArgument(0).run();
             return null;
         }).when(detailsRequestSearchExecutorApi).execute(any(Runnable.class));
-        return new ApiDetailsRequestControllerGrpc(processorService, detailsRequestSearchExecutorApi,
+        return new ApiDetailsRequestControllerGrpc(merchantDetailsService, detailsRequestSearchExecutorApi,
                 new ApiDetailsRequestMapper(), platformService, requestMethodService);
     }
 
@@ -244,7 +244,7 @@ class ApiDetailsRequestControllerGrpcTest {
     @ValueSource(strings = "demo-user-1")
     void detailsRequest_ResponseSatisfiesProcessingContract(String userId) {
         DetailsRequestGrpc request = ProcessingContract.processingRequest(userId, "CARD", "SBP");
-        when(processorService.process(any())).thenReturn(detailsResponse("Сбербанк"));
+        when(merchantDetailsService.getDetails(any())).thenReturn(Optional.of(detailsResponse("Сбербанк")));
 
         controllerWithRealMapper().detailsRequest(request, detailsObserver);
 
@@ -259,12 +259,12 @@ class ApiDetailsRequestControllerGrpcTest {
     @ValueSource(strings = "demo-user-1")
     void detailsRequest_PassesUserIdAsProcessingSentIt(String userId) {
         DetailsRequestGrpc request = ProcessingContract.processingRequest(userId, "CARD");
-        when(processorService.process(any())).thenReturn(detailsResponse("Сбербанк"));
+        when(merchantDetailsService.getDetails(any())).thenReturn(Optional.of(detailsResponse("Сбербанк")));
 
         controllerWithRealMapper().detailsRequest(request, detailsObserver);
 
         ArgumentCaptor<ApiDetailsRequest> captor = ArgumentCaptor.forClass(ApiDetailsRequest.class);
-        verify(processorService).process(captor.capture());
+        verify(merchantDetailsService).getDetails(captor.capture());
         assertEquals(userId, captor.getValue().getUserId());
         assertEquals(List.of(RequestMethod.CARD), captor.getValue().getRequestMethods());
         verify(detailsObserver, never()).onError(any());
@@ -273,10 +273,7 @@ class ApiDetailsRequestControllerGrpcTest {
     @Test
     void detailsRequest_DetailsNotFound() {
         DetailsRequestGrpc request = ProcessingContract.processingRequest(null, "CARD");
-        when(processorService.process(any()))
-                .thenAnswer(invocation -> {
-                    throw GrpcValidator.detailsNotFound(invocation.getArgument(0));
-                });
+        when(merchantDetailsService.getDetails(any())).thenReturn(Optional.empty());
 
         controllerWithRealMapper().detailsRequest(request, detailsObserver);
 
@@ -291,7 +288,7 @@ class ApiDetailsRequestControllerGrpcTest {
         controller.detailsRequest(ProcessingContract.processingRequest(null, "CARD"), detailsObserver);
 
         assertEquals(Status.Code.RESOURCE_EXHAUSTED.value(), errorCode(detailsObserver));
-        verifyNoInteractions(processorService);
+        verifyNoInteractions(merchantDetailsService);
     }
 
     @Test
@@ -305,6 +302,6 @@ class ApiDetailsRequestControllerGrpcTest {
         verify(detailsObserver).onNext(captor.capture());
         assertNotNull(captor.getValue());
         ProcessingContract.assertSatisfies(captor.getValue(), request.getRequestMethodList());
-        verifyNoInteractions(processorService);
+        verifyNoInteractions(merchantDetailsService);
     }
 }
