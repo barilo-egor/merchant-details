@@ -1,0 +1,77 @@
+package net.rcetech.md.integrations.platform.manypay;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import net.rcetech.md.integrations.config.CallbackConfig;
+import net.rcetech.md.integrations.platform.CancelOrderRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.ManyPayProperties;
+
+import java.net.URI;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+@Slf4j
+public abstract class ManyPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    protected final ManyPayProperties manyPayProperties;
+
+    protected final CallbackConfig callbackConfig;
+
+    protected ManyPayOrderCreationService(RestClient restClient,
+                                          ManyPayProperties manyPayProperties, CallbackConfig callbackConfig) {
+        super(restClient, Response.class, Callback.class);
+        this.manyPayProperties = manyPayProperties;
+        this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    protected Function<UriBuilder, URI> uriBuilder(OrderCreationRequest detailsRequest) {
+        return uriBuilder -> uriBuilder.path("/api/merchant/order").build();
+    }
+
+    @Override
+    protected Consumer<HttpHeaders> headers(OrderCreationRequest detailsRequest, String body) {
+        return this::addHeaders;
+    }
+
+    private void addHeaders(HttpHeaders httpHeaders) {
+        httpHeaders.add("Content-Type", "application/json");
+        httpHeaders.add("X-API-ACCESS-TOKEN", manyPayProperties.token());
+    }
+
+    @Override
+    protected Request body(OrderCreationRequest detailsRequest) {
+        Request request = new Request();
+        request.setAmount(detailsRequest.getAmount() * 100);
+        Method method = parseMethod(detailsRequest.getMethod(), Method.class);
+        request.setPaymentMethod(method);
+        return request;
+    }
+
+    @Override
+    protected Optional<DetailsResponse> buildResponse(Response response) {
+        DetailsResponse detailsResponse = new DetailsResponse();
+        Response.Data data = response.getData();
+        detailsResponse.setBank(data.getPaymentDetails().getBankName());
+        detailsResponse.setDetails(data.getPaymentDetails().getDetails());
+        detailsResponse.setMerchantOrderId(data.getOrderId());
+        detailsResponse.setMerchantOrderStatus(data.getStatus().name());
+        detailsResponse.setMerchant(getMerchant());
+        return Optional.of(detailsResponse);
+    }
+
+    @Override
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        requestService.request(restClient, HttpMethod.POST,
+                uriBuilder -> uriBuilder.path("/api/order/" + cancelOrderRequest.getOrderId() + "/cancel").build(),
+                this::addHeaders, null);
+    }
+
+}

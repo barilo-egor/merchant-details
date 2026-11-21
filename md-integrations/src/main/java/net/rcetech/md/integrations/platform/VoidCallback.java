@@ -1,0 +1,23 @@
+package net.rcetech.md.integrations.platform;
+
+import java.util.Optional;
+
+/**
+ * Класс заглушка на время миграции коллбеков в микросервис.
+ */
+public class VoidCallback implements MerchantCallback {
+    @Override
+    public Optional<String> getMerchantOrderId() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getStatusName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getStatusDescription() {
+        return Optional.empty();
+    }
+}

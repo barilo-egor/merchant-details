@@ -1,0 +1,80 @@
+package net.rcetech.md.integrations.platform.levelpay;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
+import net.rcetech.md.integrations.platform.ValidationResult;
+import tools.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.Objects;
+
+@Data
+public class Response implements MerchantDetailsResponse {
+
+    private boolean success;
+
+    private Order data;
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult result = new ValidationResult();
+        if (success) {
+            if (Objects.isNull(data)) {
+                result.notNull("data");
+            } else if (hasDetails()) {
+                validateData(result);
+            }
+        } else {
+            result.addError("success", "expected true but was false");
+        }
+        return result;
+    }
+
+    private void validateData(ValidationResult result) {
+        if (Objects.isNull(data.getOrderId())) {
+            result.notNull("data.orderId");
+        }
+        if (Objects.isNull(data.getStatus())) {
+            result.notNull("data.status");
+        }
+        if (Objects.isNull(data.getPaymentGatewayName()) && Objects.isNull(data.getPaymentGateway())) {
+            result.notNull("data.paymentGatewayName", "data.paymentGateway");
+        }
+    }
+
+    @Override
+    public boolean hasDetails() {
+        return Objects.nonNull(data) && Objects.nonNull(data.getPaymentDetail()) &&
+                (Objects.nonNull(data.getPaymentDetail().getDetail()) || Objects.nonNull(data.getPaymentDetail().getQrCodeLink()));
+    }
+
+    @Data
+    public static class Order {
+
+        @JsonProperty("order_id")
+        private String orderId;
+
+        private String amount;
+
+        @JsonDeserialize(using = Status.Deserializer.class)
+        private Status status;
+
+        @JsonProperty("payment_gateway_name")
+        private String paymentGatewayName;
+
+        @JsonProperty("payment_gateway")
+        private String paymentGateway;
+
+        @JsonProperty("payment_detail")
+        private PaymentDetail paymentDetail;
+
+        @Data
+        public static class PaymentDetail {
+
+            private String detail;
+
+            @JsonProperty("qr_code_link")
+            private String qrCodeLink;
+        }
+    }
+}

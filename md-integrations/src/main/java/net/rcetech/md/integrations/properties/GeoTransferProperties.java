@@ -1,0 +1,8 @@
+package net.rcetech.md.integrations.properties;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "geo-transfer")
+public record GeoTransferProperties(String url, String token, String key, String keyQr,
+                                    String secret) implements BridgePayProperties {
+}

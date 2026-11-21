@@ -1,0 +1,39 @@
+package net.rcetech.md.integrations.platform.payscrow;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import net.rcetech.md.integrations.platform.MerchantOrderStatus;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+
+@AllArgsConstructor
+@Getter
+public enum Status implements MerchantOrderStatus {
+    UNPAID("Unpaid", "Ожидает оплаты"),
+    COMPLETED("Completed", "Успешно завершено"),
+    CANCELED_BY_TIMEOUT("CanceledByTimeout", "Отменен по таймауту"),
+    CANCELED_BY_SERVICE("CanceledByService", "Ручная отмена");
+
+    private final String value;
+
+    private final String description;
+
+    public static Status fromValue(String v) {
+        for (Status c: Status.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public static class Deserializer extends ValueDeserializer<Status> {
+
+        @Override
+        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+            return Status.fromValue(jsonParser.getValueAsString());
+        }
+    }
+
+}

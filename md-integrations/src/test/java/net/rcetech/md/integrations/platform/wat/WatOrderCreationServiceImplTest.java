@@ -1,0 +1,176 @@
+package net.rcetech.md.integrations.platform.wat;
+
+import net.rcetech.md.integrations.config.CallbackConfig;
+import net.rcetech.md.integrations.platform.CancelOrderRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.WatPropertiesImpl;
+import net.rcetech.md.integrations.service.ReceiptService;
+import net.rcetech.md.integrations.service.RequestService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.commons.enums.Merchant;
+
+import java.net.URI;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class WatOrderCreationServiceImplTest {
+
+    private static final String TEST_TOKEN = "wat_secret_token_12345";
+
+    @Mock
+    private RestClient restClient;
+
+    @Mock
+    private WatPropertiesImpl watProperties;
+
+    @Mock
+    private CallbackConfig callbackConfig;
+
+    @Mock
+    private RequestService requestService;
+
+    @Mock
+    private ReceiptService receiptService;
+
+    @Captor
+    private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
+
+    @Captor
+    private ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor;
+
+    @Captor
+    private ArgumentCaptor<Collection<String>> folderNamesCaptor;
+
+    private WatOrderCreationServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        service = new WatOrderCreationServiceImpl(restClient, watProperties, callbackConfig, receiptService);
+        ReflectionTestUtils.setField(service, "requestService", requestService);
+    }
+
+
+    @Test
+    void getMerchant_ShouldReturnWat() {
+        assertThat(service.getMerchant()).isEqualTo(Merchant.WAT);
+    }
+
+    @Test
+    void uriBuilder_ShouldBuildCorrectPath() {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
+
+        Function<UriBuilder, URI> builderFunction = service.uriBuilder(detailsRequest);
+        URI resultUri = builderFunction.apply(uriBuilder);
+
+        assertThat(resultUri.getPath()).isEqualTo("/orders");
+    }
+
+    @Test
+    void headers_ShouldAddRequiredHeaders() {
+        when(watProperties.token()).thenReturn(TEST_TOKEN);
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        service.headers(new OrderCreationRequest(), null).accept(httpHeaders);
+
+        assertThat(httpHeaders.get("Content-Type")).containsExactly("application/json");
+        assertThat(httpHeaders.get("Authorization")).containsExactly("Bearer " + TEST_TOKEN);
+    }
+
+    @Test
+    void buildResponse_ShouldMapResponseCorrectly() {
+        Response response = new Response();
+        Response.Data data = new Response.Data();
+        Response.Data.BankInfo bankInfo = new Response.Data.BankInfo();
+
+        bankInfo.setName("Sberbank");
+        data.setId("order-wat-777");
+        data.setRequisite("+79991234567");
+        data.setStatus(Status.AWAITING_PAYMENT);
+        data.setBank(bankInfo);
+        response.setData(data);
+
+        Optional<DetailsResponse> optionalDetailsResponse = service.buildResponse(response);
+
+        assertThat(optionalDetailsResponse).isPresent();
+        DetailsResponse detailsResponse = optionalDetailsResponse.get();
+
+        assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("order-wat-777");
+        assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("AWAITING_PAYMENT");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("+79991234567");
+        assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.WAT);
+    }
+
+
+    @Test
+    void makeCancelRequest_ShouldCallRequestServiceWithCorrectParams() {
+        String orderId = "order-cancel-999";
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderId(orderId);
+
+        when(watProperties.token()).thenReturn(TEST_TOKEN);
+
+        service.makeCancelRequest(cancelOrderRequest);
+
+        verify(requestService).request(
+                eq(restClient),
+                eq(HttpMethod.POST),
+                uriBuilderCaptor.capture(),
+                headersCaptor.capture(),
+                isNull()
+        );
+
+        UriBuilder uriBuilder = new DefaultUriBuilderFactory().builder();
+        URI generatedUri = uriBuilderCaptor.getValue().apply(uriBuilder);
+        assertThat(generatedUri.getPath()).isEqualTo("/orders/" + orderId + "/cancel");
+
+        HttpHeaders headers = new HttpHeaders();
+        headersCaptor.getValue().accept(headers);
+        assertThat(headers.get("Authorization")).containsExactly("Bearer " + TEST_TOKEN);
+    }
+
+    @Test
+    void deleteReceipt_FinalStatus_ShouldDeleteReceiptFromAllFamilyFolders() {
+        service.deleteReceipt("order-wat-777", Status.FINISHED.name());
+
+        verify(receiptService).deleteReceipt(eq("order-wat-777"), folderNamesCaptor.capture());
+        assertThat(folderNamesCaptor.getValue()).containsExactlyInAnyOrder("wat", "wat_pdf", "wat_sim");
+    }
+
+    @Test
+    void deleteReceipt_CanceledStatus_ShouldDeleteReceiptFromAllFamilyFolders() {
+        service.deleteReceipt("order-wat-777", Status.CANCELED.name());
+
+        verify(receiptService).deleteReceipt(eq("order-wat-777"), anyCollection());
+    }
+
+    @Test
+    void deleteReceipt_NonFinalStatus_ShouldNotDeleteReceipt() {
+        service.deleteReceipt("order-wat-777", Status.CLAIM.name());
+
+        verify(receiptService, never()).deleteReceipt(anyString(), anyString());
+        verify(receiptService, never()).deleteReceipt(anyString(), anyCollection());
+    }
+
+}

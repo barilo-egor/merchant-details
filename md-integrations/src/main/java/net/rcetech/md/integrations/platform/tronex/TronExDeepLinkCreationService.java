@@ -1,0 +1,43 @@
+package net.rcetech.md.integrations.platform.tronex;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.integrations.config.CallbackConfig;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.properties.TronExDLProperties;
+
+import java.util.Optional;
+
+@Service
+public class TronExDeepLinkCreationService extends TronExOrderCreationService {
+
+
+    protected TronExDeepLinkCreationService(@Qualifier("tronExRestClient") RestClient restClient,
+                                            TronExDLProperties tronExDlProperties, CallbackConfig callbackConfig) {
+        super(restClient, tronExDlProperties, callbackConfig);
+    }
+
+    @Override
+    protected Optional<DetailsResponse> buildResponse(Response response) {
+        Response.Data responseData = response.getPlatform();
+        DetailsResponse detailsResponse = new DetailsResponse();
+        detailsResponse.setMerchant(getMerchant());
+        detailsResponse.setMerchantOrderId(responseData.getId());
+        detailsResponse.setAmount(Integer.valueOf(responseData.getAmount()));
+        // Не возвращает статус в ответе
+        detailsResponse.setMerchantOrderStatus(Status.CREATED.name());
+
+        detailsResponse.setQr(tronExProperties.dlUrl() + "/" + responseData.getId());
+
+        return Optional.of(detailsResponse);
+    }
+
+
+    @Override
+    public Merchant getMerchant() {
+        return Merchant.TRON_EX_DEEP_LINK;
+    }
+
+}

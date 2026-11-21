@@ -1,0 +1,163 @@
+package net.rcetech.md.integrations.platform.prismapay;
+
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.integrations.config.JsonMappers;
+import net.rcetech.md.integrations.platform.CancelOrderRequest;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.PrismaPayProperties;
+import net.rcetech.md.integrations.service.ReceiptService;
+import net.rcetech.md.integrations.service.RequestService;
+import tools.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class PrismaPayOrderCreationServiceTest {
+
+    private final ObjectMapper objectMapper = JsonMappers.create();
+    @Mock
+    private PrismaPayProperties prismaPayProperties;
+    @InjectMocks
+    private PrismaPayOrderCreationService service;
+    @Mock
+    private RequestService requestService;
+    @Mock
+    private ReceiptService receiptService;
+    @Mock
+    private RestClient restClient;
+
+    private String originalUserDir;
+
+    @BeforeEach
+    void setUp() {
+        originalUserDir = System.getProperty("user.dir");
+        service = new PrismaPayOrderCreationService(restClient, prismaPayProperties, receiptService);
+        service.setRequestService(requestService);
+        service.setObjectMapper(objectMapper);
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.setProperty("user.dir", originalUserDir);
+    }
+
+    @Test
+    void shouldReturnCorrectUriFromBuilder() {
+        UriBuilder uriBuilder = mock(UriBuilder.class);
+        URI expectedUri = URI.create("/api/orders");
+        when(uriBuilder.path("/api/orders")).thenReturn(uriBuilder);
+        when(uriBuilder.build()).thenReturn(expectedUri);
+
+        Function<UriBuilder, URI> function = service.uriBuilder(mock(OrderCreationRequest.class));
+        URI actualUri = function.apply(uriBuilder);
+
+        assertThat(actualUri).isEqualTo(expectedUri);
+    }
+
+    @Test
+    void shouldAddCorrectHeaders() {
+        when(prismaPayProperties.token()).thenReturn("test-token");
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        Consumer<HttpHeaders> headersConsumer = service.headers(mock(OrderCreationRequest.class), "body");
+        headersConsumer.accept(httpHeaders);
+
+        assertThat(httpHeaders.getFirst("Content-Type")).isEqualTo("application/json");
+        assertThat(httpHeaders.getFirst("Authorization")).isEqualTo("Bearer test-token");
+    }
+
+    @Test
+    void shouldMapDetailsRequestToMerchantRequest() {
+        OrderCreationRequest detailsRequest = mock(OrderCreationRequest.class);
+        when(detailsRequest.getAmount()).thenReturn(100);
+        when(detailsRequest.getMethod()).thenReturn("CARD");
+
+        Request request = service.body(detailsRequest);
+
+        assertThat(request.getAmount()).isEqualTo(100);
+        assertThat(request.getPaymentMethod()).isNotNull();
+    }
+
+    @Test
+    void shouldBuildDetailsResponseFromMerchantResponse() {
+        Response response = new Response();
+        Response.Data data = new Response.Data();
+        data.setId("123");
+        data.setPaymentBank("Sberbank");
+        data.setPaymentDetails("4276xxx");
+        data.setStatus(Status.PENDING);
+        response.setData(data);
+
+        Optional<DetailsResponse> result = service.buildResponse(response);
+
+        assertThat(result).isPresent();
+        DetailsResponse detailsResponse = result.get();
+        assertThat(detailsResponse.getMerchantOrderId()).isEqualTo("123");
+        assertThat(detailsResponse.getBank()).isEqualTo("Sberbank");
+        assertThat(detailsResponse.getDetails()).isEqualTo("4276xxx");
+        assertThat(detailsResponse.getMerchant()).isEqualTo(Merchant.PRISMA_PAY);
+        assertThat(detailsResponse.getMerchantOrderStatus()).isEqualTo("PENDING");
+    }
+
+    @Test
+    void shouldCallRequestServiceOnCancel() {
+        CancelOrderRequest cancelRequest = mock(CancelOrderRequest.class);
+        service.makeCancelRequest(cancelRequest);
+
+        verify(requestService).request(eq(restClient), eq(HttpMethod.POST), any(), any(), isNull());
+    }
+
+    @Test
+    void shouldSaveReceiptAndSendJsonLink() {
+        String orderId = "777";
+        byte[] fileContent = "PDF_BYTES".getBytes();
+        String fileName = "receipt.pdf";
+        String stubbedLink = "http://localhost:8080/receipts/prisma/receipt.pdf";
+
+        when(receiptService.saveReceipt(fileContent, fileName, StringUtils.lowerCase(Merchant.PRISMA_PAY.name()))).thenReturn(stubbedLink);
+        service.sendReceipt(orderId, fileContent, fileName);
+
+        String expectedJson = "{\"link\":\"" + stubbedLink + "\"}";
+        verify(requestService).request(
+                eq(restClient),
+                eq(HttpMethod.POST),
+                any(),
+                any(),
+                eq(expectedJson)
+        );
+        verify(receiptService).saveReceipt(fileContent, fileName, StringUtils.lowerCase(Merchant.PRISMA_PAY.name()));
+    }
+
+    @Test
+    void getMerchantShouldReturnPrismaPay() {
+        assertEquals(Merchant.PRISMA_PAY, service.getMerchant());
+    }
+
+    @Test
+    void parseCallbackShouldIgnoreWhenStatusIsNoRequisites() {
+        String callbackJson = "{\"id\":\"123\",\"status\":\"NO_REQUISITES\"}";
+
+        assertEquals(Optional.empty(), service.parseCallback(callbackJson));
+    }
+
+}

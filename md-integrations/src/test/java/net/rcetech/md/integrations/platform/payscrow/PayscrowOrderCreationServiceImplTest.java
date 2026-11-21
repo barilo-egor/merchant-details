@@ -1,0 +1,320 @@
+package net.rcetech.md.integrations.platform.payscrow;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import tgb.cryptoexchange.commons.enums.Merchant;
+import net.rcetech.md.integrations.platform.DetailsResponse;
+import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.properties.PayscrowPropertiesImpl;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class PayscrowOrderCreationServiceImplTest {
+
+    @Mock
+    private PayscrowPropertiesImpl payscrowProperties;
+
+    @InjectMocks
+    private PayscrowOrderCreationServiceImpl payscrowOrderCreationService;
+
+    @Test
+    void getMerchantShouldReturnPayscrow() {
+        assertEquals(Merchant.PAYSCROW, payscrowOrderCreationService.getMerchant());
+    }
+
+    @Test
+    void uriBuilderShouldAddPath() {
+        UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        assertEquals(
+                "/api/v1/order/",
+                payscrowOrderCreationService.uriBuilder(null).apply(uriBuilder).getPath()
+        );
+    }
+
+    @ValueSource(strings = {
+            "PzeiDYNh1RTRD5d", "L76sF2r7uL1ClNF"
+    })
+    @ParameterizedTest
+    void headersShouldAddRequiredHeaders(String key) {
+        when(payscrowProperties.key()).thenReturn(key);
+        HttpHeaders headers = new HttpHeaders();
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setAmount(9000);
+        payscrowOrderCreationService.headers(detailsRequest, null).accept(headers);
+        assertAll(
+                () -> assertEquals("application/json", headers.getFirst("Content-Type")),
+                () -> assertEquals(key, headers.getFirst("X-API-Key"))
+        );
+    }
+
+    @CsvSource(textBlock = """
+            5220,BANK_CARD
+            2552,SBP
+            """)
+    @ParameterizedTest
+    void bodyShouldBuildRequestObject(Integer amount, Method method) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setAmount(amount);
+        detailsRequest.setMethod(method.name());
+        Request request = payscrowOrderCreationService.body(detailsRequest);
+        assertAll(
+                () -> assertEquals(amount, request.getAmount()),
+                () -> assertEquals(method, request.getPaymentMethod()),
+                () -> assertDoesNotThrow(() -> UUID.fromString(request.getClientOrderId()))
+        );
+    }
+
+    @CsvSource(nullValues = "null", textBlock = """
+            8ab90c56-4a96-4f01-be9a-170a9e8f9d68,UNPAID,Альфа,79877892387,5430.26
+            c1098ddc-ef6c-48c0-bd27-cd0f08abffa4,COMPLETED,SBER,6666555544443333,5360.00
+            """)
+    @ParameterizedTest
+    void buildResponseShouldBuildResponseObject(String id, Status status, String methodName, String holderAccount, Double amount) {
+        Response response = new Response();
+        response.setId(id);
+        response.setStatus(status);
+        response.setMethodName(methodName);
+        response.setHolderAccount(holderAccount);
+        response.setAmount(amount);
+
+        Optional<DetailsResponse> detailsResponse = payscrowOrderCreationService.buildResponse(response);
+        assertTrue(detailsResponse.isPresent());
+        DetailsResponse actual = detailsResponse.get();
+        assertAll(
+                () -> assertEquals(id, actual.getMerchantOrderId()),
+                () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
+                () -> assertEquals(holderAccount, actual.getDetails()),
+                () -> assertEquals(methodName, actual.getBank()),
+                () -> assertEquals(Merchant.PAYSCROW, actual.getMerchant()),
+                () -> assertEquals(amount.intValue(), actual.getAmount())
+        );
+    }
+
+    @Test
+    void buildResponseShouldBuildResponseObjectWithoutAmountIfNoAmount() {
+        Response response = new Response();
+        response.setId("id");
+        response.setStatus(Status.CANCELED_BY_SERVICE);
+        response.setMethodName(Method.ALFA.name());
+        response.setHolderAccount("holderAccount");
+
+        Optional<DetailsResponse> detailsResponse = payscrowOrderCreationService.buildResponse(response);
+        assertTrue(detailsResponse.isPresent());
+        DetailsResponse actual = detailsResponse.get();
+        assertNull(actual.getAmount());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "No available traders that match order requirements. Please, try again later or change order parameters.",
+            "Amount for the chosen payment method doesn't meet limits.",
+            "Internal server error"
+    })
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfNoTraderMessageOrAmountError(String messageTest) throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asString()).thenReturn(messageTest);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertTrue(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotTraderMessage() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asString()).thenReturn("Some fatal error");
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoMessage() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(false);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfSuccessTrue() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(true);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNoSuccess() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(false);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfJsonProcessingExceptionWasThrown() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        HttpServerErrorException.InternalServerError internalServerError =
+                Mockito.mock(HttpServerErrorException.InternalServerError.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnTrueIfConflictAndAmountError() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asString()).thenReturn("Expectation Failed. Amount for the chosen payment method doesn't " +
+                "meet limits. Check payment method limits and try again.");
+        HttpClientErrorException.Conflict conflict =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
+        when(conflict.getResponseBodyAsString()).thenReturn("");
+        assertTrue(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfConflictAndNotAmountError() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        JsonNode response = Mockito.mock(JsonNode.class);
+        when(objectMapper.readTree(anyString())).thenReturn(response);
+        when(response.has("success")).thenReturn(true);
+        JsonNode success = Mockito.mock(JsonNode.class);
+        when(response.get("success")).thenReturn(success);
+        when(success.asBoolean()).thenReturn(false);
+        when(response.has("message")).thenReturn(true);
+        JsonNode message = Mockito.mock(JsonNode.class);
+        when(response.get("message")).thenReturn(message);
+        when(message.asString()).thenReturn("Another not amount error.");
+        HttpClientErrorException.Conflict conflict =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
+        when(conflict.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(conflict));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfConflictAndJsonProcessingWasThrown() throws JacksonException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        payscrowOrderCreationService.setObjectMapper(objectMapper);
+        when(objectMapper.readTree(anyString())).thenThrow(JacksonException.class);
+        HttpClientErrorException.Conflict internalServerError =
+                Mockito.mock(HttpClientErrorException.Conflict.class);
+        when(internalServerError.getResponseBodyAsString()).thenReturn("");
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate().test(internalServerError));
+    }
+
+    @Test
+    void isNoDetailsExceptionPredicateShouldReturnFalseIfNotInternalServerError() {
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(HttpClientErrorException.UnprocessableEntity.class)));
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(HttpServerErrorException.BadGateway.class)));
+        assertFalse(payscrowOrderCreationService.isNoDetailsExceptionPredicate()
+                .test(Mockito.mock(RuntimeException.class)));
+    }
+
+    @ValueSource(strings = {
+            "SBP", "BANK_CARD", "TRANS_SBP"
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnTrueIfMethodIsNotTriangle(Method method) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate(method.name()).test(detailsRequest));
+    }
+
+    @ValueSource(ints = {
+            1, 5235, 9999
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnTrueIfMethodIsTriangleAndAmountLessThan10000(Integer amount) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setAmount(amount);
+        assertTrue(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
+    }
+
+    @ValueSource(ints = {
+            10000, 10001, 962636
+    })
+    @ParameterizedTest
+    void isValidRequestPredicateShouldReturnFalseIfMethodIsTriangleAndAmountEqualOrMoreThan10000(Integer amount) {
+        OrderCreationRequest detailsRequest = new OrderCreationRequest();
+        detailsRequest.setAmount(amount);
+        assertFalse(payscrowOrderCreationService.isValidRequestPredicate(Method.TRIANGLE.name()).test(detailsRequest));
+    }
+}

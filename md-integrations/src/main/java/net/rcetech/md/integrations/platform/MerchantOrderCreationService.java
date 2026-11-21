@@ -1,0 +1,287 @@
+package net.rcetech.md.integrations.platform;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.ResourceAccessException;
+import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
+import net.rcetech.md.meta.exception.ServiceUnavailableException;
+import net.rcetech.md.integrations.service.RequestService;
+import net.rcetech.md.integrations.util.EnumUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpTimeoutException;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+/**
+ * Сервис для выполнения запросов на создание ордера мерчантам.
+ *
+ * @param <T> тип ответа от мерчанта
+ */
+@Slf4j
+public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse, P extends MerchantCallback> implements MerchantService {
+
+    protected final RestClient restClient;
+
+    private final Class<T> responseType;
+
+    @Getter
+    private final Class<P> callbackType;
+
+    protected ObjectMapper objectMapper;
+
+    protected RequestService requestService;
+
+    protected MerchantOrderCreationService(RestClient restClient, Class<T> responseType, Class<P> callbackType) {
+        this.restClient = restClient;
+        this.responseType = responseType;
+        this.callbackType = callbackType;
+    }
+
+    @Autowired
+    public void setRequestService(RequestService requestService) {
+        this.requestService = requestService;
+    }
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    public Optional<DetailsResponse> createOrder(OrderCreationRequest request) {
+        log.debug("Запрос на создание ордера мерчанта {} метода {} по сделке {}.", getMerchant().name(), request.getMethod(), request.getId());
+        if (!isValidRequestPredicate(request.getMethod()).test(request)) {
+            log.debug("Запрос невалиден, ордер создан не будет. Запрос: {}, метод {}", request, request.getMethod());
+            return Optional.empty();
+        }
+        String body = mapBody(request);
+        Optional<String> maybeRawResponse;
+        try {
+            maybeRawResponse = makeRequest(request, body);
+        } catch (Exception e) {
+            if (isNoDetailsExceptionPredicate().test(e)) {
+                logNoDetails(request.getRequestId(), request.getMethod());
+                return Optional.empty();
+            }
+            long currentTime = System.currentTimeMillis();
+            handleRequestException(e, currentTime, request, body);
+            throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
+        }
+        if (maybeRawResponse.isEmpty()) {
+            logNoDetails(request.getRequestId(), request.getMethod());
+            return Optional.empty();
+        }
+        String rawResponse = maybeRawResponse.get();
+        if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
+            logNoDetails(request.getRequestId(), request.getMethod());
+            return Optional.empty();
+        }
+        T response = mapResponse(rawResponse, body);
+        validateResponse(response, rawResponse, body);
+        if (!response.hasDetails()) {
+            logNoDetails(request.getRequestId(), request.getMethod());
+            return Optional.empty();
+        }
+        Optional<DetailsResponse> maybeResponse;
+        try {
+            maybeResponse = buildResponse(response);
+        } catch (Exception e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при формировании ответа: {}", currentTime, e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while forming response: " + currentTime + ".", e);
+        }
+        if (maybeResponse.isPresent()) {
+            log.debug("Реквизиты для id={} были найдены: {}", request.getRequestId(), maybeResponse.get());
+        } else {
+            logNoDetails(request.getRequestId(), request.getMethod());
+        }
+        return maybeResponse;
+    }
+
+    private void logNoDetails(String requestId, String method) {
+        log.debug("Реквизиты для запроса requestId={} у мерчанта {}, метод {} получены не были.", requestId, getMerchant().name(), method);
+    }
+
+    private String mapBody(OrderCreationRequest request) {
+        try {
+            return objectMapper.writeValueAsString(body(request));
+        } catch (JacksonException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ошибка при маппинге тела запроса(request = {}): {}", currentTime, request, e.getMessage(), e);
+            throw new ServiceUnavailableException("Error occurred while mapping body: " + currentTime + ".", e);
+        }
+    }
+
+    protected Optional<String> makeRequest(OrderCreationRequest request, String body) {
+        try {
+            return Optional.ofNullable(requestService.request(
+                    restClient, method(), uriBuilder(request),
+                    headers(request, body), body
+            ));
+        } catch (ResourceAccessException e) {
+            if (e.getCause() instanceof HttpTimeoutException && !(e.getCause() instanceof HttpConnectTimeoutException)) {
+                return Optional.empty();
+            }
+            throw e;
+        }
+    }
+
+    private void handleRequestException(Exception e, long currentTime, OrderCreationRequest request, String body) {
+
+        if (e instanceof RestClientResponseException restClientResponseException) {
+            String errorBody = restClientResponseException.getResponseBodyAsString();
+            log.error("{} Мерчант {} ответил ошибкой на запрос по сделке {}, метод {}: {}. Тело запроса: {}. Тело ответа: {}",
+                    currentTime, getMerchant().name(), request.getId(), request.getMethod(),
+                    e.getMessage(), body, errorBody);
+        } else if (e instanceof ResourceAccessException) {
+            log.error("{} Ошибка соединения с мерчантом {} по сделке {}, метод {}: {}. Тело запроса: {}",
+                    currentTime, getMerchant().name(), request.getId(), request.getMethod(),
+                    e.getMessage(), body);
+        } else {
+            log.error("{} Ошибка при попытке выполнения запроса к мерчанту {} (detailsRequest={}, body={}): {}",
+                    currentTime, getMerchant().name(), request.toString(), body, e.getMessage(), e);
+        }
+    }
+
+    private T mapResponse(String rawResponse, String requestBody) {
+        try {
+            return objectMapper.readValue(rawResponse, responseType);
+        } catch (JacksonException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Не удалось разобрать ответ мерчанта {}: {}. Тело запроса: {}. Тело ответа: {}",
+                    currentTime, getMerchant().name(), e.getOriginalMessage(), requestBody, rawResponse);
+            throw new ServiceUnavailableException("Error occurred while mapping merchant response: " + currentTime + ".", e);
+        }
+    }
+
+    private void validateResponse(T response, String rawResponse, String requestBody) {
+        ValidationResult validationResult = response.validate();
+        if (!validationResult.isValid()) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Ответ мерчанта {} невалиден: {}. Тело запроса: {}. Тело ответа: {}",
+                    currentTime, getMerchant().name(), validationResult.errorsToString(), requestBody, rawResponse);
+            throw new ServiceUnavailableException("Mapped response is invalid: " + currentTime);
+        }
+    }
+
+    protected Predicate<OrderCreationRequest> isValidRequestPredicate(String merchantMethod) {
+        return request -> true;
+    }
+
+    protected HttpMethod method() {
+        return HttpMethod.POST;
+    }
+
+    protected abstract Function<UriBuilder, URI> uriBuilder(OrderCreationRequest request);
+
+    protected abstract Consumer<HttpHeaders> headers(OrderCreationRequest request, String body);
+
+    protected abstract Object body(OrderCreationRequest request);
+
+    protected abstract Optional<DetailsResponse> buildResponse(T response);
+
+    protected Predicate<Exception> isNoDetailsExceptionPredicate() {
+        return e -> false;
+    }
+
+    protected Predicate<String> hasResponseNoDetailsErrorPredicate() {
+        return s -> false;
+    }
+
+    protected Predicate<P> isIgnoreCallbackPredicate() {
+        return MerchantCallback::isIgnored;
+    }
+
+    protected <E extends Enum<E>> E parseMethod(String value, Class<E> methodType) {
+        return EnumUtils.valueOf(methodType, value,
+                () -> new MerchantMethodNotFoundException("Method \"" + value + "\" for merchant "
+                        + getMerchant().name() + " not found."));
+    }
+
+    @Override
+    public Optional<CallbackStatus> parseCallback(String callbackBody) {
+        log.debug("Принят callback от мерчанта {}: {}", getMerchant().name(), callbackBody);
+        if (callbackBody.isBlank() || callbackBody.equals("{}")) {
+            return Optional.empty();
+        }
+        P callback;
+        try {
+            callback = objectMapper.readValue(callbackBody, callbackType);
+        } catch (JacksonException e) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Не удалось разобрать callback мерчанта {}: {}. Тело callback: {}",
+                    currentTime, getMerchant().name(), e.getOriginalMessage(), callbackBody);
+            throw new ServiceUnavailableException("Error occurred while mapping callback: " + currentTime + ".", e);
+        }
+        if (isIgnoreCallbackPredicate().test(callback)) {
+            log.debug("Callback мерчанта {} был проигнорирован: {}", getMerchant().name(), callbackBody);
+            return Optional.empty();
+        }
+        Optional<String> maybeMerchantOrderId = callback.getMerchantOrderId();
+        Optional<String> maybeStatus = callback.getStatusName();
+        Optional<String> maybeStatusDescription = callback.getStatusDescription();
+        if (maybeMerchantOrderId.isEmpty() || maybeStatus.isEmpty() || maybeStatusDescription.isEmpty()) {
+            long currentTime = System.currentTimeMillis();
+            log.error("{} Невалидный объект callback мерчанта {}: id is present {}, status is present {}, " +
+                            "status description is present {}, body {}", currentTime, getMerchant().name(), maybeMerchantOrderId.isPresent(),
+                    maybeStatus.isPresent(), maybeStatusDescription.isPresent(), callbackBody);
+            throw new ServiceUnavailableException("Callback status and id must not be null: " + currentTime);
+        }
+        return Optional.of(new CallbackStatus(maybeMerchantOrderId.get(), maybeStatus.get(), maybeStatusDescription.get()));
+    }
+
+    @Override
+    @SuppressWarnings("unused")
+    public void deleteReceipt(String orderId, String orderStatus) {
+        log.trace("Реализация удаления чека для ордера {} мерчанту {} отсутствует.", orderId, getMerchant().name());
+    }
+
+    public Optional<String> fetchCallbackDataByTransactionId(String transactionId) {
+        try {
+            return makeFetchCallbackData(transactionId);
+        } catch (Exception e) {
+            log.error("Ошибка при попытке получении информации кб (transactionId={}): {}", transactionId, e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    protected Optional<String> makeFetchCallbackData(String transactionId) {
+        log.trace("Реализация получения информации кб для мерчанта {} отсутствует.", getMerchant().name());
+        return Optional.empty();
+    }
+
+    public void cancelOrder(CancelOrderRequest cancelOrderRequest) {
+        try {
+            makeCancelRequest(cancelOrderRequest);
+        } catch (Exception e) {
+            log.error("Ошибка при попытке отмены ордера (cancelOrderRequest={}): {}", cancelOrderRequest, e.getMessage(), e);
+        }
+    }
+
+    protected void makeCancelRequest(CancelOrderRequest cancelOrderRequest) {
+        log.trace("Реализация отмены ордера для мерчанта {} отсутствует. Ордер {} не будет отменен.",
+                getMerchant().name(), cancelOrderRequest.getOrderId());
+    }
+
+    public void sendReceipt(String orderId, MultipartFile multipartFile) {
+        log.trace("Реализация отправки чека мерчанту {} отсутствует. Чек для ордера {} не будет отправлен.",
+                getMerchant().name(), orderId);
+    }
+
+    public void sendReceipt(String orderId, byte[] fileContent, String fileName) {
+        log.trace("Реализация отправки чека мерчанту {} отсутствует. Чек для ордера {} не будет отправлен.",
+                getMerchant().name(), orderId);
+    }
+}
