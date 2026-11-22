@@ -2,6 +2,7 @@ package net.rcetech.md.integrations.platform.paylee;
 
 import com.macasaet.fernet.Key;
 import com.macasaet.fernet.Token;
+import net.rcetech.md.integrations.properties.PayLeePropertiesImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.properties.PayLeePropertiesImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,7 +30,7 @@ class PayLeeCallbackDecryptServiceTest {
     @Mock
     private PayLeePropertiesImpl payLeeProperties;
     @InjectMocks
-    private PayLeeCallbackDecryptService decryptService;
+    private PayLeeCallbackDecryptServiceImpl decryptService;
 
     @BeforeEach
     void setUp() {

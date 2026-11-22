@@ -4,26 +4,18 @@ import com.macasaet.fernet.Key;
 import com.macasaet.fernet.StringValidator;
 import com.macasaet.fernet.Token;
 import com.macasaet.fernet.Validator;
-import org.springframework.stereotype.Service;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.CallbackDecryptService;
-import net.rcetech.md.integrations.properties.PayLeePropertiesImpl;
+import net.rcetech.md.integrations.properties.PayLeeProperties;
 
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
-@Service
-public class PayLeeCallbackDecryptService implements CallbackDecryptService {
+public abstract class PayLeeCallbackDecryptService implements CallbackDecryptService {
 
-    private final PayLeePropertiesImpl payLeeProperties;
+    private final PayLeeProperties payLeeProperties;
 
-    public PayLeeCallbackDecryptService(PayLeePropertiesImpl payLeeProperties) {
+    protected PayLeeCallbackDecryptService(PayLeeProperties payLeeProperties) {
         this.payLeeProperties = payLeeProperties;
-    }
-
-    @Override
-    public Merchant getMerchant() {
-        return Merchant.PAY_LEE;
     }
 
     @SuppressWarnings("java:S1604")
