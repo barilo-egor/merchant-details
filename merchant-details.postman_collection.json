@@ -571,7 +571,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"amount\": \"2010\",\r\n    \"currency\": \"RUB\",\r\n    \"phone\": \"+79991234567\",\r\n    \"metadata\": {\"order_id\": \"ORDER-1\"},\r\n    \"return_url\": \"https://merchant.example/success\"\r\n}",
+                  "raw": "{\r\n    \"amount\": \"2010\",\r\n    \"currency\": \"RUB\",\r\n    \"phone\": \"+79991234567\",\r\n    \"client_id\": 694999131,\r\n    \"metadata\": {\"order_id\": \"ORDER-1\"},\r\n    \"return_url\": \"https://merchant.example/success\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"

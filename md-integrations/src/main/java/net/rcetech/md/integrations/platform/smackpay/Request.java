@@ -13,6 +13,9 @@ public class Request {
 
     private String phone;
 
+    @JsonProperty("client_id")
+    private String clientId;
+
     private Metadata metadata;
 
     @JsonProperty("currency")
