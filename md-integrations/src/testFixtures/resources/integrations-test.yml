@@ -52,16 +52,23 @@ onyx-pay:
 extasy-pay:
   url: "extasy-pay-url"
   token: "extasy-pay-token"
-  internal-qr-token: "extasy-pay-internal-qr-token"
-extasy-pay-qr:
-  url: "extasy-pay-qr-url"
-  token: "extasy-pay-qr-token"
-extasy-pay-receipt:
-  url: "extasy-pay-receipt-url"
-  token: "extasy-pay-receipt-token"
-extasy-pay-receipt-triple-plus:
-  url: "extasy-pay-receipt-triple-plus-url"
-  token: "extasy-pay-receipt-triple-plus-token"
+  key: "extasy-pay-key"
+  secret: "extasy-pay-secret"
+extasy-pay-pdf:
+  url: "extasy-pay-pdf-url"
+  token: "extasy-pay-pdf-token"
+  key: "extasy-pay-pdf-key"
+  secret: "extasy-pay-pdf-secret"
+extasy-pay-qr-nspk:
+  url: "extasy-pay-qr-nspk-url"
+  token: "extasy-pay-qr-nspk-token"
+  key: "extasy-pay-qr-nspk-key"
+  secret: "extasy-pay-qr-nspk-secret"
+extasy-pay-qr-viet:
+  url: "extasy-pay-qr-viet-url"
+  token: "extasy-pay-qr-viet-token"
+  key: "extasy-pay-qr-viet-key"
+  secret: "extasy-pay-qr-viet-secret"
 pay-lee:
   url: "pay-lee-url"
   token: "pay-lee-token"

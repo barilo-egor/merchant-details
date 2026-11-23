@@ -54,20 +54,20 @@ public enum MerchantConstants {
             Method.values()
     ),
     EXTASY_PAY(
-            net.rcetech.md.integrations.platform.paybox.Status.values(),
-            net.rcetech.md.integrations.platform.paybox.Method.values()
+            Status.values(),
+            new Method[]{Method.SBP, Method.TO_CARD}
     ),
-    EXTASY_PAY_QR(
-            net.rcetech.md.integrations.platform.paybox.Status.values(),
-            net.rcetech.md.integrations.platform.paybox.Method.values()
+    EXTASY_PAY_PDF(
+            Status.values(),
+            new Method[]{Method.SBP, Method.TO_CARD}
     ),
-    EXTASY_PAY_RECEIPT(
-            net.rcetech.md.integrations.platform.paybox.Status.values(),
-            net.rcetech.md.integrations.platform.paybox.Method.values()
+    EXTASY_PAY_QR_NSPK(
+            Status.values(),
+            new Method[]{Method.SBP_QR}
     ),
-    EXTASY_PAY_RECEIPT_3(
-            net.rcetech.md.integrations.platform.paybox.Status.values(),
-            net.rcetech.md.integrations.platform.paybox.Method.values()
+    EXTASY_PAY_QR_VIET(
+            Status.values(),
+            new Method[]{Method.VIET_QR}
     ),
     PAY_LEE(
             net.rcetech.md.integrations.platform.paylee.Status.values(),

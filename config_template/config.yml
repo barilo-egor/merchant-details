@@ -54,16 +54,23 @@ onyx-pay:
 extasy-pay:
   url: ""
   token: ""
-  internal-qr-token: ""
-extasy-pay-qr:
+  key: ""
+  secret: ""
+extasy-pay-pdf:
   url: ""
   token: ""
-extasy-pay-receipt:
+  key: ""
+  secret: ""
+extasy-pay-qr-nspk:
   url: ""
   token: ""
-extasy-pay-receipt-triple-plus:
+  key: ""
+  secret: ""
+extasy-pay-qr-viet:
   url: ""
   token: ""
+  key: ""
+  secret: ""
 pay-lee:
   url: ""
   token: ""

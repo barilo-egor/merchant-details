@@ -85,18 +85,18 @@ public class RestClientsConfig {
     }
 
     @Bean
-    public RestClient extasyPayReceiptRestClient(ExtasyPayReceiptProperties extasyPayReceiptProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayReceiptProperties.url()).build();
+    public RestClient extasyPayPdfRestClient(ExtasyPayPdfProperties extasyPayPdfProperties) {
+        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayPdfProperties.url()).build();
     }
 
     @Bean
-    public RestClient extasyPayReceiptTriplePlusRestClient(ExtasyPayReceiptTriplePlusProperties extasyPayReceiptTriplePlusProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayReceiptTriplePlusProperties.url()).build();
+    public RestClient extasyPayQrNspkRestClient(ExtasyPayQrNspkProperties extasyPayQrNspkProperties) {
+        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayQrNspkProperties.url()).build();
     }
 
     @Bean
-    public RestClient extasyPayQRRestClient(ExtasyPayQRProperties extasyPayQRProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayQRProperties.url()).build();
+    public RestClient extasyPayQrVietRestClient(ExtasyPayQrVietProperties extasyPayQrVietProperties) {
+        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayQrVietProperties.url()).build();
     }
 
     @Bean

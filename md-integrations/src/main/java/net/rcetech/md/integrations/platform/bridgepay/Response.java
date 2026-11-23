@@ -38,7 +38,7 @@ public class Response implements MerchantDetailsResponse {
         if (Objects.isNull(deal.getPaymentMethod())) {
             result.notNull("deal.paymentMethod");
         }
-        if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(deal.getPaymentOption()) && Objects.isNull(deal.getQrCodeLink())) {
+        if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR, Method.VIET_QR).contains(deal.getPaymentOption()) && Objects.isNull(deal.getQrCodeLink())) {
             result.notNull("deal.qrCodeLink");
             return;
         }
@@ -58,7 +58,7 @@ public class Response implements MerchantDetailsResponse {
 
     private boolean hasQrCodeLinkIfSPBQR(DealDTO dealDTO) {
         if (Objects.nonNull(dealDTO)) {
-            if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(dealDTO.getPaymentOption()) && Objects.nonNull(dealDTO.getQrCodeLink())) {
+            if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR, Method.VIET_QR).contains(dealDTO.getPaymentOption()) && Objects.nonNull(dealDTO.getQrCodeLink())) {
                 return !dealDTO.getQrCodeLink().endsWith("qript.ru") && dealDTO.getQrCodeLink().startsWith("https://");
             }
         }

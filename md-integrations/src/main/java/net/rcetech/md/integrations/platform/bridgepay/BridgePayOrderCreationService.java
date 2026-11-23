@@ -1,25 +1,25 @@
 package net.rcetech.md.integrations.platform.bridgepay;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import net.rcetech.md.integrations.util.MultipartFormBuilder;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.HttpClientErrorException;
 import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
-import net.rcetech.md.meta.exception.ServiceUnavailableException;
-import net.rcetech.md.meta.exception.SignatureCreationException;
 import net.rcetech.md.integrations.properties.BridgePayProperties;
 import net.rcetech.md.integrations.service.SignatureService;
 import net.rcetech.md.integrations.service.SleepingService;
+import net.rcetech.md.integrations.util.MultipartFormBuilder;
+import net.rcetech.md.meta.exception.ServiceUnavailableException;
+import net.rcetech.md.meta.exception.SignatureCreationException;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
@@ -118,7 +118,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     protected void fillRequisites(DetailsResponse requisiteVO, Response response) {
         DealDTO dealDTO = response.getDeals().getFirst();
-        if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR).contains(dealDTO.getPaymentOption())) {
+        if (Arrays.asList(Method.SBP_QR, Method.MANUAL_SBP_QR, Method.VIET_QR).contains(dealDTO.getPaymentOption())) {
             requisiteVO.setQr(dealDTO.getQrCodeLink());
         } else {
             requisiteVO.setDetails(dealDTO.getRequisites().getRequisites());

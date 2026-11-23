@@ -951,6 +951,311 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "ExtasyPay",
+          "item": [
+            {
+              "name": "СБП | Карта",
+              "item": [
+                {
+                  "name": "Создание ордера (СБП)",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Identity",
+                        "value": "{{extasy-pay-key}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "X-Signature",
+                        "value": "{{extasy-pay-sign}} (Base64(HMAC-SHA1(POST+URL+BODY, extasy-pay-secret)))",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"type\": \"in\",\r\n    \"amount\": \"1000\",\r\n    \"currency\": \"RUB\",\r\n    \"notificationUrl\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=EXTASY_PAY&secret={{rce_secret}}\",\r\n    \"notificationToken\": \"{{extasy-pay-token}}\",\r\n    \"internalId\": \"00001\",\r\n    \"paymentOption\": \"SBP\",\r\n    \"startDeal\": true\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{extasy-pay-url}}/api/merchant/invoices",
+                      "host": [
+                        "{{extasy-pay-url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "merchant",
+                        "invoices"
+                      ]
+                    }
+                  },
+                  "response": [],
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "const secret = pm.variables.get('extasy-pay-secret');",
+                          "const url = pm.variables.replaceIn(pm.request.url.toString());",
+                          "const body = request.body && request.body.raw ? pm.variables.replaceIn(request.body.raw) : '';",
+                          "const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1('POST' + url + body, secret));",
+                          "pm.request.headers.upsert({ key: 'X-Signature', value: signature });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Создание ордера (Карта)",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Identity",
+                        "value": "{{extasy-pay-key}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "X-Signature",
+                        "value": "{{extasy-pay-sign}} (Base64(HMAC-SHA1(POST+URL+BODY, extasy-pay-secret)))",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"type\": \"in\",\r\n    \"amount\": \"1000\",\r\n    \"currency\": \"RUB\",\r\n    \"notificationUrl\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=EXTASY_PAY&secret={{rce_secret}}\",\r\n    \"notificationToken\": \"{{extasy-pay-token}}\",\r\n    \"internalId\": \"00001\",\r\n    \"paymentOption\": \"TO_CARD\",\r\n    \"startDeal\": true\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{extasy-pay-url}}/api/merchant/invoices",
+                      "host": [
+                        "{{extasy-pay-url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "merchant",
+                        "invoices"
+                      ]
+                    }
+                  },
+                  "response": [],
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "const secret = pm.variables.get('extasy-pay-secret');",
+                          "const url = pm.variables.replaceIn(pm.request.url.toString());",
+                          "const body = request.body && request.body.raw ? pm.variables.replaceIn(request.body.raw) : '';",
+                          "const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1('POST' + url + body, secret));",
+                          "pm.request.headers.upsert({ key: 'X-Signature', value: signature });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "PDF чек",
+              "item": [
+                {
+                  "name": "Создание ордера (PDF чек)",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Identity",
+                        "value": "{{extasy-pay-pdf-key}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "X-Signature",
+                        "value": "{{extasy-pay-pdf-sign}} (Base64(HMAC-SHA1(POST+URL+BODY, extasy-pay-pdf-secret)))",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"type\": \"in\",\r\n    \"amount\": \"1000\",\r\n    \"currency\": \"RUB\",\r\n    \"notificationUrl\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=EXTASY_PAY_PDF&secret={{rce_secret}}\",\r\n    \"notificationToken\": \"{{extasy-pay-pdf-token}}\",\r\n    \"internalId\": \"00001\",\r\n    \"paymentOption\": \"SBP\",\r\n    \"startDeal\": true\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{extasy-pay-pdf-url}}/api/merchant/invoices",
+                      "host": [
+                        "{{extasy-pay-pdf-url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "merchant",
+                        "invoices"
+                      ]
+                    }
+                  },
+                  "response": [],
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "const secret = pm.variables.get('extasy-pay-pdf-secret');",
+                          "const url = pm.variables.replaceIn(pm.request.url.toString());",
+                          "const body = request.body && request.body.raw ? pm.variables.replaceIn(request.body.raw) : '';",
+                          "const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1('POST' + url + body, secret));",
+                          "pm.request.headers.upsert({ key: 'X-Signature', value: signature });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "QR NSPK",
+              "item": [
+                {
+                  "name": "Создание ордера (QR NSPK)",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Identity",
+                        "value": "{{extasy-pay-qr-nspk-key}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "X-Signature",
+                        "value": "{{extasy-pay-qr-nspk-sign}} (Base64(HMAC-SHA1(POST+URL+BODY, extasy-pay-qr-nspk-secret)))",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"type\": \"in\",\r\n    \"amount\": \"1000\",\r\n    \"currency\": \"RUB\",\r\n    \"notificationUrl\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=EXTASY_PAY_QR_NSPK&secret={{rce_secret}}\",\r\n    \"notificationToken\": \"{{extasy-pay-qr-nspk-token}}\",\r\n    \"internalId\": \"00001\",\r\n    \"paymentOption\": \"SBP_QR\",\r\n    \"startDeal\": true\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{extasy-pay-qr-nspk-url}}/api/merchant/invoices",
+                      "host": [
+                        "{{extasy-pay-qr-nspk-url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "merchant",
+                        "invoices"
+                      ]
+                    }
+                  },
+                  "response": [],
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "const secret = pm.variables.get('extasy-pay-qr-nspk-secret');",
+                          "const url = pm.variables.replaceIn(pm.request.url.toString());",
+                          "const body = request.body && request.body.raw ? pm.variables.replaceIn(request.body.raw) : '';",
+                          "const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1('POST' + url + body, secret));",
+                          "pm.request.headers.upsert({ key: 'X-Signature', value: signature });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "QR Vietnam",
+              "item": [
+                {
+                  "name": "Создание ордера (QR Vietnam)",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "X-Identity",
+                        "value": "{{extasy-pay-qr-viet-key}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "X-Signature",
+                        "value": "{{extasy-pay-qr-viet-sign}} (Base64(HMAC-SHA1(POST+URL+BODY, extasy-pay-qr-viet-secret)))",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"type\": \"in\",\r\n    \"amount\": \"1000\",\r\n    \"currency\": \"RUB\",\r\n    \"notificationUrl\": \"https://gateway.dev.paysendmmm.online/merchant-details/callback?merchant=EXTASY_PAY_QR_VIET&secret={{rce_secret}}\",\r\n    \"notificationToken\": \"{{extasy-pay-qr-viet-token}}\",\r\n    \"internalId\": \"00001\",\r\n    \"paymentOption\": \"VIET_QR\",\r\n    \"startDeal\": true\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{extasy-pay-qr-viet-url}}/api/merchant/invoices",
+                      "host": [
+                        "{{extasy-pay-qr-viet-url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "merchant",
+                        "invoices"
+                      ]
+                    }
+                  },
+                  "response": [],
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "const secret = pm.variables.get('extasy-pay-qr-viet-secret');",
+                          "const url = pm.variables.replaceIn(pm.request.url.toString());",
+                          "const body = request.body && request.body.raw ? pm.variables.replaceIn(request.body.raw) : '';",
+                          "const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1('POST' + url + body, secret));",
+                          "pm.request.headers.upsert({ key: 'X-Signature', value: signature });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

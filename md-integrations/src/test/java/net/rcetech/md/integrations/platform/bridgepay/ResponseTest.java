@@ -1,7 +1,7 @@
 package net.rcetech.md.integrations.platform.bridgepay;
 
-import org.junit.jupiter.api.Test;
 import net.rcetech.md.integrations.platform.ValidationResult;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +103,20 @@ class ResponseTest {
         deals.add(deal);
         deal.setPaymentMethod(Bank.ABR.getDisplayName());
         deal.setPaymentOption(Method.SBP_QR);
+        response.setDeals(deals);
+        ValidationResult validationResult = response.validate();
+        assertEquals("field \"deal.qrCodeLink\" must not be null", validationResult.errorsToString());
+    }
+
+    @Test
+    void validateShouldReturnErrorIfDealPaymentOptionIsVietQrAndQRLinkIsNull() {
+        Response response = new Response();
+        response.setId("id");
+        List<DealDTO> deals = new ArrayList<>();
+        DealDTO deal = new DealDTO();
+        deals.add(deal);
+        deal.setPaymentMethod(Bank.ABR.getDisplayName());
+        deal.setPaymentOption(Method.VIET_QR);
         response.setDeals(deals);
         ValidationResult validationResult = response.validate();
         assertEquals("field \"deal.qrCodeLink\" must not be null", validationResult.errorsToString());
