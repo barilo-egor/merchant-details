@@ -32,6 +32,12 @@ import java.util.function.Predicate;
 @Slf4j
 public abstract class MerchantOrderCreationService<T extends MerchantDetailsResponse, P extends MerchantCallback> implements MerchantService {
 
+    private static final int MAX_LOGGED_RESPONSE_LENGTH = 500;
+
+    private static final String SUCCESS_STATUS = "2xx";
+
+    private static final String NO_VALUE = "-";
+
     protected final RestClient restClient;
 
     private final Class<T> responseType;
@@ -71,7 +77,7 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             maybeRawResponse = makeRequest(request, body);
         } catch (Exception e) {
             if (isNoDetailsExceptionPredicate().test(e)) {
-                logNoDetails(request.getRequestId(), request.getMethod());
+                logNoDetails(request, e);
                 return Optional.empty();
             }
             long currentTime = System.currentTimeMillis();
@@ -79,18 +85,18 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
             throw new ServiceUnavailableException("Error occurred while creating order: " + currentTime + ".", e);
         }
         if (maybeRawResponse.isEmpty()) {
-            logNoDetails(request.getRequestId(), request.getMethod());
+            logNoDetails(request, NO_VALUE, null);
             return Optional.empty();
         }
         String rawResponse = maybeRawResponse.get();
         if (hasResponseNoDetailsErrorPredicate().test(rawResponse)) {
-            logNoDetails(request.getRequestId(), request.getMethod());
+            logNoDetails(request, SUCCESS_STATUS, rawResponse);
             return Optional.empty();
         }
         T response = mapResponse(rawResponse, body);
         validateResponse(response, rawResponse, body);
         if (!response.hasDetails()) {
-            logNoDetails(request.getRequestId(), request.getMethod());
+            logNoDetails(request, SUCCESS_STATUS, rawResponse);
             return Optional.empty();
         }
         Optional<DetailsResponse> maybeResponse;
@@ -104,13 +110,33 @@ public abstract class MerchantOrderCreationService<T extends MerchantDetailsResp
         if (maybeResponse.isPresent()) {
             log.debug("Реквизиты для id={} были найдены: {}", request.getRequestId(), maybeResponse.get());
         } else {
-            logNoDetails(request.getRequestId(), request.getMethod());
+            logNoDetails(request, SUCCESS_STATUS, rawResponse);
         }
         return maybeResponse;
     }
 
-    private void logNoDetails(String requestId, String method) {
-        log.debug("Реквизиты для запроса requestId={} у мерчанта {}, метод {} получены не были.", requestId, getMerchant().name(), method);
+    private void logNoDetails(OrderCreationRequest request, Exception e) {
+        if (e instanceof RestClientResponseException responseException) {
+            logNoDetails(request, String.valueOf(responseException.getStatusCode().value()),
+                    responseException.getResponseBodyAsString());
+        } else {
+            logNoDetails(request, NO_VALUE, e.getClass().getSimpleName());
+        }
+    }
+
+    private void logNoDetails(OrderCreationRequest request, String status, String responseBody) {
+        log.debug("Реквизиты для запроса requestId={} у мерчанта {}, метод {} получены не были. Статус: {}, ответ: {}",
+                request.getRequestId(), getMerchant().name(), request.getMethod(), status, shortenResponse(responseBody));
+    }
+
+    private String shortenResponse(String responseBody) {
+        if (responseBody == null || responseBody.isBlank()) {
+            return NO_VALUE;
+        }
+        String oneLine = responseBody.replaceAll("\\s*\\R\\s*", " ").strip();
+        return oneLine.length() > MAX_LOGGED_RESPONSE_LENGTH
+                ? oneLine.substring(0, MAX_LOGGED_RESPONSE_LENGTH) + "..."
+                : oneLine;
     }
 
     private String mapBody(OrderCreationRequest request) {
