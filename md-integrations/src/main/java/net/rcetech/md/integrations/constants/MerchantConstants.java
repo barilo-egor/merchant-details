@@ -2,11 +2,11 @@ package net.rcetech.md.integrations.constants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.integrations.platform.MerchantOrderStatus;
 import net.rcetech.md.integrations.platform.bridgepay.Method;
 import net.rcetech.md.integrations.platform.bridgepay.Status;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -270,12 +270,12 @@ public enum MerchantConstants {
             net.rcetech.md.integrations.platform.crocopay.Method.values()
     ),
     BUCKS_PAY_SIM(
-            net.rcetech.md.integrations.platform.buckspay.Status.values(),
-            net.rcetech.md.integrations.platform.buckspay.Method.values()
+            net.rcetech.md.integrations.platform.paybox.Status.values(),
+            net.rcetech.md.integrations.platform.paybox.Method.values()
     ),
     BUCKS_PAY(
-            net.rcetech.md.integrations.platform.buckspay.Status.values(),
-            net.rcetech.md.integrations.platform.buckspay.Method.values()
+            net.rcetech.md.integrations.platform.paybox.Status.values(),
+            net.rcetech.md.integrations.platform.paybox.Method.values()
     ),
     MANY_PAY(
             net.rcetech.md.integrations.platform.manypay.Status.values(),

@@ -1,11 +1,11 @@
 package net.rcetech.md.integrations.config;
 
+import net.rcetech.md.integrations.properties.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestClient;
-import net.rcetech.md.integrations.properties.*;
 
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
@@ -351,7 +351,7 @@ public class RestClientsConfig {
     }
 
     @Bean
-    public RestClient bucksPayRestClient(BucksPayPropertiesImpl bucksPayProperties) {
+    public RestClient bucksPayRestClient(BucksPayProperties bucksPayProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(bucksPayProperties.url()).build();
     }
 
