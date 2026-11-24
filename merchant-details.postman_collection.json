@@ -791,6 +791,122 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "BucksPay",
+          "item": [
+            {
+              "name": "Создание ордера (Карта)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bucks_pay_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"1010\",\r\n    \"currency\": \"RUB\",\r\n    \"merchant_transaction_id\": \"{{$guid}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.successbiz.club/api/v1/transactions/card",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "successbiz",
+                    "club"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "transactions",
+                    "card"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Создание ордера (СБП)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bucks_pay_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"1010\",\r\n    \"currency\": \"RUB\",\r\n    \"merchant_transaction_id\": \"{{$guid}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.successbiz.club/api/v1/transactions/sbp",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "successbiz",
+                    "club"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "transactions",
+                    "sbp"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Отмена ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bucks_pay_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://api.successbiz.club/api/v1/transactions/{{order_id}}/cancel",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "successbiz",
+                    "club"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "transactions",
+                    "{{order_id}}",
+                    "cancel"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
