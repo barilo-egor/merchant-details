@@ -5,6 +5,7 @@ import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.BucksPaySimProperties;
 import net.rcetech.md.integrations.service.RequestService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,11 +54,13 @@ class BucksPaySimOrderCreationServiceTest {
     @Captor
     private ArgumentCaptor<Function<UriBuilder, URI>> uriBuilderCaptor;
 
+    @DisplayName("Метод должен вернуть мерчанта BUCKS_PAY_SIM")
     @Test
     void getMerchantShouldReturnBucksPaySim() {
         assertEquals(Merchant.BUCKS_PAY_SIM, bucksPaySimOrderCreationService.getMerchant());
     }
 
+    @DisplayName("Путь запроса должен зависеть от метода оплаты")
     @EnumSource(Method.class)
     @ParameterizedTest
     void uriBuilderShouldSetPathDependsOnMethod(Method method) {
@@ -69,6 +72,7 @@ class BucksPaySimOrderCreationServiceTest {
                 bucksPaySimOrderCreationService.uriBuilder(detailsRequest).apply(uriBuilder).getPath());
     }
 
+    @DisplayName("Должны быть установлены заголовки авторизации и типа содержимого")
     @ValueSource(strings = {
             "ixoQTh3Gf8mY3ik", "6pm5Px76Dyt5VXW65DjnlFgFnwO0f5II"
     })
@@ -85,6 +89,7 @@ class BucksPaySimOrderCreationServiceTest {
         );
     }
 
+    @DisplayName("Тело запроса должно содержать сумму, валюту и UUID транзакции")
     @ValueSource(ints = {
             1211, 5004, 522
     })
@@ -102,6 +107,7 @@ class BucksPaySimOrderCreationServiceTest {
         );
     }
 
+    @DisplayName("Реквизиты должны собираться из номера карты")
     @CsvSource({
             "144008,1234123412341234,Статус Банк",
             "1533,9876543212345678,ALFA"
@@ -125,6 +131,30 @@ class BucksPaySimOrderCreationServiceTest {
         );
     }
 
+    @DisplayName("Реквизиты должны собираться из номера телефона")
+    @CsvSource({
+            "+79991112233",
+            "+79861231212"
+    })
+    @ParameterizedTest
+    void buildResponseShouldBuildRequisiteResponseObjectWithPhoneNumber(String requisiteString) {
+        Response response = new Response();
+        response.setId(1L);
+        response.setPhoneNumber(requisiteString);
+        response.setBankName("Альфа-Банк");
+
+        Optional<DetailsResponse> maybeRequisiteResponse = bucksPaySimOrderCreationService.buildResponse(response);
+        assertTrue(maybeRequisiteResponse.isPresent());
+        DetailsResponse detailsResponse = maybeRequisiteResponse.get();
+        assertAll(
+                () -> assertEquals(Merchant.BUCKS_PAY_SIM, detailsResponse.getMerchant()),
+                () -> assertEquals("Альфа-Банк", detailsResponse.getBank()),
+                () -> assertEquals(requisiteString, detailsResponse.getDetails()),
+                () -> assertEquals(Status.PROCESS.name(), detailsResponse.getMerchantOrderStatus())
+        );
+    }
+
+    @DisplayName("Метод должен отправить запрос отмены ордера")
     @CsvSource("""
             4be41169-2786-48f3-98b9-002a23417c45,CARD
             578f16e0-5941-4330-80c3-b2d22ef302b8,SBP

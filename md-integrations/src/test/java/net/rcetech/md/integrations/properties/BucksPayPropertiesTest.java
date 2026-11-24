@@ -1,6 +1,7 @@
 package net.rcetech.md.integrations.properties;
 
 import net.rcetech.md.integrations.AbstractIntegrationsContextTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,6 +13,7 @@ class BucksPayPropertiesTest extends AbstractIntegrationsContextTest {
     @Autowired
     private BucksPayProperties bucksPayProperties;
 
+    @DisplayName("Свойства должны загружаться из конфигурации")
     @Test
     void shouldLoadProperties() {
         assertAll(
