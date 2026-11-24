@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import net.rcetech.md.integrations.util.MultipartFormBuilder;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.client.RestClient;
@@ -63,18 +62,6 @@ class HellBitReceiptOrderCreationServiceTest {
         when(hellBitReceiptProperties.token()).thenReturn("token");
 
         hellBitReceiptOrderCreationService.sendReceipt(orderId, "pdf-content".getBytes(), "receipt.pdf");
-
-        assertRequest(orderId);
-    }
-
-    @ValueSource(strings = {"123456", "9876543"})
-    @ParameterizedTest
-    void sendReceiptWithMultipartFileShouldCallAttachByTransactionId(String orderId) {
-        hellBitReceiptOrderCreationService.setRequestService(requestService);
-        when(hellBitReceiptProperties.token()).thenReturn("token");
-        MockMultipartFile file = new MockMultipartFile("receipt", "receipt.png", "image/png", "png-content".getBytes());
-
-        hellBitReceiptOrderCreationService.sendReceipt(orderId, file);
 
         assertRequest(orderId);
     }

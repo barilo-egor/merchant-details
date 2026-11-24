@@ -52,8 +52,9 @@ public class ReceiptService {
     }
 
     /**
-     * Удаляет чек из каждой перечисленной папки. Отсутствующая папка не считается ошибкой: папка варианта
-     * появляется только после первого сохранённого чека.
+     * Удаляет чек из каждой перечисленной папки. Отсутствующие папка или файл не считаются ошибкой:
+     * папка варианта появляется только после первого сохранённого чека, а у финализированного без
+     * оплаты ордера чека может не быть вовсе.
      */
     public void deleteReceipt(String fileName, Collection<String> folderNames) {
         String jarPath = System.getProperty("user.dir");
@@ -66,17 +67,11 @@ public class ReceiptService {
             }
 
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(folderPath, fileName + ".*")) {
-                boolean deleted = false;
                 for (Path path : stream) {
                     if (Files.isRegularFile(path)) {
                         Files.delete(path);
                         log.debug("Чек {} успешно удален из папки {}", path.getFileName(), folderName);
-                        deleted = true;
                     }
-                }
-
-                if (!deleted) {
-                    log.warn("Не удалось удалить чек {}: файл не найден в папке {}", fileName, folderName);
                 }
             } catch (IOException e) {
                 String errorMsg = String.format("Ошибка при попытке удалить чек %s из папки %s", fileName, folderName);

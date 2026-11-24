@@ -6,7 +6,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import net.rcetech.md.integrations.util.MultipartFormBuilder;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.HttpClientErrorException;
@@ -124,24 +123,6 @@ public abstract class PayLeeMerchantService extends MerchantOrderCreationService
                 && response.get(NON_FIELD_ERRORS).size() == 1
                 && response.get(NON_FIELD_ERRORS).get(0).asString()
                 .equals("Нет доступных реквизитов. Попробуйте повторить позже.");
-    }
-
-    @Override
-    public void sendReceipt(String orderId, MultipartFile multipartFile) {
-        MultipartFormBuilder builder = new MultipartFormBuilder();
-        builder.part("attachment", multipartFile.getResource());
-
-        requestService.requestAsync(
-                restClient,
-                HttpMethod.POST,
-                uriBuilder -> uriBuilder.pathSegment("partners", "purchases", "{id}", "receipt").build(orderId),
-                headers -> {
-                    headers.add("Authorization", "Token " + payLeeProperties.token());
-                    headers.add("Content-Type", "multipart/form-data");
-                },
-                builder.build(),
-                t -> log.error("Ошибка отправки чека мерчанту PayLee по ордеру {}: {}", orderId, t.getMessage(), t)
-        );
     }
 
     @Override
