@@ -1,24 +1,7 @@
 package net.rcetech.md.integrations.properties;
 
-public interface BucksPayProperties {
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-    String url();
-
-    String key();
-
-    String qrKey();
-
-    String tPayKey();
-
-    String secret();
-
-    String qrSecret();
-
-    String tPaySecret();
-
-    String shopId();
-
-    String qrShopId();
-
-    String tPayShopId();
+@ConfigurationProperties("bucks-pay")
+public record BucksPayProperties(String url, String token, String signKey) implements PayBoxProperties {
 }
