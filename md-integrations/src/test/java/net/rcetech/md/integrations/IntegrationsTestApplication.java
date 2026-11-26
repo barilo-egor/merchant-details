@@ -1,5 +1,6 @@
 package net.rcetech.md.integrations;
 
+import net.rcetech.md.integrations.platform.canpay.CanPayClientIds;
 import net.rcetech.md.integrations.platform.smackpay.SmackPayClientIds;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,15 @@ public class IntegrationsTestApplication {
      */
     @Bean
     SmackPayClientIds smackPayClientIds() {
+        return userId -> Optional.empty();
+    }
+
+    /**
+     * Реализация CanPayClientIds живёт в md-app (таблица can_pay_client_id),
+     * в этом контексте БД нет — подставляем пустую заглушку.
+     */
+    @Bean
+    CanPayClientIds canPayClientIds() {
         return userId -> Optional.empty();
     }
 }

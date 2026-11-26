@@ -1,16 +1,12 @@
 package net.rcetech.md.integrations.platform;
 
+import net.rcetech.md.integrations.AbstractIntegrationsContextTest;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.AbstractIntegrationsContextTest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +33,8 @@ class MerchantRequisitesContractTest extends AbstractIntegrationsContextTest {
      */
     private static final Set<Merchant> EXCLUSIONS = Set.of(
             Merchant.PAYSCROW_TRANSGRAN,
-            Merchant.SMACK_PAY
+            Merchant.SMACK_PAY,
+            Merchant.CANPAY
     );
     @Autowired
     private MerchantServiceRegistry merchantServiceRegistry;

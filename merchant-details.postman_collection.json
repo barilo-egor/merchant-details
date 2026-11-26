@@ -907,6 +907,50 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "CanPay",
+          "item": [
+            {
+              "name": "Создание ордера",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{can-pay-api-key}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "9a7a35e9-7499-4bcf-bc73-3ac9e05c3d79"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"amount\": \"2010\",\r\n    \"phone\": \"+79991234567\",\r\n    \"client_id\": 694999131,\r\n    \"metadata\": {\"order_id\": \"ORDER-1\"},\r\n    \"return_url\": \"https://merchant.example/success\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://api.canpay.top/v1/payments",
+                  "protocol": "https",
+                  "host": [
+                    "api",
+                    "canpay",
+                    "top"
+                  ],
+                  "path": [
+                    "v1",
+                    "payments"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
