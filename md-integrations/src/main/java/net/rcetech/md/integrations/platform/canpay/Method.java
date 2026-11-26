@@ -13,8 +13,9 @@ public enum Method implements MerchantMethod {
 
     QR("QR KYC", null);
 
-    final RequestMethod requestMethod;
     private final String description;
+
+    final RequestMethod requestMethod;
 
     public Optional<RequestMethod> getRequestMethod() {
         return Optional.ofNullable(requestMethod);
