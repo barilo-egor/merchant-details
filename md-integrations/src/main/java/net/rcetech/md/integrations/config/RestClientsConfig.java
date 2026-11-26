@@ -434,4 +434,9 @@ public class RestClientsConfig {
     public RestClient bitBolideRestClient(BitBolideProperties bitBolideProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(bitBolideProperties.url()).build();
     }
+
+    @Bean
+    public RestClient canPayRestClient(CanPayProperties canPayProperties) {
+        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(canPayProperties.url()).build();
+    }
 }

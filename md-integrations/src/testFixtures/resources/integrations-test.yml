@@ -368,6 +368,9 @@ hesoyam-sim:
 smack-pay:
   url: "smack-pay-url"
   api-key: "smack-pay-api-key"
+can-pay:
+  url: "can-pay-url"
+  api-key: "can-pay-api-key"
 viatrum:
   url: "viatrum-url"
   pub: "viatrum-pub"

@@ -367,6 +367,9 @@ hell-bit-bt:
 hell-bit-receipt:
   token:
   sign-key:
+can-pay:
+  url:
+  api-key:
 # Конфиг приложение
 server:
   port:

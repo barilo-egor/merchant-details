@@ -416,6 +416,10 @@ public enum MerchantConstants {
     BIT_BOLIDE_WT(
             net.rcetech.md.integrations.platform.paybox.Status.values(),
             net.rcetech.md.integrations.platform.paybox.Method.values()
+    ),
+    CANPAY(
+            net.rcetech.md.integrations.platform.canpay.Status.values(),
+            net.rcetech.md.integrations.platform.canpay.Method.values()
     );
 
     private final MerchantOrderStatus[] statuses;
