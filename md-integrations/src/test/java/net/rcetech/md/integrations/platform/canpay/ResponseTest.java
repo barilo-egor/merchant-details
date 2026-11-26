@@ -17,16 +17,6 @@ class ResponseTest {
     }
 
     @Test
-    void validateShouldReturnErrorAmountNull() {
-        Response response = new Response();
-        response.setId("order-123");
-        response.setStatus(Status.PENDING);
-        response.setPaymentUrl("https://example.com/invoice/123");
-
-        assertTrue(response.validate().errorsToString().contains("field \"amount\" must not be null"));
-    }
-
-    @Test
     void validateShouldReturnErrorStatusNull() {
         Response response = new Response();
         response.setId("order-123");
