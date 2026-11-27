@@ -3,6 +3,7 @@ package net.rcetech.md.search.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
+import net.rcetech.md.meta.enums.FiatCurrency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,5 +26,8 @@ public class ApiDetailsRequest {
     private UUID ownerId;
 
     private String initiatorApp;
+
+    /** Валюта сделки; пусто — считается RUB (совместимость со старыми клиентами). */
+    private FiatCurrency fiatCurrency;
 
 }

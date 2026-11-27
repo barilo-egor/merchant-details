@@ -7,6 +7,7 @@ import org.springframework.web.client.RestClient;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.LotrienProperties;
 
 import java.math.BigDecimal;
@@ -45,6 +46,7 @@ public abstract class LotrienOrderCreationService extends MerchantOrderCreationS
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
+        request.setFiatCurrencyCode(PlatformCurrencies.code(getMerchant()));
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         request.setPaymentMethod(method);
         request.setFiatSum(String.format(Locale.US, "%.2f", detailsRequest.getAmount().doubleValue()));

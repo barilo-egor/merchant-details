@@ -7,6 +7,7 @@ import org.slf4j.MDC;
 import org.springframework.grpc.server.service.GrpcService;
 import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.meta.dto.ApiMerchantConfigDTO;
+import net.rcetech.md.meta.exception.MerchantCurrencyMismatchException;
 import net.rcetech.md.app.mapper.ApiMerchantConfigGrpcMapper;
 import net.rcetech.md.domain.service.ApiMerchantConfigService;
 
@@ -66,7 +67,17 @@ public class ApiConfigRequestControllerGrpc extends ApiMerchantConfigServiceGrpc
     public void update(UpdateApiMerchantConfigItemGrpc request,
                        StreamObserver<ApiMerchantConfigItemGrpc> responseObserver) {
         try (var ignored = MDC.putCloseable("logDest", "api")) {
-            ApiMerchantConfigDTO updated = apiMerchantConfigService.update(mapper.mapToUpdateMerchantConfigDTO(request));
+            ApiMerchantConfigDTO updated;
+            try {
+                updated = apiMerchantConfigService.update(mapper.mapToUpdateMerchantConfigDTO(request));
+            } catch (MerchantCurrencyMismatchException e) {
+                log.error("Отклонено включение мерчанта: несовпадение валюты владельца и мерчанта: {}", e.getMessage());
+                responseObserver.onError(Status.FAILED_PRECONDITION.withDescription(e.getMessage()).asRuntimeException());
+                return;
+            } catch (IllegalArgumentException e) {
+                responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
+                return;
+            }
 
             responseObserver.onNext(mapper.mapToGrpcApiMerchantConfigItem(updated));
             responseObserver.onCompleted();

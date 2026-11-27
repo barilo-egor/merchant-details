@@ -14,6 +14,8 @@ import org.springframework.web.client.RestClientResponseException;
 import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.meta.constants.Metrics;
 import net.rcetech.md.meta.constants.VariableType;
+import net.rcetech.md.meta.enums.FiatCurrency;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.searchlegacy.details.*;
 import net.rcetech.md.integrations.platform.*;
 import net.rcetech.md.domain.entity.MerchantConfig;
@@ -77,6 +79,7 @@ public class MerchantDetailsService {
                     .redirectUrl(request.getRedirectUrl())
                     .phone(request.getPhone())
                     .requiredReceipt(requiredReceipt)
+                    .currency(MerchantCatalog.of(merchant).getCurrency())
                     .build();
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
@@ -98,6 +101,7 @@ public class MerchantDetailsService {
         Optional<DetailsResponse> maybeDetailsResponse = Optional.empty();
         List<MerchantConfig> merchantConfigList = merchantConfigService.findAllByMerchantsAndAmount(
                 request.getMethods().stream().map(BotDetailsRequest.MerchantMethod::getMerchant).toList(), request.getAmount());
+        merchantConfigList = filterByCurrency(merchantConfigList, request);
         log.debug("Найденные мерчанты для запроса по сделке {}: {}", request.getId(),
                 merchantConfigList.stream()
                         .map(merchantConfig -> merchantConfig.getMerchant().name())
@@ -136,6 +140,43 @@ public class MerchantDetailsService {
                     "date", today).increment();
         }
         return maybeDetailsResponse;
+    }
+
+    /**
+     * Мерчанты с валютой, отличной от валюты сделки, отфильтровываются: отдать реквизиты
+     * такого мерчанта — значит отдать сумму в чужой валюте. Валюта не передана — RUB.
+     */
+    private List<MerchantConfig> filterByCurrency(List<MerchantConfig> merchantConfigList, BotDetailsRequest request) {
+        FiatCurrency fiatCurrency = parseFiatCurrency(request);
+        List<MerchantConfig> filtered = merchantConfigList.stream()
+                .filter(config -> MerchantCatalog.of(config.getMerchant()).getCurrency() == fiatCurrency)
+                .toList();
+        int filteredOut = merchantConfigList.size() - filtered.size();
+        if (filteredOut > 0) {
+            log.info("Отфильтровано {} мерчантов по валюте {} для сделки {}: {}",
+                    filteredOut, fiatCurrency, request.getId(),
+                    merchantConfigList.stream()
+                            .filter(config -> MerchantCatalog.of(config.getMerchant()).getCurrency() != fiatCurrency)
+                            .map(config -> config.getMerchant().name())
+                            .collect(Collectors.joining(",")));
+            meterRegistry.counter(Metrics.GET_DETAILS_RESULT,
+                    Metrics.TAG_STATUS, "currency-filtered",
+                    "initiatorApp", request.getInitiatorApp(),
+                    "date", LocalDate.now().toString()).increment(filteredOut);
+        }
+        return filtered;
+    }
+
+    private FiatCurrency parseFiatCurrency(BotDetailsRequest request) {
+        if (StringUtils.isBlank(request.getFiatCurrency())) {
+            return FiatCurrency.RUB;
+        }
+        try {
+            return FiatCurrency.valueOf(request.getFiatCurrency().trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Неизвестная валюта сделки '" + request.getFiatCurrency() + "' для сделки " + request.getId());
+        }
     }
 
     private Optional<DetailsResponse> tryGetDetails(List<MerchantConfig> merchantConfigList, BotDetailsRequest request,

@@ -13,15 +13,9 @@ public class Request {
     @JsonSerialize(using = Method.Serializer.class)
     private Method paymentMethod;
 
-    public String getType() {
-        return "sell";
-    }
+    private String type = "sell";
 
-    public String getBaseCurrency() {
-        return "RUB";
-    }
+    private String baseCurrency;
 
-    public String getQuoteCurrency() {
-        return "USDT";
-    }
+    private String quoteCurrency = "USDT";
 }

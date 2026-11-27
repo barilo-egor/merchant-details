@@ -13,6 +13,7 @@ import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.PrismaPayProperties;
 import net.rcetech.md.integrations.service.ReceiptService;
 import tools.jackson.core.JacksonException;
@@ -57,6 +58,7 @@ public class PrismaPayOrderCreationService extends MerchantOrderCreationService<
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
+        request.setBaseCurrency(PlatformCurrencies.code(getMerchant()));
         request.setAmount(detailsRequest.getAmount());
         request.setPaymentMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         return request;

@@ -19,9 +19,7 @@ public class Request {
     private Metadata metadata;
 
     @JsonProperty("currency")
-    public String getCurrency() {
-        return "RUB";
-    }
+    private String currency;
 
     @Data
     public static class Metadata {

@@ -12,6 +12,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.integrations.properties.EvoPayProperties;
 import net.rcetech.md.integrations.service.SleepingService;
@@ -125,6 +126,7 @@ public class EvoPayOrderCreationService extends MerchantOrderCreationService<Res
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
+        request.setFiatCurrencyCode(PlatformCurrencies.code(getMerchant()));
         request.setCustomId(UUID.randomUUID().toString());
         request.setFiatSum(detailsRequest.getAmount());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);

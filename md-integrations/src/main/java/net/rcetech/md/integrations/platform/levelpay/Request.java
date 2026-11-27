@@ -31,7 +31,5 @@ public class Request {
     private String paymentGateway;
 
     @JsonProperty("currency")
-    public String getCurrency() {
-        return "rub";
-    }
+    private String currency;
 }

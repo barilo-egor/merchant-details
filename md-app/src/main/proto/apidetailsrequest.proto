@@ -25,6 +25,8 @@ message DetailsRequestGrpc {
   repeated string request_method = 5;
   string owner_id = 6;
   string initiator_app = 7;
+  // Валюта сделки; пусто — считается RUB (совместимость со старыми клиентами)
+  optional string fiat_currency = 8;
 }
 
 message DetailsResponseGrpc {
@@ -53,6 +55,8 @@ message UpdateApiMerchantConfigItemGrpc {
   google.protobuf.Int32Value min_amount = 4;
   google.protobuf.Int32Value new_order = 5;
   google.protobuf.BoolValue swap = 6;
+  // Валюта владельца конфига (API-клиента); пусто — проверка валюты не выполняется
+  optional string owner_fiat_currency = 7;
 }
 
 message FindAllApiMerchantConfigsRequestGrpc {
@@ -70,6 +74,10 @@ message ApiMerchantConfigItemGrpc {
   google.protobuf.Int32Value max_amount = 4;
   google.protobuf.Int32Value min_amount = 5;
   google.protobuf.Int32Value merchant_order = 6;
+  // Валюта мерчанта из справочника
+  optional string currency = 7;
+  // Семейство мерчанта (MerchantFamily из commons)
+  optional string family = 8;
 }
 
 message ApiCancelOrderRequestGrpc {

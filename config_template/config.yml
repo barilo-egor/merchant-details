@@ -22,10 +22,6 @@ evo-pay:
   url: ""
   key: ""
   change-key: ""
-nice-pay:
-  url: ""
-  merchant-id: ""
-  secret: ""
 honey-money:
   urls:
     main: ""
@@ -33,12 +29,6 @@ honey-money:
   secret: ""
   client-id: ""
   sign-key: ""
-well-bit:
-  url: ""
-  secret: ""
-  login: ""
-  id: ""
-  token: ""
 croco-pay:
   url: ""
   client-id: ""
@@ -82,26 +72,12 @@ pay-lee-qr:
   secret: ""
   client-id-salt:
 
-pay-points:
-  url: ""
-  token: ""
-eze-pay:
-  url: ""
-  key: ""
-  id: ""
-panda-pay:
-  url: ""
-  key: ""
-  secret: ""
 payscrow:
   url: ""
   key: ""
   high-check-key: ""
   in-house-key: ""
   white-triangle-key: ""
-appexbit:
-  url: ""
-  key: ""
 geo-transfer:
   url: ""
   token: ""
@@ -132,10 +108,6 @@ settle-x15:
   key: ""
   sbp-id: ""
   c2c-id: ""
-aurora-pay:
-  url: ""
-  token: ""
-  merchant-id: ""
 plata-payment:
   url: ""
   token: ""
@@ -377,6 +349,54 @@ hell-bit-receipt:
 can-pay:
   url:
   api-key:
+bay-pay-high-check:
+  url: ""
+  api-key: ""
+bay-pay-low-check:
+  url: ""
+  api-key: ""
+fiat-cut:
+  url: ""
+  token: ""
+  merchant-id: ""
+goatx:
+  url: ""
+  api-key: ""
+  merchant-id: ""
+  merchant-contract-id: ""
+  login: ""
+goatx-sim:
+  url: ""
+  api-key: ""
+  merchant-id: ""
+  merchant-contract-id: ""
+  login: ""
+hesoyam:
+  url: ""
+  key: ""
+  terminal: ""
+hesoyam-sim:
+  url: ""
+  key: ""
+  terminal: ""
+payscrow-high-check:
+  url: ""
+  key: ""
+payscrow-low:
+  url: ""
+  key: ""
+payscrow-sim:
+  url: ""
+  key: ""
+payscrow-transgran:
+  url: ""
+  key: ""
+payscrow-white-triangle:
+  url: ""
+  key: ""
+smack-pay:
+  url: ""
+  api-key: ""
 # Конфиг приложение
 server:
   port:

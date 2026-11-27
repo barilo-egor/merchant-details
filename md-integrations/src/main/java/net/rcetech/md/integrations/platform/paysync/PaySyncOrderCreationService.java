@@ -11,6 +11,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.PaySyncProperties;
 import tools.jackson.databind.ObjectMapper;
 
@@ -40,7 +41,7 @@ public class PaySyncOrderCreationService extends MerchantOrderCreationService<Re
                     .build(
                             paySyncProperties.clientId(),
                             detailsRequest.getAmount(),
-                            "RUB"
+                            PlatformCurrencies.code(getMerchant())
                     );
             log.info("Отправлен запрос: {} мерчанта {}", uri, getMerchant());
             return uri;

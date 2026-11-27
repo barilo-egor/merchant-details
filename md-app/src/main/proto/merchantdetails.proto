@@ -71,6 +71,10 @@ message MerchantConfigDTOGrpc {
   google.protobuf.Int64Value group_chat_id = 12;
   int32 min_deals_count = 13;
   string required_receipt = 14;
+  // Валюта мерчанта из справочника (FiatCurrency)
+  optional string currency = 15;
+  // Семейство мерчанта (MerchantFamily из commons)
+  optional string family = 16;
 }
 
 message MerchantConfigResponseGrpc {

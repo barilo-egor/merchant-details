@@ -38,6 +38,9 @@ public class BotDetailsRequest implements DetailsRequest {
 
     protected String phone;
 
+    /** Валюта сделки строкой (имя FiatCurrency); пусто — считается RUB. */
+    protected String fiatCurrency;
+
     @JsonIgnore
     public List<String> getMerchantMethod(Merchant merchant) {
         for (MerchantMethod merchantMethod : methods) {

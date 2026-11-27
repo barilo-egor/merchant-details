@@ -23,7 +23,5 @@ public class Request {
     private String callbackUrl;
 
     @JsonProperty("currency")
-    public String getCurrency() {
-        return "rub";
-    }
+    private String currency;
 }

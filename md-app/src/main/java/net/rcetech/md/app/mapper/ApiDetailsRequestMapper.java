@@ -7,6 +7,7 @@ import net.rcetech.md.app.grpc.generated.DetailsResponseGrpc;
 import net.rcetech.md.search.dto.ApiDetailsRequest;
 import net.rcetech.md.meta.detailsapi.dto.ApiDetailsResponse;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
+import net.rcetech.md.meta.enums.FiatCurrency;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +57,15 @@ public class ApiDetailsRequestMapper {
 
         if (!grpc.getInitiatorApp().isEmpty()) {
             apiDetailsRequest.setInitiatorApp(grpc.getInitiatorApp());
+        }
+
+        // 8. fiat_currency (неизвестное значение — ошибка валидации, пустое — RUB по умолчанию)
+        if (grpc.hasFiatCurrency() && !grpc.getFiatCurrency().isEmpty()) {
+            try {
+                apiDetailsRequest.setFiatCurrency(FiatCurrency.valueOf(grpc.getFiatCurrency()));
+            } catch (IllegalArgumentException e) {
+                throw GrpcValidator.invalidArgument("fiatCurrency", "Unknown fiat currency: " + grpc.getFiatCurrency());
+            }
         }
 
         return apiDetailsRequest;

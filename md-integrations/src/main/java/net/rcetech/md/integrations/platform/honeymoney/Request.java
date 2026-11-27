@@ -13,7 +13,5 @@ public class Request {
 
     private String bank;
 
-    public String getCurrency() {
-        return "RUB";
-    }
+    private String currency;
 }

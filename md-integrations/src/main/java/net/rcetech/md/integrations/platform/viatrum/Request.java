@@ -17,7 +17,7 @@ public class Request {
     @JsonProperty("callbackURL")
     private String callbackUrl;
 
-    private Integer currencyId = 1;
+    private Integer currencyId;
 
     private String externalID;
 

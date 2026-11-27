@@ -7,14 +7,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.HexFormat;
 
 @Service
 public class SignatureService {
@@ -43,18 +41,6 @@ public class SignatureService {
         return Hex.encodeHexString(hmacSha256);
     }
 
-    public String pandaPayHmacSHA256(String data, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
-        // Создаем HMAC SHA256 хэш
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKey);
-
-        byte[] hmacBytes = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-
-        // Конвертируем в HEX строку
-        return HexFormat.of().formatHex(hmacBytes);
-    }
-
     public String getMD5Hash(String input) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] hashBytes = md.digest(input.getBytes());
@@ -66,17 +52,6 @@ public class SignatureService {
             hexString.append(hex);
         }
         return hexString.toString();
-    }
-
-    public String md5WellBit(String data) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] messageDigest = md.digest(data.getBytes());
-        BigInteger no = new BigInteger(1, messageDigest);
-        StringBuilder hashtext = new StringBuilder(no.toString(16));
-        while (hashtext.length() < 32) {
-            hashtext.insert(0, "0");
-        }
-        return hashtext.toString();
     }
 
     public String generateHmacSha512Signature(String data, String secret)

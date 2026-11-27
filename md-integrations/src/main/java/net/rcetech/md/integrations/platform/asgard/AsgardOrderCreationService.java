@@ -8,6 +8,7 @@ import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.AsgardProperties;
 import net.rcetech.md.integrations.service.SignatureService;
 
@@ -56,6 +57,7 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
         request.setOrderId(UUID.randomUUID().toString());
         request.setMerchantId(asgardProperties.merchantId());
         request.setAmount(detailsRequest.getAmount());
+        request.setCurrency(PlatformCurrencies.code(getMerchant()));
         request.setCallbackUri(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant=" + getMerchant().name()
                 + "&secret=" + callbackConfig.getCallbackSecret());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));

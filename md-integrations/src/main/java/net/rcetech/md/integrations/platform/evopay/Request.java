@@ -12,13 +12,9 @@ public class Request {
 
     private Integer fiatSum;
 
-    @JsonProperty("fiatCurrencyCode")
-    public String getFiatCurrencyCode() {
-        return "RUB";
-    }
-
     @JsonProperty("cryptoCurrencyCode")
-    public String getCryptoCurrencyCode() {
-        return "USDT";
-    }
+    private String cryptoCurrencyCode = "USDT";
+
+    @JsonProperty("fiatCurrencyCode")
+    private String fiatCurrencyCode;
 }

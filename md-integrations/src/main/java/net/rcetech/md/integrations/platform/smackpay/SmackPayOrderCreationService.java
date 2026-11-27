@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.SmackPayProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,7 @@ public class SmackPayOrderCreationService extends MerchantOrderCreationService<R
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
+        request.setCurrency(PlatformCurrencies.code(getMerchant()));
         request.setAmount(detailsRequest.getAmount());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);
         if (Method.NSPK_QR.equals(method)) {

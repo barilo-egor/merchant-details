@@ -9,8 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import net.rcetech.md.app.grpc.generated.*;
 import net.rcetech.md.integrations.constants.MerchantConstants;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.meta.projection.MerchantConfigProjection;
 import net.rcetech.md.meta.projection.MerchantSuccessStatusProjection;
+import tgb.cryptoexchange.commons.enums.MerchantFamily;
 
 @Component
 public class MerchantConfigGrpcMapper {
@@ -23,6 +25,8 @@ public class MerchantConfigGrpcMapper {
 
         if (dto.getMerchant() != null) {
             builder.setMerchant(dto.getMerchant().name());
+            builder.setCurrency(MerchantCatalog.of(dto.getMerchant()).getCurrency().name());
+            builder.setFamily(MerchantFamily.of(dto.getMerchant()).name());
         }
         if (dto.getMaxAmount() != null) {
             builder.setMaxAmount(Int32Value.of(dto.getMaxAmount()));

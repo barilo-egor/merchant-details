@@ -9,6 +9,7 @@ import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.CrocoPayProperties;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -50,6 +51,7 @@ public abstract class CrocoPayOrderCreationService extends MerchantOrderCreation
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
+        request.setCurrency(PlatformCurrencies.code(getMerchant()));
         request.setAmount(detailsRequest.getAmount());
         request.setMethod(parseMethod(detailsRequest.getMethod(), Method.class));
         setCallback(request, detailsRequest);

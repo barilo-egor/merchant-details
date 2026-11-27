@@ -9,6 +9,7 @@ import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.integrations.properties.CubeProperties;
 import tools.jackson.core.JacksonException;
@@ -50,6 +51,7 @@ public abstract class CubeOrderCreationService extends MerchantOrderCreationServ
 
     @Override
     protected Request body(OrderCreationRequest detailsRequest) {
+        PlatformCurrencies.requireSupported(getMerchant());
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
         Method method = parseMethod(detailsRequest.getMethod(), Method.class);

@@ -22,21 +22,11 @@ evo-pay:
   url: "evo-pay-url"
   key: "evo-pay-key"
   change-key: "evo-pay-change-key"
-nice-pay:
-  url: "nice-pay-url"
-  merchant-id: "nice-pay-merchant-id"
-  secret: "nice-pay-secret"
 honey-money:
   url: "honey-money-url"
   client-id: "honey-money-client-id"
   auth-token: "honey-money-auth-token"
   sign-token: "honey-money-sign-token"
-well-bit:
-  url: "well-bit-url"
-  secret: "well-bit-secret"
-  login: "well-bit-login"
-  id: "well-bit-id"
-  token: "well-bit-token"
 croco-pay:
   url: "croco-pay-url"
   client-id: "croco-pay-client-id"
@@ -92,9 +82,6 @@ payscrow-low:
 payscrow-transgran:
   url: "payscrow-transgran-url"
   key: "payscrow-transgran-key"
-appexbit:
-  url: "appexbit-url"
-  key: "appexbit-key"
 geo-transfer:
   url: "geo-transfer-url"
   token: "geo-transfer-token"
@@ -125,10 +112,6 @@ settle-x15:
   key: "settle-x15-key"
   sbp-id: "settle-sbp-id"
   c2c-id: "settle-c2c-id"
-aurora-pay:
-  url: "aurora-url"
-  token: "aurora-token"
-  merchant-id: "aurora-merchant-id"
 plata-payment:
   url: "plata-payment-url"
   token: "plata-payment-token"
@@ -378,6 +361,10 @@ smack-pay:
 can-pay:
   url: "can-pay-url"
   api-key: "can-pay-api-key"
+fiat-cut:
+  url: "fiat-cut-url"
+  token: "fiat-cut-token"
+  merchant-id: "fiat-cut-merchant-id"
 viatrum:
   url: "viatrum-url"
   pub: "viatrum-pub"

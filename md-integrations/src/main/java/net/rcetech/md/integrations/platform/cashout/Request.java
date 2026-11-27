@@ -16,7 +16,5 @@ public class Request {
     private Method method;
 
     @JsonProperty("currency")
-    public String getCurrency() {
-        return "RUB";
-    }
+    private String currency;
 }

@@ -6,6 +6,7 @@ import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
+import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.BridgePayProperties;
 import net.rcetech.md.integrations.service.SignatureService;
 import net.rcetech.md.integrations.service.SleepingService;
@@ -95,7 +96,7 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
     protected Request body(OrderCreationRequest detailsRequest) {
         Request request = new Request();
         request.setAmount(detailsRequest.getAmount().toString());
-        request.setCurrency("RUB");
+        request.setCurrency(PlatformCurrencies.code(getMerchant()));
         request.setNotificationUrl(callbackConfig.getGatewayUrl() + "/merchant-details/callback?merchant="
                 + getMerchant().name() + "&secret=" + callbackConfig.getCallbackSecret());
         request.setNotificationToken(bridgePayProperties.token());

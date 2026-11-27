@@ -7,6 +7,9 @@ import net.rcetech.md.app.grpc.generated.ApiMerchantConfigItemGrpc;
 import net.rcetech.md.app.grpc.generated.UpdateApiMerchantConfigItemGrpc;
 import net.rcetech.md.meta.dto.ApiMerchantConfigDTO;
 import net.rcetech.md.meta.dto.UpdateApiMerchantConfigDTO;
+import net.rcetech.md.meta.enums.FiatCurrency;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
+import tgb.cryptoexchange.commons.enums.MerchantFamily;
 
 @Component
 public class ApiMerchantConfigGrpcMapper {
@@ -18,6 +21,8 @@ public class ApiMerchantConfigGrpcMapper {
 
         if (dto.merchant() != null) {
             builder.setMerchant(dto.merchant().name());
+            builder.setCurrency(MerchantCatalog.of(dto.merchant()).getCurrency().name());
+            builder.setFamily(MerchantFamily.of(dto.merchant()).name());
         }
         if (dto.maxAmount() != null) {
             builder.setMaxAmount(Int32Value.of(dto.maxAmount()));
@@ -48,6 +53,9 @@ public class ApiMerchantConfigGrpcMapper {
         }
         if (grpcRequest.hasSwap()) {
             request.setSwap(grpcRequest.getSwap().getValue());
+        }
+        if (grpcRequest.hasOwnerFiatCurrency()) {
+            request.setOwnerFiatCurrency(grpcRequest.getOwnerFiatCurrency());
         }
         return request;
     }

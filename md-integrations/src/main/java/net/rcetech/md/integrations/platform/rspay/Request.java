@@ -22,9 +22,7 @@ public class Request {
     private String callbackUrl;
 
     @JsonProperty("currency")
-    public String getCurrency() {
-        return "RUB";
-    }
+    private String currency;
 
     @JsonProperty("kyc")
     public Boolean getKyc() {

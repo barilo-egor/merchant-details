@@ -1,6 +1,7 @@
 package net.rcetech.md.integrations.platform;
 
 import lombok.*;
+import net.rcetech.md.meta.enums.FiatCurrency;
 import net.rcetech.md.meta.enums.RequiredReceipt;
 
 @Data
@@ -25,5 +26,8 @@ public class OrderCreationRequest {
     protected String phone;
 
     protected RequiredReceipt requiredReceipt;
+
+    /** Валюта мерчанта из справочника — та же, что отправляется площадке. */
+    protected FiatCurrency currency;
 
 }

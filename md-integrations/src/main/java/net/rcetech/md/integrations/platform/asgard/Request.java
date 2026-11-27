@@ -16,9 +16,7 @@ public class Request {
     private String callbackUri;
 
     @JsonProperty("currency")
-    private String getCurrency() {
-        return "RUB";
-    }
+    private String currency;
 
     @JsonSerialize(using = Method.Serializer.class)
     private Method method;

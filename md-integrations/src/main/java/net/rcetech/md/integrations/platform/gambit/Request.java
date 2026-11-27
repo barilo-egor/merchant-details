@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.util.Currency;
-
 @Data
 public class Request {
 
@@ -21,11 +19,7 @@ public class Request {
     @JsonProperty("merchant_order_id")
     private String orderId;
 
-    public String getType() {
-        return "payin";
-    }
+    private String type = "payin";
 
-    public String getCurrency() {
-        return Currency.getInstance("RUB").getCurrencyCode();
-    }
+    private String currency;
 }

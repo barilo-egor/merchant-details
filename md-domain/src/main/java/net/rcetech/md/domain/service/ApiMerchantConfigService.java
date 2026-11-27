@@ -8,8 +8,11 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.meta.dto.ApiMerchantConfigDTO;
 import net.rcetech.md.meta.dto.UpdateApiMerchantConfigDTO;
 import net.rcetech.md.domain.entity.ApiMerchantConfig;
+import net.rcetech.md.meta.enums.FiatCurrency;
 import net.rcetech.md.meta.exception.MerchantConfigNotFoundException;
+import net.rcetech.md.meta.exception.MerchantCurrencyMismatchException;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.domain.repository.ApiMerchantConfigRepository;
 
 import java.util.*;
@@ -17,9 +20,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class ApiMerchantConfigService {
-
-    private static final int DEFAULT_MIN_AMOUNT = 1;
-    private static final int DEFAULT_MAX_AMOUNT = 5000;
 
     private final ApiMerchantConfigRepository repository;
 
@@ -58,11 +58,12 @@ public class ApiMerchantConfigService {
         int nextOrder = maxOrder + 1;
         List<ApiMerchantConfig> toCreate = new ArrayList<>(missingMerchants.size());
         for (Merchant merchant : missingMerchants) {
+            FiatCurrency currency = MerchantCatalog.of(merchant).getCurrency();
             toCreate.add(ApiMerchantConfig.builder()
                     .isOn(false)
                     .merchant(merchant)
-                    .maxAmount(DEFAULT_MAX_AMOUNT)
-                    .minAmount(DEFAULT_MIN_AMOUNT)
+                    .maxAmount(currency.getDefaultMaxAmount())
+                    .minAmount(currency.getDefaultMinAmount())
                     .merchantOrder(nextOrder++)
                     .ownerId(ownerId)
                     .build());
@@ -79,6 +80,9 @@ public class ApiMerchantConfigService {
         ApiMerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id %d not found".formatted(dto.getId())));
+        if (Boolean.TRUE.equals(dto.getIsOn())) {
+            requireCurrencyMatchesOwner(merchantConfig, dto.getOwnerFiatCurrency());
+        }
         if (Objects.nonNull(dto.getIsOn())) {
             merchantConfig.setIsOn(dto.getIsOn());
         }
@@ -97,6 +101,28 @@ public class ApiMerchantConfigService {
         }
         repository.save(merchantConfig);
         return repository.findDtoById(dto.getId()).orElseThrow();
+    }
+
+    /**
+     * Включение мерчанта владельцу с другой валютой отклоняется: владелец получал бы
+     * суммы в чужой валюте. Валюта владельца не передана (старый processing) — проверка не выполняется.
+     */
+    private void requireCurrencyMatchesOwner(ApiMerchantConfig config, String ownerFiatCurrency) {
+        if (ownerFiatCurrency == null || ownerFiatCurrency.isBlank()) {
+            return;
+        }
+        FiatCurrency ownerCurrency;
+        try {
+            ownerCurrency = FiatCurrency.valueOf(ownerFiatCurrency.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Неизвестная валюта владельца: " + ownerFiatCurrency);
+        }
+        FiatCurrency merchantCurrency = MerchantCatalog.of(config.getMerchant()).getCurrency();
+        if (ownerCurrency != merchantCurrency) {
+            throw new MerchantCurrencyMismatchException(
+                    "Мерчант %s работает в %s, а валюта API-клиента — %s. Включение отклонено."
+                            .formatted(config.getMerchant(), merchantCurrency, ownerCurrency));
+        }
     }
 
     private void changeOrder(ApiMerchantConfig config, Integer newOrder) {

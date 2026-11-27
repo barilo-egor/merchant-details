@@ -19,4 +19,7 @@ public class UpdateApiMerchantConfigDTO {
 
     private Boolean swap;
 
+    /** Валюта владельца конфига (API-клиента); пусто — проверка валюты не выполняется. */
+    private String ownerFiatCurrency;
+
 }
