@@ -1,11 +1,9 @@
 package net.rcetech.md.integrations.platform.gambit;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.Optional;
 
@@ -16,6 +14,7 @@ public enum GambitMethod implements Method {
     SBP("a0e3edeb-773d-446d-8a06-48cb102ea182", "СБП", RequestMethod.SBP),
     MOBILE("a0e3edeb-80f0-4d5d-914e-064a94cde4e3", "Sim", null);
 
+    @JsonValue
     final String methodUid;
 
     final String description;
@@ -25,12 +24,5 @@ public enum GambitMethod implements Method {
     @Override
     public Optional<RequestMethod> getRequestMethod() {
         return Optional.ofNullable(requestMethod);
-    }
-
-    public static class Serializer extends ValueSerializer<Method> {
-        @Override
-        public void serialize(Method method, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
-            jsonGenerator.writeString(method.getMethodUid());
-        }
     }
 }

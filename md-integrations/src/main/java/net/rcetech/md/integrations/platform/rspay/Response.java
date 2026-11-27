@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
 import net.rcetech.md.integrations.platform.ValidationResult;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -14,13 +13,11 @@ public class Response implements MerchantDetailsResponse {
     @JsonProperty("merchant_transaction_id")
     private String id;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     private Requisites requisites;
 
     @JsonProperty("payment_method")
-    @JsonDeserialize(using = Method.Deserializer.class)
     private Method paymentMethod;
 
     @Override

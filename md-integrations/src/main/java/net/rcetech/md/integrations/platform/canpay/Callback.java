@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.rcetech.md.integrations.platform.MerchantOrderStatus;
 import net.rcetech.md.integrations.platform.UnwrappedCallback;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -30,7 +29,6 @@ public class Callback extends UnwrappedCallback {
     public static class Payment {
         private String id;
 
-        @JsonDeserialize(using = Status.Deserializer.class)
         private Status status;
     }
 

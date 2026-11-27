@@ -2,7 +2,6 @@ package net.rcetech.md.integrations.platform.bridgepay;
 
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantCallback;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -41,7 +40,6 @@ public class BridgeCallback implements MerchantCallback {
 
         private String id;
 
-        @JsonDeserialize(using = Status.Deserializer.class)
         private Status status;
     }
 }

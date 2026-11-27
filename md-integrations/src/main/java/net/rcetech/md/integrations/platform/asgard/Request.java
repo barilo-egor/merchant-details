@@ -2,7 +2,6 @@ package net.rcetech.md.integrations.platform.asgard;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {
@@ -18,7 +17,6 @@ public class Request {
     @JsonProperty("currency")
     private String currency;
 
-    @JsonSerialize(using = Method.Serializer.class)
     private Method method;
 
 }

@@ -2,12 +2,10 @@ package net.rcetech.md.integrations.platform.bitzone;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {
 
-    @JsonSerialize(using = Method.Serializer.class)
     private Method method;
 
     private Integer fiatAmount;

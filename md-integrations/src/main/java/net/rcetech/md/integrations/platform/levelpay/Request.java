@@ -3,7 +3,6 @@ package net.rcetech.md.integrations.platform.levelpay;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,7 +14,6 @@ public class Request {
     private Integer amount;
 
     @JsonProperty("payment_detail_type")
-    @JsonSerialize(using = Method.Serializer.class)
     private Method paymentDetailType;
 
     @JsonProperty("merchant_id")

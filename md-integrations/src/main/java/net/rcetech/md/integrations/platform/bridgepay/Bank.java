@@ -2,9 +2,6 @@ package net.rcetech.md.integrations.platform.bridgepay;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -260,12 +257,5 @@ public enum Bank {
             }
         }
         return null;
-    }
-
-    public static class Deserializer extends ValueDeserializer<Bank> {
-        @Override
-        public Bank deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return Bank.fromValue(jsonParser.getValueAsString());
-        }
     }
 }

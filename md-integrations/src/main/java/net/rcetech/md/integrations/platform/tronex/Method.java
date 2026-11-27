@@ -1,15 +1,11 @@
 package net.rcetech.md.integrations.platform.tronex;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.Optional;
 
@@ -28,6 +24,7 @@ public enum Method implements MerchantMethod {
     T_BANK_CARD_DL("c2c", "tbank", "Карта Т-Банк DL", null),
     OZON_CARD_DL("c2c", "ozon", "Карта Озон DL", null);
 
+    @JsonValue
     final String methodUid;
 
     final String sourceBank;
@@ -40,6 +37,7 @@ public enum Method implements MerchantMethod {
         return Optional.ofNullable(requestMethod);
     }
 
+    @JsonCreator
     public static Method fromValue(String v) {
         for (Method method : Method.values()) {
             if (method.methodUid.equals(v)) {
@@ -47,20 +45,5 @@ public enum Method implements MerchantMethod {
             }
         }
         return null;
-    }
-
-    public static class Serializer extends ValueSerializer<Method> {
-        @Override
-        public void serialize(Method method, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
-            jsonGenerator.writeString(method.getMethodUid());
-        }
-    }
-
-    public static class Deserializer extends ValueDeserializer<Method> {
-
-        @Override
-        public Method deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return Method.fromValue(jsonParser.getValueAsString());
-        }
     }
 }

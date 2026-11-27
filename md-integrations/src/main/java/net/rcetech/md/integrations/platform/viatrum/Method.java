@@ -1,15 +1,11 @@
 package net.rcetech.md.integrations.platform.viatrum;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,6 +26,7 @@ public enum Method implements MerchantMethod {
 
     private final Integer id;
 
+    @JsonCreator
     public static Method fromValue(String value) {
         for (Method method : Method.values()) {
             if (method.getValue().equals(value)) {
@@ -44,22 +41,14 @@ public enum Method implements MerchantMethod {
         return Optional.empty();
     }
 
-    public static class Serializer extends ValueSerializer<Method> {
-        @Override
-        public void serialize(Method viatrum, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
-            if (Arrays.asList(VTB_QR, SBER_QR, ALFA_QR, OTP_QR, GAZPROM_QR, PSB_QR).contains(viatrum)) {
-                jsonGenerator.writeString("PAYMENT_LINK");
-                return;
-            }
-            jsonGenerator.writeString(viatrum.getValue());
+    /**
+     * Wire-формат площадки: для всех QR-методов уходит строка "PAYMENT_LINK".
+     */
+    @JsonValue
+    public String getJsonValue() {
+        if (Arrays.asList(VTB_QR, SBER_QR, ALFA_QR, OTP_QR, GAZPROM_QR, PSB_QR).contains(this)) {
+            return "PAYMENT_LINK";
         }
-    }
-
-    public static class Deserializer extends
-            ValueDeserializer<Method> {
-        @Override
-        public Method deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return fromValue(jsonParser.getValueAsString());
-        }
+        return getValue();
     }
 }

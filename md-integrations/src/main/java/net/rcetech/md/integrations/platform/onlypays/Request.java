@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 @AllArgsConstructor
@@ -25,7 +24,6 @@ public class Request {
     private Integer amount;
 
     @JsonProperty("payment_type")
-    @JsonSerialize(using = Method.Serializer.class)
     private Method method;
 
     @JsonProperty("personal_id")

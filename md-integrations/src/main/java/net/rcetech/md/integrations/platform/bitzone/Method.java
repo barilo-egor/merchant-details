@@ -1,15 +1,11 @@
 package net.rcetech.md.integrations.platform.bitzone;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.Optional;
 
@@ -27,18 +23,13 @@ public enum Method implements MerchantMethod {
         return Optional.ofNullable(requestMethod);
     }
 
-    public static class Serializer extends ValueSerializer<Method> {
-
-        @Override
-        public void serialize(Method value, JsonGenerator gen, SerializationContext serializers) {
-            gen.writeString(value.name().toLowerCase());
-        }
+    @JsonValue
+    public String getValue() {
+        return name().toLowerCase();
     }
 
-    public static class Deserializer extends ValueDeserializer<Method> {
-        @Override
-        public Method deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return Method.valueOf(jsonParser.getString().toUpperCase());
-        }
+    @JsonCreator
+    public static Method fromValue(String v) {
+        return Method.valueOf(v.toUpperCase());
     }
 }

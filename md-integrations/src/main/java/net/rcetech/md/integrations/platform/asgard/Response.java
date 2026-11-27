@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
 import net.rcetech.md.integrations.platform.ValidationResult;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -55,10 +54,8 @@ public class Response implements MerchantDetailsResponse {
 
         private Double amount;
 
-        @JsonDeserialize(using = Status.Deserializer.class)
         private Status state;
 
-        @JsonDeserialize(using = Method.Deserializer.class)
         private Method method;
 
         private String bankName;

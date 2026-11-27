@@ -1,16 +1,14 @@
 package net.rcetech.md.integrations.platform.paylee;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +29,7 @@ public enum Method implements MerchantMethod {
     YANDEX_TIPS("tips", "Яндекс чаевые", null),
     ;
 
+    @JsonValue
     private final String value;
 
     private final String description;
@@ -50,13 +49,9 @@ public enum Method implements MerchantMethod {
         return null;
     }
 
-    public static class Serializer extends ValueSerializer<Method> {
-        @Override
-        public void serialize(Method payLeeMethod, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
-            jsonGenerator.writeString(payLeeMethod.getValue());
-        }
-    }
-
+    /**
+     * Кастомный десериализатор сохранён: принимает и массив, и одиночную строку.
+     */
     public static class Deserializer extends ValueDeserializer<List<Method>> {
 
         @Override

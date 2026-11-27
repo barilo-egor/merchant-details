@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantCallback;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -45,7 +44,6 @@ public class CallbackTransgran implements MerchantCallback {
         @JsonProperty("client_order_id")
         private String id;
 
-        @JsonDeserialize(using = Status.Deserializer.class)
         private Status status;
     }
 }

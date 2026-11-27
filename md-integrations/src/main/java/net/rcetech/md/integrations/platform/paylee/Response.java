@@ -17,7 +17,6 @@ public class Response implements MerchantDetailsResponse {
 
     private String bankName;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     @JsonDeserialize(using = Method.Deserializer.class)

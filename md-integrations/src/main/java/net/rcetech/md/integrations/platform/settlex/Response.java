@@ -3,7 +3,6 @@ package net.rcetech.md.integrations.platform.settlex;
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
 import net.rcetech.md.integrations.platform.ValidationResult;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -14,7 +13,6 @@ public class Response implements MerchantDetailsResponse {
 
     private String orderId;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     private Requisites requisites;

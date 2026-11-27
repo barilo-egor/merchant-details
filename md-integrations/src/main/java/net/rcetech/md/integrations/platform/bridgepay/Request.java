@@ -1,7 +1,6 @@
 package net.rcetech.md.integrations.platform.bridgepay;
 
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {
@@ -19,7 +18,6 @@ public class Request {
 
     private String userId;
 
-    @JsonSerialize(using = Method.Serializer.class)
     private Method paymentOption;
 
     private Boolean startDeal;

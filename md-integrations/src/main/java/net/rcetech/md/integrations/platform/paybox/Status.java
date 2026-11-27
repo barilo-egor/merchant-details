@@ -1,11 +1,9 @@
 package net.rcetech.md.integrations.platform.paybox;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantOrderStatus;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -22,6 +20,7 @@ public enum Status implements MerchantOrderStatus {
 
     private final String description;
 
+    @JsonCreator
     public static Status fromValue(String value) {
         for (Status payPointsStatus : Status.values()) {
             if (payPointsStatus.getValue().equals(value)) {
@@ -29,13 +28,5 @@ public enum Status implements MerchantOrderStatus {
             }
         }
         return null;
-    }
-
-    public static class Deserializer extends ValueDeserializer<Status> {
-
-        @Override
-        public Status deserialize(JsonParser p, DeserializationContext ctxt) {
-            return Status.fromValue(p.getValueAsString());
-        }
     }
 }

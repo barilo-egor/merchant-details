@@ -3,7 +3,6 @@ package net.rcetech.md.integrations.platform.bitzone;
 import lombok.Data;
 import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
 import net.rcetech.md.integrations.platform.ValidationResult;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -12,12 +11,10 @@ public class Response implements MerchantDetailsResponse {
 
     private String id;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     private Requisite requisite;
 
-    @JsonDeserialize(using = Method.Deserializer.class)
     private Method method;
 
     @Override

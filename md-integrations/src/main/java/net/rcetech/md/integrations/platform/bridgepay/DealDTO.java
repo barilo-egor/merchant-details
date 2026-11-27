@@ -2,7 +2,6 @@ package net.rcetech.md.integrations.platform.bridgepay;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -14,7 +13,6 @@ public class DealDTO {
 
     private String paymentMethodName;
 
-    @JsonDeserialize(using = Method.Deserializer.class)
     private Method paymentOption;
 
     private RequisitesDTO requisites;

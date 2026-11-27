@@ -1,12 +1,10 @@
 package net.rcetech.md.integrations.platform.bridgepay;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.rcetech.md.integrations.platform.MerchantOrderStatus;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -22,6 +20,7 @@ public enum Status implements MerchantOrderStatus {
 
     private final String description;
 
+    @JsonCreator
     public static Status getByValue(String value) {
         for (Status status : Status.values()) {
             if (status.getValue().equals(value)) {
@@ -29,12 +28,5 @@ public enum Status implements MerchantOrderStatus {
             }
         }
         return null;
-    }
-
-    public static class Deserializer extends ValueDeserializer<Status> {
-        @Override
-        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return Status.getByValue(jsonParser.getValueAsString());
-        }
     }
 }

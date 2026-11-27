@@ -1,7 +1,6 @@
 package net.rcetech.md.integrations.platform.goatx;
 
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {
@@ -14,6 +13,5 @@ public class Request {
 
     private String signature;
 
-    @JsonSerialize(using = Method.Serializer.class)
     private Method way;
 }

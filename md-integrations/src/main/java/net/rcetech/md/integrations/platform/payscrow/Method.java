@@ -1,12 +1,10 @@
 package net.rcetech.md.integrations.platform.payscrow;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
 
 import java.util.Optional;
 
@@ -25,6 +23,7 @@ public enum Method implements MerchantMethod {
     SIM("94eb8ffc-f900-47e1-89dd-ed8974780595", "SIM", null)
     ;
 
+    @JsonValue
     private final String value;
 
     private final String description;
@@ -33,13 +32,5 @@ public enum Method implements MerchantMethod {
 
     public Optional<RequestMethod> getRequestMethod() {
         return Optional.ofNullable(requestMethod);
-    }
-
-    public static class Serializer extends ValueSerializer<Method> {
-
-        @Override
-        public void serialize(Method payscrowMethod, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
-            jsonGenerator.writeString(payscrowMethod.getValue());
-        }
     }
 }

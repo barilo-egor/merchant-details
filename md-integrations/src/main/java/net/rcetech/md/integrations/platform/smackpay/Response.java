@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.rcetech.md.integrations.platform.MerchantDetailsResponse;
 import net.rcetech.md.integrations.platform.ValidationResult;
-import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
 
@@ -17,7 +16,6 @@ public class Response implements MerchantDetailsResponse {
 
     private Integer amount;
 
-    @JsonDeserialize(using = Status.Deserializer.class)
     private Status status;
 
     @JsonProperty("payment_url")

@@ -1,5 +1,6 @@
 package net.rcetech.md.integrations.platform.gambit;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
@@ -13,6 +14,7 @@ public enum HesoyamMethod implements Method {
     SBP("a23f88ed-0c7a-4797-b6f5-2f2f132aee59", "СБП", RequestMethod.SBP),
     QR("a23f88ed-0d41-495d-9aac-05ea3ed7a6fa", "QR", null);
 
+    @JsonValue
     final String methodUid;
 
     final String description;

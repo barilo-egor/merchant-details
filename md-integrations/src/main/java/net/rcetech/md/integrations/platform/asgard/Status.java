@@ -1,11 +1,9 @@
 package net.rcetech.md.integrations.platform.asgard;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.rcetech.md.integrations.platform.MerchantOrderStatus;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ValueDeserializer;
 
 @AllArgsConstructor
 @Getter
@@ -23,6 +21,7 @@ public enum Status implements MerchantOrderStatus {
 
     final String description;
 
+    @JsonCreator
     public static Status fromValue(String v) {
         for (Status status : Status.values()) {
             if (status.value.equals(v)) {
@@ -30,13 +29,5 @@ public enum Status implements MerchantOrderStatus {
             }
         }
         return null;
-    }
-
-    public static class Deserializer extends ValueDeserializer<Status> {
-
-        @Override
-        public Status deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-            return Status.fromValue(jsonParser.getValueAsString());
-        }
     }
 }

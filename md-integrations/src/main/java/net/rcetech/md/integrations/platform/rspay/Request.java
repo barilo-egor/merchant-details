@@ -2,7 +2,6 @@ package net.rcetech.md.integrations.platform.rspay;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonSerialize;
 
 @Data
 public class Request {
@@ -11,7 +10,6 @@ public class Request {
     private String transactionId;
 
     @JsonProperty("payment_method")
-    @JsonSerialize(using = Method.Serializer.class)
     private Method paymentMethod;
 
     private String amount;
