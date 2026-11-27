@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import net.rcetech.md.integrations.util.MultipartFormBuilder;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.properties.PayBoxProperties;
 
 import java.net.URI;
@@ -15,9 +16,9 @@ import java.util.function.Function;
 @Slf4j
 public abstract class ReceiptOrderCreationService extends PayBoxOrderCreationService {
 
-    protected ReceiptOrderCreationService(RestClient restClient,
+    protected ReceiptOrderCreationService(Merchant merchant, RestClient restClient,
                                           PayBoxProperties receiptProperties) {
-        super(restClient, receiptProperties);
+        super(merchant, restClient, receiptProperties);
     }
 
     @Override

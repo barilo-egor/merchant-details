@@ -13,6 +13,8 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.LevelPayProperties;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
@@ -25,17 +27,25 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class LevelPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class LevelPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final CallbackConfig callbackConfig;
 
     private final LevelPayProperties levelPayProperties;
 
-    protected LevelPayOrderCreationService(RestClient restClient, CallbackConfig callbackConfig,
-                                           LevelPayProperties levelPayProperties) {
+    public LevelPayOrderCreationService(Merchant merchant, RestClient restClient, CallbackConfig callbackConfig,
+                                        LevelPayProperties levelPayProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.callbackConfig = callbackConfig;
         this.levelPayProperties = levelPayProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override
@@ -92,7 +102,9 @@ public abstract class LevelPayOrderCreationService extends MerchantOrderCreation
     }
 
     protected Integer getAmount(String amount) {
-        return Integer.parseInt(amount);
+        int value = Integer.parseInt(amount);
+        // Мерчанты с флагом amountMinorUnits в справочнике получают сумму в копейках.
+        return MerchantCatalog.of(merchant).amountMinorUnits() ? value / 100 : value;
     }
 
     @Override

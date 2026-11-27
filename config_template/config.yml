@@ -341,9 +341,11 @@ hell-bit:
   token:
   sign-key:
 hell-bit-bt:
+  url:
   token:
   sign-key:
 hell-bit-receipt:
+  url:
   token:
   sign-key:
 can-pay:

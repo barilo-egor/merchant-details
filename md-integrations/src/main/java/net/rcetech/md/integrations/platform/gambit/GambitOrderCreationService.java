@@ -9,6 +9,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.GambitProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.net.URI;
 import java.util.Objects;
@@ -18,13 +19,21 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class GambitOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class GambitOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     protected final GambitProperties gambitProperties;
 
-    protected GambitOrderCreationService(RestClient restClient, GambitProperties gambitProperties) {
+    private final Merchant merchant;
+
+    public GambitOrderCreationService(Merchant merchant, RestClient restClient, GambitProperties gambitProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.gambitProperties = gambitProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override
@@ -53,7 +62,14 @@ public abstract class GambitOrderCreationService extends MerchantOrderCreationSe
         return request;
     }
 
+    /**
+     * У аккаунтов площадки gambit разные наборы методов платформы: у hesoyam свои uid'ы
+     * (HesoyamMethod), поэтому тип метода выбирается по мерчанту сервиса.
+     */
     protected Method parseDetailsMethod(String method) {
+        if (Merchant.HESOYAM == getMerchant()) {
+            return parseMethod(method, HesoyamMethod.class);
+        }
         return parseMethod(method, GambitMethod.class);
     }
 

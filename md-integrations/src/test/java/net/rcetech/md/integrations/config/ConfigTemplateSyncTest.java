@@ -83,7 +83,9 @@ class ConfigTemplateSyncTest {
                 }
             }
         }
-        assertTrue(prefixes.size() > 50, "Похоже, пакет properties не найден: " + prefixes.size() + " префиксов");
+        // Вариантные properties аккаунтов сносятся (аккаунт без собственного класса) — порог
+        // проверяет только то, что пакет найден, а не конкретное количество префиксов.
+        assertTrue(prefixes.size() > 10, "Похоже, пакет properties не найден: " + prefixes.size() + " префиксов");
         return prefixes;
     }
 

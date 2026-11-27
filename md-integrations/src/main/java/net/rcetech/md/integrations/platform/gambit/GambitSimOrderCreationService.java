@@ -16,7 +16,7 @@ public class GambitSimOrderCreationService extends GambitOrderCreationService {
 
     protected GambitSimOrderCreationService(@Qualifier("gambitSimRestClient") RestClient gambitSimRestClient,
                                             GambitSimProperties gambitSimProperties) {
-        super(gambitSimRestClient, gambitSimProperties);
+        super(Merchant.GAMBIT_SIM, gambitSimRestClient, gambitSimProperties);
     }
 
     @Override

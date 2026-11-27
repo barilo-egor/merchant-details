@@ -18,7 +18,7 @@ public class HellBitReceiptOrderCreationService extends ReceiptOrderCreationServ
 
     protected HellBitReceiptOrderCreationService(@Qualifier("hellBitRestClient") RestClient restClient,
                                                  HellBitReceiptProperties hellBitProperties) {
-        super(restClient, hellBitProperties);
+        super(Merchant.HELLBIT_RECEIPT, restClient, hellBitProperties);
     }
 
     @Override

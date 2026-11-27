@@ -53,10 +53,6 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(onyxPayProperties.url()).build();
     }
 
-    @Bean
-    public RestClient crocoPayRestClient(CrocoPayImplProperties crocoPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(crocoPayProperties.url()).build();
-    }
 
     @Bean
     public RestClient evoPayRestClient(EvoPayProperties evoPayProperties) {
@@ -67,39 +63,10 @@ public class RestClientsConfig {
 
 
 
-    @Bean
-    public RestClient pwPayRestClient(PwPayProperties pwPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(pwPayProperties.url()).build();
-    }
 
     @Bean
     public RestClient honeyMoneyRestClient(HoneyMoneyProperties honeyMoneyProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(honeyMoneyProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient payscrowRestClient(PayscrowPropertiesImpl payscrowProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payscrowProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient payscrowHighCheckRestClient(PayscrowHighCheckProperties payscrowHighCheckProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payscrowHighCheckProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient payscrowWTRestClient(PayscrowWTProperties payscrowWTProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payscrowWTProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient payscrowSimRestClient(PayscrowSimProperties payscrowSimProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payscrowSimProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient payscrowLowRestClient(PayscrowLowProperties payscrowLowProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payscrowLowProperties.url()).build();
     }
 
     @Bean
@@ -113,57 +80,8 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(onlyPaysProperties.url()).build();
     }
 
-    @Bean
-    public RestClient payLeeRestClient(PayLeePropertiesImpl payLeeProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payLeeProperties.url()).build();
-    }
 
 
-
-    @Bean
-    public RestClient settleXRestClient(SettleXPropertiesImpl settleXProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(settleXProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient settleX15RestClient(SettleX15Properties settleX15Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(settleX15Properties.url()).build();
-    }
-
-    @Bean
-    public RestClient plataPaymentRestClient(PlataPaymentProperties properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(properties.url()).build();
-    }
-
-    @Bean
-    public RestClient plata18RestClient(Plata18Properties properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(properties.url()).build();
-    }
-
-    @Bean
-    public RestClient payLeeQRRestClient(PayLeeQRProperties payLeeProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payLeeProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient yoloRestClient(YoloPropertiesImpl yoloProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(yoloProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient yoloSimRestClient(YoloSimProperties yoloSimProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(yoloSimProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient norosRestClient(NorosPropertiesImpl norosProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(norosProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient norosHighCheckRestClient(NorosHighCheckProperties norosHighCheckProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(norosHighCheckProperties.url()).build();
-    }
 
     @Bean
     public RestClient fiatCutRestClient(FiatCutProperties fiatCutProperties) {
@@ -175,128 +93,44 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(cashOutProperties.url()).build();
     }
 
-    @Bean
-    public RestClient goatxRestClient(GoatxPropertiesImpl goatxProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(goatxProperties.url()).build();
-    }
+
 
     @Bean
-    public RestClient goatxSimRestClient(GoatxSimProperties goatxSimProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(goatxSimProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient lotrienRestClient(LotrienProperties lotrienProperties) {
+    public RestClient lotrienRestClient(LotrienPropertiesImpl lotrienProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(lotrienProperties.url()).build();
     }
 
-    @Bean
-    public RestClient gambitRestClient(GambitImplProperties gambitProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(gambitProperties.url()).build();
-    }
 
     @Bean
     public RestClient gambitSimRestClient(GambitSimProperties gambitSimProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(gambitSimProperties.url()).build();
     }
 
-    @Bean
-    public RestClient asgardRestClient(AsgardImplProperties asgardProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(asgardProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient asgardWTRestClient(AsgardWTProperties asgardProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(asgardProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient asgardSimRestClient(AsgardSimProperties asgardProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(asgardProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient asgardHighCheckRestClient(AsgardHighCheckProperties asgardProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(asgardProperties.url()).build();
-    }
 
 
 
 
 
-    @Bean
-    public RestClient meridianPayRestClient(MeridianPayProperties meridianPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient meridianPayHighCheckRestClient(MeridianPayHighCheckProperties meridianPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient meridianPayLowCheckRestClient(MeridianPayLowCheckProperties meridianPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient meridianPaySimRestClient(MeridianPaySimProperties meridianPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
-    }
-
-    @Bean
-    public RestClient meridianPayNspkRestClient(MeridianPayNspkProperties meridianPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
-    }
 
 
 
 
 
-    @Bean
-    public RestClient base51RestClient(Base51Properties base51Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(base51Properties.url()).build();
-    }
 
-    @Bean
-    public RestClient base51SimRestClient(Base51SimProperties base51Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(base51Properties.url()).build();
-    }
 
-    @Bean
-    public RestClient base51HighCheckRestClient(Base51HighCheckProperties base51Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(base51Properties.url()).build();
-    }
 
-    @Bean
-    public RestClient base51LowCheckRestClient(Base51LowCheckProperties base51Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(base51Properties.url()).build();
-    }
 
-    @Bean
-    public RestClient bucksPaySimRestClient(BucksPaySimProperties bucksPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(bucksPayProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient bucksPayRestClient(BucksPayProperties bucksPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(bucksPayProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient manyPayRestClient(ManyPayPropertiesImpl manyPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(manyPayProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient manyPayLowCheckRestClient(ManyPayLowCheckProperties manyPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(manyPayProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient manyPayHighCheckRestClient(ManyPayHighCheckProperties manyPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(manyPayProperties.url()).build();
-    }
+
+
+
+
+
+
+
 
     @Bean
     public RestClient prismaPayRestClient(PrismaPayProperties prismaPayProperties) {
@@ -308,10 +142,6 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(paySyncProperties.url()).build();
     }
 
-    @Bean
-    public RestClient cubeRestClient(CubePropertiesImpl cubeProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(cubeProperties.url()).build();
-    }
 
     @Bean
     public RestClient rsPayRestClient(RSPayImplProperties rsPayProperties) {
@@ -333,10 +163,6 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(primeWalletProperties.url()).build();
     }
 
-    @Bean
-    public RestClient bayPayRestClient(BayPayImplProperties bayPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(bayPayProperties.url()).build();
-    }
 
     @Bean
     public RestClient hellBitRestClient(HellBitProperties hellBitProperties) {

@@ -11,6 +11,7 @@ import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.BayPayProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -20,17 +21,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class BayPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class BayPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final BayPayProperties bayPayProperties;
 
     private final CallbackConfig callbackConfig;
 
-    protected BayPayOrderCreationService(RestClient restClient, BayPayProperties bayPayProperties,
-                                         CallbackConfig callbackConfig) {
+    public BayPayOrderCreationService(Merchant merchant, RestClient restClient, BayPayProperties bayPayProperties,
+                                      CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.bayPayProperties = bayPayProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

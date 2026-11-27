@@ -16,7 +16,7 @@ public class HesoyamSimOrderCreationService extends GambitOrderCreationService {
 
     protected HesoyamSimOrderCreationService(@Qualifier("hesoyamRestClient") RestClient hesoyamRestClient,
                                              HesoyamSimProperties hesoyamSimProperties) {
-        super(hesoyamRestClient, hesoyamSimProperties);
+        super(Merchant.HESOYAM_SIM, hesoyamRestClient, hesoyamSimProperties);
     }
 
     protected HesoyamMethod parseDetailsMethod(String method) {

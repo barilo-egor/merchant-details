@@ -16,7 +16,7 @@ public class TronExDeepLinkCreationService extends TronExOrderCreationService {
 
     protected TronExDeepLinkCreationService(@Qualifier("tronExRestClient") RestClient restClient,
                                             TronExDLProperties tronExDlProperties, CallbackConfig callbackConfig) {
-        super(restClient, tronExDlProperties, callbackConfig);
+        super(Merchant.TRON_EX_DEEP_LINK, restClient, tronExDlProperties, callbackConfig);
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.ManyPayProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.net.URI;
 import java.util.Optional;
@@ -18,17 +19,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class ManyPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class ManyPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     protected final ManyPayProperties manyPayProperties;
 
     protected final CallbackConfig callbackConfig;
 
-    protected ManyPayOrderCreationService(RestClient restClient,
-                                          ManyPayProperties manyPayProperties, CallbackConfig callbackConfig) {
+    private final Merchant merchant;
+
+    public ManyPayOrderCreationService(Merchant merchant, RestClient restClient,
+                                       ManyPayProperties manyPayProperties, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.manyPayProperties = manyPayProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

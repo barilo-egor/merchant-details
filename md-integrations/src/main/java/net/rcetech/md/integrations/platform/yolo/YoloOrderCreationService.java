@@ -1,7 +1,6 @@
 package net.rcetech.md.integrations.platform.yolo;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
@@ -11,6 +10,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.meta.exception.ServiceUnavailableException;
 import net.rcetech.md.integrations.properties.YoloProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 
 import java.net.URI;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class YoloOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     protected final YoloProperties yoloProperties;
 
@@ -31,11 +31,19 @@ public abstract class YoloOrderCreationService extends MerchantOrderCreationServ
 
     protected final JwtData jwtData = new JwtData();
 
-    protected YoloOrderCreationService(@Qualifier("yoloRestClient") RestClient restClient,
-                                       YoloProperties yoloProperties, CallbackConfig callbackConfig) {
+    private final Merchant merchant;
+
+    public YoloOrderCreationService(Merchant merchant, RestClient restClient,
+                                    YoloProperties yoloProperties, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.yoloProperties = yoloProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

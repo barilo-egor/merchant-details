@@ -23,17 +23,40 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class PayscrowOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class PayscrowOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String SUCCESS_FIELD = "success";
 
     private static final String MESSAGE_FIELD = "message";
 
+    private static final int AMOUNT_BOUND = 10_000;
+
+    private final Merchant merchant;
+
     private final PayscrowProperties payscrowProperties;
 
-    protected PayscrowOrderCreationService(RestClient restClient, PayscrowProperties payscrowProperties) {
+    public PayscrowOrderCreationService(Merchant merchant, RestClient restClient,
+                                        PayscrowProperties payscrowProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.payscrowProperties = payscrowProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
+    }
+
+    @Override
+    protected Predicate<OrderCreationRequest> isValidRequestPredicate(String merchantMethod) {
+        // Ограничение суммы метода TRIANGLE действовало только для аккаунта PAYSCROW.
+        if (!Merchant.PAYSCROW.equals(merchant)) {
+            return request -> true;
+        }
+        return detailsRequest -> {
+            Method method = parseMethod(merchantMethod, Method.class);
+            return !Method.TRIANGLE.equals(method) || detailsRequest.getAmount() < AMOUNT_BOUND;
+        };
     }
 
     @Override

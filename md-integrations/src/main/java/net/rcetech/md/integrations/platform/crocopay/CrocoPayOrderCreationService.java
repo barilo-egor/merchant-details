@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.HttpServerErrorException;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
@@ -21,17 +22,25 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class CrocoPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final CrocoPayProperties crocoPayProperties;
 
     protected final CallbackConfig callbackConfig;
 
-    protected CrocoPayOrderCreationService(RestClient restClient, CrocoPayProperties crocoPayProperties,
-                                           CallbackConfig callbackConfig) {
+    public CrocoPayOrderCreationService(Merchant merchant, RestClient restClient,
+                                        CrocoPayProperties crocoPayProperties, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.crocoPayProperties = crocoPayProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

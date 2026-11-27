@@ -14,7 +14,7 @@ public class BitBolideOrderCreationService extends PayBoxOrderCreationService {
 
     protected BitBolideOrderCreationService(@Qualifier("bitBolideRestClient") RestClient restClient,
                                             BitBolideProperties bitBolideProperties) {
-        super(restClient, bitBolideProperties);
+        super(Merchant.BIT_BOLIDE, restClient, bitBolideProperties);
         this.bitBolideProperties = bitBolideProperties;
     }
 

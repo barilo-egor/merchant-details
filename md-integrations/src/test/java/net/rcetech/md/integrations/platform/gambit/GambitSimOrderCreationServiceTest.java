@@ -5,10 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -28,16 +28,20 @@ import static org.mockito.Mockito.when;
 class GambitSimOrderCreationServiceTest {
 
     @Mock
+    private RestClient gambitSimRestClient;
+
+    @Mock
     private GambitSimProperties gambitProperties;
 
-    @InjectMocks
-    private GambitSimOrderCreationService service;
+    private GambitSimOrderCreationService service() {
+        return new GambitSimOrderCreationService(gambitSimRestClient, gambitProperties);
+    }
 
     @Test
     void uriBuilderShouldAddPath() {
         UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
         assertEquals("/orders/init",
-                service.uriBuilder(null).apply(uriBuilder).getPath());
+                service().uriBuilder(null).apply(uriBuilder).getPath());
     }
 
     @ValueSource(strings = {
@@ -47,7 +51,7 @@ class GambitSimOrderCreationServiceTest {
     void headersShouldAddRequiredHeaders(String key) {
         when(gambitProperties.key()).thenReturn(key);
         HttpHeaders headers = new HttpHeaders();
-        service.headers(null, null).accept(headers);
+        service().headers(null, null).accept(headers);
         assertAll(
                 () -> assertEquals("Bearer " + gambitProperties.key(), Objects.requireNonNull(headers.get("Authorization")).getFirst()),
                 () -> assertEquals("application/json", Objects.requireNonNull(headers.get("Content-Type")).getFirst()));
@@ -62,7 +66,7 @@ class GambitSimOrderCreationServiceTest {
         OrderCreationRequest detailsRequest = new OrderCreationRequest();
         detailsRequest.setAmount(Integer.valueOf(amount));
         detailsRequest.setMethod(method.name());
-        Request actual = service.body(detailsRequest);
+        Request actual = service().body(detailsRequest);
         assertAll(
                 () -> assertEquals(Integer.valueOf(amount), new BigDecimal(actual.getAmount()).intValue())
         );
@@ -85,7 +89,7 @@ class GambitSimOrderCreationServiceTest {
         requisite.setPhone(phoneValue);
         response.setPaymentDetails(requisite);
 
-        Optional<DetailsResponse> maybeResponse = service.buildResponse(response);
+        Optional<DetailsResponse> maybeResponse = service().buildResponse(response);
 
         DetailsResponse actual = maybeResponse.get();
 
@@ -95,13 +99,13 @@ class GambitSimOrderCreationServiceTest {
                 () -> assertEquals(status.name(), actual.getMerchantOrderStatus()),
                 () -> assertEquals(operator, actual.getBank()),
                 () -> assertEquals(phoneValue, actual.getDetails()),
-                () -> assertEquals(service.getMerchant(), actual.getMerchant())
+                () -> assertEquals(service().getMerchant(), actual.getMerchant())
         );
     }
 
     @Test
     void getMerchantShouldReturnGambitSim() {
-        assertEquals(Merchant.GAMBIT_SIM, service.getMerchant());
+        assertEquals(Merchant.GAMBIT_SIM, service().getMerchant());
     }
 
 }

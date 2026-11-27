@@ -17,7 +17,7 @@ public class RSPayOrderCreationServiceImpl extends RSPayOrderCreationService {
     protected RSPayOrderCreationServiceImpl(@Qualifier("rsPayRestClient") RestClient restClient,
                                             RSPayImplProperties rsPayProperties, CallbackConfig callbackConfig,
                                             SignatureService signatureService) {
-        super(restClient, rsPayProperties, callbackConfig, signatureService);
+        super(Merchant.RS_PAY, restClient, rsPayProperties, callbackConfig, signatureService);
     }
 
     @Override

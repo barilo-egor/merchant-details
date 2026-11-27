@@ -14,6 +14,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.meta.exception.BodyMappingException;
 import net.rcetech.md.integrations.properties.TronExProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 
 import java.net.URI;
@@ -25,17 +26,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class TronExOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class TronExOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     protected final TronExProperties tronExProperties;
 
     protected final CallbackConfig callbackConfig;
 
-    protected TronExOrderCreationService(RestClient restClient,
-                                         TronExProperties tronExProperties, CallbackConfig callbackConfig) {
+    public TronExOrderCreationService(Merchant merchant, RestClient restClient,
+                                      TronExProperties tronExProperties, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.tronExProperties = tronExProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

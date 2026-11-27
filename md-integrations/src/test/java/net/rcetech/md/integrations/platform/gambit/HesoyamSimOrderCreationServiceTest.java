@@ -3,7 +3,6 @@ package net.rcetech.md.integrations.platform.gambit;
 import org.springframework.web.client.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tgb.cryptoexchange.commons.enums.Merchant;
@@ -23,12 +22,13 @@ class HesoyamSimOrderCreationServiceTest {
     @Mock
     private HesoyamSimProperties hesoyamSimProperties;
 
-    @InjectMocks
-    private HesoyamSimOrderCreationService service;
+    private HesoyamSimOrderCreationService service() {
+        return new HesoyamSimOrderCreationService(hesoyamRestClient, hesoyamSimProperties);
+    }
 
     @Test
     void getMerchantShouldReturnHesoyamSim() {
-        assertEquals(Merchant.HESOYAM_SIM, service.getMerchant());
+        assertEquals(Merchant.HESOYAM_SIM, service().getMerchant());
     }
 
     @Test
@@ -43,7 +43,7 @@ class HesoyamSimOrderCreationServiceTest {
         requisite.setPhone("+79998887766");
         response.setPaymentDetails(requisite);
 
-        Optional<DetailsResponse> maybeResponse = service.buildResponse(response);
+        Optional<DetailsResponse> maybeResponse = service().buildResponse(response);
         assertTrue(maybeResponse.isPresent());
 
         DetailsResponse actual = maybeResponse.get();

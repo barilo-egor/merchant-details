@@ -18,7 +18,7 @@ public class HellBitOrderCreationService extends PayBoxOrderCreationService {
 
     protected HellBitOrderCreationService(@Qualifier("hellBitRestClient") RestClient restClient,
                                           HellBitProperties hellBitProperties) {
-        super(restClient, hellBitProperties);
+        super(Merchant.HELLBIT, restClient, hellBitProperties);
         this.hellBitProperties = hellBitProperties;
     }
 

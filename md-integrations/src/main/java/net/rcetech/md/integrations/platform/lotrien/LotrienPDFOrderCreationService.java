@@ -9,17 +9,17 @@ import net.rcetech.md.integrations.util.MultipartFormBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.properties.LotrienProperties;
+import net.rcetech.md.integrations.properties.LotrienPropertiesImpl;
 
 @Service
 @Slf4j
 public class LotrienPDFOrderCreationService extends LotrienOrderCreationService {
 
-    private final LotrienProperties lotrienProperties;
+    private final LotrienPropertiesImpl lotrienProperties;
 
     protected LotrienPDFOrderCreationService(@Qualifier("lotrienRestClient") RestClient restClient,
-                                             LotrienProperties lotrienProperties) {
-        super(restClient, lotrienProperties);
+                                             LotrienPropertiesImpl lotrienProperties) {
+        super(Merchant.LOTRIEN_PDF, restClient, lotrienProperties);
         this.lotrienProperties = lotrienProperties;
     }
 

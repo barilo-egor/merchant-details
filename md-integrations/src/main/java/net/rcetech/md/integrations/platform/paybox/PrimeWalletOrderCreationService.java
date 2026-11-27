@@ -14,7 +14,7 @@ public class PrimeWalletOrderCreationService extends PayBoxOrderCreationService 
 
     protected PrimeWalletOrderCreationService(@Qualifier("primeWalletRestClient") RestClient restClient,
                                               PrimeWalletProperties primeWalletProperties) {
-        super(restClient, primeWalletProperties);
+        super(Merchant.PRIME_WALLET, restClient, primeWalletProperties);
         this.primeWalletProperties = primeWalletProperties;
     }
 

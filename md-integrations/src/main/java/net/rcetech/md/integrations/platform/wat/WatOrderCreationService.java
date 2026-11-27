@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriBuilder;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tgb.cryptoexchange.commons.enums.MerchantFamily;
 import tools.jackson.core.JacksonException;
 
@@ -24,7 +25,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public abstract class WatOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class WatOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     protected final WatProperties watProperties;
 
@@ -32,13 +35,19 @@ public abstract class WatOrderCreationService extends MerchantOrderCreationServi
 
     private final ReceiptService receiptService;
 
-    protected WatOrderCreationService(RestClient restClient,
-                                      WatProperties watProperties, CallbackConfig callbackConfig,
-                                      ReceiptService receiptService) {
+    public WatOrderCreationService(Merchant merchant, RestClient restClient,
+                                   WatProperties watProperties, CallbackConfig callbackConfig,
+                                   ReceiptService receiptService) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.watProperties = watProperties;
         this.callbackConfig = callbackConfig;
         this.receiptService = receiptService;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
@@ -19,7 +20,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class AsgardOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class AsgardOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final AsgardProperties asgardProperties;
 
@@ -27,12 +30,18 @@ public abstract class AsgardOrderCreationService extends MerchantOrderCreationSe
 
     private final CallbackConfig callbackConfig;
 
-    protected AsgardOrderCreationService(RestClient restClient, AsgardProperties asgardProperties,
-                                         SignatureService signatureService, CallbackConfig callbackConfig) {
+    public AsgardOrderCreationService(Merchant merchant, RestClient restClient, AsgardProperties asgardProperties,
+                                      SignatureService signatureService, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.asgardProperties = asgardProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

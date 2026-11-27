@@ -9,6 +9,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.meta.exception.SignatureCreationException;
 import net.rcetech.md.integrations.properties.GoatxProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -20,14 +21,22 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class GoatxMerchantOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class GoatxMerchantOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final GoatxProperties goatxProperties;
 
-    protected GoatxMerchantOrderCreationService(RestClient restClient,
-                                                GoatxProperties goatxProperties) {
+    public GoatxMerchantOrderCreationService(Merchant merchant, RestClient restClient,
+                                             GoatxProperties goatxProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.goatxProperties = goatxProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

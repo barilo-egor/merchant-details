@@ -16,6 +16,7 @@ import net.rcetech.md.meta.exception.BodyMappingException;
 import net.rcetech.md.meta.exception.ReceiptPreparationException;
 import net.rcetech.md.integrations.properties.RSPayProperties;
 import net.rcetech.md.integrations.service.SignatureService;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 
 import java.io.ByteArrayOutputStream;
@@ -31,20 +32,28 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class RSPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class RSPayOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     protected final RSPayProperties rsPayProperties;
 
     protected final CallbackConfig callbackConfig;
 
+    private final Merchant merchant;
+
     private final SignatureService signatureService;
 
-    protected RSPayOrderCreationService(RestClient restClient, RSPayProperties rsPayProperties,
-                                        CallbackConfig callbackConfig, SignatureService signatureService) {
+    public RSPayOrderCreationService(Merchant merchant, RestClient restClient, RSPayProperties rsPayProperties,
+                                     CallbackConfig callbackConfig, SignatureService signatureService) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.rsPayProperties = rsPayProperties;
         this.callbackConfig = callbackConfig;
         this.signatureService = signatureService;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

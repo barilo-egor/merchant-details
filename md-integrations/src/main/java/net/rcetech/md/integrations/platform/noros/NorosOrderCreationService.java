@@ -12,6 +12,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.NorosProperties;
 import net.rcetech.md.integrations.util.ClientIdUtils;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.net.URI;
 import java.util.Objects;
@@ -22,16 +23,24 @@ import java.util.function.Function;
 
 
 @Slf4j
-public abstract class NorosOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class NorosOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final NorosProperties norosProperties;
 
     private final Hashids hashids;
 
-    protected NorosOrderCreationService(RestClient restClient, NorosProperties norosProperties) {
+    public NorosOrderCreationService(Merchant merchant, RestClient restClient, NorosProperties norosProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.norosProperties = norosProperties;
         this.hashids = new Hashids(norosProperties.clientIdSalt(), 8);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

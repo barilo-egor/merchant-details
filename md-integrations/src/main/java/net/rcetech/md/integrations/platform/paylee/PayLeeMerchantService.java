@@ -14,6 +14,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.PayLeeProperties;
 import net.rcetech.md.integrations.util.ClientIdUtils;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
@@ -27,18 +28,26 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class PayLeeMerchantService extends MerchantOrderCreationService<Response, Callback> {
+public class PayLeeMerchantService extends MerchantOrderCreationService<Response, Callback> {
 
     static final String NON_FIELD_ERRORS = "nonFieldErrors";
+
+    private final Merchant merchant;
 
     private final PayLeeProperties payLeeProperties;
 
     private final Hashids hashids;
 
-    protected PayLeeMerchantService(RestClient restClient, PayLeeProperties payLeeProperties) {
+    public PayLeeMerchantService(Merchant merchant, RestClient restClient, PayLeeProperties payLeeProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.payLeeProperties = payLeeProperties;
         this.hashids = new Hashids(payLeeProperties.clientIdSalt(), 8);
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

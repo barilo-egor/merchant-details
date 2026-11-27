@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
@@ -20,17 +21,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class CubeOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class CubeOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     protected final CubeProperties cubeProperties;
 
     protected final CallbackConfig callbackConfig;
 
-    protected CubeOrderCreationService(RestClient restClient, CubeProperties cubeProperties,
-                                       CallbackConfig callbackConfig) {
+    public CubeOrderCreationService(Merchant merchant, RestClient restClient, CubeProperties cubeProperties,
+                                    CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.cubeProperties = cubeProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

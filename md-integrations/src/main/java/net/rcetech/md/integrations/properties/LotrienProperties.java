@@ -1,7 +1,8 @@
 package net.rcetech.md.integrations.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+public interface LotrienProperties {
 
-@ConfigurationProperties(prefix = "lotrien")
-public record LotrienProperties(String url, String key) {
+    String url();
+
+    String key();
 }

@@ -18,7 +18,7 @@ public class BitBolideDeepLinkOrderCreationService extends PayBoxOrderCreationSe
 
     protected BitBolideDeepLinkOrderCreationService(@Qualifier("bitBolideRestClient") RestClient restClient,
                                                     BitBolideDeepLinkProperties bitBolideProperties) {
-        super(restClient, bitBolideProperties);
+        super(Merchant.BIT_BOLIDE_DEEP_LINK, restClient, bitBolideProperties);
         this.bitBolideProperties = bitBolideProperties;
     }
 

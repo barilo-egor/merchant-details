@@ -9,6 +9,7 @@ import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.LotrienProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -19,13 +20,21 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class LotrienOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class LotrienOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     private final LotrienProperties lotrienProperties;
 
-    protected LotrienOrderCreationService(RestClient restClient, LotrienProperties lotrienProperties) {
+    public LotrienOrderCreationService(Merchant merchant, RestClient restClient, LotrienProperties lotrienProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.lotrienProperties = lotrienProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

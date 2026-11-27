@@ -91,11 +91,36 @@ public enum MerchantCatalog {
     MANY_PAY_HIGH_CHECK(Platform.MANYPAY, FiatCurrency.RUB, "many-pay-high-check"),
     MANY_PAY_LOW_CHECK(Platform.MANYPAY, FiatCurrency.RUB, "many-pay-low-check"),
     // --- levelpay ---
-    MERIDIAN_PAY(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay"),
-    MERIDIAN_PAY_HIGH_CHECK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-high-check"),
-    MERIDIAN_PAY_LOW_CHECK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-low-check"),
-    MERIDIAN_PAY_NSPK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-nspk"),
-    MERIDIAN_PAY_SIM(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-sim"),
+    MERIDIAN_PAY(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay") {
+        @Override
+        public boolean amountMinorUnits() {
+            return true;
+        }
+    },
+    MERIDIAN_PAY_HIGH_CHECK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-high-check") {
+        @Override
+        public boolean amountMinorUnits() {
+            return true;
+        }
+    },
+    MERIDIAN_PAY_LOW_CHECK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-low-check") {
+        @Override
+        public boolean amountMinorUnits() {
+            return true;
+        }
+    },
+    MERIDIAN_PAY_NSPK(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-nspk") {
+        @Override
+        public boolean amountMinorUnits() {
+            return true;
+        }
+    },
+    MERIDIAN_PAY_SIM(Platform.LEVELPAY, FiatCurrency.RUB, "meridian-pay-sim") {
+        @Override
+        public boolean amountMinorUnits() {
+            return true;
+        }
+    },
     // --- noros ---
     NOROS(Platform.NOROS, FiatCurrency.RUB, "noros"),
     NOROS_HIGH_CHECK(Platform.NOROS, FiatCurrency.RUB, "noros-high-check"),
@@ -171,6 +196,11 @@ public enum MerchantCatalog {
         for (MerchantCatalog entry : values()) {
             BY_MERCHANT.put(Merchant.valueOf(entry.name()), entry);
         }
+    }
+
+    /** Сумма от площадки приходит в минорных единицах (копейках) — делить на 100 при ответе. */
+    public boolean amountMinorUnits() {
+        return false;
     }
 
     MerchantCatalog(Platform platform, FiatCurrency currency, String configPrefix) {

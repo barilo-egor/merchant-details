@@ -7,6 +7,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
@@ -25,15 +26,23 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class PayBoxOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class PayBoxOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
 
     private static final String MESSAGE_FIELD = "message";
 
+    private final Merchant merchant;
+
     protected final PayBoxProperties payBoxProperties;
 
-    protected PayBoxOrderCreationService(RestClient restClient, PayBoxProperties payBoxProperties) {
+    public PayBoxOrderCreationService(Merchant merchant, RestClient restClient, PayBoxProperties payBoxProperties) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.payBoxProperties = payBoxProperties;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

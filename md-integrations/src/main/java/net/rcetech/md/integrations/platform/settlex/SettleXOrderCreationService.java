@@ -10,6 +10,7 @@ import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.properties.SettleXProperties;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
@@ -22,17 +23,25 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class SettleXOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+public class SettleXOrderCreationService extends MerchantOrderCreationService<Response, Callback> {
+
+    private final Merchant merchant;
 
     protected final SettleXProperties settleXProperties;
 
     protected final CallbackConfig callbackConfig;
 
-    protected SettleXOrderCreationService(RestClient restClient,
-                                          SettleXProperties settleXProperties, CallbackConfig callbackConfig) {
+    public SettleXOrderCreationService(Merchant merchant, RestClient restClient,
+                                       SettleXProperties settleXProperties, CallbackConfig callbackConfig) {
         super(restClient, Response.class, Callback.class);
+        this.merchant = merchant;
         this.settleXProperties = settleXProperties;
         this.callbackConfig = callbackConfig;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override
