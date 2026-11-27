@@ -15,14 +15,14 @@ import java.util.Optional;
 @Repository
 public interface MerchantClientIdRepository extends JpaRepository<MerchantClientId, MerchantClientIdId> {
 
-    Optional<MerchantClientId> findByMerchantAndUserId(Merchant merchant, String userId);
+    Optional<MerchantClientId> findByIdMerchantAndUserId(Merchant merchant, String userId);
 
-    Optional<MerchantClientId> findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc();
+    Optional<MerchantClientId> findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(Merchant merchant);
 
     @Modifying
     @Transactional
     @Query("update MerchantClientId c set c.userId = :userId "
-            + "where c.merchant = :merchant and c.id.clientId = :clientId and c.userId is null")
+            + "where c.id.merchant = :merchant and c.id.clientId = :clientId and c.userId is null")
     int claim(@Param("merchant") Merchant merchant, @Param("clientId") String clientId,
               @Param("userId") String userId);
 }

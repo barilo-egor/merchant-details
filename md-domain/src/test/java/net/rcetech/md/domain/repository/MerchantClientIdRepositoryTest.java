@@ -31,14 +31,14 @@ class MerchantClientIdRepositoryTest extends AbstractDataJpaTest {
     void findByMerchantAndUserIdShouldReturnEmptyForUnknownUser() {
         repository.saveAndFlush(clientId(Merchant.CANPAY, "c1", null));
 
-        assertEquals(Optional.empty(), repository.findByMerchantAndUserId(Merchant.CANPAY, "u1"));
+        assertEquals(Optional.empty(), repository.findByIdMerchantAndUserId(Merchant.CANPAY, "u1"));
     }
 
     @Test
     void findByMerchantAndUserIdShouldReturnRowByUserId() {
         repository.saveAndFlush(clientId(Merchant.CANPAY, "c1", "u1"));
 
-        Optional<MerchantClientId> found = repository.findByMerchantAndUserId(Merchant.CANPAY, "u1");
+        Optional<MerchantClientId> found = repository.findByIdMerchantAndUserId(Merchant.CANPAY, "u1");
 
         assertTrue(found.isPresent());
         assertEquals("c1", found.get().getId().getClientId());
@@ -49,8 +49,8 @@ class MerchantClientIdRepositoryTest extends AbstractDataJpaTest {
         repository.saveAndFlush(clientId(Merchant.SMACK_PAY, "s1", "u1"));
         repository.saveAndFlush(clientId(Merchant.CANPAY, "c1", "u1"));
 
-        assertTrue(repository.findByMerchantAndUserId(Merchant.SMACK_PAY, "u1").isPresent());
-        assertTrue(repository.findByMerchantAndUserId(Merchant.CANPAY, "u1").isPresent());
+        assertTrue(repository.findByIdMerchantAndUserId(Merchant.SMACK_PAY, "u1").isPresent());
+        assertTrue(repository.findByIdMerchantAndUserId(Merchant.CANPAY, "u1").isPresent());
     }
 
     @Test
@@ -60,7 +60,7 @@ class MerchantClientIdRepositoryTest extends AbstractDataJpaTest {
         repository.saveAndFlush(clientId(Merchant.CANPAY, "c3", null));
 
         assertEquals("c2", repository
-                .findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc()
+                .findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(Merchant.CANPAY)
                 .orElseThrow().getId().getClientId());
     }
 

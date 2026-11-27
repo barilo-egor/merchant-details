@@ -44,7 +44,7 @@ class MerchantClientIdServiceTest {
     @ParameterizedTest
     @EnumSource(value = Merchant.class, names = {"SMACK_PAY", "CANPAY"})
     void findOrAssignShouldReturnExistingClientId(Merchant merchant) {
-        when(repository.findByMerchantAndUserId(merchant, "u1"))
+        when(repository.findByIdMerchantAndUserId(merchant, "u1"))
                 .thenReturn(Optional.of(clientId(merchant, "c1", "u1")));
 
         assertEquals(Optional.of("c1"), service.findOrAssign(merchant, "u1"));
@@ -54,8 +54,8 @@ class MerchantClientIdServiceTest {
     @ParameterizedTest
     @EnumSource(value = Merchant.class, names = {"SMACK_PAY", "CANPAY"})
     void findOrAssignShouldClaimFreeRow(Merchant merchant) {
-        when(repository.findByMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
-        when(repository.findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc())
+        when(repository.findByIdMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
+        when(repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant))
                 .thenReturn(Optional.of(clientId(merchant, "c1", null)));
         when(repository.claim(merchant, "c1", "u1")).thenReturn(1);
 
@@ -65,8 +65,8 @@ class MerchantClientIdServiceTest {
     @ParameterizedTest
     @EnumSource(value = Merchant.class, names = {"SMACK_PAY", "CANPAY"})
     void findOrAssignShouldRetryNextFreeRowWhenClaimLost(Merchant merchant) {
-        when(repository.findByMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
-        when(repository.findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc())
+        when(repository.findByIdMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
+        when(repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant))
                 .thenReturn(Optional.of(clientId(merchant, "c1", null)),
                         Optional.of(clientId(merchant, "c2", null)));
         when(repository.claim(merchant, "c1", "u1")).thenReturn(0);
@@ -78,8 +78,8 @@ class MerchantClientIdServiceTest {
     @ParameterizedTest
     @EnumSource(value = Merchant.class, names = {"SMACK_PAY", "CANPAY"})
     void findOrAssignShouldReturnEmptyWhenNoFreeRows(Merchant merchant) {
-        when(repository.findByMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
-        when(repository.findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc()).thenReturn(Optional.empty());
+        when(repository.findByIdMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty());
+        when(repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant)).thenReturn(Optional.empty());
 
         assertEquals(Optional.empty(), service.findOrAssign(merchant, "u1"));
     }
@@ -87,9 +87,9 @@ class MerchantClientIdServiceTest {
     @ParameterizedTest
     @EnumSource(value = Merchant.class, names = {"SMACK_PAY", "CANPAY"})
     void findOrAssignShouldReturnRowAssignedByAnotherInstance(Merchant merchant) {
-        when(repository.findByMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty(),
+        when(repository.findByIdMerchantAndUserId(merchant, "u1")).thenReturn(Optional.empty(),
                 Optional.of(clientId(merchant, "c1", "u1")));
-        when(repository.findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc())
+        when(repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant))
                 .thenReturn(Optional.of(clientId(merchant, "c2", null)));
         when(repository.claim(merchant, "c2", "u1")).thenThrow(new DuplicateKeyException("u1 уже записан"));
 

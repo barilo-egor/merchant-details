@@ -30,7 +30,7 @@ public class MerchantClientIdService {
         if (userId == null) {
             return Optional.empty();
         }
-        return repository.findByMerchantAndUserId(merchant, userId)
+        return repository.findByIdMerchantAndUserId(merchant, userId)
                 .map(row -> row.getId().getClientId())
                 .or(() -> claimFreeRow(merchant, userId));
     }
@@ -38,7 +38,7 @@ public class MerchantClientIdService {
     private Optional<String> claimFreeRow(Merchant merchant, String userId) {
         while (true) {
             Optional<MerchantClientId> free =
-                    repository.findFirstByMerchantAndUserIdIsNullOrderByIdClientIdAsc();
+                    repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant);
             if (free.isEmpty()) {
                 log.warn("Для userId {} в merchant_client_id ({}) не осталось свободных строк",
                         userId, merchant);
@@ -50,7 +50,7 @@ public class MerchantClientIdService {
                     return Optional.of(clientId);
                 }
             } catch (DuplicateKeyException e) {
-                return repository.findByMerchantAndUserId(merchant, userId)
+                return repository.findByIdMerchantAndUserId(merchant, userId)
                         .map(row -> row.getId().getClientId());
             }
         }

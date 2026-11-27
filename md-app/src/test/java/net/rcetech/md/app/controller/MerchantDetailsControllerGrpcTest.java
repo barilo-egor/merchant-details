@@ -32,6 +32,7 @@ import net.rcetech.md.domain.entity.MerchantConfig;
 import net.rcetech.md.domain.entity.Variable;
 import net.rcetech.md.meta.enums.ConfigType;
 import net.rcetech.md.app.mapper.MerchantConfigGrpcMapper;
+import net.rcetech.md.integrations.platform.PlatformRegistry;
 import net.rcetech.md.domain.service.MerchantConfigService;
 import net.rcetech.md.integrations.platform.PlatformService;
 import net.rcetech.md.domain.service.VariableService;
@@ -49,7 +50,7 @@ import static org.mockito.Mockito.*;
 
 @WebMvcTest(controllers = MerchantDetailsControllerGrpc.class)
 @ExtendWith(MockitoExtension.class)
-@Import(MerchantConfigGrpcMapper.class)
+@Import({MerchantConfigGrpcMapper.class, PlatformRegistry.class})
 class MerchantDetailsControllerGrpcTest {
 
     private static final SpelAwareProxyProjectionFactory PROJECTIONS = new SpelAwareProxyProjectionFactory();
