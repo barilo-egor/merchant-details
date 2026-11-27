@@ -6,7 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.constants.MerchantConstants;
+import net.rcetech.md.integrations.platform.PlatformRegistry;
 import net.rcetech.md.integrations.platform.bridgepay.Method;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
@@ -20,7 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RequestMethodServiceTest {
 
-    private static final RequestMethodService methodService = new RequestMethodService();
+    private static final PlatformRegistry platformRegistry = new PlatformRegistry();
+
+    private static final RequestMethodService methodService = new RequestMethodService(platformRegistry);
 
     @BeforeAll
     static void setUp() {
@@ -75,7 +77,7 @@ class RequestMethodServiceTest {
     void getMerchants_shouldReturnMerchantsWithRequestedMethod(RequestMethod requestMethod) {
         Set<Merchant> merchants = methodService.getMerchants(List.of(requestMethod));
         for (Merchant merchant : merchants) {
-            assertTrue(Arrays.stream(MerchantConstants.valueOf(merchant.name()).getMethods())
+            assertTrue(platformRegistry.methods(merchant).stream()
                     .anyMatch(method -> method.getRequestMethod().isPresent()
                             && method.getRequestMethod().get().equals(requestMethod)));
         }

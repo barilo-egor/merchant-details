@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import net.rcetech.md.app.grpc.generated.*;
-import net.rcetech.md.integrations.constants.MerchantConstants;
+import net.rcetech.md.integrations.platform.PlatformRegistry;
 import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.meta.projection.MerchantConfigProjection;
 import net.rcetech.md.meta.projection.MerchantSuccessStatusProjection;
@@ -16,6 +16,12 @@ import tgb.cryptoexchange.commons.enums.MerchantFamily;
 
 @Component
 public class MerchantConfigGrpcMapper {
+
+    private final PlatformRegistry platformRegistry;
+
+    public MerchantConfigGrpcMapper(PlatformRegistry platformRegistry) {
+        this.platformRegistry = platformRegistry;
+    }
 
     public MerchantConfigDTOGrpc mapToGrpcDto(MerchantConfigProjection dto) {
         MerchantConfigDTOGrpc.Builder builder = MerchantConfigDTOGrpc.newBuilder()
@@ -41,7 +47,7 @@ public class MerchantConfigGrpcMapper {
             builder.setGroupChatId(Int64Value.of(dto.getGroupChatId()));
         }
         if (dto.getMerchant() != null) {
-            builder.addAllStatuses(MerchantConstants.getStatuses(dto.getMerchant()).stream()
+            builder.addAllStatuses(platformRegistry.statuses(dto.getMerchant()).stream()
                     .map(s -> MerchantOrderStatusGrpc.newBuilder()
                             .setName(s.name())
                             .setDescription(s.getDescription())
@@ -54,7 +60,7 @@ public class MerchantConfigGrpcMapper {
                     .toList());
         }
         if (dto.getMerchant() != null) {
-            builder.addAllMethods(MerchantConstants.getMethods(dto.getMerchant()).stream()
+            builder.addAllMethods(platformRegistry.methods(dto.getMerchant()).stream()
                     .map(m -> MerchantMethodGrpc.newBuilder()
                             .setName(m.name())
                             .setDescription(m.getDescription())

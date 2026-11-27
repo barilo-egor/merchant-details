@@ -3,8 +3,8 @@ package net.rcetech.md.integrations.service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import tgb.cryptoexchange.commons.enums.Merchant;
-import net.rcetech.md.integrations.constants.MerchantConstants;
 import net.rcetech.md.integrations.platform.MerchantMethod;
+import net.rcetech.md.integrations.platform.PlatformRegistry;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 
@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 /**
  * Сервис для работы с категориями мерчантов({@link RequestMethod}).
+ * Данные берутся из {@link PlatformRegistry} (справочник + методы площадок);
+ * у площадки с несколькими методами одной категории выбор задан явно —
+ * порядок объявления констант enum'а на результат не влияет.
  */
 @Service
 public class RequestMethodService {
@@ -21,17 +24,40 @@ public class RequestMethodService {
 
     private final Map<RequestMethod, Set<Merchant>> merchants = new EnumMap<>(RequestMethod.class);
 
+    private final PlatformRegistry platformRegistry;
+
+    public RequestMethodService(PlatformRegistry platformRegistry) {
+        this.platformRegistry = platformRegistry;
+    }
+
     @PostConstruct
     public void init() {
-        for (MerchantConstants merchantConstant : MerchantConstants.values()) {
-            for (MerchantMethod merchantMethod : merchantConstant.getMethods()) {
-                if (merchantMethod.getRequestMethod().isPresent()) {
-                    merchantMethods.computeIfAbsent(
-                                    merchantMethod.getRequestMethod().get(),
-                                    m -> new EnumMap<>(Merchant.class)
-                            )
-                            .put(Merchant.valueOf(merchantConstant.name()), merchantMethod);
+        for (Merchant merchant : Merchant.values()) {
+            Map<RequestMethod, String> explicit = platformRegistry.explicitCategoryMethods(merchant);
+            Map<RequestMethod, List<String>> duplicatesWithoutExplicit = new EnumMap<>(RequestMethod.class);
+            for (MerchantMethod merchantMethod : platformRegistry.methods(merchant)) {
+                Optional<RequestMethod> requestMethod = merchantMethod.getRequestMethod();
+                if (requestMethod.isEmpty()) {
+                    continue;
                 }
+                RequestMethod category = requestMethod.get();
+                Map<Merchant, MerchantMethod> byMerchant = merchantMethods.computeIfAbsent(
+                        category, m -> new EnumMap<>(Merchant.class));
+                if (merchantMethod.name().equals(explicit.get(category))) {
+                    // Явное соответствие из реестра перекрывает любой порядок объявления.
+                    byMerchant.put(merchant, merchantMethod);
+                } else if (byMerchant.containsKey(merchant)) {
+                    duplicatesWithoutExplicit.computeIfAbsent(category, c -> new ArrayList<>())
+                            .add(merchantMethod.name());
+                } else {
+                    byMerchant.put(merchant, merchantMethod);
+                }
+            }
+            if (!duplicatesWithoutExplicit.isEmpty()) {
+                throw new IllegalStateException(
+                        "У мерчанта %s несколько методов одной категории без явного соответствия "
+                                + "(задайте explicitCategoryMethods в PlatformRegistry): %s".formatted(
+                                merchant, duplicatesWithoutExplicit));
             }
         }
         for (Map.Entry<RequestMethod, Map<Merchant, MerchantMethod>> entry : merchantMethods.entrySet()) {

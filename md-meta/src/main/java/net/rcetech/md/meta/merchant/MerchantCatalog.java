@@ -60,10 +60,30 @@ public enum MerchantCatalog {
     // --- evopay ---
     EVO_PAY(Platform.EVOPAY, FiatCurrency.RUB, "evo-pay"),
     // --- bridgepay ---
-    EXTASY_PAY(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay"),
-    EXTASY_PAY_PDF(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-pdf"),
-    EXTASY_PAY_QR_NSPK(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-qr-nspk"),
-    EXTASY_PAY_QR_VIET(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-qr-viet"),
+    EXTASY_PAY(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay") {
+        @Override
+        public java.util.List<String> methodNames() {
+            return java.util.List.of("SBP", "TO_CARD");
+        }
+    },
+    EXTASY_PAY_PDF(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-pdf") {
+        @Override
+        public java.util.List<String> methodNames() {
+            return java.util.List.of("SBP", "TO_CARD");
+        }
+    },
+    EXTASY_PAY_QR_NSPK(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-qr-nspk") {
+        @Override
+        public java.util.List<String> methodNames() {
+            return java.util.List.of("SBP_QR");
+        }
+    },
+    EXTASY_PAY_QR_VIET(Platform.BRIDGEPAY, FiatCurrency.RUB, "extasy-pay-qr-viet") {
+        @Override
+        public java.util.List<String> methodNames() {
+            return java.util.List.of("VIET_QR");
+        }
+    },
     // --- fiatcut ---
     FIAT_CUT(Platform.FIATCUT, FiatCurrency.RUB, "fiat-cut"),
     // --- gambit ---
@@ -196,6 +216,11 @@ public enum MerchantCatalog {
         for (MerchantCatalog entry : values()) {
             BY_MERCHANT.put(Merchant.valueOf(entry.name()), entry);
         }
+    }
+
+    /** Имена методов мерчанта, отличающиеся от всех методов площадки (подмножество); пусто — все методы площадки. */
+    public java.util.List<String> methodNames() {
+        return java.util.List.of();
     }
 
     /** Сумма от площадки приходит в минорных единицах (копейках) — делить на 100 при ответе. */
