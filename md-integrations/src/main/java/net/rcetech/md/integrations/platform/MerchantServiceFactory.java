@@ -41,6 +41,7 @@ import net.rcetech.md.integrations.properties.RSPayBTAccountProperties;
 import net.rcetech.md.integrations.properties.YoloAccountProperties;
 import net.rcetech.md.integrations.properties.PayBoxAccountProperties;
 import net.rcetech.md.integrations.service.ReceiptService;
+import net.rcetech.md.integrations.service.RequestService;
 import net.rcetech.md.integrations.service.SignatureService;
 import net.rcetech.md.integrations.service.SleepingService;
 import net.rcetech.md.meta.merchant.MerchantCatalog;
@@ -50,6 +51,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tgb.cryptoexchange.commons.enums.Merchant;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -74,23 +76,37 @@ public class MerchantServiceFactory {
 
     private final ReceiptService receiptService;
 
+    private final RequestService requestService;
+
+    private final ObjectMapper objectMapper;
+
     private final Map<String, RestClient> restClientsByPrefix = new ConcurrentHashMap<>();
 
     public MerchantServiceFactory(Environment environment, SignatureService signatureService,
                                   CallbackConfig callbackConfig, SleepingService sleepingService,
-                                  ReceiptService receiptService) {
+                                  ReceiptService receiptService, RequestService requestService,
+                                  ObjectMapper objectMapper) {
         this.environment = environment;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
         this.sleepingService = sleepingService;
         this.receiptService = receiptService;
+        this.requestService = requestService;
+        this.objectMapper = objectMapper;
     }
 
     /**
      * Сервис мерчанта, если площадка поддерживает аккаунты без собственного класса.
+     * Сервис создаётся через new вне Spring-контекста, поэтому зависимости,
+     * которые у Spring-бинов приходят через @Autowired-сеттеры базового класса
+     * ({@code RequestService}, {@code ObjectMapper}), инжектим здесь же.
      */
     public Optional<MerchantOrderCreationService> create(Merchant merchant) {
         MerchantCatalog catalog = MerchantCatalog.of(merchant);
+        return createService(catalog).map(this::injectDependencies);
+    }
+
+    private Optional<MerchantOrderCreationService> createService(MerchantCatalog catalog) {
         return switch (catalog.getPlatform()) {
             case BRIDGEPAY -> Optional.of(bridgePay(catalog));
             case LEVELPAY -> Optional.of(levelPay(catalog));
@@ -113,6 +129,12 @@ public class MerchantServiceFactory {
             case LOTRIEN -> lotrien(catalog);
             default -> Optional.empty();
         };
+    }
+
+    private MerchantOrderCreationService injectDependencies(MerchantOrderCreationService service) {
+        service.setRequestService(requestService);
+        service.setObjectMapper(objectMapper);
+        return service;
     }
 
     private BridgePayOrderCreationService bridgePay(MerchantCatalog catalog) {
