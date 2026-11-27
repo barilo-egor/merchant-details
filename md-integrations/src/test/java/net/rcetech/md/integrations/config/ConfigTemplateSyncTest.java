@@ -1,5 +1,6 @@
 package net.rcetech.md.integrations.config;
 
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -35,6 +36,10 @@ class ConfigTemplateSyncTest {
     @Test
     void everyPropertiesPrefixHasTemplateAndFixtureGroup() throws IOException {
         Set<String> prefixes = collectPrefixes();
+        // Префиксы справочника мерчантов привязываются фабрикой по префиксу — группа нужна и им тоже.
+        prefixes.addAll(java.util.Arrays.stream(MerchantCatalog.values())
+                .map(MerchantCatalog::getConfigPrefix)
+                .toList());
 
         Set<String> templateKeys = topLevelKeys(findRepoRoot().resolve("config_template/config.yml"));
         Set<String> fixtureKeys = topLevelKeys(Path.of("src/testFixtures/resources/integrations-test.yml"));
@@ -50,6 +55,9 @@ class ConfigTemplateSyncTest {
     @Test
     void everyTemplateAndFixtureGroupHasPropertiesPrefix() throws IOException {
         Set<String> prefixes = collectPrefixes();
+        prefixes.addAll(java.util.Arrays.stream(MerchantCatalog.values())
+                .map(MerchantCatalog::getConfigPrefix)
+                .toList());
 
         Set<String> templateKeys = topLevelKeys(findRepoRoot().resolve("config_template/config.yml"));
         Set<String> fixtureKeys = topLevelKeys(Path.of("src/testFixtures/resources/integrations-test.yml"));

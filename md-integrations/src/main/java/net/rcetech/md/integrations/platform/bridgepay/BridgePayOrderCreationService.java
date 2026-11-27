@@ -5,6 +5,7 @@ import net.rcetech.md.integrations.config.CallbackConfig;
 import net.rcetech.md.integrations.platform.CancelOrderRequest;
 import net.rcetech.md.integrations.platform.DetailsResponse;
 import net.rcetech.md.integrations.platform.MerchantOrderCreationService;
+import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.OrderCreationRequest;
 import net.rcetech.md.integrations.platform.PlatformCurrencies;
 import net.rcetech.md.integrations.properties.BridgePayProperties;
@@ -36,7 +37,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
-public abstract class BridgePayOrderCreationService extends MerchantOrderCreationService<Response, BridgeCallback> {
+public class BridgePayOrderCreationService extends MerchantOrderCreationService<Response, BridgeCallback> {
+
+    private final Merchant merchant;
 
     private final BridgePayProperties bridgePayProperties;
 
@@ -46,14 +49,21 @@ public abstract class BridgePayOrderCreationService extends MerchantOrderCreatio
 
     private final SleepingService sleepingService;
 
-    protected BridgePayOrderCreationService(RestClient restClient, BridgePayProperties bridgePayProperties,
+    public BridgePayOrderCreationService(Merchant merchant, RestClient restClient,
+                                            BridgePayProperties bridgePayProperties,
                                             SignatureService signatureService, CallbackConfig callbackConfig,
                                             SleepingService sleepingService) {
         super(restClient, Response.class, BridgeCallback.class);
+        this.merchant = merchant;
         this.bridgePayProperties = bridgePayProperties;
         this.signatureService = signatureService;
         this.callbackConfig = callbackConfig;
         this.sleepingService = sleepingService;
+    }
+
+    @Override
+    public Merchant getMerchant() {
+        return merchant;
     }
 
     @Override

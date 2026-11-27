@@ -13,10 +13,14 @@ public class MerchantServiceRegistry {
 
     private final Map<Merchant, MerchantService> serviceMap;
 
-    public MerchantServiceRegistry(List<MerchantService> services) {
+    public MerchantServiceRegistry(List<MerchantService> services, MerchantServiceFactory factory) {
         serviceMap = new EnumMap<>(Merchant.class);
         for (MerchantService service : services) {
             serviceMap.put(service.getMerchant(), service);
+        }
+        // Аккаунты без собственного класса создаются фабрикой из справочника мерчантов.
+        for (Merchant merchant : Merchant.values()) {
+            factory.create(merchant).ifPresent(service -> serviceMap.putIfAbsent(merchant, service));
         }
     }
 

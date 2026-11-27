@@ -34,30 +34,14 @@ public class RestClientsConfig {
                                 .withStringConverter(new StringHttpMessageConverter(StandardCharsets.UTF_8)));
     }
 
-    @Bean
-    public RestClient alfaTeamRestClient(AlfaTeamProperties alfaTeamProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(alfaTeamProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient alfaTeamWTRestClient(AlfaTeamWTProperties alfaTeamWTProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(alfaTeamWTProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient alfaTeamQRRestClient(AlfaTeamQRProperties alfaTeamQRProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(alfaTeamQRProperties.url()).build();
-    }
 
     @Bean
     public RestClient geoTransferRestClient(GeoTransferProperties geoTransferProperties) {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(geoTransferProperties.url()).build();
     }
 
-    @Bean
-    public RestClient rostrastRestClient(RostrastProperties rostrastProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(rostrastProperties.url()).build();
-    }
 
     @Bean
     public RestClient bitZoneRestClient(BitZoneProperties bitZoneProperties) {
@@ -79,25 +63,9 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(evoPayProperties.url()).build();
     }
 
-    @Bean
-    public RestClient extasyPayRestClient(ExtasyPayProperties extasyPayProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient extasyPayPdfRestClient(ExtasyPayPdfProperties extasyPayPdfProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayPdfProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient extasyPayQrNspkRestClient(ExtasyPayQrNspkProperties extasyPayQrNspkProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayQrNspkProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient extasyPayQrVietRestClient(ExtasyPayQrVietProperties extasyPayQrVietProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(extasyPayQrVietProperties.url()).build();
-    }
 
     @Bean
     public RestClient pwPayRestClient(PwPayProperties pwPayProperties) {
@@ -150,15 +118,7 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(payLeeProperties.url()).build();
     }
 
-    @Bean
-    public RestClient stormTrade13RestClient(StormTrade13Properties stormTrade13Properties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(stormTrade13Properties.url()).build();
-    }
 
-    @Bean
-    public RestClient stormTradeRestClient(StormTradeProperties stormTradeProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(stormTradeProperties.url()).build();
-    }
 
     @Bean
     public RestClient settleXRestClient(SettleXPropertiesImpl settleXProperties) {
@@ -260,25 +220,9 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(asgardProperties.url()).build();
     }
 
-    @Bean
-    public RestClient deoraRestClient(DeoraProperties deoraProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(deoraProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient deoraSimRestClient(DeoraSimProperties deoraProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(deoraProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient deoraLowCheckRestClient(DeoraLowCheckProperties deoraProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(deoraProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient deoraPdfRestClient(DeoraPdfProperties deoraProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(deoraProperties.url()).build();
-    }
 
     @Bean
     public RestClient meridianPayRestClient(MeridianPayProperties meridianPayProperties) {
@@ -305,25 +249,9 @@ public class RestClientsConfig {
         return get30SecondsReadTimeoutRestClientBuilder().baseUrl(meridianPayProperties.url()).build();
     }
 
-    @Bean
-    public RestClient souzRestClient(SouzProperties souzProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(souzProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient souzSbpQrRestClient(SouzSbpQrProperties souzProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(souzProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient souzSimRestClient(SouzSimProperties souzProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(souzProperties.url()).build();
-    }
 
-    @Bean
-    public RestClient souzPdfRestClient(SouzPdfProperties souzProperties) {
-        return get30SecondsReadTimeoutRestClientBuilder().baseUrl(souzProperties.url()).build();
-    }
 
     @Bean
     public RestClient base51RestClient(Base51Properties base51Properties) {

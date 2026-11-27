@@ -21,7 +21,7 @@ public class OnyxPayMerchantCreationService extends BridgePayOrderCreationServic
     protected OnyxPayMerchantCreationService(@Qualifier("onyxPayRestClient") RestClient restClient,
                                              OnyxPayProperties onyxPayProperties, SignatureService signatureService,
                                              CallbackConfig callbackConfig, SleepingService sleepingService) {
-        super(restClient, onyxPayProperties, signatureService, callbackConfig, sleepingService);
+        super(Merchant.ONYX_PAY, restClient, onyxPayProperties, signatureService, callbackConfig, sleepingService);
         this.onyxPayProperties = onyxPayProperties;
     }
 

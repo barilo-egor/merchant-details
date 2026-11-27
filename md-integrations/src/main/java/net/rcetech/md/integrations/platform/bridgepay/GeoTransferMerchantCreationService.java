@@ -19,7 +19,7 @@ public class GeoTransferMerchantCreationService extends BridgePayOrderCreationSe
     protected GeoTransferMerchantCreationService(@Qualifier("geoTransferRestClient") RestClient restClient,
                                                  GeoTransferProperties geoTransferProperties, SignatureService signatureService,
                                                  CallbackConfig callbackConfig, SleepingService sleepingService) {
-        super(restClient, geoTransferProperties, signatureService, callbackConfig, sleepingService);
+        super(Merchant.GEO_TRANSFER, restClient, geoTransferProperties, signatureService, callbackConfig, sleepingService);
         this.geoTransferProperties = geoTransferProperties;
     }
 
