@@ -57,6 +57,9 @@ public class ApiMerchantConfigGrpcMapper {
         if (grpcRequest.hasOwnerFiatCurrency()) {
             request.setOwnerFiatCurrency(grpcRequest.getOwnerFiatCurrency());
         }
+        if (grpcRequest.hasOwnerId()) {
+            request.setOwnerId(grpcRequest.getOwnerId());
+        }
         return request;
     }
 

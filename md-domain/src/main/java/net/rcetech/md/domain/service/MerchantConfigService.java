@@ -16,6 +16,7 @@ import net.rcetech.md.domain.entity.AutoConfirmConfig;
 import net.rcetech.md.domain.entity.MerchantConfig;
 import net.rcetech.md.domain.entity.MerchantSuccessStatus;
 import net.rcetech.md.meta.enums.RequiredReceipt;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.meta.exception.BadRequestException;
 import net.rcetech.md.meta.exception.MerchantConfigNotFoundException;
 import net.rcetech.md.domain.repository.AutoConfirmConfigRepository;
@@ -62,8 +63,8 @@ public class MerchantConfigService {
                         .isOn(false)
                         .merchant(merchant)
                         .isAutoWithdrawalOn(false)
-                        .maxAmount(5000)
-                        .minAmount(1)
+                        .maxAmount(MerchantCatalog.of(merchant).getCurrency().getDefaultMaxAmount())
+                        .minAmount(MerchantCatalog.of(merchant).getCurrency().getDefaultMinAmount())
                         .merchantOrder(Objects.nonNull(maxValue) ? maxValue + 1 : 1)
                         .minDealsCount(0)
                         .requiredReceipt(RequiredReceipt.NOT_REQUIRED)

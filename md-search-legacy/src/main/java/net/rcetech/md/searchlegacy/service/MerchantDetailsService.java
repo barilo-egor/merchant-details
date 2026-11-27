@@ -79,7 +79,6 @@ public class MerchantDetailsService {
                     .redirectUrl(request.getRedirectUrl())
                     .phone(request.getPhone())
                     .requiredReceipt(requiredReceipt)
-                    .currency(MerchantCatalog.of(merchant).getCurrency())
                     .build();
             Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
             if (maybeDetailsResponse.isPresent()) {
@@ -148,6 +147,10 @@ public class MerchantDetailsService {
      */
     private List<MerchantConfig> filterByCurrency(List<MerchantConfig> merchantConfigList, BotDetailsRequest request) {
         FiatCurrency fiatCurrency = parseFiatCurrency(request);
+        if (fiatCurrency == null) {
+            // Валюты нет в справочнике md (например BYN/UAH) — мерчантов под неё нет.
+            return List.of();
+        }
         List<MerchantConfig> filtered = merchantConfigList.stream()
                 .filter(config -> MerchantCatalog.of(config.getMerchant()).getCurrency() == fiatCurrency)
                 .toList();
@@ -174,8 +177,9 @@ public class MerchantDetailsService {
         try {
             return FiatCurrency.valueOf(request.getFiatCurrency().trim());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "Неизвестная валюта сделки '" + request.getFiatCurrency() + "' для сделки " + request.getId());
+            log.warn("Неизвестная валюта сделки '{}' для сделки {}: реквизиты не ищутся",
+                    request.getFiatCurrency(), request.getId());
+            return null;
         }
     }
 

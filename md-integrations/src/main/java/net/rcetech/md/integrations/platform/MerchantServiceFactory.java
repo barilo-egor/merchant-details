@@ -188,9 +188,6 @@ public class MerchantServiceFactory {
      * по url группы rs-pay (так же работал общий бин rsPayRestClient).
      */
     private Optional<MerchantOrderCreationService> rsPayBt(MerchantCatalog catalog) {
-        if (Merchant.RS_PAY.name().equals(catalog.name())) {
-            return Optional.empty();
-        }
         RSPayBTAccountProperties properties = bind(catalog, RSPayBTAccountProperties.class);
         String rsPayPrefix = MerchantCatalog.RS_PAY.getConfigPrefix();
         String url = environment.getProperty(rsPayPrefix + ".url");
@@ -221,9 +218,6 @@ public class MerchantServiceFactory {
      * (так же работал общий бин tronExRestClient).
      */
     private Optional<MerchantOrderCreationService> tronEx(MerchantCatalog catalog) {
-        if (Merchant.TRON_EX_DEEP_LINK.name().equals(catalog.name())) {
-            return Optional.empty();
-        }
         TronExAccountProperties properties = bind(catalog, TronExAccountProperties.class);
         String simPrefix = MerchantCatalog.TRON_EX_SIM.getConfigPrefix();
         String url = environment.getProperty(simPrefix + ".url");
@@ -267,9 +261,6 @@ public class MerchantServiceFactory {
 
     /** LOTRIEN_PDF живёт собственным классом LotrienPDFOrderCreationService (override sendReceipt()). */
     private Optional<MerchantOrderCreationService> lotrien(MerchantCatalog catalog) {
-        if (Merchant.LOTRIEN_PDF.name().equals(catalog.name())) {
-            return Optional.empty();
-        }
         LotrienAccountProperties properties = bind(catalog, LotrienAccountProperties.class, LotrienAccountProperties::url);
         return Optional.of(new LotrienOrderCreationService(Merchant.valueOf(catalog.name()),
                 restClient(catalog, properties.url()), properties));

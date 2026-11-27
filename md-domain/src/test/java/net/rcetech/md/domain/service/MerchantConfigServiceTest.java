@@ -62,6 +62,28 @@ class MerchantConfigServiceTest {
     }
 
     @Test
+    void initShouldCreateConfigsWithLimitsFromCatalogCurrency() {
+        // Лимиты нового конфига — масштаб валюты мерчанта из справочника,
+        // а не рублёвые литералы: KZT-мерчант не должен создаваться с 1..5000.
+        when(merchantConfigRepository.findBy(
+                Mockito.<Example<MerchantConfig>>any(),
+                Mockito.<Function<FluentQuery.FetchableFluentQuery<MerchantConfig>, Optional<MerchantConfig>>>any()))
+                .thenReturn(Optional.empty());
+        when(merchantConfigRepository.findMaxMerchantOrder()).thenReturn(1);
+        ArgumentCaptor<MerchantConfig> captor = ArgumentCaptor.forClass(MerchantConfig.class);
+        merchantConfigService.init();
+        verify(merchantConfigRepository, times(Merchant.values().length)).save(captor.capture());
+        List<MerchantConfig> saved = captor.getAllValues();
+        for (MerchantConfig config : saved) {
+            var currency = net.rcetech.md.meta.merchant.MerchantCatalog.of(config.getMerchant()).getCurrency();
+            assertEquals(currency.getDefaultMaxAmount(), config.getMaxAmount(),
+                    "Максимальный лимит " + config.getMerchant() + " должен быть из " + currency);
+            assertEquals(currency.getDefaultMinAmount(), config.getMinAmount(),
+                    "Минимальный лимит " + config.getMerchant() + " должен быть из " + currency);
+        }
+    }
+
+    @Test
     void initShouldNotCreate() {
         when(merchantConfigRepository.findBy(
                 Mockito.<Example<MerchantConfig>>any(),

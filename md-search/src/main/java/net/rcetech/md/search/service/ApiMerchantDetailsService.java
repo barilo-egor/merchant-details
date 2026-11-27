@@ -170,7 +170,6 @@ public class ApiMerchantDetailsService {
                         .userId(request.getUserId())
                         .method(merchantMethod)
                         .requiredReceipt(RequiredReceipt.NOT_REQUIRED)
-                        .currency(MerchantCatalog.of(merchant).getCurrency())
                         .build();
                 Optional<DetailsResponse> maybeDetailsResponse = maybeCreationService.get().createOrder(orderRequest);
                 if (maybeDetailsResponse.isPresent()) {

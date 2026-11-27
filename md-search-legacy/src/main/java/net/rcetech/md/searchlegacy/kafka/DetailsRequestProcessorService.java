@@ -55,6 +55,7 @@ public class DetailsRequestProcessorService {
                     detailsResponseKafkaTemplate.send(detailsResponseFoundTopic, result.getRequestId(), result);
                 }
             } catch (Exception e) {
+                log.error("Ошибка поиска реквизитов для requestId={}: {}", detailsRequest.getRequestId(), e.getMessage(), e);
                 result = new DetailsResponse();
                 result.setRequestId(detailsRequest.getRequestId());
                 detailsResponseKafkaTemplate.send(detailsResponseFoundTopic, result.getRequestId(), result);

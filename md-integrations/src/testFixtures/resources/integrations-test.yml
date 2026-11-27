@@ -384,11 +384,9 @@ hell-bit:
   token: "hell-bit-token"
   sign-key: "hell-bit-sign-key"
 hell-bit-bt:
-  url: "hell-bit-bt-url"
   token: "hell-bit-bt-token"
   sign-key: "hell-bit-bt-sign-key"
 hell-bit-receipt:
-  url: "hell-bit-receipt-url"
   token: "hell-bit-receipt-token"
   sign-key: "hell-bit-receipt-sign-key"
 callback-secret: test-callback-secret

@@ -23,7 +23,6 @@ import net.rcetech.md.integrations.platform.bridgepay.Method;
 import net.rcetech.md.domain.entity.MerchantConfig;
 import net.rcetech.md.domain.entity.Variable;
 import net.rcetech.md.meta.enums.ConfigType;
-import net.rcetech.md.meta.enums.FiatCurrency;
 import net.rcetech.md.searchlegacy.kafka.MerchantDetailsReceiveEventProducer;
 
 import java.util.*;
@@ -104,6 +103,21 @@ class MerchantDetailsServiceTest {
     }
 
     @Test
+    void getDetailsShouldReturnEmptyForUnknownCurrencyWithoutException() {
+        BotDetailsRequest detailsRequest = new BotDetailsRequest();
+        List<BotDetailsRequest.MerchantMethod> merchantMethods = new ArrayList<>();
+        merchantMethods.add(BotDetailsRequest.MerchantMethod.builder().merchant(Merchant.ALFA_TEAM).methods(Collections.singletonList(Method.TO_CARD.name())).build());
+        detailsRequest.setMethods(merchantMethods);
+        detailsRequest.setAmount(1000);
+        detailsRequest.setInitiatorApp("bot");
+        detailsRequest.setFiatCurrency("BYN"); // валюты нет в справочнике md
+        when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
+                .thenReturn(Variable.builder().type(VariableType.ATTEMPTS_COUNT).value("3").build());
+
+        assertTrue(merchantDetailsService.getDetails(detailsRequest).isEmpty());
+    }
+
+    @Test
     void getDetailsShouldReturnEmptyOptionalIfNoMerchantConfigs() {
         when(merchantConfigService.findAllByMerchantsAndAmount(any(), anyInt())).thenReturn(new ArrayList<>());
         when(variableService.findByTypeAndConfigType(VariableType.ATTEMPTS_COUNT, ConfigType.BOT))
@@ -125,7 +139,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -157,7 +170,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -221,7 +233,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -260,7 +271,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -312,7 +322,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -360,7 +369,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -417,7 +425,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -471,7 +478,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 
@@ -531,7 +537,6 @@ class MerchantDetailsServiceTest {
         detailsRequest.setInitiatorApp("bot");
 
         OrderCreationRequest creationRequest = new OrderCreationRequest();
-        creationRequest.setCurrency(FiatCurrency.RUB);
         creationRequest.setMethod("TO_CARD");
         creationRequest.setAmount(1000);
 

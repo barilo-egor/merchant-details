@@ -72,6 +72,26 @@ class RequestMethodServiceTest {
                 methodService.getMerchantMethod(null, RequestMethod.CARD));
     }
 
+    @Test
+    void getMerchantMethod_shouldReturnExplicitPayboxReceiptMethod() {
+        // paybox: категории CARD/SBP соответствуют версии с чеками — задано явно,
+        // не «последним методом в enum».
+        assertEquals("CARD_RECEIPT", methodService.getMerchantMethod(Merchant.PW_PAY, RequestMethod.CARD));
+        assertEquals("SBP_RECEIPT", methodService.getMerchantMethod(Merchant.PW_PAY, RequestMethod.SBP));
+    }
+
+    @Test
+    void getMerchantMethods_shouldThrowNotFoundIfMerchantHasNoMethodForCategory() {
+        // Мерчант без метода категории CARD: исключение вместо NPE.
+        Merchant withoutCard = java.util.Arrays.stream(Merchant.values())
+                .filter(m -> platformRegistry.methods(m).stream()
+                        .noneMatch(m2 -> m2.getRequestMethod().isPresent()
+                                && m2.getRequestMethod().get() == RequestMethod.CARD))
+                .findFirst().orElseThrow();
+        assertThrows(MerchantMethodNotFoundException.class,
+                () -> methodService.getMerchantMethods(withoutCard, List.of(RequestMethod.CARD)));
+    }
+
     @ParameterizedTest
     @EnumSource(RequestMethod.class)
     void getMerchants_shouldReturnMerchantsWithRequestedMethod(RequestMethod requestMethod) {

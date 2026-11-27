@@ -6,6 +6,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 import net.rcetech.md.integrations.platform.MerchantMethod;
 import net.rcetech.md.integrations.platform.PlatformRegistry;
 import net.rcetech.md.meta.detailsapi.enums.RequestMethod;
+import net.rcetech.md.meta.merchant.MerchantCatalog;
 import net.rcetech.md.meta.exception.MerchantMethodNotFoundException;
 
 import java.util.*;
@@ -35,6 +36,7 @@ public class RequestMethodService {
         for (Merchant merchant : Merchant.values()) {
             Map<RequestMethod, String> explicit = platformRegistry.explicitCategoryMethods(merchant);
             Map<RequestMethod, List<String>> duplicatesWithoutExplicit = new EnumMap<>(RequestMethod.class);
+            Set<RequestMethod> explicitFound = EnumSet.noneOf(RequestMethod.class);
             for (MerchantMethod merchantMethod : platformRegistry.methods(merchant)) {
                 Optional<RequestMethod> requestMethod = merchantMethod.getRequestMethod();
                 if (requestMethod.isEmpty()) {
@@ -43,9 +45,13 @@ public class RequestMethodService {
                 RequestMethod category = requestMethod.get();
                 Map<Merchant, MerchantMethod> byMerchant = merchantMethods.computeIfAbsent(
                         category, m -> new EnumMap<>(Merchant.class));
-                if (merchantMethod.name().equals(explicit.get(category))) {
-                    // Явное соответствие из реестра перекрывает любой порядок объявления.
-                    byMerchant.put(merchant, merchantMethod);
+                if (explicit.containsKey(category)) {
+                    // Явное соответствие: для категории участвует только указанный метод,
+                    // независимо от порядка объявления enum'а.
+                    if (merchantMethod.name().equals(explicit.get(category))) {
+                        byMerchant.put(merchant, merchantMethod);
+                        explicitFound.add(category);
+                    }
                 } else if (byMerchant.containsKey(merchant)) {
                     duplicatesWithoutExplicit.computeIfAbsent(category, c -> new ArrayList<>())
                             .add(merchantMethod.name());
@@ -53,10 +59,18 @@ public class RequestMethodService {
                     byMerchant.put(merchant, merchantMethod);
                 }
             }
+            Set<RequestMethod> notFound = explicit.isEmpty() ? EnumSet.noneOf(RequestMethod.class) : EnumSet.copyOf(explicit.keySet());
+            notFound.removeAll(explicitFound);
+            if (!notFound.isEmpty()) {
+                throw new IllegalStateException(
+                        ("Явные методы %s для мерчанта %s не найдены среди методов площадки %s "
+                                + "(проверьте explicitCategoryMethods в PlatformRegistry)").formatted(
+                                notFound, merchant, MerchantCatalog.of(merchant).getPlatform()));
+            }
             if (!duplicatesWithoutExplicit.isEmpty()) {
                 throw new IllegalStateException(
-                        "У мерчанта %s несколько методов одной категории без явного соответствия "
-                                + "(задайте explicitCategoryMethods в PlatformRegistry): %s".formatted(
+                        ("У мерчанта %s несколько методов одной категории без явного соответствия "
+                                + "(задайте explicitCategoryMethods в PlatformRegistry): %s").formatted(
                                 merchant, duplicatesWithoutExplicit));
             }
         }
@@ -75,7 +89,7 @@ public class RequestMethodService {
     public List<String> getMerchantMethods(Merchant merchant, List<RequestMethod> requestMethods) {
         List<String> methods = new ArrayList<>();
         for (RequestMethod requestMethod : requestMethods) {
-            methods.add(merchantMethods.get(requestMethod).get(merchant).name());
+            methods.add(getMerchantMethod(merchant, requestMethod));
         }
         return methods;
     }

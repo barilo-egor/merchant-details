@@ -35,8 +35,11 @@ public class MerchantClientIdService {
                 .or(() -> claimFreeRow(merchant, userId));
     }
 
+    /** Верхняя граница попыток занятия строки: защита от бесконечного цикла при аномалиях изоляции. */
+    private static final int MAX_CLAIM_ATTEMPTS = 10;
+
     private Optional<String> claimFreeRow(Merchant merchant, String userId) {
-        while (true) {
+        for (int attempt = 1; attempt <= MAX_CLAIM_ATTEMPTS; attempt++) {
             Optional<MerchantClientId> free =
                     repository.findFirstByIdMerchantAndUserIdIsNullOrderByIdClientIdAsc(merchant);
             if (free.isEmpty()) {
@@ -54,5 +57,8 @@ public class MerchantClientIdService {
                         .map(row -> row.getId().getClientId());
             }
         }
+        log.error("Не удалось занять строку client_id для userId {} ({}) за {} попыток",
+                userId, merchant, MAX_CLAIM_ATTEMPTS);
+        return Optional.empty();
     }
 }

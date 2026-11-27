@@ -57,6 +57,8 @@ message UpdateApiMerchantConfigItemGrpc {
   google.protobuf.BoolValue swap = 6;
   // Валюта владельца конфига (API-клиента); пусто — проверка валюты не выполняется
   optional string owner_fiat_currency = 7;
+  // Владелец конфига: проверка принадлежности конфига владельцу
+  optional string owner_id = 8;
 }
 
 message FindAllApiMerchantConfigsRequestGrpc {

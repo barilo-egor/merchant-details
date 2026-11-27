@@ -12,5 +12,6 @@ insert into merchant_client_id (client_id, merchant, user_id)
     select client_id, 'SMACK_PAY', user_id from smack_pay_client_id;
 insert into merchant_client_id (client_id, merchant, user_id)
     select client_id, 'CANPAY', user_id from can_pay_client_id;
-drop table smack_pay_client_id;
-drop table can_pay_client_id;
+-- Старые таблицы пока НЕ удаляются (expand-contract): откат релиза требует их
+-- на месте, пока прежний код читает smack_pay_client_id/can_pay_client_id.
+-- Удалить отдельной миграцией следующего релиза после стабилизации на проде.

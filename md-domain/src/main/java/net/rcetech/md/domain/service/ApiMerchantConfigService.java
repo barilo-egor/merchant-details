@@ -80,6 +80,7 @@ public class ApiMerchantConfigService {
         ApiMerchantConfig merchantConfig = repository.findById(dto.getId())
                 .orElseThrow(() -> new MerchantConfigNotFoundException(
                         "Configuration for merchant with id %d not found".formatted(dto.getId())));
+        requireOwnerMatchesConfig(merchantConfig, dto.getOwnerId());
         if (Boolean.TRUE.equals(dto.getIsOn())) {
             requireCurrencyMatchesOwner(merchantConfig, dto.getOwnerFiatCurrency());
         }
@@ -101,6 +102,22 @@ public class ApiMerchantConfigService {
         }
         repository.save(merchantConfig);
         return repository.findDtoById(dto.getId()).orElseThrow();
+    }
+
+    /**
+     * Конфиг должен принадлежать переданному владельцу: иначе передав чужой ownerId
+     * с его валютой, можно обойти проверку валюты и менять настройки чужого клиента.
+     * ownerId не передан (старый processing) — проверка не выполняется.
+     */
+    private void requireOwnerMatchesConfig(ApiMerchantConfig config, String ownerId) {
+        if (ownerId == null || ownerId.isBlank()) {
+            return;
+        }
+        if (!config.getOwnerId().toString().equals(ownerId.trim())) {
+            throw new IllegalArgumentException(
+                    "Конфигурация %d принадлежит владельцу %s, а не %s".formatted(
+                            config.getId(), config.getOwnerId(), ownerId));
+        }
     }
 
     /**

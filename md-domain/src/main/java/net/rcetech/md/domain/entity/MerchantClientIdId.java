@@ -15,7 +15,7 @@ import tgb.cryptoexchange.commons.enums.Merchant;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class MerchantClientIdId {
+public class MerchantClientIdId implements java.io.Serializable {
 
     @Column(name = "client_id")
     private String clientId;

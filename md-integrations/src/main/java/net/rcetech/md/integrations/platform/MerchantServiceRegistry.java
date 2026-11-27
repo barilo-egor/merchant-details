@@ -19,8 +19,12 @@ public class MerchantServiceRegistry {
             serviceMap.put(service.getMerchant(), service);
         }
         // Аккаунты без собственного класса создаются фабрикой из справочника мерчантов.
+        // Свой @Service-бин всегда приоритетнее: фабрика вызывается только для незакрытых мерчантов,
+        // чтобы не требовать группы конфига у мерчантов, чьи свойства биндятся своими бинами.
         for (Merchant merchant : Merchant.values()) {
-            factory.create(merchant).ifPresent(service -> serviceMap.putIfAbsent(merchant, service));
+            if (!serviceMap.containsKey(merchant)) {
+                factory.create(merchant).ifPresent(service -> serviceMap.put(merchant, service));
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import net.rcetech.md.domain.AbstractDataJpaTest;
 import org.springframework.context.annotation.Import;
 import net.rcetech.md.meta.dto.ApiMerchantConfigDTO;
 import net.rcetech.md.meta.dto.UpdateApiMerchantConfigDTO;
+import net.rcetech.md.meta.exception.MerchantCurrencyMismatchException;
 import net.rcetech.md.domain.repository.ApiMerchantConfigRepository;
 
 import java.util.List;
@@ -75,5 +76,37 @@ class ApiMerchantConfigServiceIntegrationTest extends AbstractDataJpaTest {
 
         assertEquals(other.merchantOrder(), updated.merchantOrder());
         assertEquals(target.merchantOrder(), repository.findDtoById(other.id()).orElseThrow().merchantOrder());
+    }
+
+    @Test
+    void updateShouldRejectConfigOfAnotherOwner() {
+        UUID owner = UUID.randomUUID();
+        ApiMerchantConfigDTO target = service.findAllAndCreateIfNotExist(owner).getFirst();
+        UpdateApiMerchantConfigDTO dto = new UpdateApiMerchantConfigDTO();
+        dto.setId(target.id());
+        dto.setOwnerId(UUID.randomUUID().toString()); // чужой владелец — обход валютной проверки
+        dto.setIsOn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> service.update(dto));
+        assertFalse(repository.findDtoById(target.id()).orElseThrow().isOn());
+    }
+
+    @Test
+    void updateShouldAcceptOwnOwnerAndRejectForeignCurrency() {
+        UUID owner = UUID.randomUUID();
+        ApiMerchantConfigDTO target = service.findAllAndCreateIfNotExist(owner).getFirst();
+
+        UpdateApiMerchantConfigDTO own = new UpdateApiMerchantConfigDTO();
+        own.setId(target.id());
+        own.setOwnerId(owner.toString());
+        own.setIsOn(true);
+        assertDoesNotThrow(() -> service.update(own));
+
+        UpdateApiMerchantConfigDTO foreign = new UpdateApiMerchantConfigDTO();
+        foreign.setId(target.id());
+        foreign.setOwnerId(owner.toString());
+        foreign.setOwnerFiatCurrency("KZT"); // все мерчанты справочника — RUB
+        foreign.setIsOn(true);
+        assertThrows(MerchantCurrencyMismatchException.class, () -> service.update(foreign));
     }
 }

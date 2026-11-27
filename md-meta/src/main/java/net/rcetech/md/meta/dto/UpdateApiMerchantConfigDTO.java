@@ -22,4 +22,7 @@ public class UpdateApiMerchantConfigDTO {
     /** Валюта владельца конфига (API-клиента); пусто — проверка валюты не выполняется. */
     private String ownerFiatCurrency;
 
+    /** Владелец конфига: конфиг должен принадлежать этому ownerId, иначе обновление отклоняется. */
+    private String ownerId;
+
 }
